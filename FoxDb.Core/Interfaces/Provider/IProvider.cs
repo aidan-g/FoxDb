@@ -4,8 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface IProvider
     {
-        IDbConnection CreateConnection();
+        IDbConnection CreateConnection(IDatabase database);
 
-        IDatabaseQueryFactory QueryFactory { get; }
+        IDatabaseQueryFactory CreateQueryFactory(IDatabase database);
     }
 }

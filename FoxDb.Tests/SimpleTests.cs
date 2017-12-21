@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,12 @@ using System.Threading.Tasks;
 namespace FoxDb
 {
     [TestFixture]
-    public class SimpleTests
+    public class SimpleTests : TestBase
     {
         [Test]
         public void CanAddUpdateDelete()
         {
-            var provider = new SQLiteProvider("test.db");
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
             database.Config.Table<Test001>().UseDefaultColumns();
             using (var transaction = database.Connection.BeginTransaction())

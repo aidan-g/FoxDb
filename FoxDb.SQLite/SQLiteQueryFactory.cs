@@ -1,16 +1,17 @@
 ﻿using FoxDb.Interfaces;
+using FoxDb.Templates;
 using System;
 
 namespace FoxDb
 {
     public class SQLiteQueryFactory : IDatabaseQueryFactory
     {
-        public SQLiteQueryFactory(IProvider provider)
+        public SQLiteQueryFactory(IDatabase database)
         {
-            this.Provider = provider;
+            this.Database = database;
         }
 
-        public IProvider Provider { get; private set; }
+        public IDatabase Database { get; private set; }
 
         public IDatabaseQuery Count<T>(params string[] filters)
         {
@@ -19,7 +20,9 @@ namespace FoxDb
 
         public IDatabaseQuery Delete<T>()
         {
-            throw new NotImplementedException();
+            var table = this.Database.Config.Table<T>();
+            var delete = new Delete(table.Name, table.Key.Name);
+            return new DatabaseQuery(delete.TransformText(), table.Key.Name);
         }
 
         public IDatabaseQuery First<T>(params string[] filters)
@@ -34,7 +37,9 @@ namespace FoxDb
 
         public IDatabaseQuery Select<T>(params string[] filters)
         {
-            throw new NotImplementedException();
+            var table = this.Database.Config.Table<T>();
+            var select = new Select(table.Name, filters);
+            return new DatabaseQuery(select.TransformText(), filters);
         }
 
         public IDatabaseQuery Update<T>()

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.SQLite;
+using System.IO;
 using FoxDb.Interfaces;
 
 namespace FoxDb
@@ -23,16 +24,17 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseQueryFactory QueryFactory
+        public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
         {
-            get
-            {
-                return new SQLiteQueryFactory(this);
-            }
+            return new SQLiteQueryFactory(database);
         }
 
-        public IDbConnection CreateConnection()
+        public IDbConnection CreateConnection(IDatabase database)
         {
+            if (!File.Exists(this.FileName))
+            {
+                SQLiteConnection.CreateFile(this.FileName);
+            }
             return new SQLiteConnection(this.ConnectionString);
         }
     }

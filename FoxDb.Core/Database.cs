@@ -13,18 +13,49 @@ namespace FoxDb
         public Database(IProvider provider) : this()
         {
             this.Provider = provider;
-            this.Connection = this.Provider.CreateConnection();
         }
 
         public IConfig Config { get; private set; }
 
         public IProvider Provider { get; private set; }
 
-        public IDbConnection Connection { get; private set; }
+        private IDbConnection _Connection { get; set; }
+
+        public IDbConnection Connection
+        {
+            get
+            {
+                if (this._Connection == null)
+                {
+                    this._Connection = this.Provider.CreateConnection(this);
+                }
+                switch (this._Connection.State)
+                {
+                    case ConnectionState.Closed:
+                        this._Connection.Open();
+                        break;
+                }
+                return this._Connection;
+            }
+        }
+
+        private IDatabaseQueryFactory _QueryFactory { get; set; }
+
+        public IDatabaseQueryFactory QueryFactory
+        {
+            get
+            {
+                if (this._QueryFactory == null)
+                {
+                    this._QueryFactory = this.Provider.CreateQueryFactory(this);
+                }
+                return this._QueryFactory;
+            }
+        }
 
         public IDatabaseSet<T> Set<T>(IDbTransaction transaction = null) where T : IPersistable
         {
-            return this.Query<T>(this.Provider.QueryFactory.Select<T>(), transaction);
+            return this.Query<T>(this.QueryFactory.Select<T>(), transaction);
         }
 
         public IDatabaseSet<T> Query<T>(IDatabaseQuery query, IDbTransaction transaction = null) where T : IPersistable
@@ -35,6 +66,28 @@ namespace FoxDb
         public IDatabaseSet<T> Query<T>(IDatabaseQuery query, DatabaseParameterHandler handler, IDbTransaction transaction = null) where T : IPersistable
         {
             return new DatabaseSet<T>(this, query, handler, transaction);
+        }
+
+        public void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        {
+            using (var command = this.Connection.CreateCommand(query, parameters, transaction))
+            {
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        {
+            using (var command = this.Connection.CreateCommand(query, parameters, transaction))
+            {
+                return Converter.ChangeType<T>(command.ExecuteScalar());
+            }
+        }
+
+        public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        {
+            var command = this.Connection.CreateCommand(query, parameters, transaction);
+            return new DatabaseReader(command.ExecuteReader());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -8,7 +9,9 @@ namespace FoxDb
     {
         public TableConfig()
         {
-
+            this.Name = Pluralization.Pluralize(typeof(T).Name);
+            this.Columns = new Dictionary<string, IColumnConfig>();
+            this.Relations = new Dictionary<Type, IRelationConfig>();
         }
 
         public string Name { get; set; }
@@ -35,9 +38,22 @@ namespace FoxDb
 
         public void UseDefaultColumns()
         {
-            foreach (var property in PropertyEnumerator.GetProperties<T>())
+            var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
+            foreach (var property in resolutionStrategy.Properties)
             {
-                this.Column(property.Name);
+                var config = this.Column(property.Name);
+                if (string.Equals(config.Name, Conventions.KEY_COLUMN, StringComparison.OrdinalIgnoreCase))
+                {
+                    config.IsKey = true;
+                }
+            }
+        }
+
+        public IColumnConfig Key
+        {
+            get
+            {
+                return this.Columns.Values.FirstOrDefault(column => column.IsKey);
             }
         }
 

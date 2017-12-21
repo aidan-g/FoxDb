@@ -11,9 +11,18 @@ namespace FoxDb
         public DatabaseSet(IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction)
         {
             this.Database = database;
+            this.Query = query;
+            this.Parameters = parameters;
+            this.Transaction = transaction;
         }
 
         public IDatabase Database { get; private set; }
+
+        public IDatabaseQuery Query { get; private set; }
+
+        public DatabaseParameterHandler Parameters { get; private set; }
+
+        public IDbTransaction Transaction { get; private set; }
 
         public int Count
         {
@@ -45,7 +54,11 @@ namespace FoxDb
 
         public void Delete(IEnumerable<T> items)
         {
-            throw new NotImplementedException();
+            var query = this.Database.QueryFactory.Delete<T>();
+            foreach (var item in items)
+            {
+                this.Database.Execute(query, this.GetParameters(item), this.Transaction);
+            }
         }
 
         public T Find(object id)
@@ -55,12 +68,31 @@ namespace FoxDb
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            var factory = new EntityFactory<T>();
+            var populator = new EntityPopulator<T>();
+            using (var reader = this.Database.ExecuteReader(this.Query, this.Parameters, this.Transaction))
+            {
+                foreach (var record in reader)
+                {
+                    var item = factory.Create();
+                    populator.Populate(item, record);
+                    yield return item;
+                }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        public DatabaseParameterHandler GetParameters(T item)
+        {
+            if (this.Parameters != null)
+            {
+                return this.Parameters;
+            }
+            return new SimpleParameterHandlerStrategy<T>(item).Handler;
         }
     }
 }
