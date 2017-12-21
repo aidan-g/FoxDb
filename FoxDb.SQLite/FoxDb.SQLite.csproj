@@ -49,19 +49,44 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLiteProvider.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
+    <Compile Include="SQLiteSchema.cs" />
     <Compile Include="SQLiteSyntax.cs" />
+    <Compile Include="Templates\Count.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Count.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\Count_Logic.cs" />
     <Compile Include="Templates\Delete.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Delete.tt</DependentUpon>
     </Compile>
     <Compile Include="Templates\Delete_Logic.cs" />
+    <Compile Include="Templates\Insert.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Insert.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\Insert_Logic.cs" />
     <Compile Include="Templates\Select.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Select.tt</DependentUpon>
     </Compile>
     <Compile Include="Templates\Select_Logic.cs" />
+    <Compile Include="Templates\TableInfo.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TableInfo.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\TableInfo_Logic.cs" />
+    <Compile Include="Templates\Update.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Update.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\Update_Logic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -73,13 +98,29 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Templates\Count.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>Count.cs</LastGenOutput>
+    </Content>
     <Content Include="Templates\Delete.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>Delete.cs</LastGenOutput>
     </Content>
+    <Content Include="Templates\Insert.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>Insert.cs</LastGenOutput>
+    </Content>
     <Content Include="Templates\Select.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>Select.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\TableInfo.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>TableInfo.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\Update.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>Update.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>

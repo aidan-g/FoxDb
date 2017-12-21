@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    public class Test001 : Persistable<int>, IEquatable<Test001>
+    public class Test001 : Persistable<long>, IEquatable<Test001>
     {
         public string Field1 { get; set; }
 

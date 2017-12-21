@@ -13,9 +13,20 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
+        public IDatabaseQuery Create(string commandText, params string[] parameterNames)
+        {
+            return new DatabaseQuery(commandText, parameterNames);
+        }
+
         public IDatabaseQuery Count<T>(params string[] filters)
         {
             throw new NotImplementedException();
+        }
+
+        public IDatabaseQuery Count<T>(IDatabaseQuery query)
+        {
+            var count = new Count(query.CommandText);
+            return new DatabaseQuery(count.TransformText(), query.ParameterNames);
         }
 
         public IDatabaseQuery Delete<T>()
@@ -32,7 +43,10 @@ namespace FoxDb
 
         public IDatabaseQuery Insert<T>()
         {
-            throw new NotImplementedException();
+            var table = this.Database.Config.Table<T>();
+            var fields = SQLiteSchema.GetFieldNames(this.Database, table.Name);
+            var insert = new Insert(table.Name, fields);
+            return new DatabaseQuery(insert.TransformText(), fields);
         }
 
         public IDatabaseQuery Select<T>(params string[] filters)
@@ -44,7 +58,10 @@ namespace FoxDb
 
         public IDatabaseQuery Update<T>()
         {
-            throw new NotImplementedException();
+            var table = this.Database.Config.Table<T>();
+            var fields = SQLiteSchema.GetFieldNames(this.Database, table.Name);
+            var update = new Update(table.Name, table.Key.Name, fields);
+            return new DatabaseQuery(update.TransformText(), fields);
         }
     }
 }

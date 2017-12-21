@@ -68,7 +68,7 @@ namespace FoxDb
             return new DatabaseSet<T>(this, query, handler, transaction);
         }
 
-        public void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        public void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
@@ -76,7 +76,7 @@ namespace FoxDb
             }
         }
 
-        public T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        public T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
@@ -84,7 +84,7 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             var command = this.Connection.CreateCommand(query, parameters, transaction);
             return new DatabaseReader(command.ExecuteReader());

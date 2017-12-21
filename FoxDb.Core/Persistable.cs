@@ -14,7 +14,19 @@ namespace FoxDb
             }
             set
             {
-                this.Id = (T)value;
+                this.Id = Converter.ChangeType<T>(value);
+            }
+        }
+
+        public bool HasId
+        {
+            get
+            {
+                if (this.Id == null)
+                {
+                    return false;
+                }
+                return !this.Id.Equals(default(T));
             }
         }
 

@@ -20,6 +20,7 @@ namespace FoxDb
             database.Config.Table<Test001>().UseDefaultColumns();
             using (var transaction = database.Connection.BeginTransaction())
             {
+                database.Execute(database.QueryFactory.Create(CreateSchema));
                 var set = database.Set<Test001>();
                 var data = new List<Test001>();
                 set.Clear();

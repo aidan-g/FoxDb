@@ -18,11 +18,11 @@ namespace FoxDb.Interfaces
 
         IDatabaseSet<T> Query<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null) where T : IPersistable;
 
-        void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null);
+        void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null);
+        T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null);
+        IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
     }
 
     public delegate void DatabaseParameterHandler(IDatabaseParameters parameters);

@@ -11,5 +11,13 @@ namespace FoxDb
                 return Path.GetDirectoryName(typeof(TestBase).Assembly.Location);
             }
         }
+
+        public static string CreateSchema
+        {
+            get
+            {
+                return Resources.CreateSchema;
+            }
+        }
     }
 }

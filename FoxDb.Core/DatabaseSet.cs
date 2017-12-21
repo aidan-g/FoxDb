@@ -28,7 +28,8 @@ namespace FoxDb
         {
             get
             {
-                throw new NotImplementedException();
+                var query = this.Database.QueryFactory.Count<T>(this.Query);
+                return this.Database.Execute<int>(query, this.Parameters, this.Transaction);
             }
         }
 
@@ -39,7 +40,19 @@ namespace FoxDb
 
         public void AddOrUpdate(IEnumerable<T> items)
         {
-            throw new NotImplementedException();
+            var add = this.Database.QueryFactory.Insert<T>();
+            var update = this.Database.QueryFactory.Update<T>();
+            foreach (var item in items)
+            {
+                if (item.HasId)
+                {
+                    this.Database.Execute(update, this.GetParameters(item), this.Transaction);
+                }
+                else
+                {
+                    item.Id = this.Database.Execute<object>(add, this.GetParameters(item), this.Transaction);
+                }
+            }
         }
 
         public void Clear()
