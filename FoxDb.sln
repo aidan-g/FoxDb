@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Core", "FoxDb.Core\FoxDb.Core.csproj", "{9CDD4861-9938-41C1-88FE-9E4054BF164A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Tests", "FoxDb.Tests\FoxDb.Tests.csproj", "{25387DD1-B611-4572-90F2-799A01081D4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SQLite", "FoxDb.SQLite\FoxDb.SQLite.csproj", "{516E910D-80C2-4BFE-9591-491BDF5FE98F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CDD4861-9938-41C1-88FE-9E4054BF164A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CDD4861-9938-41C1-88FE-9E4054BF164A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25387DD1-B611-4572-90F2-799A01081D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25387DD1-B611-4572-90F2-799A01081D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{516E910D-80C2-4BFE-9591-491BDF5FE98F}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{516E910D-80C2-4BFE-9591-491BDF5FE98F}.Debug|Any CPU.Build.0 = Debug|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1068173-2CF2-4C0C-9BC2-0E0259F43225}
+	EndGlobalSection
+EndGlobal
