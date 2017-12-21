@@ -6,7 +6,7 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public RelationParameterHandlerStrategy(T item, IRelationConfig<T, TRelation> relation)
+        public RelationParameterHandlerStrategy(T item, IRelationConfig relation)
         {
             this.Item = item;
             this.Relation = relation;
@@ -14,7 +14,7 @@ namespace FoxDb
 
         public T Item { get; private set; }
 
-        public IRelationConfig<T, TRelation> Relation { get; private set; }
+        public IRelationConfig Relation { get; private set; }
 
         public DatabaseParameterHandler Handler
         {

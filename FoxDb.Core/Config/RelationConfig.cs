@@ -12,7 +12,7 @@ namespace FoxDb
 
         public string Name { get; private set; }
 
-        public RelationMultiplicity Multiplicity
+        public virtual RelationMultiplicity Multiplicity
         {
             get
             {

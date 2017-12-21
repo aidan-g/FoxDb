@@ -14,6 +14,14 @@ namespace FoxDb
             this.Setter = setter;
         }
 
+        public override RelationMultiplicity Multiplicity
+        {
+            get
+            {
+                return RelationMultiplicity.OneToMany;
+            }
+        }
+
         public override Type Relation
         {
             get

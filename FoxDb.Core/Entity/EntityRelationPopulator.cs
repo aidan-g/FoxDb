@@ -36,6 +36,9 @@ namespace FoxDb
                 case RelationMultiplicity.OneToOne:
                     this.Members.Invoke(this, "PopulateOneToOne", relation.Relation, item, relation);
                     break;
+                case RelationMultiplicity.OneToMany:
+                    this.Members.Invoke(this, "PopulateOneToMany", relation.Relation, item, relation);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -53,7 +56,18 @@ namespace FoxDb
             relation.Setter(item, child);
         }
 
-        protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, IRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        protected virtual void PopulateOneToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            {
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Parameters = this.GetParameters<TRelation>(item, relation),
+                Transaction = this.Set.Transaction
+            });
+            relation.Setter(item, set.ToList());
+        }
+
+        protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, IRelationConfig relation) where TRelation : IPersistable
         {
             return new RelationParameterHandlerStrategy<T, TRelation>(item, relation).Handler;
         }
