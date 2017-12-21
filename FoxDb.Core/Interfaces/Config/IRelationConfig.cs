@@ -6,15 +6,34 @@ namespace FoxDb.Interfaces
     public interface IRelationConfig
     {
         string Name { get; }
+
+        RelationMultiplicity Multiplicity { get; }
+
+        Type Relation { get; }
     }
 
     public interface IRelationConfig<T, TRelation> : IRelationConfig
+        where T : IPersistable
+        where TRelation : IPersistable
     {
-        Func<T, TRelation> Selector { get; }
+        Func<T, TRelation> Getter { get; }
+
+        Action<T, TRelation> Setter { get; }
     }
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
+        where T : IPersistable
+        where TRelation : IPersistable
     {
-        Func<T, ICollection<TRelation>> Selector { get; }
+        Func<T, ICollection<TRelation>> Getter { get; }
+
+        Action<T, ICollection<TRelation>> Setter { get; }
+    }
+
+    public enum RelationMultiplicity : byte
+    {
+        None,
+        OneToOne,
+        OneToMany
     }
 }

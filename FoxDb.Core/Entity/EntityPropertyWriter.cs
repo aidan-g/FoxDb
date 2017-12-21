@@ -13,7 +13,12 @@ namespace FoxDb
 
         public void Write(T item, string name, object value)
         {
-            this.ResolutionStrategy.Resolve(name).SetValue(item, value);
+            var property = this.ResolutionStrategy.Resolve(name);
+            if (property == null)
+            {
+                return;
+            }
+            property.SetValue(item, value);
         }
     }
 }

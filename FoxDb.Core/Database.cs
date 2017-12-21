@@ -55,17 +55,12 @@ namespace FoxDb
 
         public IDatabaseSet<T> Set<T>(IDbTransaction transaction = null) where T : IPersistable
         {
-            return this.Query<T>(this.QueryFactory.Select<T>(), transaction);
+            return this.Query<T>(new DatabaseQuerySource<T>(this) { Transaction = transaction });
         }
 
-        public IDatabaseSet<T> Query<T>(IDatabaseQuery query, IDbTransaction transaction = null) where T : IPersistable
+        public IDatabaseSet<T> Query<T>(IDatabaseQuerySource<T> source) where T : IPersistable
         {
-            return this.Query<T>(query, null, transaction);
-        }
-
-        public IDatabaseSet<T> Query<T>(IDatabaseQuery query, DatabaseParameterHandler handler, IDbTransaction transaction = null) where T : IPersistable
-        {
-            return new DatabaseSet<T>(this, query, handler, transaction);
+            return new DatabaseSet<T>(source);
         }
 
         public void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)

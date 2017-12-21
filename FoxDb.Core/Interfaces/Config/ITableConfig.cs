@@ -7,8 +7,6 @@ namespace FoxDb.Interfaces
     {
         string Name { get; set; }
 
-        void UseDefaultColumns();
-
         IColumnConfig Key { get; }
 
         IColumnConfig Column(string name);
@@ -18,10 +16,12 @@ namespace FoxDb.Interfaces
         IEnumerable<IRelationConfig> Relations { get; }
     }
 
-    public interface ITableConfig<T> : ITableConfig
+    public interface ITableConfig<T> : ITableConfig where T : IPersistable
     {
-        IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> selector);
+        ITableConfig<T> UseDefaultColumns();
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> selector);
+        IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable;
+
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable;
     }
 }

@@ -18,30 +18,30 @@ namespace FoxDb
             return new DatabaseQuery(commandText, parameterNames);
         }
 
-        public IDatabaseQuery Count<T>(params string[] filters)
+        public IDatabaseQuery Count<T>(params string[] filters) where T : IPersistable
         {
             throw new NotImplementedException();
         }
 
-        public IDatabaseQuery Count<T>(IDatabaseQuery query)
+        public IDatabaseQuery Count<T>(IDatabaseQuery query) where T : IPersistable
         {
             var count = new Count(query.CommandText);
             return new DatabaseQuery(count.TransformText(), query.ParameterNames);
         }
 
-        public IDatabaseQuery Delete<T>()
+        public IDatabaseQuery Delete<T>() where T : IPersistable
         {
             var table = this.Database.Config.Table<T>();
             var delete = new Delete(table.Name, table.Key.Name);
             return new DatabaseQuery(delete.TransformText(), table.Key.Name);
         }
 
-        public IDatabaseQuery First<T>(params string[] filters)
+        public IDatabaseQuery First<T>(params string[] filters) where T : IPersistable
         {
             throw new NotImplementedException();
         }
 
-        public IDatabaseQuery Insert<T>()
+        public IDatabaseQuery Insert<T>() where T : IPersistable
         {
             var table = this.Database.Config.Table<T>();
             var fields = SQLiteSchema.GetFieldNames(this.Database, table.Name);
@@ -49,14 +49,14 @@ namespace FoxDb
             return new DatabaseQuery(insert.TransformText(), fields);
         }
 
-        public IDatabaseQuery Select<T>(params string[] filters)
+        public IDatabaseQuery Select<T>(params string[] filters) where T : IPersistable
         {
             var table = this.Database.Config.Table<T>();
             var select = new Select(table.Name, filters);
             return new DatabaseQuery(select.TransformText(), filters);
         }
 
-        public IDatabaseQuery Update<T>()
+        public IDatabaseQuery Update<T>() where T : IPersistable
         {
             var table = this.Database.Config.Table<T>();
             var fields = SQLiteSchema.GetFieldNames(this.Database, table.Name);

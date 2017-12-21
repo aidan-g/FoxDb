@@ -13,7 +13,7 @@ namespace FoxDb
 
         private Dictionary<Type, ITableConfig> Tables { get; set; }
 
-        public ITableConfig<T> Table<T>()
+        public ITableConfig<T> Table<T>() where T : IPersistable
         {
             if (!this.Tables.ContainsKey(typeof(T)))
             {

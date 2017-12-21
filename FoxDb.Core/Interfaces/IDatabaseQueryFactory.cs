@@ -4,18 +4,18 @@
     {
         IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
-        IDatabaseQuery Select<T>(params string[] filters);
+        IDatabaseQuery Select<T>(params string[] filters) where T : IPersistable;
 
-        IDatabaseQuery First<T>(params string[] filters);
+        IDatabaseQuery First<T>(params string[] filters) where T : IPersistable;
 
-        IDatabaseQuery Count<T>(params string[] filters);
+        IDatabaseQuery Count<T>(params string[] filters) where T : IPersistable;
 
-        IDatabaseQuery Count<T>(IDatabaseQuery query);
+        IDatabaseQuery Count<T>(IDatabaseQuery query) where T : IPersistable;
 
-        IDatabaseQuery Insert<T>();
+        IDatabaseQuery Insert<T>() where T : IPersistable;
 
-        IDatabaseQuery Update<T>();
+        IDatabaseQuery Update<T>() where T : IPersistable;
 
-        IDatabaseQuery Delete<T>();
+        IDatabaseQuery Delete<T>() where T : IPersistable;
     }
 }

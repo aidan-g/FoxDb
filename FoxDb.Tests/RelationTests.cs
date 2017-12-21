@@ -1,38 +1,37 @@
-﻿using FoxDb.Interfaces;
-using NUnit.Framework;
-using System;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FoxDb
 {
     [TestFixture]
-    public class SimpleTests : TestBase
+    public class RelationTests : TestBase
     {
         [Test]
-        public void CanAddUpdateDelete()
+        public void OneToOneRelation()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
+            database.Config.Table<Test002>().Relation("Test002_Id", item => item.Test003, (item, value) => item.Test003 = value);
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Test001>(transaction);
-                var data = new List<Test001>();
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
                 set.Clear();
                 this.AssertSet(set, data);
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
-                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
-                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
+                    new Test002() { Name = "1_1", Test003 = new Test003() { Name = "1_2" } },
+                    new Test002() { Name = "2_1", Test003 = new Test003() { Name = "2_2" } },
+                    new Test002() { Name = "3_1", Test003 = new Test003() { Name = "3_2" } },
                 });
                 set.AddOrUpdate(data);
                 this.AssertSet(set, data);
-                data[1].Field1 = "updated";
+                data[1].Test003.Name = "updated";
+                set.AddOrUpdate(data);
+                this.AssertSet(set, data);
+                data[1].Test003 = null;
                 set.AddOrUpdate(data);
                 this.AssertSet(set, data);
                 set.Delete(data[1]);

@@ -5,20 +5,19 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class TableConfig<T> : ITableConfig<T>
+    public abstract class TableConfig : ITableConfig
     {
-        public TableConfig()
+        protected TableConfig()
         {
-            this.Name = Pluralization.Pluralize(typeof(T).Name);
             this.Columns = new Dictionary<string, IColumnConfig>();
             this.Relations = new Dictionary<Type, IRelationConfig>();
         }
 
         public string Name { get; set; }
 
-        private IDictionary<string, IColumnConfig> Columns { get; set; }
+        protected IDictionary<string, IColumnConfig> Columns { get; private set; }
 
-        private IDictionary<Type, IRelationConfig> Relations { get; set; }
+        protected IDictionary<Type, IRelationConfig> Relations { get; private set; }
 
         IEnumerable<IColumnConfig> ITableConfig.Columns
         {
@@ -33,19 +32,6 @@ namespace FoxDb
             get
             {
                 return this.Relations.Values;
-            }
-        }
-
-        public void UseDefaultColumns()
-        {
-            var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
-            foreach (var property in resolutionStrategy.Properties)
-            {
-                var config = this.Column(property.Name);
-                if (string.Equals(config.Name, Conventions.KEY_COLUMN, StringComparison.OrdinalIgnoreCase))
-                {
-                    config.IsKey = true;
-                }
             }
         }
 
@@ -67,16 +53,43 @@ namespace FoxDb
             return this.Columns[name];
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> selector)
+    }
+
+    public class TableConfig<T> : TableConfig, ITableConfig<T> where T : IPersistable
+    {
+        public TableConfig(bool useDefaultColumns = true)
         {
-            var config = new RelationConfig<T, TRelation>(name, selector);
+            this.Name = Pluralization.Pluralize(typeof(T).Name);
+            if (useDefaultColumns)
+            {
+                this.UseDefaultColumns();
+            }
+        }
+
+        public ITableConfig<T> UseDefaultColumns()
+        {
+            var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
+            foreach (var property in resolutionStrategy.Properties)
+            {
+                var config = this.Column(property.Name);
+                if (string.Equals(config.Name, Conventions.KEY_COLUMN, StringComparison.OrdinalIgnoreCase))
+                {
+                    config.IsKey = true;
+                }
+            }
+            return this;
+        }
+
+        public IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable
+        {
+            var config = new RelationConfig<T, TRelation>(name, getter, setter);
             this.Relations.Add(typeof(TRelation), config);
             return config;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> selector)
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable
         {
-            var config = new CollectionRelationConfig<T, TRelation>(name, selector);
+            var config = new CollectionRelationConfig<T, TRelation>(name, getter, setter);
             this.Relations.Add(typeof(TRelation), config);
             return config;
         }

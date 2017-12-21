@@ -8,27 +8,42 @@ namespace FoxDb
 {
     public class DatabaseSet<T> : IDatabaseSet<T> where T : IPersistable
     {
-        public DatabaseSet(IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction)
+        public DatabaseSet(IDatabaseQuerySource<T> source)
         {
-            this.Database = database;
-            this.Query = query;
-            this.Parameters = parameters;
-            this.Transaction = transaction;
+            this.Source = source;
         }
 
-        public IDatabase Database { get; private set; }
+        public IDatabase Database
+        {
+            get
+            {
+                return this.Source.Database;
+            }
+        }
 
-        public IDatabaseQuery Query { get; private set; }
+        public IDatabaseQuerySource<T> Source { get; private set; }
 
-        public DatabaseParameterHandler Parameters { get; private set; }
+        public DatabaseParameterHandler Parameters
+        {
+            get
+            {
+                return this.Source.Parameters;
+            }
+        }
 
-        public IDbTransaction Transaction { get; private set; }
+        public IDbTransaction Transaction
+        {
+            get
+            {
+                return this.Source.Transaction;
+            }
+        }
 
         public int Count
         {
             get
             {
-                var query = this.Database.QueryFactory.Count<T>(this.Query);
+                var query = this.Database.QueryFactory.Count<T>(this.Source.Select);
                 return this.Database.Execute<int>(query, this.Parameters, this.Transaction);
             }
         }
@@ -40,18 +55,10 @@ namespace FoxDb
 
         public void AddOrUpdate(IEnumerable<T> items)
         {
-            var add = this.Database.QueryFactory.Insert<T>();
-            var update = this.Database.QueryFactory.Update<T>();
+            var persister = new EntityPersister<T>(this);
             foreach (var item in items)
             {
-                if (item.HasId)
-                {
-                    this.Database.Execute(update, this.GetParameters(item), this.Transaction);
-                }
-                else
-                {
-                    item.Id = this.Database.Execute<object>(add, this.GetParameters(item), this.Transaction);
-                }
+                persister.AddOrUpdate(item);
             }
         }
 
@@ -67,10 +74,10 @@ namespace FoxDb
 
         public void Delete(IEnumerable<T> items)
         {
-            var query = this.Database.QueryFactory.Delete<T>();
+            var persister = new EntityPersister<T>(this);
             foreach (var item in items)
             {
-                this.Database.Execute(query, this.GetParameters(item), this.Transaction);
+                persister.Delete(item);
             }
         }
 
@@ -81,9 +88,9 @@ namespace FoxDb
 
         public IEnumerator<T> GetEnumerator()
         {
-            var factory = new EntityFactory<T>();
-            var populator = new EntityPopulator<T>();
-            using (var reader = this.Database.ExecuteReader(this.Query, this.Parameters, this.Transaction))
+            var factory = new EntityFactory<T>(this);
+            var populator = new EntityPopulator<T>(this);
+            using (var reader = this.Database.ExecuteReader(this.Source.Select, this.Parameters, this.Transaction))
             {
                 foreach (var record in reader)
                 {
@@ -97,15 +104,6 @@ namespace FoxDb
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
-        }
-
-        public DatabaseParameterHandler GetParameters(T item)
-        {
-            if (this.Parameters != null)
-            {
-                return this.Parameters;
-            }
-            return new SimpleParameterHandlerStrategy<T>(item).Handler;
         }
     }
 }

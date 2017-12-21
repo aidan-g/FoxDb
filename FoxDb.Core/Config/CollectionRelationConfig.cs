@@ -5,12 +5,25 @@ using System.Collections.Generic;
 namespace FoxDb
 {
     public class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
+        where T : IPersistable
+        where TRelation : IPersistable
     {
-        public CollectionRelationConfig(string name, Func<T, ICollection<TRelation>> selector) : base(name)
+        public CollectionRelationConfig(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(name)
         {
-            this.Selector = selector;
+            this.Getter = getter;
+            this.Setter = setter;
         }
 
-        public Func<T, ICollection<TRelation>> Selector { get; private set; }
+        public override Type Relation
+        {
+            get
+            {
+                return typeof(TRelation);
+            }
+        }
+
+        public Func<T, ICollection<TRelation>> Getter { get; private set; }
+
+        public Action<T, ICollection<TRelation>> Setter { get; private set; }
     }
 }

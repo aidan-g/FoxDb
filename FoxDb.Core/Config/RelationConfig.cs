@@ -11,15 +11,38 @@ namespace FoxDb
         }
 
         public string Name { get; private set; }
+
+        public RelationMultiplicity Multiplicity
+        {
+            get
+            {
+                return RelationMultiplicity.OneToOne;
+            }
+        }
+
+        public abstract Type Relation { get; }
     }
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
+        where T : IPersistable
+        where TRelation : IPersistable
     {
-        public RelationConfig(string name, Func<T, TRelation> selector) : base(name)
+        public RelationConfig(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) : base(name)
         {
-            this.Selector = selector;
+            this.Getter = getter;
+            this.Setter = setter;
         }
 
-        public Func<T, TRelation> Selector { get; private set; }
+        public override Type Relation
+        {
+            get
+            {
+                return typeof(TRelation);
+            }
+        }
+
+        public Func<T, TRelation> Getter { get; private set; }
+
+        public Action<T, TRelation> Setter { get; private set; }
     }
 }

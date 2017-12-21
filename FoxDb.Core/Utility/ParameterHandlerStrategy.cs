@@ -2,10 +2,14 @@
 
 namespace FoxDb
 {
-    public class SimpleParameterHandlerStrategy<T> : IParameterHandlerStrategy
+    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy
     {
-        public SimpleParameterHandlerStrategy(T item)
+        public ParameterHandlerStrategy(T item)
         {
+            if (item == null)
+            {
+
+            }
             this.Item = item;
         }
 
@@ -15,9 +19,9 @@ namespace FoxDb
         {
             get
             {
+                var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
                 return new DatabaseParameterHandler(parameters =>
                 {
-                    var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
                     foreach (var property in resolutionStrategy.Properties)
                     {
                         if (parameters.Contains(property.Name))
