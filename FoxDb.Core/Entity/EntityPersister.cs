@@ -21,15 +21,13 @@ namespace FoxDb
             {
                 item.Id = this.Set.Database.Execute<object>(this.Set.Source.Insert, this.GetParameters(item), this.Set.Transaction);
             }
-            var persister = new EntityRelationPersister<T>(this.Set);
-            persister.AddOrUpdate(item);
+            Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item);
         }
 
         public void Delete(T item)
         {
             this.Set.Database.Execute(this.Set.Source.Delete, this.GetParameters(item), this.Set.Transaction);
-            var persister = new EntityRelationPersister<T>(this.Set);
-            persister.Delete(item);
+            Behaviours.Invoke<T>(BehaviourType.Deleting, this.Set, item);
         }
 
         protected virtual DatabaseParameterHandler GetParameters(T item)
