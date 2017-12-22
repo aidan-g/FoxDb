@@ -39,6 +39,9 @@ namespace FoxDb
                 case RelationMultiplicity.OneToMany:
                     this.Members.Invoke(this, "PopulateOneToMany", relation.Relation, item, relation);
                     break;
+                case RelationMultiplicity.ManyToMany:
+                    this.Members.Invoke(this, "PopulateManyToMany", relation.Relation, item, relation);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -48,7 +51,7 @@ namespace FoxDb
         {
             var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, relation),
                 Transaction = this.Set.Transaction
             });
@@ -60,7 +63,18 @@ namespace FoxDb
         {
             var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
+                Parameters = this.GetParameters<TRelation>(item, relation),
+                Transaction = this.Set.Transaction
+            });
+            relation.Setter(item, Factories.CollectionFactory.Create<TRelation>(set));
+        }
+
+        protected virtual void PopulateManyToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            {
+                Select = this.Set.Database.QueryFactory.Select<T, TRelation>(this.Set.Database.QueryFactory.Criteria<T, TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, relation),
                 Transaction = this.Set.Transaction
             });

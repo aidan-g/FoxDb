@@ -59,7 +59,7 @@ namespace FoxDb
     {
         public TableConfig(bool useDefaultColumns = true)
         {
-            this.Name = Pluralization.Pluralize(typeof(T).Name);
+            this.Name = Conventions.TableName(typeof(T));
             if (useDefaultColumns)
             {
                 this.UseDefaultColumns();
@@ -92,6 +92,23 @@ namespace FoxDb
             var config = new CollectionRelationConfig<T, TRelation>(getter, setter);
             this.Relations.Add(typeof(TRelation), config);
             return config;
+        }
+    }
+
+    public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2> where T1 : IPersistable where T2 : IPersistable
+    {
+        public TableConfig(bool useDefaultColumns = true)
+        {
+            this.Name = Conventions.RelationTableName(typeof(T1), typeof(T2));
+            if (useDefaultColumns)
+            {
+                this.UseDefaultColumns();
+            }
+        }
+
+        public ITableConfig<T1, T2> UseDefaultColumns()
+        {
+            return this;
         }
     }
 }

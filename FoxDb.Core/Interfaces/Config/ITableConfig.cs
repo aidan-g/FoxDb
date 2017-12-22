@@ -24,4 +24,9 @@ namespace FoxDb.Interfaces
 
         ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable;
     }
+
+    public interface ITableConfig<T1, T2> : ITableConfig where T1 : IPersistable where T2 : IPersistable
+    {
+        ITableConfig<T1, T2> UseDefaultColumns();
+    }
 }

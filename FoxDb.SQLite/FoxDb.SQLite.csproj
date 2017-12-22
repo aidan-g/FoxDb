@@ -69,6 +69,12 @@
       <DependentUpon>Insert.tt</DependentUpon>
     </Compile>
     <Compile Include="Templates\Insert_Logic.cs" />
+    <Compile Include="Templates\Join.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Join.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\Join_Logic.cs" />
     <Compile Include="Templates\Select.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -109,6 +115,10 @@
     <Content Include="Templates\Insert.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>Insert.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\Join.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>Join.cs</LastGenOutput>
     </Content>
     <Content Include="Templates\Select.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>

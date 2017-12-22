@@ -18,9 +18,9 @@ namespace FoxDb.Templates
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+    #line 1 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public partial class Select : SelectBase
+    public partial class Join : JoinBase
     {
 #line hidden
         /// <summary>
@@ -28,16 +28,44 @@ namespace FoxDb.Templates
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("SELECT *\r\nFROM ");
+            this.Write("SELECT ");
             
-            #line 7 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table)));
+            #line 6 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table1)));
+            
+            #line default
+            #line hidden
+            this.Write(".*\r\nFROM ");
+            
+            #line 7 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table1)));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n\tJOIN ");
+            
+            #line 8 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table2)));
+            
+            #line default
+            #line hidden
+            this.Write(" \r\n\t\tON ");
+            
+            #line 9 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table1, this.Column1)));
+            
+            #line default
+            #line hidden
+            this.Write(" = ");
+            
+            #line 9 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table2, this.Column2)));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 9 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 11 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
 
 if (this.Criteria.Any())
 {
@@ -47,7 +75,7 @@ if (this.Criteria.Any())
             #line hidden
             this.Write(" WHERE ");
             
-            #line 12 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 14 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
 
 	var first = true;
 	foreach (var criteria in this.Criteria)
@@ -64,7 +92,7 @@ if (this.Criteria.Any())
             #line hidden
             this.Write(" AND ");
             
-            #line 22 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 24 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
 
 		}
 		
@@ -72,20 +100,20 @@ if (this.Criteria.Any())
             #line default
             #line hidden
             
-            #line 24 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 26 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(criteria.Table, criteria.Column)));
             
             #line default
             #line hidden
             this.Write(" = @");
             
-            #line 24 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 26 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(criteria.Column));
             
             #line default
             #line hidden
             
-            #line 24 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Select.tt"
+            #line 26 "S:\libs\FoxDb\FoxDb.SQLite\Templates\Join.tt"
 
 	}
 }
@@ -104,7 +132,7 @@ if (this.Criteria.Any())
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public class SelectBase
+    public class JoinBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

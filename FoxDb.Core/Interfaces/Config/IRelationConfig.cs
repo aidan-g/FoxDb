@@ -7,7 +7,7 @@ namespace FoxDb.Interfaces
     {
         string Name { get; }
 
-        RelationMultiplicity Multiplicity { get; }
+        RelationMultiplicity Multiplicity { get; set; }
 
         Type Relation { get; }
     }
@@ -34,6 +34,7 @@ namespace FoxDb.Interfaces
     {
         None,
         OneToOne,
-        OneToMany
+        OneToMany,
+        ManyToMany
     }
 }
