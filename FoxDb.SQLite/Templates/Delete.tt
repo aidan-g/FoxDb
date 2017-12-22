@@ -4,4 +4,23 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 DELETE FROM <#= SQLiteSyntax.Identifier(this.Table) #>
-WHERE <#= SQLiteSyntax.Identifier(this.Table, this.Key) #> = @<#= this.Key #>
+<#
+if (this.Keys.Any())
+{
+	var first = true;
+#> WHERE <#
+	foreach (var key in this.Keys)
+	{
+		if (first)
+		{
+			first = false;
+		}
+		else
+		{
+#> AND <#
+		}
+#><#= SQLiteSyntax.Identifier(this.Table, key) #> = @<#= key #>
+<#
+	}
+}
+#>
