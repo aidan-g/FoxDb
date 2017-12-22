@@ -8,19 +8,17 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public CollectionRelationConfig(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter)
+        protected CollectionRelationConfig()
         {
-            this.Getter = getter;
-            this.Setter = setter;
+            this.Multiplicity = RelationMultiplicity.OneToMany;
             this.UseDefaultColumns();
         }
 
-        public override RelationMultiplicity Multiplicity
+        public CollectionRelationConfig(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : this()
         {
-            get
-            {
-                return RelationMultiplicity.OneToMany;
-            }
+            this.Getter = getter;
+            this.Setter = setter;
+
         }
 
         public override Type Relation

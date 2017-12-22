@@ -59,7 +59,11 @@ namespace FoxDb
             {
                 return other == null || other.Count == 0;
             }
-            if (this.Test004.Count != other.Count)
+            else if (other == null)
+            {
+                return false;
+            }
+            else if (this.Test004.Count != other.Count)
             {
                 return false;
             }

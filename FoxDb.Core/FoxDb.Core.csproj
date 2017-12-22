@@ -46,6 +46,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
     <Compile Include="DatabaseQuery.cs" />
+    <Compile Include="DatabaseQueryCriteria.cs" />
     <Compile Include="DatabaseQuerySource.cs" />
     <Compile Include="DatabaseReader.cs" />
     <Compile Include="DatabaseSet.cs" />
@@ -74,6 +75,7 @@
     <Compile Include="Interfaces\Config\ITableConfig.cs" />
     <Compile Include="Interfaces\IDatabaseParameters.cs" />
     <Compile Include="Interfaces\IDatabaseQuery.cs" />
+    <Compile Include="Interfaces\IDatabaseQueryCriteria.cs" />
     <Compile Include="Interfaces\IDatabaseQueryFactory.cs" />
     <Compile Include="Interfaces\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\IDatabaseReader.cs" />

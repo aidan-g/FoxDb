@@ -7,13 +7,7 @@ namespace FoxDb
     {
         public string Name { get; set; }
 
-        public virtual RelationMultiplicity Multiplicity
-        {
-            get
-            {
-                return RelationMultiplicity.OneToOne;
-            }
-        }
+        public RelationMultiplicity Multiplicity { get; set; }
 
         public abstract Type Relation { get; }
     }
@@ -22,11 +16,16 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public RelationConfig(Func<T, TRelation> getter, Action<T, TRelation> setter)
+        protected RelationConfig()
+        {
+            this.Multiplicity = RelationMultiplicity.OneToOne;
+            this.UseDefaultColumns();
+        }
+
+        public RelationConfig(Func<T, TRelation> getter, Action<T, TRelation> setter) : this()
         {
             this.Getter = getter;
             this.Setter = setter;
-            this.UseDefaultColumns();
         }
 
         public override Type Relation

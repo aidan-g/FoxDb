@@ -1,5 +1,8 @@
 ﻿using FoxDb.Interfaces;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -31,6 +34,11 @@ namespace FoxDb
                 handler(parameters);
             }
             return parameters;
+        }
+
+        public static string[] ToParameters(this IEnumerable<IDatabaseQueryCriteria> sequence)
+        {
+            return sequence.Select(element => element.Column).ToArray();
         }
     }
 }

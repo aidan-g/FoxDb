@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using FoxDb.Interfaces;
+using System.Collections.Generic;
 
 namespace FoxDb.Templates
 {
     public partial class Select
     {
-        public Select(string table, params string[] filters)
+        public Select(string table, params IDatabaseQueryCriteria[] criteria)
         {
             this.Table = table;
-            this.Filters = filters;
+            this.Criteria = criteria;
         }
 
         public string Table { get; private set; }
 
-        public IEnumerable<string> Filters { get; private set; }
+        public IEnumerable<IDatabaseQueryCriteria> Criteria { get; private set; }
     }
 }

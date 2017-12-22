@@ -3,8 +3,10 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-SELECT *
-FROM <#= SQLiteSyntax.Identifier(this.Table) #>
+SELECT <#= SQLiteSyntax.Identifier(this.Table1) #>.*
+FROM <#= SQLiteSyntax.Identifier(this.Table1) #>
+	JOIN <#= SQLiteSyntax.Identifier(this.Table2) #> 
+		ON <#= SQLiteSyntax.Identifier(this.Table1, this.Column1) #> = <#= SQLiteSyntax.Identifier(this.Table2, this.Column2) #>
 
 <#
 if (this.Criteria.Any())

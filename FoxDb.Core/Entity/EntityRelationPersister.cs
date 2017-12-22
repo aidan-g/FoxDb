@@ -42,6 +42,9 @@ namespace FoxDb
                 case RelationMultiplicity.OneToMany:
                     this.Members.Invoke(this, "AddOrUpdateOneToMany", relation.Relation, item, relation);
                     break;
+                case RelationMultiplicity.ManyToMany:
+                    this.Members.Invoke(this, "AddOrUpdateManyToMany", relation.Relation, item, relation);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -52,7 +55,7 @@ namespace FoxDb
             var child = relation.Getter(item);
             var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, child, relation),
                 Transaction = this.Set.Transaction
             });
@@ -81,7 +84,7 @@ namespace FoxDb
                 {
                     set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
                     {
-                        Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                        Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                         Parameters = this.GetParameters<TRelation>(item, child, relation),
                         Transaction = this.Set.Transaction
                     });
@@ -93,7 +96,7 @@ namespace FoxDb
             }
             set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
                 Transaction = this.Set.Transaction
             });
@@ -109,6 +112,36 @@ namespace FoxDb
                     set.Delete(child);
                 }
             }
+        }
+
+        protected virtual void AddOrUpdateManyToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            var set = default(IDatabaseSet<TRelation>);
+            var children = relation.Getter(item);
+            if (children != null)
+            {
+                set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database));
+                foreach (var child in children)
+                {
+                    var join = false;
+                    if (child.HasId)
+                    {
+                        join = true;
+                    }
+                    set.AddOrUpdate(child);
+                    if (join)
+                    {
+                        this.AddRelation<TRelation>(item, child, relation);
+                    }
+                }
+            }
+        }
+
+        protected virtual void AddRelation<TRelation>(T item, TRelation child, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            var query = this.Set.Database.QueryFactory.Insert<T, TRelation>();
+
+            throw new NotImplementedException();
         }
 
         public void Delete(T item)
@@ -130,6 +163,9 @@ namespace FoxDb
                 case RelationMultiplicity.OneToMany:
                     this.Members.Invoke(this, "DeleteOneToMany", relation.Relation, item, relation);
                     break;
+                case RelationMultiplicity.ManyToMany:
+                    this.Members.Invoke(this, "DeleteManyToMany", relation.Relation, item, relation);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -140,7 +176,7 @@ namespace FoxDb
             var child = relation.Getter(item);
             var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, child, relation),
                 Transaction = this.Set.Transaction
             });
@@ -162,11 +198,16 @@ namespace FoxDb
         {
             var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
             {
-                Select = this.Set.Database.QueryFactory.Select<TRelation>(relation.Name),
+                Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
                 Transaction = this.Set.Transaction
             });
             set.Clear();
+        }
+
+        protected virtual void DeleteManyToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, TRelation child, IRelationConfig relation) where TRelation : IPersistable
