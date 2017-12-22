@@ -8,6 +8,8 @@
 
         IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
+        IDatabaseQuery Find<T>() where T : IPersistable;
+
         IDatabaseQuery Select<T>(params IDatabaseQueryCriteria[] criteria) where T : IPersistable;
 
         IDatabaseQuery Select<T1, T2>(params IDatabaseQueryCriteria[] criteria) where T1 : IPersistable where T2 : IPersistable;

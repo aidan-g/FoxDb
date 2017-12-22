@@ -6,10 +6,6 @@ namespace FoxDb
     {
         public ParameterHandlerStrategy(T item)
         {
-            if (item == null)
-            {
-
-            }
             this.Item = item;
         }
 

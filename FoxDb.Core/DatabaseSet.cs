@@ -48,18 +48,20 @@ namespace FoxDb
             }
         }
 
-        public void AddOrUpdate(T item)
+        public T AddOrUpdate(T item)
         {
             this.AddOrUpdate(new[] { item });
+            return item;
         }
 
-        public void AddOrUpdate(IEnumerable<T> items)
+        public IEnumerable<T> AddOrUpdate(IEnumerable<T> items)
         {
             var persister = new EntityPersister<T>(this);
             foreach (var item in items)
             {
                 persister.AddOrUpdate(item);
             }
+            return items;
         }
 
         public void Clear()
@@ -67,30 +69,45 @@ namespace FoxDb
             this.Delete(this);
         }
 
-        public void Delete(T item)
+        public T Delete(T item)
         {
             this.Delete(new[] { item });
+            return item;
         }
 
-        public void Delete(IEnumerable<T> items)
+        public IEnumerable<T> Delete(IEnumerable<T> items)
         {
             var persister = new EntityPersister<T>(this);
             foreach (var item in items)
             {
                 persister.Delete(item);
             }
+            return items;
         }
 
         public T Find(object id)
         {
-            throw new NotImplementedException();
+            var table = this.Database.Config.Table<T>();
+            var query = this.Database.QueryFactory.Find<T>();
+            var parameters = new KeyParameterHandlerStrategy<T>(this.Database, id).Handler;
+            var sequence = this.GetEnumerator(query, parameters);
+            if (sequence.MoveNext())
+            {
+                return sequence.Current;
+            }
+            return default(T);
         }
 
         public IEnumerator<T> GetEnumerator()
         {
+            return this.GetEnumerator(this.Source.Select, this.Parameters);
+        }
+
+        protected virtual IEnumerator<T> GetEnumerator(IDatabaseQuery query, DatabaseParameterHandler parameters)
+        {
             var factory = new EntityFactory<T>(this);
             var populator = new EntityPopulator<T>(this);
-            using (var reader = this.Database.ExecuteReader(this.Source.Select, this.Parameters, this.Transaction))
+            using (var reader = this.Database.ExecuteReader(query, parameters, this.Transaction))
             {
                 foreach (var record in reader)
                 {

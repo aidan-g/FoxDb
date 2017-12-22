@@ -31,6 +31,14 @@ namespace FoxDb
             return new DatabaseQuery(commandText, parameterNames);
         }
 
+        public IDatabaseQuery Find<T>() where T : IPersistable
+        {
+            var table = this.Database.Config.Table<T>();
+            var criteria = table.Keys.Select(key => this.Criteria<T>(key.Name));
+            var select = new Select(table.Name, criteria.ToArray());
+            return new DatabaseQuery(select.TransformText(), criteria.ToColumns());
+        }
+
         public IDatabaseQuery Count<T>(params IDatabaseQueryCriteria[] criteria) where T : IPersistable
         {
             throw new NotImplementedException();
