@@ -17,13 +17,13 @@ namespace FoxDb.Interfaces
 
         T Find(object id);
 
-        void AddOrUpdate(T item);
+        T AddOrUpdate(T item);
 
-        void AddOrUpdate(IEnumerable<T> items);
+        IEnumerable<T> AddOrUpdate(IEnumerable<T> items);
 
-        void Delete(T item);
+        T Delete(T item);
 
-        void Delete(IEnumerable<T> items);
+        IEnumerable<T> Delete(IEnumerable<T> items);
 
         void Clear();
     }

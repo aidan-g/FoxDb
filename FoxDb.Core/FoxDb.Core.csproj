@@ -105,6 +105,7 @@
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\RelationParameterHandlerStrategy.cs" />
+    <Compile Include="Utility\KeyParameterHandlerStrategy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
