@@ -72,7 +72,7 @@ namespace FoxDb
             foreach (var property in resolutionStrategy.Properties)
             {
                 var config = this.Column(property.Name);
-                if (string.Equals(config.Name, Conventions.KEY_COLUMN, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(config.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
                 {
                     config.IsKey = true;
                 }
@@ -80,16 +80,16 @@ namespace FoxDb
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable
+        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable
         {
-            var config = new RelationConfig<T, TRelation>(name, getter, setter);
+            var config = new RelationConfig<T, TRelation>(getter, setter);
             this.Relations.Add(typeof(TRelation), config);
             return config;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable
         {
-            var config = new CollectionRelationConfig<T, TRelation>(name, getter, setter);
+            var config = new CollectionRelationConfig<T, TRelation>(getter, setter);
             this.Relations.Add(typeof(TRelation), config);
             return config;
         }

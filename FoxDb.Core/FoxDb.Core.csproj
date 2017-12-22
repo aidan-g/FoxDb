@@ -80,6 +80,7 @@
     <Compile Include="Interfaces\IDatabaseSet.cs" />
     <Compile Include="Interfaces\IPersistable.cs" />
     <Compile Include="Interfaces\Provider\IProvider.cs" />
+    <Compile Include="Interfaces\Utility\ICollectionFactory.cs" />
     <Compile Include="Interfaces\Utility\IParameterHandlerStrategy.cs" />
     <Compile Include="Persistable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,6 +90,8 @@
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />
+    <Compile Include="Utility\Factories.cs" />
+    <Compile Include="Utility\ListCollectionFactory.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\RelationParameterHandlerStrategy.cs" />

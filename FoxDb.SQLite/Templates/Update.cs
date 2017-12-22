@@ -89,7 +89,7 @@ foreach (var field in this.Fields)
             this.Write("\r\nWHERE ");
             
             #line 28 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Update.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table, "Id")));
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table, Conventions.KeyColumn)));
             
             #line default
             #line hidden

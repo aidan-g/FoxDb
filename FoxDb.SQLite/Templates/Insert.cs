@@ -42,7 +42,7 @@ namespace FoxDb.Templates
 var first = true;
 foreach (var field in this.Fields)
 {
-	if (string.Equals(field, "Id", StringComparison.OrdinalIgnoreCase))
+	if (string.Equals(field, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
 	{
 		continue;
 	}
@@ -86,7 +86,7 @@ foreach (var field in this.Fields)
 first = true;
 foreach (var field in this.Fields)
 {
-	if (string.Equals(field, "Id", StringComparison.OrdinalIgnoreCase))
+	if (string.Equals(field, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
 	{
 		continue;
 	}

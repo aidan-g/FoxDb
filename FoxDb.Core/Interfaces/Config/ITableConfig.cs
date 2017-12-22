@@ -20,8 +20,8 @@ namespace FoxDb.Interfaces
     {
         ITableConfig<T> UseDefaultColumns();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable;
+        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable;
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable;
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable;
     }
 }

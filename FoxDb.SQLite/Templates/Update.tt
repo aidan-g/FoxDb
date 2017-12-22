@@ -25,4 +25,4 @@ foreach (var field in this.Fields)
 }
 #>
 
-WHERE <#= SQLiteSyntax.Identifier(this.Table, "Id") #> = @<#= this.Key #>
+WHERE <#= SQLiteSyntax.Identifier(this.Table, Conventions.KeyColumn) #> = @<#= this.Key #>

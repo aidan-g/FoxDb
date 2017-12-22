@@ -25,7 +25,7 @@ namespace FoxDb
                 {
                     if (parameters.Contains(this.Relation.Name))
                     {
-                        var property = resolutionStrategy.Resolve(Conventions.KEY_COLUMN);
+                        var property = resolutionStrategy.Resolve(Conventions.KeyColumn);
                         parameters[this.Relation.Name] = property.GetValue(this.Item);
                     }
                 });

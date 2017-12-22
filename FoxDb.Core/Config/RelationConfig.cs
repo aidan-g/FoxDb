@@ -5,12 +5,7 @@ namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        protected RelationConfig(string name)
-        {
-            this.Name = name;
-        }
-
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         public virtual RelationMultiplicity Multiplicity
         {
@@ -27,10 +22,11 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public RelationConfig(string name, Func<T, TRelation> getter, Action<T, TRelation> setter) : base(name)
+        public RelationConfig(Func<T, TRelation> getter, Action<T, TRelation> setter)
         {
             this.Getter = getter;
             this.Setter = setter;
+            this.UseDefaultColumns();
         }
 
         public override Type Relation
@@ -44,5 +40,11 @@ namespace FoxDb
         public Func<T, TRelation> Getter { get; private set; }
 
         public Action<T, TRelation> Setter { get; private set; }
+
+        public IRelationConfig<T, TRelation> UseDefaultColumns()
+        {
+            this.Name = Conventions.RelationColumn(typeof(T));
+            return this;
+        }
     }
 }

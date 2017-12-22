@@ -8,10 +8,11 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public CollectionRelationConfig(string name, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(name)
+        public CollectionRelationConfig(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter)
         {
             this.Getter = getter;
             this.Setter = setter;
+            this.UseDefaultColumns();
         }
 
         public override RelationMultiplicity Multiplicity
@@ -33,5 +34,11 @@ namespace FoxDb
         public Func<T, ICollection<TRelation>> Getter { get; private set; }
 
         public Action<T, ICollection<TRelation>> Setter { get; private set; }
+
+        public ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
+        {
+            this.Name = Conventions.RelationColumn(typeof(T));
+            return this;
+        }
     }
 }

@@ -1,7 +1,11 @@
-﻿namespace FoxDb
+﻿using System;
+
+namespace FoxDb
 {
     public static class Conventions
     {
-        public const string KEY_COLUMN = "Id";
+        public static string KeyColumn = "Id";
+
+        public static Func<Type, string> RelationColumn = type => string.Format("{0}_{1}", type.Name, KeyColumn);
     }
 }

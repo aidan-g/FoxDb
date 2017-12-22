@@ -64,7 +64,7 @@ namespace FoxDb
                 Parameters = this.GetParameters<TRelation>(item, relation),
                 Transaction = this.Set.Transaction
             });
-            relation.Setter(item, set.ToList());
+            relation.Setter(item, Factories.CollectionFactory.Create<TRelation>(set));
         }
 
         protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, IRelationConfig relation) where TRelation : IPersistable
