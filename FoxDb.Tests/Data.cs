@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -39,8 +40,39 @@ namespace FoxDb
                 return false;
             }
             return base.Equals(other) &&
-                string.Equals(this.Name, other.Name) &&
-                (this.Test003 != null ? this.Test003.Equals(other.Test003) : other.Test003 == null);
+                this.Test003Equals(other.Test003) &&
+                this.Test004Equals(other.Test004);
+        }
+
+        private bool Test003Equals(Test003 other)
+        {
+            if (this.Test003 == null)
+            {
+                return other == null;
+            }
+            return this.Test003.Equals(other);
+        }
+
+        private bool Test004Equals(ICollection<Test004> other)
+        {
+            if (this.Test004 == null)
+            {
+                return other == null || other.Count == 0;
+            }
+            if (this.Test004.Count != other.Count)
+            {
+                return false;
+            }
+            var a = this.Test004.ToArray();
+            var b = other.ToArray();
+            for (var c = 0; c < a.Length; c++)
+            {
+                if (!a[c].Equals(b[c]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

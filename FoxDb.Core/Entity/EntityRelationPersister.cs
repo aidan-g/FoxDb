@@ -65,7 +65,7 @@ namespace FoxDb
                 child = set.FirstOrDefault();
                 if (child != null)
                 {
-                    set.Source.Parameters = null;
+                    set.Source.Parameters = this.GetParameters<TRelation>(item, child, relation);
                     set.Delete(child);
                 }
             }
@@ -105,6 +105,7 @@ namespace FoxDb
             {
                 if (!children.Contains(child))
                 {
+                    set.Source.Parameters = this.GetParameters<TRelation>(item, child, relation);
                     set.Delete(child);
                 }
             }
