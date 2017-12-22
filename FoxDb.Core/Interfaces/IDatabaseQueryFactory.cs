@@ -25,5 +25,7 @@
         IDatabaseQuery Update<T>() where T : IPersistable;
 
         IDatabaseQuery Delete<T>() where T : IPersistable;
+
+        IDatabaseQuery Delete<T1, T2>() where T1 : IPersistable where T2 : IPersistable;
     }
 }

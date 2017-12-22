@@ -1,15 +1,17 @@
-﻿namespace FoxDb.Templates
+﻿using System.Collections.Generic;
+
+namespace FoxDb.Templates
 {
     public partial class Delete
     {
-        public Delete(string table, string key)
+        public Delete(string table, params string[] keys)
         {
             this.Table = table;
-            this.Key = key;
+            this.Keys = keys;
         }
 
         public string Table { get; private set; }
 
-        public string Key { get; private set; }
+        public IEnumerable<string> Keys { get; private set; }
     }
 }

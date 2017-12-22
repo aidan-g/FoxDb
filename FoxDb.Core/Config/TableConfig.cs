@@ -39,7 +39,15 @@ namespace FoxDb
         {
             get
             {
-                return this.Columns.Values.FirstOrDefault(column => column.IsKey);
+                return this.Keys.SingleOrDefault();
+            }
+        }
+
+        public IEnumerable<IColumnConfig> Keys
+        {
+            get
+            {
+                return this.Columns.Values.Where(column => column.IsKey);
             }
         }
 
@@ -108,6 +116,8 @@ namespace FoxDb
 
         public ITableConfig<T1, T2> UseDefaultColumns()
         {
+            this.Column(Conventions.RelationColumn(typeof(T1))).IsKey = true;
+            this.Column(Conventions.RelationColumn(typeof(T2))).IsKey = true;
             return this;
         }
     }

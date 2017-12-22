@@ -53,7 +53,7 @@ namespace FoxDb
         protected virtual void AddOrUpdateOneToOne<TRelation>(T item, IRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
             var child = relation.Getter(item);
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, child, relation),
@@ -82,7 +82,7 @@ namespace FoxDb
             {
                 foreach (var child in children)
                 {
-                    set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+                    set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
                     {
                         Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                         Parameters = this.GetParameters<TRelation>(item, child, relation),
@@ -94,7 +94,7 @@ namespace FoxDb
                     }
                 }
             }
-            set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
@@ -120,19 +120,32 @@ namespace FoxDb
             var children = relation.Getter(item);
             if (children != null)
             {
-                set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database));
+                set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction));
                 foreach (var child in children)
                 {
-                    var join = false;
-                    if (child.HasId)
-                    {
-                        join = true;
-                    }
+                    var addRelation = !child.HasId;
                     set.AddOrUpdate(child);
-                    if (join)
+                    if (addRelation)
                     {
                         this.AddRelation<TRelation>(item, child, relation);
                     }
+                }
+            }
+            set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
+            {
+                Select = this.Set.Database.QueryFactory.Select<T, TRelation>(this.Set.Database.QueryFactory.Criteria<T, TRelation>(relation.Name)),
+                Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
+                Transaction = this.Set.Transaction
+            });
+            if (children == null)
+            {
+                set.Clear();
+            }
+            foreach (var child in set)
+            {
+                if (!children.Contains(child))
+                {
+                    this.DeleteRelation<TRelation>(item, child, relation);
                 }
             }
         }
@@ -140,8 +153,15 @@ namespace FoxDb
         protected virtual void AddRelation<TRelation>(T item, TRelation child, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
             var query = this.Set.Database.QueryFactory.Insert<T, TRelation>();
+            var parameters = this.GetParameters<TRelation>(item, child, relation);
+            this.Set.Database.Execute(query, parameters, this.Set.Transaction);
+        }
 
-            throw new NotImplementedException();
+        protected virtual void DeleteRelation<TRelation>(T item, TRelation child, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
+        {
+            var query = this.Set.Database.QueryFactory.Delete<T, TRelation>();
+            var parameters = this.GetParameters<TRelation>(item, child, relation);
+            this.Set.Database.Execute(query, parameters, this.Set.Transaction);
         }
 
         public void Delete(T item)
@@ -174,7 +194,7 @@ namespace FoxDb
         protected virtual void DeleteOneToOne<TRelation>(T item, IRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
             var child = relation.Getter(item);
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, child, relation),
@@ -196,7 +216,7 @@ namespace FoxDb
 
         protected virtual void DeleteOneToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
                 Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
@@ -207,7 +227,17 @@ namespace FoxDb
 
         protected virtual void DeleteManyToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
-            throw new NotImplementedException();
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
+            {
+                Select = this.Set.Database.QueryFactory.Select<T, TRelation>(this.Set.Database.QueryFactory.Criteria<T, TRelation>(relation.Name)),
+                Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
+                Transaction = this.Set.Transaction
+            });
+            foreach (var child in set)
+            {
+                this.DeleteRelation<TRelation>(item, child, relation);
+            }
+            set.Clear();
         }
 
         protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, TRelation child, IRelationConfig relation) where TRelation : IPersistable
@@ -215,7 +245,7 @@ namespace FoxDb
             var handlers = new List<DatabaseParameterHandler>();
             if (item != null)
             {
-                handlers.Add(new RelationParameterHandlerStrategy<T, TRelation>(item, relation).Handler);
+                handlers.Add(new RelationParameterHandlerStrategy<T, TRelation>(this.Set.Database, item, child, relation).Handler);
             }
             if (child != null)
             {

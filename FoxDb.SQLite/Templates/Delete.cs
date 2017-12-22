@@ -35,17 +35,62 @@ namespace FoxDb.Templates
             
             #line default
             #line hidden
-            this.Write("\r\nWHERE ");
+            this.Write("\r\n");
             
             #line 7 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table, this.Key)));
+
+if (this.Keys.Any())
+{
+	var first = true;
+
+            
+            #line default
+            #line hidden
+            this.Write(" WHERE ");
+            
+            #line 11 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
+
+	foreach (var key in this.Keys)
+	{
+		if (first)
+		{
+			first = false;
+		}
+		else
+		{
+
+            
+            #line default
+            #line hidden
+            this.Write(" AND ");
+            
+            #line 20 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
+
+		}
+
+            
+            #line default
+            #line hidden
+            
+            #line 22 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(SQLiteSyntax.Identifier(this.Table, key)));
             
             #line default
             #line hidden
             this.Write(" = @");
             
-            #line 7 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(this.Key));
+            #line 22 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(key));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
+            
+            #line 23 "D:\Source\FoxDb\FoxDb.SQLite\Templates\Delete.tt"
+
+	}
+}
+
             
             #line default
             #line hidden

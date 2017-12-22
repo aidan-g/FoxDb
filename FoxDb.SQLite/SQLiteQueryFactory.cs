@@ -49,6 +49,14 @@ namespace FoxDb
             return new DatabaseQuery(delete.TransformText(), table.Key.Name);
         }
 
+        public IDatabaseQuery Delete<T1, T2>() where T1 : IPersistable where T2 : IPersistable
+        {
+            var table = this.Database.Config.Table<T1, T2>();
+            var fields = table.Keys.ToColumns();
+            var delete = new Delete(table.Name, fields);
+            return new DatabaseQuery(delete.TransformText(), fields);
+        }
+
         public IDatabaseQuery First<T>(params IDatabaseQueryCriteria[] criteria) where T : IPersistable
         {
             throw new NotImplementedException();
@@ -74,7 +82,7 @@ namespace FoxDb
         {
             var table = this.Database.Config.Table<T>();
             var select = new Select(table.Name, criteria);
-            return new DatabaseQuery(select.TransformText(), criteria.ToParameters());
+            return new DatabaseQuery(select.TransformText(), criteria.ToColumns());
         }
 
         public IDatabaseQuery Select<T1, T2>(params IDatabaseQueryCriteria[] criteria) where T1 : IPersistable where T2 : IPersistable
@@ -84,7 +92,7 @@ namespace FoxDb
             var column1 = Conventions.KeyColumn;
             var column2 = Conventions.RelationColumn(typeof(T2));
             var join = new Join(table1.Name, table2.Name, column1, column2, criteria);
-            return new DatabaseQuery(join.TransformText(), criteria.ToParameters());
+            return new DatabaseQuery(join.TransformText(), criteria.ToColumns());
         }
 
         public IDatabaseQuery Update<T>() where T : IPersistable

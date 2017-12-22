@@ -9,6 +9,8 @@ namespace FoxDb.Interfaces
 
         IColumnConfig Key { get; }
 
+        IEnumerable<IColumnConfig> Keys { get; }
+
         IColumnConfig Column(string name);
 
         IEnumerable<IColumnConfig> Columns { get; }

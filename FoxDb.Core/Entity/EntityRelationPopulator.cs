@@ -49,10 +49,10 @@ namespace FoxDb
 
         protected virtual void PopulateOneToOne<TRelation>(T item, IRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
-                Parameters = this.GetParameters<TRelation>(item, relation),
+                Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
                 Transaction = this.Set.Transaction
             });
             var child = set.FirstOrDefault();
@@ -61,10 +61,10 @@ namespace FoxDb
 
         protected virtual void PopulateOneToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(relation.Name)),
-                Parameters = this.GetParameters<TRelation>(item, relation),
+                Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
                 Transaction = this.Set.Transaction
             });
             relation.Setter(item, Factories.CollectionFactory.Create<TRelation>(set));
@@ -72,18 +72,18 @@ namespace FoxDb
 
         protected virtual void PopulateManyToMany<TRelation>(T item, ICollectionRelationConfig<T, TRelation> relation) where TRelation : IPersistable
         {
-            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database)
+            var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
             {
                 Select = this.Set.Database.QueryFactory.Select<T, TRelation>(this.Set.Database.QueryFactory.Criteria<T, TRelation>(relation.Name)),
-                Parameters = this.GetParameters<TRelation>(item, relation),
+                Parameters = this.GetParameters<TRelation>(item, default(TRelation), relation),
                 Transaction = this.Set.Transaction
             });
             relation.Setter(item, Factories.CollectionFactory.Create<TRelation>(set));
         }
 
-        protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, IRelationConfig relation) where TRelation : IPersistable
+        protected virtual DatabaseParameterHandler GetParameters<TRelation>(T item, TRelation child, IRelationConfig relation) where TRelation : IPersistable
         {
-            return new RelationParameterHandlerStrategy<T, TRelation>(item, relation).Handler;
+            return new RelationParameterHandlerStrategy<T, TRelation>(this.Set.Database, item, child, relation).Handler;
         }
     }
 }
