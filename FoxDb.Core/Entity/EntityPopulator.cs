@@ -19,8 +19,7 @@ namespace FoxDb
                 var value = record[name];
                 writer.Write(item, name, value);
             }
-            var populator = new EntityRelationPopulator<T>(this.Set);
-            populator.Populate(item);
+            Behaviours.Invoke<T>(BehaviourType.Selecting, this.Set, item);
         }
     }
 }

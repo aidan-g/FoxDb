@@ -57,8 +57,13 @@
     <Compile Include="Entity\EntityPropertyReader.cs" />
     <Compile Include="Entity\EntityPropertyResolutionStrategy.cs" />
     <Compile Include="Entity\EntityPropertyWriter.cs" />
-    <Compile Include="Entity\EntityRelationPersister.cs" />
-    <Compile Include="Entity\EntityRelationPopulator.cs" />
+    <Compile Include="Entity\Relation\EntityRelationBehaviour.cs" />
+    <Compile Include="Entity\Relation\Persister\ManyToManyEntityPersister.cs" />
+    <Compile Include="Entity\Relation\Populator\ManyToManyEntityPopulator.cs" />
+    <Compile Include="Entity\Relation\Persister\OneToManyEntityPersister.cs" />
+    <Compile Include="Entity\Relation\Populator\OneToManyEntityPopulator.cs" />
+    <Compile Include="Entity\Relation\Persister\OneToOneEntityPersister.cs" />
+    <Compile Include="Entity\Relation\Populator\OneToOneEntityPopulator.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\Config\IColumnConfig.cs" />
     <Compile Include="Interfaces\Config\IConfig.cs" />
@@ -70,6 +75,7 @@
     <Compile Include="Interfaces\Entity\IEntityPropertyWriter.cs" />
     <Compile Include="Interfaces\Entity\IEntityRelationPersister.cs" />
     <Compile Include="Interfaces\Entity\IEntityRelationPopulator.cs" />
+    <Compile Include="Interfaces\IBehaviour.cs" />
     <Compile Include="Interfaces\IDatabase.cs" />
     <Compile Include="Interfaces\Config\IRelationConfig.cs" />
     <Compile Include="Interfaces\Config\ITableConfig.cs" />
@@ -89,6 +95,8 @@
     <Compile Include="Config\CollectionRelationConfig.cs" />
     <Compile Include="Config\RelationConfig.cs" />
     <Compile Include="Config\TableConfig.cs" />
+    <Compile Include="Utility\Behaviour.cs" />
+    <Compile Include="Utility\Behaviours.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />
