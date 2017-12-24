@@ -2,12 +2,15 @@
 
 namespace FoxDb
 {
-    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy
+    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy where T : IPersistable
     {
-        public ParameterHandlerStrategy(T item)
+        public ParameterHandlerStrategy(IDatabase database, T item)
         {
+            this.Database = database;
             this.Item = item;
         }
+
+        public IDatabase Database { get; private set; }
 
         public T Item { get; private set; }
 
@@ -15,14 +18,14 @@ namespace FoxDb
         {
             get
             {
-                var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
+                var table = this.Database.Config.Table<T>();
                 return new DatabaseParameterHandler(parameters =>
                 {
-                    foreach (var property in resolutionStrategy.Properties)
+                    foreach (var column in table.Columns)
                     {
-                        if (parameters.Contains(property.Name))
+                        if (parameters.Contains(column.ColumnName) && column.Getter != null)
                         {
-                            parameters[property.Name] = property.GetValue(this.Item);
+                            parameters[column.ColumnName] = column.Getter(this.Item);
                         }
                     }
                 });

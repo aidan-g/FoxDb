@@ -24,10 +24,6 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
-        {
-            return new SQLiteQueryFactory(database);
-        }
 
         public IDbConnection CreateConnection(IDatabase database)
         {
@@ -36,6 +32,16 @@ namespace FoxDb
                 SQLiteConnection.CreateFile(this.FileName);
             }
             return new SQLiteConnection(this.ConnectionString);
+        }
+
+        public IDatabaseSchema CreateSchema(IDatabase database)
+        {
+            return new SQLiteSchema(database);
+        }
+
+        public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
+        {
+            return new SQLiteQueryFactory(database);
         }
     }
 }

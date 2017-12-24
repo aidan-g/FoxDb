@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -43,7 +42,7 @@ namespace FoxDb
         {
             get
             {
-                var query = this.Database.QueryFactory.Count<T>(this.Source.Select);
+                var query = this.Database.QueryFactory.Count(this.Source.Select);
                 return this.Database.Execute<int>(query, this.Parameters, this.Transaction);
             }
         }
@@ -87,9 +86,8 @@ namespace FoxDb
 
         public T Find(object id)
         {
-            var table = this.Database.Config.Table<T>();
-            var query = this.Database.QueryFactory.Find<T>();
-            var parameters = new KeyParameterHandlerStrategy<T>(this.Database, id).Handler;
+            var query = this.Database.SelectByPrimaryKey<T>();
+            var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
             var sequence = this.GetEnumerator(query, parameters);
             if (sequence.MoveNext())
             {

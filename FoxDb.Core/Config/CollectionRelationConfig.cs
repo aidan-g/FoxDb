@@ -8,13 +8,13 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        protected CollectionRelationConfig()
+        protected CollectionRelationConfig(ITableConfig table) : base(table)
         {
             this.Multiplicity = RelationMultiplicity.OneToMany;
             this.UseDefaultColumns();
         }
 
-        public CollectionRelationConfig(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : this()
+        public CollectionRelationConfig(ITableConfig table, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : this(table)
         {
             this.Getter = getter;
             this.Setter = setter;
@@ -35,7 +35,7 @@ namespace FoxDb
 
         public ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
         {
-            this.Name = Conventions.RelationColumn(typeof(T));
+            (this.Column = this.Table.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
             return this;
         }
     }

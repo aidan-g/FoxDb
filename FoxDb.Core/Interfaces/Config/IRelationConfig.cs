@@ -5,7 +5,9 @@ namespace FoxDb.Interfaces
 {
     public interface IRelationConfig
     {
-        string Name { get; }
+        ITableConfig Table { get; }
+
+        IColumnConfig Column { get; }
 
         RelationMultiplicity Multiplicity { get; set; }
 

@@ -35,15 +35,5 @@ namespace FoxDb
             }
             return parameters;
         }
-
-        public static string[] ToColumns(this IEnumerable<IColumnConfig> sequence)
-        {
-            return sequence.Select(element => element.Name).ToArray();
-        }
-
-        public static string[] ToColumns(this IEnumerable<IDatabaseQueryCriteria> sequence)
-        {
-            return sequence.Select(element => element.Column).ToArray();
-        }
     }
 }

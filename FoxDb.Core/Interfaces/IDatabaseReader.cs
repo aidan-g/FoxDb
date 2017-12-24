@@ -19,6 +19,8 @@ namespace FoxDb.Interfaces
 
         object this[string name] { get; }
 
+        bool Contains(string name);
+
         T Get<T>(int index);
 
         T Get<T>(string name);

@@ -5,13 +5,19 @@ namespace FoxDb.Interfaces
 {
     public interface ITableConfig
     {
-        string Name { get; set; }
+        string TableName { get; set; }
 
-        IColumnConfig Key { get; }
+        Type TableType { get; }
 
-        IEnumerable<IColumnConfig> Keys { get; }
+        IColumnConfig PrimaryKey { get; }
 
-        IColumnConfig Column(string name);
+        IEnumerable<IColumnConfig> PrimaryKeys { get; }
+
+        IColumnConfig ForeignKey { get; }
+
+        IEnumerable<IColumnConfig> ForeignKeys { get; }
+
+        IColumnConfig Column(string columnName);
 
         IEnumerable<IColumnConfig> Columns { get; }
 
@@ -22,13 +28,17 @@ namespace FoxDb.Interfaces
     {
         ITableConfig<T> UseDefaultColumns();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable;
+        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true) where TRelation : IPersistable;
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable;
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true) where TRelation : IPersistable;
     }
 
     public interface ITableConfig<T1, T2> : ITableConfig where T1 : IPersistable where T2 : IPersistable
     {
+        IColumnConfig LeftForeignKey { get; set; }
+
+        IColumnConfig RightForeignKey { get; set; }
+
         ITableConfig<T1, T2> UseDefaultColumns();
     }
 }

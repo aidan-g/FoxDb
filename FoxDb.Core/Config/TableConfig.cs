@@ -7,17 +7,24 @@ namespace FoxDb
 {
     public abstract class TableConfig : ITableConfig
     {
-        protected TableConfig()
+        protected TableConfig(IDatabase database, string tableName, Type tableType)
         {
+            this.Database = database;
+            this.TableName = tableName;
+            this.TableType = tableType;
             this.Columns = new Dictionary<string, IColumnConfig>();
             this.Relations = new Dictionary<Type, IRelationConfig>();
         }
 
-        public string Name { get; set; }
+        public IDatabase Database { get; private set; }
 
-        protected IDictionary<string, IColumnConfig> Columns { get; private set; }
+        public string TableName { get; set; }
 
-        protected IDictionary<Type, IRelationConfig> Relations { get; private set; }
+        public Type TableType { get; private set; }
+
+        protected virtual IDictionary<string, IColumnConfig> Columns { get; private set; }
+
+        protected virtual IDictionary<Type, IRelationConfig> Relations { get; private set; }
 
         IEnumerable<IColumnConfig> ITableConfig.Columns
         {
@@ -35,89 +42,121 @@ namespace FoxDb
             }
         }
 
-        public IColumnConfig Key
+        public IColumnConfig PrimaryKey
         {
             get
             {
-                return this.Keys.SingleOrDefault();
+                return this.PrimaryKeys.SingleOrDefault();
             }
         }
 
-        public IEnumerable<IColumnConfig> Keys
+        public IEnumerable<IColumnConfig> PrimaryKeys
         {
             get
             {
-                return this.Columns.Values.Where(column => column.IsKey);
+                return this.Columns.Values.Where(column => column.IsPrimaryKey);
             }
         }
 
-        public IColumnConfig Column(string name)
+        public IColumnConfig ForeignKey
         {
-            if (!this.Columns.ContainsKey(name))
+            get
             {
-                var config = new ColumnConfig(name);
-                this.Columns.Add(name, config);
+                return this.ForeignKeys.SingleOrDefault();
             }
-            return this.Columns[name];
+        }
+
+        public IEnumerable<IColumnConfig> ForeignKeys
+        {
+            get
+            {
+                return this.Columns.Values.Where(column => column.IsForeignKey);
+            }
+        }
+
+        public IColumnConfig Column(string columnName)
+        {
+            if (!this.Columns.ContainsKey(columnName))
+            {
+                var column = ColumnFactory.Create(this, columnName);
+                this.Columns.Add(columnName, column);
+            }
+            return this.Columns[columnName];
         }
 
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T> where T : IPersistable
     {
-        public TableConfig(bool useDefaultColumns = true)
+        public TableConfig(IDatabase database) : base(database, Conventions.TableName(typeof(T)), typeof(T))
         {
-            this.Name = Conventions.TableName(typeof(T));
-            if (useDefaultColumns)
-            {
-                this.UseDefaultColumns();
-            }
+
         }
 
         public ITableConfig<T> UseDefaultColumns()
         {
-            var resolutionStrategy = new EntityPropertyResolutionStrategy<T>();
-            foreach (var property in resolutionStrategy.Properties)
+            var properties = new EntityPropertyEnumerator<T>();
+            foreach (var property in properties)
             {
-                var config = this.Column(property.Name);
-                if (string.Equals(config.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
+                if (!this.Database.Schema.GetColumnNames<T>().Contains(property.Name))
                 {
-                    config.IsKey = true;
+                    continue;
+                }
+                var column = this.Column(property.Name);
+                if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
+                {
+                    column.IsPrimaryKey = true;
                 }
             }
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter) where TRelation : IPersistable
+        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true) where TRelation : IPersistable
         {
-            var config = new RelationConfig<T, TRelation>(getter, setter);
-            this.Relations.Add(typeof(TRelation), config);
-            return config;
+            var key = typeof(TRelation);
+            if (!this.Relations.ContainsKey(key))
+            {
+                var config = new RelationConfig<T, TRelation>(this.Database.Config.Table<TRelation>(), getter, setter);
+                this.Relations.Add(key, config);
+                if (useDefaultColumns)
+                {
+                    config.UseDefaultColumns();
+                }
+            }
+            return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) where TRelation : IPersistable
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true) where TRelation : IPersistable
         {
-            var config = new CollectionRelationConfig<T, TRelation>(getter, setter);
-            this.Relations.Add(typeof(TRelation), config);
-            return config;
+            var key = typeof(TRelation);
+            if (!this.Relations.ContainsKey(key))
+            {
+                var config = new CollectionRelationConfig<T, TRelation>(this.Database.Config.Table<TRelation>(), getter, setter);
+                this.Relations.Add(typeof(TRelation), config);
+                if (useDefaultColumns)
+                {
+                    config.UseDefaultColumns();
+                }
+            }
+            return this.Relations[key] as ICollectionRelationConfig<T, TRelation>;
         }
     }
 
     public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2> where T1 : IPersistable where T2 : IPersistable
     {
-        public TableConfig(bool useDefaultColumns = true)
+        public TableConfig(IDatabase database) : base(database, Conventions.RelationTableName(typeof(T1), typeof(T2)), typeof(T2))
         {
-            this.Name = Conventions.RelationTableName(typeof(T1), typeof(T2));
-            if (useDefaultColumns)
-            {
-                this.UseDefaultColumns();
-            }
+
         }
+
+        public IColumnConfig LeftForeignKey { get; set; }
+
+        public IColumnConfig RightForeignKey { get; set; }
 
         public ITableConfig<T1, T2> UseDefaultColumns()
         {
-            this.Column(Conventions.RelationColumn(typeof(T1))).IsKey = true;
-            this.Column(Conventions.RelationColumn(typeof(T2))).IsKey = true;
+            (this.LeftForeignKey = this.Column(Conventions.RelationColumn(typeof(T1)))).IsForeignKey = true;
+            (this.RightForeignKey = this.Column(Conventions.RelationColumn(typeof(T2)))).IsForeignKey = true;
             return this;
         }
     }

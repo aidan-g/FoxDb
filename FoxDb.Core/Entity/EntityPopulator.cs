@@ -13,11 +13,14 @@ namespace FoxDb
 
         public void Populate(T item, IDatabaseReaderRecord record)
         {
-            var writer = new EntityPropertyWriter<T>();
-            foreach (var name in record.Names)
+            var table = this.Set.Database.Config.Table<T>();
+            foreach (var column in table.Columns)
             {
-                var value = record[name];
-                writer.Write(item, name, value);
+                if (record.Contains(column.ColumnName) && column.Setter != null)
+                {
+                    var value = record[column.ColumnName];
+                    column.Setter(item, value);
+                }
             }
             Behaviours.Invoke<T>(BehaviourType.Selecting, this.Set, item);
         }

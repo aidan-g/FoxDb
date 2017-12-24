@@ -10,6 +10,8 @@ namespace FoxDb.Interfaces
 
         IDbConnection Connection { get; }
 
+        IDatabaseSchema Schema { get; }
+
         IDatabaseQueryFactory QueryFactory { get; }
 
         IDatabaseSet<T> Set<T>(IDbTransaction transaction = null) where T : IPersistable;
