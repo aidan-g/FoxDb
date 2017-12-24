@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
     {
         IDbConnection CreateConnection(IDatabase database);
 
+        IDatabaseSchema CreateSchema(IDatabase database);
+
         IDatabaseQueryFactory CreateQueryFactory(IDatabase database);
     }
 }

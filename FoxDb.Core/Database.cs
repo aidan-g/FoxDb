@@ -7,7 +7,7 @@ namespace FoxDb
     {
         private Database()
         {
-            this.Config = new Config();
+            this.Config = new Config(this);
         }
 
         public Database(IProvider provider) : this()
@@ -36,6 +36,20 @@ namespace FoxDb
                         break;
                 }
                 return this._Connection;
+            }
+        }
+
+        private IDatabaseSchema _Schema { get; set; }
+
+        public IDatabaseSchema Schema
+        {
+            get
+            {
+                if (this._Schema == null)
+                {
+                    this._Schema = this.Provider.CreateSchema(this);
+                }
+                return this._Schema;
             }
         }
 

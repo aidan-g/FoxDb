@@ -5,7 +5,14 @@ namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        public string Name { get; set; }
+        protected RelationConfig(ITableConfig table)
+        {
+            this.Table = table;
+        }
+
+        public ITableConfig Table { get; private set; }
+
+        public IColumnConfig Column { get; set; }
 
         public RelationMultiplicity Multiplicity { get; set; }
 
@@ -16,13 +23,13 @@ namespace FoxDb
         where T : IPersistable
         where TRelation : IPersistable
     {
-        protected RelationConfig()
+        protected RelationConfig(ITableConfig table) : base(table)
         {
             this.Multiplicity = RelationMultiplicity.OneToOne;
             this.UseDefaultColumns();
         }
 
-        public RelationConfig(Func<T, TRelation> getter, Action<T, TRelation> setter) : this()
+        public RelationConfig(ITableConfig table, Func<T, TRelation> getter, Action<T, TRelation> setter) : this(table)
         {
             this.Getter = getter;
             this.Setter = setter;
@@ -42,7 +49,7 @@ namespace FoxDb
 
         public IRelationConfig<T, TRelation> UseDefaultColumns()
         {
-            this.Name = Conventions.RelationColumn(typeof(T));
+            (this.Column = this.Table.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
             return this;
         }
     }

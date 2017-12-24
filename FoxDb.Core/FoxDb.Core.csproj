@@ -42,21 +42,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ColumnConfig.cs" />
+    <Compile Include="Config\ColumnFactory.cs" />
     <Compile Include="Config\Config.cs" />
+    <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
-    <Compile Include="DatabaseQuery.cs" />
-    <Compile Include="DatabaseQueryCriteria.cs" />
-    <Compile Include="DatabaseQuerySource.cs" />
+    <Compile Include="Entity\EntityPropertyResolver.cs" />
+    <Compile Include="Interfaces\IDatabaseSchema.cs" />
+    <Compile Include="Query\DatabaseQuery.cs" />
+    <Compile Include="Query\DatabaseQuerySource.cs" />
     <Compile Include="DatabaseReader.cs" />
     <Compile Include="DatabaseSet.cs" />
     <Compile Include="Disposable.cs" />
     <Compile Include="Entity\EntityFactory.cs" />
     <Compile Include="Entity\EntityPersister.cs" />
     <Compile Include="Entity\EntityPopulator.cs" />
-    <Compile Include="Entity\EntityPropertyReader.cs" />
-    <Compile Include="Entity\EntityPropertyResolutionStrategy.cs" />
-    <Compile Include="Entity\EntityPropertyWriter.cs" />
+    <Compile Include="Entity\EntityPropertyEnumerator.cs" />
     <Compile Include="Entity\Relation\EntityRelationBehaviour.cs" />
     <Compile Include="Entity\Relation\Persister\ManyToManyEntityPersister.cs" />
     <Compile Include="Entity\Relation\Populator\ManyToManyEntityPopulator.cs" />
@@ -70,9 +71,6 @@
     <Compile Include="Interfaces\Entity\IEntityFactory.cs" />
     <Compile Include="Interfaces\Entity\IEntityPersister.cs" />
     <Compile Include="Interfaces\Entity\IEntityPopulator.cs" />
-    <Compile Include="Interfaces\Entity\IEntityPropertyReader.cs" />
-    <Compile Include="Interfaces\Entity\IEntityPropertyResolutionStrategy.cs" />
-    <Compile Include="Interfaces\Entity\IEntityPropertyWriter.cs" />
     <Compile Include="Interfaces\Entity\IEntityRelationPersister.cs" />
     <Compile Include="Interfaces\Entity\IEntityRelationPopulator.cs" />
     <Compile Include="Interfaces\IBehaviour.cs" />
@@ -80,10 +78,10 @@
     <Compile Include="Interfaces\Config\IRelationConfig.cs" />
     <Compile Include="Interfaces\Config\ITableConfig.cs" />
     <Compile Include="Interfaces\IDatabaseParameters.cs" />
-    <Compile Include="Interfaces\IDatabaseQuery.cs" />
-    <Compile Include="Interfaces\IDatabaseQueryCriteria.cs" />
-    <Compile Include="Interfaces\IDatabaseQueryFactory.cs" />
-    <Compile Include="Interfaces\IDatabaseQuerySource.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQuery.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryFactory.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\IDatabaseReader.cs" />
     <Compile Include="Interfaces\IDatabaseSet.cs" />
     <Compile Include="Interfaces\IPersistable.cs" />
@@ -95,6 +93,7 @@
     <Compile Include="Config\CollectionRelationConfig.cs" />
     <Compile Include="Config\RelationConfig.cs" />
     <Compile Include="Config\TableConfig.cs" />
+    <Compile Include="Query\Extensions.cs" />
     <Compile Include="Utility\Behaviour.cs" />
     <Compile Include="Utility\Behaviours.cs" />
     <Compile Include="Utility\Conventions.cs" />
@@ -104,8 +103,8 @@
     <Compile Include="Utility\ListCollectionFactory.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
-    <Compile Include="Utility\RelationParameterHandlerStrategy.cs" />
-    <Compile Include="Utility\KeyParameterHandlerStrategy.cs" />
+    <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
+    <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

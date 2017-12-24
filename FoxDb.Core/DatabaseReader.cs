@@ -84,6 +84,11 @@ namespace FoxDb
                 }
             }
 
+            public bool Contains(string name)
+            {
+                return this.Reader.GetOrdinal(name) != -1;
+            }
+
             public T Get<T>(int index)
             {
                 var value = this[index];

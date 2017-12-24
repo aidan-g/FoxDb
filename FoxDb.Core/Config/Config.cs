@@ -6,33 +6,48 @@ namespace FoxDb
 {
     public class Config : IConfig
     {
-        public Config()
+        private Config()
         {
             this.Tables = new Dictionary<TableKey, ITableConfig>();
         }
 
+        public Config(IDatabase database) : this()
+        {
+            this.Database = database;
+        }
+
+        public IDatabase Database { get; private set; }
+
         private Dictionary<TableKey, ITableConfig> Tables { get; set; }
 
-        public ITableConfig<T> Table<T>() where T : IPersistable
+        public ITableConfig<T> Table<T>(bool useDefaultColumns = true) where T : IPersistable
         {
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
             {
-                var config = new TableConfig<T>();
+                var config = TableFactory.Create<T>(this.Database);
                 this.Tables.Add(key, config);
+                if (useDefaultColumns)
+                {
+                    config.UseDefaultColumns();
+                }
             }
             return this.Tables[key] as ITableConfig<T>;
         }
 
-        public ITableConfig<T1, T2> Table<T1, T2>()
+        public ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true)
             where T1 : IPersistable
             where T2 : IPersistable
         {
             var key = new TableKey(typeof(T1), typeof(T2));
             if (!this.Tables.ContainsKey(key))
             {
-                var config = new TableConfig<T1, T2>();
+                var config = TableFactory.Create<T1, T2>(this.Database);
                 this.Tables.Add(key, config);
+                if (useDefaultColumns)
+                {
+                    config.UseDefaultColumns();
+                }
             }
             return this.Tables[key] as ITableConfig<T1, T2>;
         }

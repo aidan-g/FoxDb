@@ -2,11 +2,11 @@
 
 namespace FoxDb
 {
-    public class RelationParameterHandlerStrategy<T, TRelation> : IParameterHandlerStrategy
+    public class ForeignKeysParameterHandlerStrategy<T, TRelation> : IParameterHandlerStrategy
         where T : IPersistable
         where TRelation : IPersistable
     {
-        public RelationParameterHandlerStrategy(IDatabase database, T item, TRelation child, IRelationConfig relation)
+        public ForeignKeysParameterHandlerStrategy(IDatabase database, T item, TRelation child, IRelationConfig relation)
         {
             this.Database = database;
             this.Item = item;
@@ -30,15 +30,13 @@ namespace FoxDb
                 {
                     if (this.Item != null && parameters.Contains(Conventions.RelationColumn(typeof(T))))
                     {
-                        var resolver = new EntityPropertyResolutionStrategy<T>();
-                        var property = resolver.Resolve(Conventions.KeyColumn);
-                        parameters[Conventions.RelationColumn(typeof(T))] = property.GetValue(this.Item);
+                        var table = this.Database.Config.Table<T>();
+                        parameters[Conventions.RelationColumn(typeof(T))] = table.PrimaryKey.Getter(this.Item);
                     }
                     if (this.Child != null && parameters.Contains(Conventions.RelationColumn(typeof(TRelation))))
                     {
-                        var resolver = new EntityPropertyResolutionStrategy<TRelation>();
-                        var property = resolver.Resolve(Conventions.KeyColumn);
-                        parameters[Conventions.RelationColumn(typeof(TRelation))] = property.GetValue(this.Child);
+                        var table = this.Database.Config.Table<TRelation>();
+                        parameters[Conventions.RelationColumn(typeof(TRelation))] = table.PrimaryKey.Getter(this.Child);
                     }
                 });
             }

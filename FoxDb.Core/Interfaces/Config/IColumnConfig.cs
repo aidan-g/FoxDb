@@ -1,11 +1,19 @@
-﻿namespace FoxDb.Interfaces
+﻿using System;
+
+namespace FoxDb.Interfaces
 {
     public interface IColumnConfig
     {
-        string Name { get; set; }
+        ITableConfig Table { get; }
 
-        string Property { get; set; }
+        string ColumnName { get; set; }
 
-        bool IsKey { get; set; }
+        bool IsPrimaryKey { get; set; }
+
+        bool IsForeignKey { get; set; }
+
+        Func<object, object> Getter { get; set; }
+
+        Action<object, object> Setter { get; set; }
     }
 }

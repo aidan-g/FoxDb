@@ -55,7 +55,7 @@ namespace FoxDb
                 var child = this.Relation.Getter(this.Item);
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(this.Relation.Name)),
+                    Select = this.Set.Database.SelectByRelation<TRelation>(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation),
                     Transaction = this.Set.Transaction
                 });
@@ -79,7 +79,7 @@ namespace FoxDb
                 var child = this.Relation.Getter(this.Item);
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.QueryFactory.Select<TRelation>(this.Set.Database.QueryFactory.Criteria<TRelation>(this.Relation.Name)),
+                    Select = this.Set.Database.SelectByRelation<TRelation>(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation),
                     Transaction = this.Set.Transaction
                 });
