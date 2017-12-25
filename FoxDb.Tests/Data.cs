@@ -4,8 +4,10 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class Test001 : Persistable<long>, IEquatable<Test001>
+    public class Test001 : IEquatable<Test001>
     {
+        public long Id { get; set; }
+
         public string Field1 { get; set; }
 
         public string Field2 { get; set; }
@@ -18,15 +20,17 @@ namespace FoxDb
             {
                 return false;
             }
-            return base.Equals(other) &&
+            return this.Id.Equals(other.Id) &&
                 string.Equals(this.Field1, other.Field1) &&
                 string.Equals(this.Field2, other.Field2) &&
                 string.Equals(this.Field3, other.Field3);
         }
     }
 
-    public class Test002 : Persistable<long>, IEquatable<Test002>
+    public class Test002 : IEquatable<Test002>
     {
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public Test003 Test003 { get; set; }
@@ -39,7 +43,7 @@ namespace FoxDb
             {
                 return false;
             }
-            return base.Equals(other) &&
+            return this.Id.Equals(other.Id) &&
                 this.Test003Equals(other.Test003) &&
                 this.Test004Equals(other.Test004);
         }
@@ -80,8 +84,10 @@ namespace FoxDb
         }
     }
 
-    public class Test003 : Persistable<long>, IEquatable<Test003>
+    public class Test003 : IEquatable<Test003>
     {
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public bool Equals(Test003 other)
@@ -90,12 +96,14 @@ namespace FoxDb
             {
                 return false;
             }
-            return base.Equals(other) && string.Equals(this.Name, other.Name);
+            return this.Id.Equals(other.Id) && string.Equals(this.Name, other.Name);
         }
     }
 
-    public class Test004 : Persistable<long>, IEquatable<Test004>
+    public class Test004 : IEquatable<Test004>
     {
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public bool Equals(Test004 other)
@@ -104,7 +112,7 @@ namespace FoxDb
             {
                 return false;
             }
-            return base.Equals(other) && string.Equals(this.Name, other.Name);
+            return this.Id.Equals(other.Id) && string.Equals(this.Name, other.Name);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IDatabaseQuery SelectByPrimaryKey<T>(this IDatabase database) where T : IPersistable
+        public static IDatabaseQuery SelectByPrimaryKey<T>(this IDatabase database)
         {
             var table = database.Config.Table<T>();
             var composer = database.QueryFactory.Compose()
@@ -19,7 +19,7 @@ namespace FoxDb
             return composer.Query;
         }
 
-        public static IDatabaseQuery SelectByRelation<T>(this IDatabase database, IRelationConfig relation) where T : IPersistable
+        public static IDatabaseQuery SelectByRelation<T>(this IDatabase database, IRelationConfig relation)
         {
             var table = database.Config.Table<T>();
             var composer = database.QueryFactory.Compose()
@@ -34,7 +34,7 @@ namespace FoxDb
             return composer.Query;
         }
 
-        public static IDatabaseQuery SelectByRelation<T1, T2>(this IDatabase database, IRelationConfig relation) where T1 : IPersistable where T2 : IPersistable
+        public static IDatabaseQuery SelectByRelation<T1, T2>(this IDatabase database, IRelationConfig relation)
         {
             var table1 = database.Config.Table<T2>();
             var table2 = database.Config.Table<T1, T2>();

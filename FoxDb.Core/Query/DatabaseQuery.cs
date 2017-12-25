@@ -11,7 +11,7 @@ namespace FoxDb
             this.ParameterNames = parameterNames;
         }
 
-        public DatabaseQuery(string commandText, System.Collections.Generic.IEnumerable<string> parameterNames)
+        public DatabaseQuery(string commandText, IEnumerable<string> parameterNames)
         {
             this.CommandText = commandText;
             this.ParameterNames = parameterNames;

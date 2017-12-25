@@ -1,6 +1,6 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IEntityRelationPersister<T> where T : IPersistable
+    public interface IEntityRelationPersister<T>
     {
         void AddOrUpdate(T item);
 

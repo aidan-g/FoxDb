@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -34,6 +35,15 @@ namespace FoxDb
                 handler(parameters);
             }
             return parameters;
+        }
+
+        public static object DefaultValue(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
         }
     }
 }

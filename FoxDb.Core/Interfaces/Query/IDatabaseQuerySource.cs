@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseQuerySource<T> where T : IPersistable
+    public interface IDatabaseQuerySource<T>
     {
         IDatabase Database { get; }
 

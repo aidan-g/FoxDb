@@ -8,6 +8,10 @@ namespace FoxDb.Interfaces
 
         string ColumnName { get; set; }
 
+        string PropertyName { get; set; }
+
+        Type PropertyType { get; set; }
+
         bool IsPrimaryKey { get; set; }
 
         bool IsForeignKey { get; set; }

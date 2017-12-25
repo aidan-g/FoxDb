@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy where T : IPersistable
+    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy
     {
         public ParameterHandlerStrategy(IDatabase database, T item)
         {

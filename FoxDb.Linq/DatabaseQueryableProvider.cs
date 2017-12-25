@@ -25,7 +25,7 @@ namespace FoxDb
 
         public IQueryable<T> CreateQuery<T>(Expression expression)
         {
-            return new DatabaseQueryable<TElement>(this, expression);
+            return new DatabaseQueryable<T>(this, expression);
         }
 
         public object Execute(Expression expression)
@@ -35,12 +35,21 @@ namespace FoxDb
 
         public T Execute<T>(Expression expression)
         {
-
+            if (!this.CanCreateSet<T>())
+            {
+                throw new NotImplementedException();
+            }
+            return (T)this.Set<T>(expression);
         }
 
-        public IDatabaseSet<T> Execute<T>(Expression expression) where T : IPersistable
+        protected virtual bool CanCreateSet<T>()
         {
-            var visitor = new DatabaseExpressionVisitor<T>();
+            throw new NotImplementedException();
+        }
+
+        protected virtual IDatabaseSet<T> Set<T>(Expression expression)
+        {
+            var visitor = new DatabaseQueryExpressionVisitor<T>();
             visitor.Visit(expression);
             var source = new DatabaseQuerySource<T>(this.Database, this.Transaction);
             source.Select = visitor.Query;

@@ -3,7 +3,7 @@ using System.Data;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseSet<T> : System.Collections.Generic.IEnumerable<T> where T : IPersistable
+    public interface IDatabaseSet<T> : IEnumerable<T>
     {
         IDatabase Database { get; }
 
@@ -19,11 +19,11 @@ namespace FoxDb.Interfaces
 
         T AddOrUpdate(T item);
 
-        IEnumerable<T> AddOrUpdate(System.Collections.Generic.IEnumerable<T> items);
+        IEnumerable<T> AddOrUpdate(IEnumerable<T> items);
 
         T Delete(T item);
 
-        IEnumerable<T> Delete(System.Collections.Generic.IEnumerable<T> items);
+        IEnumerable<T> Delete(IEnumerable<T> items);
 
         void Clear();
     }

@@ -34,7 +34,7 @@ namespace FoxDb
             }
         }
 
-        private class Wrapper<T, TRelation> where T : IPersistable where TRelation : IPersistable
+        private class Wrapper<T, TRelation>
         {
             public Wrapper(IDatabaseSet<T> set, T item, ICollectionRelationConfig<T, TRelation> relation)
             {
@@ -58,9 +58,9 @@ namespace FoxDb
                     set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction));
                     foreach (var child in children)
                     {
-                        var addRelation = !child.HasId;
+                        var hasKey = EntityKey<TRelation>.HasKey(this.Set.Database, child);
                         set.AddOrUpdate(child);
-                        if (addRelation)
+                        if (!hasKey)
                         {
                             this.AddRelation(child);
                         }

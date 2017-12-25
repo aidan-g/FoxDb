@@ -21,7 +21,7 @@ namespace FoxDb
 
         protected IDictionary<Type, IEnumerable<string>> ColumnNames { get; set; }
 
-        public IEnumerable<string> GetColumnNames<T>() where T : IPersistable
+        public IEnumerable<string> GetColumnNames<T>()
         {
             var key = typeof(T);
             if (!this.ColumnNames.ContainsKey(key))

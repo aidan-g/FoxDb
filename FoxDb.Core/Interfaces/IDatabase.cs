@@ -14,9 +14,9 @@ namespace FoxDb.Interfaces
 
         IDatabaseQueryFactory QueryFactory { get; }
 
-        IDatabaseSet<T> Set<T>(IDbTransaction transaction = null) where T : IPersistable;
+        IDatabaseSet<T> Set<T>(IDbTransaction transaction = null);
 
-        IDatabaseSet<T> Query<T>(IDatabaseQuerySource<T> source) where T : IPersistable;
+        IDatabaseSet<T> Query<T>(IDatabaseQuerySource<T> source);
 
         void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 

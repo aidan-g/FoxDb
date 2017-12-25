@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    public class EntityPopulator<T> : IEntityPopulator<T> where T : IPersistable
+    public class EntityPopulator<T> : IEntityPopulator<T>
     {
         public EntityPopulator(IDatabaseSet<T> set)
         {

@@ -20,7 +20,7 @@ namespace FoxDb
 
         public static IEnumerable<IBehaviour> Registered { get; set; }
 
-        public static void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item) where T : IPersistable
+        public static void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item)
         {
             foreach (var behaviour in Registered)
             {

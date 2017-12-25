@@ -7,15 +7,19 @@ namespace FoxDb
     {
         public static IColumnConfig Create(ITableConfig table, string columnName)
         {
+            var propertyName = default(string);
+            var propertyType = default(Type);
             var getter = default(Func<object, object>);
             var setter = default(Action<object, object>);
             var property = EntityPropertyResolver.GetProperty(table.TableType, columnName);
             if (property != null)
             {
+                propertyName = property.Name;
+                propertyType = property.PropertyType;
                 getter = item => property.GetValue(item);
                 setter = (item, value) => property.SetValue(item, value);
             }
-            return new ColumnConfig(table, columnName, getter, setter);
+            return new ColumnConfig(table, columnName, propertyName, propertyType, getter, setter);
         }
     }
 }

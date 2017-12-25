@@ -3,8 +3,6 @@
 namespace FoxDb
 {
     public class ForeignKeysParameterHandlerStrategy<T, TRelation> : IParameterHandlerStrategy
-        where T : IPersistable
-        where TRelation : IPersistable
     {
         public ForeignKeysParameterHandlerStrategy(IDatabase database, T item, TRelation child, IRelationConfig relation)
         {

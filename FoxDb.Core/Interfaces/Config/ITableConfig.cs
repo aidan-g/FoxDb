@@ -24,16 +24,16 @@ namespace FoxDb.Interfaces
         IEnumerable<IRelationConfig> Relations { get; }
     }
 
-    public interface ITableConfig<T> : ITableConfig where T : IPersistable
+    public interface ITableConfig<T> : ITableConfig
     {
         ITableConfig<T> UseDefaultColumns();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true) where TRelation : IPersistable;
+        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true);
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true) where TRelation : IPersistable;
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true);
     }
 
-    public interface ITableConfig<T1, T2> : ITableConfig where T1 : IPersistable where T2 : IPersistable
+    public interface ITableConfig<T1, T2> : ITableConfig
     {
         IColumnConfig LeftForeignKey { get; set; }
 

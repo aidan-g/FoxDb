@@ -22,7 +22,7 @@ namespace FoxDb
             return new SQLiteQueryComposer();
         }
 
-        public IDatabaseQuery Select<T>() where T : IPersistable
+        public IDatabaseQuery Select<T>()
         {
             var table = this.Database.Config.Table<T>();
             var composer = this.Compose()
@@ -35,7 +35,7 @@ namespace FoxDb
             return composer.Query;
         }
 
-        public IDatabaseQuery Insert<T>() where T : IPersistable
+        public IDatabaseQuery Insert<T>()
         {
             var table = this.Database.Config.Table<T>();
             var composer = this.Compose()
@@ -53,8 +53,6 @@ namespace FoxDb
         }
 
         public IDatabaseQuery Insert<T1, T2>()
-            where T1 : IPersistable
-            where T2 : IPersistable
         {
             var table = this.Database.Config.Table<T1, T2>();
             var composer = this.Compose()
@@ -71,7 +69,7 @@ namespace FoxDb
             return composer.Query;
         }
 
-        public IDatabaseQuery Update<T>() where T : IPersistable
+        public IDatabaseQuery Update<T>()
         {
             var table = this.Database.Config.Table<T>();
             var composer = this.Compose()
@@ -84,7 +82,7 @@ namespace FoxDb
             return composer.Query;
         }
 
-        public IDatabaseQuery Delete<T>() where T : IPersistable
+        public IDatabaseQuery Delete<T>()
         {
             var table = this.Database.Config.Table<T>();
             var composer = this.Compose()
@@ -97,8 +95,6 @@ namespace FoxDb
         }
 
         public IDatabaseQuery Delete<T1, T2>()
-            where T1 : IPersistable
-            where T2 : IPersistable
         {
             var table = this.Database.Config.Table<T1, T2>();
             var composer = this.Compose()

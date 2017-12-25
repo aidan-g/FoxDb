@@ -13,6 +13,6 @@ namespace FoxDb
 
         public abstract BehaviourType BehaviourType { get; }
 
-        public abstract void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item) where T : IPersistable;
+        public abstract void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item);
     }
 }
