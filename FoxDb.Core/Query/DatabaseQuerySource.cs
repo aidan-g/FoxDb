@@ -3,7 +3,7 @@ using System.Data;
 
 namespace FoxDb
 {
-    public class DatabaseQuerySource<T> : IDatabaseQuerySource<T> where T : IPersistable
+    public class DatabaseQuerySource<T> : IDatabaseQuerySource<T>
     {
         public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null)
         {

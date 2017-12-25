@@ -20,7 +20,7 @@ namespace FoxDb
 
         private Dictionary<TableKey, ITableConfig> Tables { get; set; }
 
-        public ITableConfig<T> Table<T>(bool useDefaultColumns = true) where T : IPersistable
+        public ITableConfig<T> Table<T>(bool useDefaultColumns = true) 
         {
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
@@ -36,8 +36,6 @@ namespace FoxDb
         }
 
         public ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true)
-            where T1 : IPersistable
-            where T2 : IPersistable
         {
             var key = new TableKey(typeof(T1), typeof(T2));
             if (!this.Tables.ContainsKey(key))

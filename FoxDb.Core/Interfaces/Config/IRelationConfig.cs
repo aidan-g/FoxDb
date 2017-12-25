@@ -11,12 +11,10 @@ namespace FoxDb.Interfaces
 
         RelationMultiplicity Multiplicity { get; set; }
 
-        Type Relation { get; }
+        Type RelationType { get; }
     }
 
     public interface IRelationConfig<T, TRelation> : IRelationConfig
-        where T : IPersistable
-        where TRelation : IPersistable
     {
         Func<T, TRelation> Getter { get; }
 
@@ -24,8 +22,6 @@ namespace FoxDb.Interfaces
     }
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
-        where T : IPersistable
-        where TRelation : IPersistable
     {
         Func<T, ICollection<TRelation>> Getter { get; }
 

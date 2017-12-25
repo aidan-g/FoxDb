@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="DatabaseQueryable.cs" />
     <Compile Include="DatabaseQueryableProvider.cs" />
+    <Compile Include="DatabaseQueryExpressionVisitor.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\IDatabaseQueryableProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

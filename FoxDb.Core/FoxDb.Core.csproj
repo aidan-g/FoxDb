@@ -47,6 +47,7 @@
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
+    <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityPropertyResolver.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Query\DatabaseQuery.cs" />
@@ -84,11 +85,9 @@
     <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\IDatabaseReader.cs" />
     <Compile Include="Interfaces\IDatabaseSet.cs" />
-    <Compile Include="Interfaces\IPersistable.cs" />
     <Compile Include="Interfaces\Provider\IProvider.cs" />
     <Compile Include="Interfaces\Utility\ICollectionFactory.cs" />
     <Compile Include="Interfaces\Utility\IParameterHandlerStrategy.cs" />
-    <Compile Include="Persistable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config\CollectionRelationConfig.cs" />
     <Compile Include="Config\RelationConfig.cs" />

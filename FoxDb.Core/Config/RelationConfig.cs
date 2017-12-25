@@ -16,12 +16,10 @@ namespace FoxDb
 
         public RelationMultiplicity Multiplicity { get; set; }
 
-        public abstract Type Relation { get; }
+        public abstract Type RelationType { get; }
     }
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
-        where T : IPersistable
-        where TRelation : IPersistable
     {
         protected RelationConfig(ITableConfig table) : base(table)
         {
@@ -35,7 +33,7 @@ namespace FoxDb
             this.Setter = setter;
         }
 
-        public override Type Relation
+        public override Type RelationType
         {
             get
             {

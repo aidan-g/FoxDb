@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class PrimaryKeysParameterHandlerStrategy<T> : IParameterHandlerStrategy where T : IPersistable
+    public class PrimaryKeysParameterHandlerStrategy<T> : IParameterHandlerStrategy
     {
         public PrimaryKeysParameterHandlerStrategy(IDatabase database, params object[] keys)
         {

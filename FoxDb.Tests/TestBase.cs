@@ -24,7 +24,7 @@ namespace FoxDb
             }
         }
 
-        public void AssertSet<T>(IDatabaseSet<T> set, IList<T> expected) where T : IPersistable
+        public void AssertSet<T>(IDatabaseSet<T> set, IList<T> expected)
         {
             Assert.AreEqual(expected.Count, set.Count);
             var actual = set.ToList();

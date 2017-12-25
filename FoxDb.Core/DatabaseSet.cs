@@ -5,7 +5,7 @@ using System.Data;
 
 namespace FoxDb
 {
-    public class DatabaseSet<T> : IDatabaseSet<T> where T : IPersistable
+    public class DatabaseSet<T> : IDatabaseSet<T>
     {
         public DatabaseSet(IDatabaseQuerySource<T> source)
         {

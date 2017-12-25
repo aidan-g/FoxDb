@@ -5,8 +5,6 @@ using System.Collections.Generic;
 namespace FoxDb
 {
     public class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
-        where T : IPersistable
-        where TRelation : IPersistable
     {
         protected CollectionRelationConfig(ITableConfig table) : base(table)
         {
@@ -21,7 +19,7 @@ namespace FoxDb
 
         }
 
-        public override Type Relation
+        public override Type RelationType
         {
             get
             {

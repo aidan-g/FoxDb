@@ -15,14 +15,14 @@ namespace FoxDb
             {
                 if (relation.Multiplicity == this.Multiplicity)
                 {
-                    this.Members.Invoke(this, "Invoke", new[] { typeof(T), relation.Relation }, behaviourType, set, item, relation);
+                    this.Members.Invoke(this, "Invoke", new[] { typeof(T), relation.RelationType }, behaviourType, set, item, relation);
                 }
             }
         }
 
-        protected abstract void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation) where T : IPersistable where TRelation : IPersistable;
+        protected abstract void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation);
 
-        public static DatabaseParameterHandler GetParameters<T, TRelation>(IDatabase database, T item, TRelation child, IRelationConfig relation) where T : IPersistable where TRelation : IPersistable
+        public static DatabaseParameterHandler GetParameters<T, TRelation>(IDatabase database, T item, TRelation child, IRelationConfig relation)
         {
             var handlers = new List<DatabaseParameterHandler>();
             if (item != null)

@@ -6,17 +6,17 @@
 
         IDatabaseQueryComposer Compose();
 
-        IDatabaseQuery Select<T>() where T : IPersistable;
+        IDatabaseQuery Select<T>();
 
-        IDatabaseQuery Insert<T>() where T : IPersistable;
+        IDatabaseQuery Insert<T>();
 
-        IDatabaseQuery Insert<T1, T2>() where T1 : IPersistable where T2 : IPersistable;
+        IDatabaseQuery Insert<T1, T2>();
 
-        IDatabaseQuery Update<T>() where T : IPersistable;
+        IDatabaseQuery Update<T>();
 
-        IDatabaseQuery Delete<T>() where T : IPersistable;
+        IDatabaseQuery Delete<T>();
 
-        IDatabaseQuery Delete<T1, T2>() where T1 : IPersistable where T2 : IPersistable;
+        IDatabaseQuery Delete<T1, T2>();
 
         IDatabaseQuery Count(IDatabaseQuery query);
     }

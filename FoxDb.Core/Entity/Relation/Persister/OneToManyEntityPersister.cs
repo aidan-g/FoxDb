@@ -35,7 +35,7 @@ namespace FoxDb
         }
 
 
-        private class Wrapper<T, TRelation> where T : IPersistable where TRelation : IPersistable
+        private class Wrapper<T, TRelation>
         {
             public Wrapper(IDatabaseSet<T> set, T item, ICollectionRelationConfig<T, TRelation> relation)
             {

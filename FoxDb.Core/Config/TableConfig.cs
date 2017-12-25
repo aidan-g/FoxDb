@@ -86,7 +86,7 @@ namespace FoxDb
 
     }
 
-    public class TableConfig<T> : TableConfig, ITableConfig<T> where T : IPersistable
+    public class TableConfig<T> : TableConfig, ITableConfig<T>
     {
         public TableConfig(IDatabase database) : base(database, Conventions.TableName(typeof(T)), typeof(T))
         {
@@ -111,7 +111,7 @@ namespace FoxDb
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true) where TRelation : IPersistable
+        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
@@ -126,7 +126,7 @@ namespace FoxDb
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true) where TRelation : IPersistable
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
@@ -142,7 +142,7 @@ namespace FoxDb
         }
     }
 
-    public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2> where T1 : IPersistable where T2 : IPersistable
+    public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2>
     {
         public TableConfig(IDatabase database) : base(database, Conventions.RelationTableName(typeof(T1), typeof(T2)), typeof(T2))
         {

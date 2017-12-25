@@ -1,8 +1,9 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
-    public class EntityPersister<T> : IEntityPersister<T> where T : IPersistable
+    public class EntityPersister<T> : IEntityPersister<T>
     {
         public EntityPersister(IDatabaseSet<T> set)
         {
@@ -13,13 +14,14 @@ namespace FoxDb
 
         public void AddOrUpdate(T item)
         {
-            if (item.HasId)
+            if (EntityKey<T>.HasKey(this.Set.Database, item))
             {
                 this.Set.Database.Execute(this.Set.Source.Update, this.GetParameters(item), this.Set.Transaction);
             }
             else
             {
-                item.Id = this.Set.Database.Execute<object>(this.Set.Source.Insert, this.GetParameters(item), this.Set.Transaction);
+                var key = this.Set.Database.Execute<object>(this.Set.Source.Insert, this.GetParameters(item), this.Set.Transaction);
+                EntityKey<T>.SetKey(this.Set.Database, item, key);
             }
             Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item);
         }

@@ -3,7 +3,7 @@ using System;
 
 namespace FoxDb
 {
-    public class EntityFactory<T> : IEntityFactory<T> where T : IPersistable
+    public class EntityFactory<T> : IEntityFactory<T>
     {
         public EntityFactory(IDatabaseSet<T> set)
         {

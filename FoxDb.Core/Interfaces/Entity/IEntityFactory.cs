@@ -1,6 +1,6 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IEntityFactory<T> where T : IPersistable
+    public interface IEntityFactory<T>
     {
         T Create();
     }

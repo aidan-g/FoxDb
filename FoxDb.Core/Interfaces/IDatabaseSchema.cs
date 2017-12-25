@@ -4,6 +4,6 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseSchema
     {
-        IEnumerable<string> GetColumnNames<T>() where T : IPersistable;
+        IEnumerable<string> GetColumnNames<T>();
     }
 }
