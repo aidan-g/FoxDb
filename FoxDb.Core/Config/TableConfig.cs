@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace FoxDb
 {
@@ -84,6 +85,17 @@ namespace FoxDb
             return this.Columns[columnName];
         }
 
+        public IColumnConfig Column(PropertyInfo property)
+        {
+            foreach (var column in this.Columns.Values)
+            {
+                if (string.Equals(column.PropertyName, property.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return column;
+                }
+            }
+            return this.Column(property.Name);
+        }
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>

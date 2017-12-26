@@ -24,13 +24,14 @@ namespace FoxDb
             }
         }
 
-        public void AssertSet<T>(IDatabaseSet<T> set, IList<T> expected)
+        public void AssertSequence<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
-            Assert.AreEqual(expected.Count, set.Count);
-            var actual = set.ToList();
-            for (var a = 0; a < expected.Count; a++)
+            var a = expected.ToArray();
+            var b = actual.ToArray();
+            Assert.AreEqual(a.Length, b.Length);
+            for (var c = 0; c < a.Length; c++)
             {
-                Assert.AreEqual(expected[a], actual[a]);
+                Assert.AreEqual(a[c], b[c]);
             }
         }
     }

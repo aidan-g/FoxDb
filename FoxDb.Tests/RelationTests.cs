@@ -21,7 +21,7 @@ namespace FoxDb
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data.AddRange(new[]
                 {
                     new Test002() { Name = "1_1", Test003 = new Test003() { Name = "1_2" } },
@@ -29,16 +29,16 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test003 = new Test003() { Name = "3_2" } },
                 });
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test003.Name = "updated";
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test003 = null;
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 set.Delete(data[1]);
                 data.RemoveAt(1);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 transaction.Rollback();
             }
         }
@@ -55,7 +55,7 @@ namespace FoxDb
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data.AddRange(new[]
                 {
                     new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" } } },
@@ -63,16 +63,16 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" } } },
                 });
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test004.First().Name = "updated";
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test004.Remove(data[1].Test004.First());
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 set.Delete(data[1]);
                 data.RemoveAt(1);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 transaction.Rollback();
             }
         }
@@ -89,7 +89,7 @@ namespace FoxDb
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data.AddRange(new[]
                 {
                     new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" } } },
@@ -97,16 +97,16 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" } } },
                 });
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test004.First().Name = "updated";
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 data[1].Test004.Remove(data[1].Test004.First());
                 set.AddOrUpdate(data);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 set.Delete(data[1]);
                 data.RemoveAt(1);
-                this.AssertSet(set, data);
+                this.AssertSequence(set, data);
                 transaction.Rollback();
             }
         }

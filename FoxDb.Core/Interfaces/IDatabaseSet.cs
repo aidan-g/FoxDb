@@ -1,19 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseSet<T> : IEnumerable<T>
+    public interface IDatabaseSet : IEnumerable
     {
         IDatabase Database { get; }
-
-        IDatabaseQuerySource<T> Source { get; }
 
         DatabaseParameterHandler Parameters { get; }
 
         IDbTransaction Transaction { get; }
 
         int Count { get; }
+
+        void Clear();
+    }
+
+    public interface IDatabaseSet<T> : IDatabaseSet, IEnumerable<T>
+    {
+        IDatabaseQuerySource<T> Source { get; }
 
         T Find(object id);
 
@@ -25,6 +31,5 @@ namespace FoxDb.Interfaces
 
         IEnumerable<T> Delete(IEnumerable<T> items);
 
-        void Clear();
     }
 }

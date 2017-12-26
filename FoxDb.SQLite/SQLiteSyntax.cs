@@ -24,9 +24,13 @@ namespace FoxDb
 
         public const string AND = "AND";
 
+        public const string OR = "OR";
+
         public const string COUNT = "COUNT";
 
         public const string STAR = "*";
+
+        public const string NULL = "NULL";
 
         public const string LIST_DELIMITER = ",";
 
@@ -34,7 +38,9 @@ namespace FoxDb
 
         public const string PARAMETER = "@";
 
-        public const string EQUALS = "=";
+        public const string EQUAL = "=";
+
+        public const string NOT_EQUAL = "<>";
 
         public const string OPEN_PARENTHESES = "(";
 
