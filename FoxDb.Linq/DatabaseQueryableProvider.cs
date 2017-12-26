@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,11 +9,18 @@ namespace FoxDb
 {
     public class DatabaseQueryableProvider : IDatabaseQueryableProvider
     {
-        public DatabaseQueryableProvider(IDatabase database, IDbTransaction transaction = null)
+        private DatabaseQueryableProvider()
+        {
+            this.Members = new DynamicMethod(this.GetType());
+        }
+
+        public DatabaseQueryableProvider(IDatabase database, IDbTransaction transaction = null) : this()
         {
             this.Database = database;
             this.Transaction = transaction;
         }
+
+        protected DynamicMethod Members { get; private set; }
 
         public IDatabase Database { get; private set; }
 
@@ -35,24 +43,42 @@ namespace FoxDb
 
         public T Execute<T>(Expression expression)
         {
-            if (!this.CanCreateSet<T>())
+            var elementType = default(Type);
+            if (!this.CanCreateSet<T>(out elementType))
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException("Can only create query returning a sequence (IEnumerable<T>).");
             }
-            return (T)this.Set<T>(expression);
+            return (T)this.Set(elementType, expression);
         }
 
-        protected virtual bool CanCreateSet<T>()
+        protected virtual bool CanCreateSet<T>(out Type elementType)
         {
-            throw new NotImplementedException();
+            if (!typeof(T).IsGenericType)
+            {
+                elementType = null;
+                return false;
+            }
+            if (!typeof(IEnumerable<>).IsAssignableFrom(typeof(T).GetGenericTypeDefinition()))
+            {
+                elementType = null;
+                return false;
+            }
+            elementType = typeof(T).GenericTypeArguments[0];
+            return true;
+        }
+
+        protected virtual IDatabaseSet Set(Type elementType, Expression expression)
+        {
+            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, expression);
         }
 
         protected virtual IDatabaseSet<T> Set<T>(Expression expression)
         {
-            var visitor = new DatabaseQueryExpressionVisitor<T>();
+            var visitor = new DatabaseQueryExpressionVisitor<T>(this.Database);
             visitor.Visit(expression);
             var source = new DatabaseQuerySource<T>(this.Database, this.Transaction);
             source.Select = visitor.Query;
+            source.Parameters = visitor.Parameters;
             return this.Database.Query<T>(source);
         }
     }

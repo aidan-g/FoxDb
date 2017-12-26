@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
@@ -18,6 +19,8 @@ namespace FoxDb.Interfaces
         IEnumerable<IColumnConfig> ForeignKeys { get; }
 
         IColumnConfig Column(string columnName);
+
+        IColumnConfig Column(PropertyInfo property);
 
         IEnumerable<IColumnConfig> Columns { get; }
 

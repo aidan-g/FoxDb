@@ -80,9 +80,27 @@ namespace FoxDb
             return this;
         }
 
+        public IDatabaseQueryComposer Equal()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.EQUAL);
+            return this;
+        }
+
+        public IDatabaseQueryComposer NotEqual()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.NOT_EQUAL);
+            return this;
+        }
+
         public IDatabaseQueryComposer And()
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.AND);
+            return this;
+        }
+
+        public IDatabaseQueryComposer Or()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OR);
             return this;
         }
 
@@ -165,7 +183,7 @@ namespace FoxDb
             switch (@operator)
             {
                 case QueryOperator.Equals:
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.EQUALS);
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.EQUAL);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -237,6 +255,12 @@ namespace FoxDb
         public IDatabaseQueryComposer Star()
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.STAR);
+            return this;
+        }
+
+        public IDatabaseQueryComposer Null()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.NULL);
             return this;
         }
 

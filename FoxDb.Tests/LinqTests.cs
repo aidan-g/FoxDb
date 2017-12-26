@@ -25,9 +25,24 @@ namespace FoxDb
                     new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
                 });
+                set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                var item = query.Where(element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3").ToArray().FirstOrDefault();
-                Assert.AreEqual(data[1], item);
+                {
+                    var sequence = query.Where(element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3");
+                    Assert.AreEqual(data.Skip(1).Take(1), sequence);
+                }
+                {
+                    var sequence = query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_2" || element.Field3 == "3_3");
+                    this.AssertSequence(data, sequence);
+                }
+                {
+                    var sequence = query.Where(element => (element.Field1 == "1_1" && element.Field2 == "1_2") || element.Field3 == "2_3");
+                    this.AssertSequence(data.Take(2), sequence);
+                }
+                {
+                    var sequence = query.Where(element => (element.Field1 == "1_1" || element.Field1 == "1_2") && element.Field3 != "1_2");
+                    this.AssertSequence(data.Take(1), sequence);
+                }
                 transaction.Rollback();
             }
         }
