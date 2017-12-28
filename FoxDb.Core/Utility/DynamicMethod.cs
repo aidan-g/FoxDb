@@ -5,7 +5,7 @@ namespace FoxDb
 {
     public class DynamicMethod
     {
-        public const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase;
+        public const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.IgnoreCase;
 
         public DynamicMethod(Type type)
         {

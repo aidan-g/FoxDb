@@ -13,8 +13,8 @@ namespace FoxDb
         public DatabaseQuerySource(IDatabase database, bool includeRelations = false, IDbTransaction transaction = null)
         {
             this.Database = database;
-            this.Mapper = new EntityMapper(database, typeof(T), includeRelations);
-            this.Select = this.Mapper.Select;
+            this.Mapper = new EntityMapper(this.Database, this.Database.Config.Table<T>(), includeRelations);
+            this.Select = new EntityRelationQueryComposer(this.Database, this.Mapper).Select;
             this.Insert = database.QueryFactory.Insert<T>();
             this.Update = database.QueryFactory.Update<T>();
             this.Delete = database.QueryFactory.Delete<T>();

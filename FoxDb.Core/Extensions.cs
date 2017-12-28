@@ -1,6 +1,8 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -41,6 +43,14 @@ namespace FoxDb
                 return Activator.CreateInstance(type);
             }
             return null;
+        }
+
+        public static void RemoveRange<T>(this ICollection<T> collection, IEnumerable<T> sequence)
+        {
+            foreach (var element in sequence.ToArray()) //Buffer to void "Collection was modified..."
+            {
+                collection.Remove(element);
+            }
         }
     }
 }

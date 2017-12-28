@@ -71,7 +71,7 @@ namespace FoxDb
                 data[1].Test004.First().Name = "updated";
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
-                data[1].Test004.Remove(data[1].Test004.First());
+                data[1].Test004.RemoveRange(data[1].Test004);
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
                 set.Delete(data[1]);
@@ -105,7 +105,7 @@ namespace FoxDb
                 data[1].Test004.First().Name = "updated";
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
-                data[1].Test004.Remove(data[1].Test004.First());
+                data[1].Test004.RemoveRange(data[1].Test004);
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
                 set.Delete(data[1]);
