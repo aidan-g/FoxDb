@@ -1,28 +1,30 @@
 ﻿using FoxDb.Interfaces;
+using System.Collections.Generic;
 
 namespace FoxDb
 {
     public class EntityPopulator<T> : IEntityPopulator<T>
     {
-        public EntityPopulator(IDatabaseSet<T> set)
+        public EntityPopulator(ITableConfig table, IEntityMapper mapper)
         {
-            this.Set = set;
+            this.Table = table;
+            this.Mapper = mapper;
         }
 
-        public IDatabaseSet<T> Set { get; private set; }
+        public ITableConfig Table { get; private set; }
 
-        public void Populate(T item, IDatabaseReaderRecord record)
+        public IEntityMapper Mapper { get; private set; }
+
+        public void Populate(T item, IDictionary<string, object> data)
         {
-            var table = this.Set.Database.Config.Table<T>();
-            foreach (var column in table.Columns)
+            foreach (var column in this.Mapper.GetColumns(this.Table))
             {
-                if (record.Contains(column.ColumnName) && column.Setter != null)
+                if (data.ContainsKey(column.Identifier) && column.Column.Setter != null)
                 {
-                    var value = record[column.ColumnName];
-                    column.Setter(item, value);
+                    var value = data[column.Identifier];
+                    column.Column.Setter(item, value);
                 }
             }
-            Behaviours.Invoke<T>(BehaviourType.Selecting, this.Set, item);
         }
     }
 }

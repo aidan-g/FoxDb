@@ -36,12 +36,19 @@ namespace FoxDb.Interfaces
         ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true);
     }
 
-    public interface ITableConfig<T1, T2> : ITableConfig
+    public interface IIntermediateTableConfig : ITableConfig
     {
+        ITableConfig LeftTable { get; }
+
+        ITableConfig RightTable { get; }
+
         IColumnConfig LeftForeignKey { get; set; }
 
         IColumnConfig RightForeignKey { get; set; }
+    }
 
+    public interface ITableConfig<T1, T2> : IIntermediateTableConfig
+    {
         ITableConfig<T1, T2> UseDefaultColumns();
     }
 }

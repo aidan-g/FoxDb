@@ -4,6 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface ICollectionFactory
     {
+        ICollection<T> Create<T>();
+
         ICollection<T> Create<T>(IEnumerable<T> sequence);
     }
 }

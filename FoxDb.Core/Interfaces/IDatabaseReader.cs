@@ -24,5 +24,7 @@ namespace FoxDb.Interfaces
         T Get<T>(int index);
 
         T Get<T>(string name);
+
+        IDictionary<string, object> ToDictionary();
     }
 }

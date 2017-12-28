@@ -80,6 +80,12 @@ namespace FoxDb
             return this;
         }
 
+        public IDatabaseQueryComposer OrderBy()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.ORDER_BY);
+            return this;
+        }
+
         public IDatabaseQueryComposer Equal()
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.EQUAL);
@@ -151,6 +157,12 @@ namespace FoxDb
                 }
                 this.Column(column);
             }
+            return this;
+        }
+
+        public IDatabaseQueryComposer As()
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.AS);
             return this;
         }
 

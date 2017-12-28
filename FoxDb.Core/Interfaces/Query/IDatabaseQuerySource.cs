@@ -2,9 +2,11 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseQuerySource<T>
+    public interface IDatabaseQuerySource
     {
         IDatabase Database { get; }
+
+        IEntityMapper Mapper { get; }
 
         IDatabaseQuery Select { get; set; }
 

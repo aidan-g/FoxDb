@@ -9,9 +9,6 @@ namespace FoxDb
         {
             Registered = new IBehaviour[]
             {
-                new OneToOneEntityPopulator(),
-                new OneToManyEntityPopulator(),
-                new ManyToManyEntityPopulator(),
                 new OneToOneEntityPersister(),
                 new OneToManyEntityPersister(),
                 new ManyToManyEntityPersister()
