@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 
@@ -7,6 +8,12 @@ namespace FoxDb.Interfaces
     public interface IDatabaseSet : IEnumerable
     {
         IDatabase Database { get; }
+
+        ITableConfig Table { get; }
+
+        IEntityMapper Mapper { get; }
+
+        IDatabaseQuerySource Source { get; }
 
         DatabaseParameterHandler Parameters { get; }
 
@@ -19,8 +26,6 @@ namespace FoxDb.Interfaces
 
     public interface IDatabaseSet<T> : IDatabaseSet, IEnumerable<T>
     {
-        IDatabaseQuerySource<T> Source { get; }
-
         T Find(object id);
 
         T AddOrUpdate(T item);
@@ -30,6 +35,5 @@ namespace FoxDb.Interfaces
         T Delete(T item);
 
         IEnumerable<T> Delete(IEnumerable<T> items);
-
     }
 }

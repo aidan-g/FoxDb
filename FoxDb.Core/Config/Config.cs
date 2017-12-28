@@ -8,6 +8,7 @@ namespace FoxDb
     {
         private Config()
         {
+            this.Members = new DynamicMethod(this.GetType());
             this.Tables = new Dictionary<TableKey, ITableConfig>();
         }
 
@@ -16,11 +17,19 @@ namespace FoxDb
             this.Database = database;
         }
 
+        protected DynamicMethod Members { get; private set; }
+
+        protected IDictionary<TableKey, ITableConfig> Tables { get; private set; }
+
         public IDatabase Database { get; private set; }
 
-        private Dictionary<TableKey, ITableConfig> Tables { get; set; }
+        public ITableConfig Table(Type tableType, bool useDefaultColumns = true)
+        {
+            var table = this.Members.Invoke(this, "Table", tableType, useDefaultColumns);
+            return (ITableConfig)table;
+        }
 
-        public ITableConfig<T> Table<T>(bool useDefaultColumns = true) 
+        public ITableConfig<T> Table<T>(bool useDefaultColumns = true)
         {
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
@@ -33,6 +42,12 @@ namespace FoxDb
                 }
             }
             return this.Tables[key] as ITableConfig<T>;
+        }
+
+        public IIntermediateTableConfig Table(Type parentTableType, Type childTableType, bool useDefaultColumns = true)
+        {
+            var table = this.Members.Invoke(this, "Table", new[] { parentTableType, childTableType }, useDefaultColumns);
+            return (IIntermediateTableConfig)table;
         }
 
         public ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true)
@@ -50,7 +65,7 @@ namespace FoxDb
             return this.Tables[key] as ITableConfig<T1, T2>;
         }
 
-        private class TableKey : IEquatable<TableKey>
+        protected class TableKey : IEquatable<TableKey>
         {
             public TableKey(params Type[] types)
             {

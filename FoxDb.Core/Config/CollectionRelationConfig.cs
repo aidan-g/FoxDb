@@ -6,17 +6,33 @@ namespace FoxDb
 {
     public class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
     {
-        protected CollectionRelationConfig(ITableConfig table) : base(table)
+        protected CollectionRelationConfig(ITableConfig parent, ITableConfig table) : base(parent, table)
         {
             this.Multiplicity = RelationMultiplicity.OneToMany;
             this.UseDefaultColumns();
         }
 
-        public CollectionRelationConfig(ITableConfig table, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : this(table)
+        public CollectionRelationConfig(ITableConfig parent, ITableConfig table, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : this(parent, table)
         {
             this.Getter = getter;
             this.Setter = setter;
 
+        }
+
+        new public ITableConfig<T> Parent
+        {
+            get
+            {
+                return base.Parent as ITableConfig<T>;
+            }
+        }
+
+        new public ITableConfig<TRelation> Table
+        {
+            get
+            {
+                return base.Table as ITableConfig<TRelation>;
+            }
         }
 
         public override Type RelationType
@@ -34,6 +50,12 @@ namespace FoxDb
         public ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
         {
             (this.Column = this.Table.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
+            return this;
+        }
+
+        public ICollectionRelationConfig<T, TRelation> With(Action<ICollectionRelationConfig<T, TRelation>> relation)
+        {
+            relation(this);
             return this;
         }
     }

@@ -10,8 +10,7 @@ namespace FoxDb
 
         public override void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item)
         {
-            var table = set.Database.Config.Table<T>();
-            foreach (var relation in table.Relations)
+            foreach (var relation in set.Table.Relations)
             {
                 if (relation.Multiplicity == this.Multiplicity)
                 {

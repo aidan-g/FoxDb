@@ -25,6 +25,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseQueryComposer Where();
 
+        IDatabaseQueryComposer OrderBy();
+
         IDatabaseQueryComposer Equal();
 
         IDatabaseQueryComposer NotEqual();
@@ -40,6 +42,8 @@ namespace FoxDb.Interfaces
         IDatabaseQueryComposer Table(ITableConfig table);
 
         IDatabaseQueryComposer Column(IColumnConfig column);
+
+        IDatabaseQueryComposer As();
 
         IDatabaseQueryComposer Columns(IEnumerable<IColumnConfig> columns);
 

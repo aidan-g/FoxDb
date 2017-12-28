@@ -128,7 +128,7 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var config = new RelationConfig<T, TRelation>(this.Database.Config.Table<TRelation>(), getter, setter);
+                var config = new RelationConfig<T, TRelation>(this, this.Database.Config.Table<TRelation>(), getter, setter);
                 this.Relations.Add(key, config);
                 if (useDefaultColumns)
                 {
@@ -143,7 +143,7 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var config = new CollectionRelationConfig<T, TRelation>(this.Database.Config.Table<TRelation>(), getter, setter);
+                var config = new CollectionRelationConfig<T, TRelation>(this, this.Database.Config.Table<TRelation>(), getter, setter);
                 this.Relations.Add(typeof(TRelation), config);
                 if (useDefaultColumns)
                 {
@@ -158,8 +158,13 @@ namespace FoxDb
     {
         public TableConfig(IDatabase database) : base(database, Conventions.RelationTableName(typeof(T1), typeof(T2)), typeof(T2))
         {
-
+            this.LeftTable = database.Config.Table<T1>();
+            this.RightTable = database.Config.Table<T2>();
         }
+
+        public ITableConfig LeftTable { get; private set; }
+
+        public ITableConfig RightTable { get; private set; }
 
         public IColumnConfig LeftForeignKey { get; set; }
 

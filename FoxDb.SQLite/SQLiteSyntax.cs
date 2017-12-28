@@ -16,11 +16,13 @@ namespace FoxDb
 
         public const string FROM = "FROM";
 
-        public const string JOIN = "JOIN";
+        public const string JOIN = "LEFT JOIN";
 
         public const string ON = "ON";
 
         public const string WHERE = "WHERE";
+
+        public const string ORDER_BY = "ORDER BY";
 
         public const string AND = "AND";
 
@@ -31,6 +33,8 @@ namespace FoxDb
         public const string STAR = "*";
 
         public const string NULL = "NULL";
+
+        public const string AS = "AS";
 
         public const string LIST_DELIMITER = ",";
 

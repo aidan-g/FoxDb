@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +8,7 @@ namespace FoxDb
 {
     public class DatabaseSet<T> : IDatabaseSet<T>
     {
-        public DatabaseSet(IDatabaseQuerySource<T> source)
+        public DatabaseSet(IDatabaseQuerySource source)
         {
             this.Source = source;
         }
@@ -20,7 +21,23 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseQuerySource<T> Source { get; private set; }
+        public ITableConfig Table
+        {
+            get
+            {
+                return this.Database.Config.Table<T>();
+            }
+        }
+
+        public IEntityMapper Mapper
+        {
+            get
+            {
+                return this.Source.Mapper;
+            }
+        }
+
+        public IDatabaseQuerySource Source { get; private set; }
 
         public DatabaseParameterHandler Parameters
         {
@@ -103,14 +120,11 @@ namespace FoxDb
 
         protected virtual IEnumerator<T> GetEnumerator(IDatabaseQuery query, DatabaseParameterHandler parameters)
         {
-            var factory = new EntityFactory<T>(this);
-            var populator = new EntityPopulator<T>(this);
             using (var reader = this.Database.ExecuteReader(query, parameters, this.Transaction))
             {
-                foreach (var record in reader)
+                var populator = new EntityGraphPopulator(this);
+                foreach (var item in populator.Populate<T>(reader))
                 {
-                    var item = factory.Create();
-                    populator.Populate(item, record);
                     yield return item;
                 }
             }

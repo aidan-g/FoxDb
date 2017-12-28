@@ -69,10 +69,15 @@ namespace FoxDb
 
         public IDatabaseSet<T> Set<T>(IDbTransaction transaction = null)
         {
-            return this.Query<T>(new DatabaseQuerySource<T>(this, transaction));
+            return this.Set<T>(false, transaction);
         }
 
-        public IDatabaseSet<T> Query<T>(IDatabaseQuerySource<T> source)
+        public IDatabaseSet<T> Set<T>(bool includeRelations = false, IDbTransaction transaction = null)
+        {
+            return this.Query<T>(new DatabaseQuerySource<T>(this, includeRelations, transaction));
+        }
+
+        public IDatabaseSet<T> Query<T>(IDatabaseQuerySource source)
         {
             return new DatabaseSet<T>(source);
         }

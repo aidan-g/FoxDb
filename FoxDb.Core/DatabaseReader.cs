@@ -100,6 +100,18 @@ namespace FoxDb
                 var value = this[name];
                 return Converter.ChangeType<T>(value);
             }
+
+            public IDictionary<string, object> ToDictionary()
+            {
+                var data = new Dictionary<string, object>();
+                for (var a = 0; a < this.Count; a++)
+                {
+                    var name = this.Reader.GetName(a);
+                    var value = this.Reader.GetValue(a);
+                    data[name] = value;
+                }
+                return data;
+            }
         }
     }
 }

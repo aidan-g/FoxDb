@@ -3,12 +3,18 @@ using System.Data;
 
 namespace FoxDb
 {
-    public class DatabaseQuerySource<T> : IDatabaseQuerySource<T>
+    public class DatabaseQuerySource<T> : IDatabaseQuerySource
     {
-        public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null)
+        public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null) : this(database, false, transaction)
+        {
+
+        }
+
+        public DatabaseQuerySource(IDatabase database, bool includeRelations = false, IDbTransaction transaction = null)
         {
             this.Database = database;
-            this.Select = database.QueryFactory.Select<T>();
+            this.Mapper = new EntityMapper(database, typeof(T), includeRelations);
+            this.Select = this.Mapper.Select;
             this.Insert = database.QueryFactory.Insert<T>();
             this.Update = database.QueryFactory.Update<T>();
             this.Delete = database.QueryFactory.Delete<T>();
@@ -16,6 +22,8 @@ namespace FoxDb
         }
 
         public IDatabase Database { get; private set; }
+
+        public IEntityMapper Mapper { get; private set; }
 
         public IDatabaseQuery Select { get; set; }
 

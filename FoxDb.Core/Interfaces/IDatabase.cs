@@ -16,7 +16,9 @@ namespace FoxDb.Interfaces
 
         IDatabaseSet<T> Set<T>(IDbTransaction transaction = null);
 
-        IDatabaseSet<T> Query<T>(IDatabaseQuerySource<T> source);
+        IDatabaseSet<T> Set<T>(bool includeRelations = false, IDbTransaction transaction = null);
+
+        IDatabaseSet<T> Query<T>(IDatabaseQuerySource source);
 
         void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 

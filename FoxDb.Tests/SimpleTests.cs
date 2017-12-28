@@ -18,7 +18,7 @@ namespace FoxDb
                 var set = database.Set<Test001>(transaction);
                 var data = new List<Test001>();
                 set.Clear();
-                this.AssertSequence(set, data);
+                this.AssertSequence(data, set);
                 data.AddRange(new[]
                 {
                     new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
@@ -26,13 +26,13 @@ namespace FoxDb
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
                 });
                 set.AddOrUpdate(data);
-                this.AssertSequence(set, data);
+                this.AssertSequence(data, set);
                 data[1].Field1 = "updated";
                 set.AddOrUpdate(data);
-                this.AssertSequence(set, data);
+                this.AssertSequence(data, set);
                 set.Delete(data[1]);
                 data.RemoveAt(1);
-                this.AssertSequence(set, data);
+                this.AssertSequence(data, set);
                 transaction.Rollback();
             }
         }
