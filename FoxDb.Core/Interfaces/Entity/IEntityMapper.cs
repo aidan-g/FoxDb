@@ -4,6 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface IEntityMapper
     {
+        ITableConfig Table { get; }
+
         bool IncludeRelations { get; }
 
         IEnumerable<ITableConfig> Tables { get; }
@@ -13,7 +15,5 @@ namespace FoxDb.Interfaces
         IEnumerable<IEntityColumnMap> GetColumns(ITableConfig table);
 
         IEntityColumnMap GetColumn(IColumnConfig column);
-
-        IDatabaseQuery Select { get; }
     }
 }

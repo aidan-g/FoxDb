@@ -1,7 +1,14 @@
-﻿namespace FoxDb.Interfaces
+﻿using System.Collections.Generic;
+
+namespace FoxDb.Interfaces
 {
-    public interface IEntityFactory<T>
+    public interface IEntityFactory
     {
-        T Create();
+        object Create(IDictionary<string, object> data);
+    }
+
+    public interface IEntityFactory<T> : IEntityFactory
+    {
+        new T Create(IDictionary<string, object> data);
     }
 }

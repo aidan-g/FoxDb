@@ -122,8 +122,8 @@ namespace FoxDb
         {
             using (var reader = this.Database.ExecuteReader(query, parameters, this.Transaction))
             {
-                var populator = new EntityGraphPopulator(this);
-                foreach (var item in populator.Populate<T>(reader))
+                var enumerator = new EntityEnumerator();
+                foreach (var item in enumerator.AsEnumerable<T>(this, reader))
                 {
                     yield return item;
                 }
