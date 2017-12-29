@@ -40,7 +40,13 @@ namespace FoxDb
                     this.AssertSequence(data.Take(2), sequence);
                 }
                 {
-                    var sequence = query.Where(element => (element.Field1 == "1_1" || element.Field1 == "1_2") && element.Field3 != "1_2");
+                    var container = new
+                    {
+                        A = "1_1",
+                        B = "1_2",
+                        C = "1_2"
+                    };
+                    var sequence = query.Where(element => (element.Field1 == container.A || element.Field1 == container.B) && element.Field3 != container.C);
                     this.AssertSequence(data.Take(1), sequence);
                 }
                 transaction.Rollback();
