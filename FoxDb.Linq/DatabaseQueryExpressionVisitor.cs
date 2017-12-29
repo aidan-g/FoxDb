@@ -81,6 +81,39 @@ namespace FoxDb
             return node as LambdaExpression;
         }
 
+        protected virtual ConstantExpression GetConstant(Expression node)
+        {
+            while (node != null && !(node is ConstantExpression))
+            {
+                if (node is MemberExpression)
+                {
+                    var member = node as MemberExpression;
+                    var target = this.GetConstant(member.Expression);
+                    var value = default(object);
+                    if (member.Member is FieldInfo)
+                    {
+                        var field = member.Member as FieldInfo;
+                        value = field.GetValue(target.Value);
+                    }
+                    else if (member.Member is PropertyInfo)
+                    {
+                        var property = member.Member as PropertyInfo;
+                        value = property.GetValue(target.Value);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                    return Expression.Constant(value);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            return node as ConstantExpression;
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Where")
@@ -142,6 +175,12 @@ namespace FoxDb
                     throw new NotImplementedException();
                 }
                 this.Composer.Column(this.Table.Column(property));
+                return node;
+            }
+            else if (node.Expression != null && node.Expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var constant = this.GetConstant(node);
+                this.VisitConstant(constant);
                 return node;
             }
             throw new NotImplementedException();
