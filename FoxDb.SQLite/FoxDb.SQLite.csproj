@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLiteProvider.cs" />
-    <Compile Include="SQLiteQueryComposer.cs" />
+    <Compile Include="SQLiteQueryBuilder.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
     <Compile Include="SQLiteSchema.cs" />
     <Compile Include="SQLiteSyntax.cs" />

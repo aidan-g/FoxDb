@@ -2,9 +2,11 @@
 {
     public interface IDatabaseQueryFactory
     {
-        IDatabaseQuery Create(string commandText, params string[] parameterNames);
+        IQueryGraphBuilder Build();
 
-        IDatabaseQueryComposer Compose();
+        IDatabaseQuery Create(params IQueryGraph[] graphs);
+
+        IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
         IDatabaseQuery Select<T>();
 

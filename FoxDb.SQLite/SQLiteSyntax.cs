@@ -24,9 +24,13 @@ namespace FoxDb
 
         public const string ORDER_BY = "ORDER BY";
 
-        public const string AND = "AND";
+        public const string AND = "&";
 
-        public const string OR = "OR";
+        public const string AND_ALSO = "AND";
+
+        public const string OR = "|";
+
+        public const string OR_ELSE = "OR";
 
         public const string COUNT = "COUNT";
 
@@ -52,7 +56,7 @@ namespace FoxDb
 
         public const string STATEMENT = ";";
 
-        public const string IDENTITY = "LAST_INSERT_ROWID()";
+        public const string IDENTITY = "LAST_INSERT_ROWID";
 
         public const string IDENTIFIER_FORMAT = "\"{0}\"";
 

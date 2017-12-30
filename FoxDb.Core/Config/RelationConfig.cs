@@ -23,11 +23,9 @@ namespace FoxDb
 
         public abstract Type RelationType { get; }
 
-        public IRelationConfig With(Action<IRelationConfig> relation)
-        {
-            relation(this);
-            return this;
-        }
+        public bool Inverted { get; set; }
+
+        public abstract IRelationConfig Invert();
     }
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
@@ -78,10 +76,9 @@ namespace FoxDb
             return this;
         }
 
-        public IRelationConfig<T, TRelation> With(Action<IRelationConfig<T, TRelation>> relation)
+        public override IRelationConfig Invert()
         {
-            relation(this);
-            return this;
+            throw new NotImplementedException();
         }
     }
 }

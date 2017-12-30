@@ -52,5 +52,11 @@ namespace FoxDb
                 collection.Remove(element);
             }
         }
+
+        public static T With<T>(this T value, Action<T> action)
+        {
+            action(value);
+            return value;
+        }
     }
 }
