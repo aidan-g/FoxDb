@@ -17,7 +17,9 @@ namespace FoxDb.Interfaces
 
         Type RelationType { get; }
 
-        IRelationConfig With(Action<IRelationConfig> relation);
+        bool Inverted { get; set; }
+
+        IRelationConfig Invert();
     }
 
     public interface IRelationConfig<T, TRelation> : IRelationConfig
@@ -29,8 +31,6 @@ namespace FoxDb.Interfaces
         Func<T, TRelation> Getter { get; }
 
         Action<T, TRelation> Setter { get; }
-
-        IRelationConfig<T, TRelation> With(Action<IRelationConfig<T, TRelation>> relation);
     }
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
@@ -42,8 +42,6 @@ namespace FoxDb.Interfaces
         Func<T, ICollection<TRelation>> Getter { get; }
 
         Action<T, ICollection<TRelation>> Setter { get; }
-
-        ICollectionRelationConfig<T, TRelation> With(Action<ICollectionRelationConfig<T, TRelation>> relation);
     }
 
     [Flags]

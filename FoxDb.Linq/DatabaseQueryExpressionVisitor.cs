@@ -9,32 +9,51 @@ namespace FoxDb
 {
     public class DatabaseQueryExpressionVisitor<T> : ExpressionVisitor
     {
+        protected readonly IDictionary<ExpressionType, QueryOperator> Operators = new Dictionary<ExpressionType, QueryOperator>()
+        {
+            { ExpressionType.Equal, QueryOperator.Equal },
+            { ExpressionType.NotEqual, QueryOperator.NotEqual },
+            { ExpressionType.And, QueryOperator.And },
+            { ExpressionType.AndAlso, QueryOperator.AndAlso },
+            { ExpressionType.Or, QueryOperator.Or },
+            { ExpressionType.OrElse, QueryOperator.OrElse },
+        };
+
         private DatabaseQueryExpressionVisitor()
         {
             this.Constants = new Dictionary<string, object>();
+            this.Targets = new Stack<IFragmentTarget>();
         }
 
         public DatabaseQueryExpressionVisitor(IDatabase database) : this()
         {
             this.Database = database;
-            this.Table = database.Config.Table<T>();
+            this.Begin();
         }
+
+        protected IDictionary<string, object> Constants { get; private set; }
+
+        protected Stack<IFragmentTarget> Targets { get; private set; }
 
         public IDatabase Database { get; private set; }
 
-        public ITableConfig<T> Table { get; private set; }
+        public IQueryGraphBuilder Builder { get; private set; }
 
-        public IDatabaseQueryComposer Composer { get; private set; }
+        public ITableConfig Table
+        {
+            get
+            {
+                return this.Database.Config.Table<T>();
+            }
+        }
 
         public IDatabaseQuery Query
         {
             get
             {
-                return this.Composer.Query;
+                return this.Database.QueryFactory.Create(this.Builder.Build());
             }
         }
-
-        protected IDictionary<string, object> Constants { get; private set; }
 
         public DatabaseParameterHandler Parameters
         {
@@ -53,16 +72,35 @@ namespace FoxDb
             }
         }
 
-        protected virtual void BeginQuery()
+        protected virtual void Begin()
         {
-            this.Composer = this.Database.QueryFactory.Compose();
-            this.Composer.Select();
-            this.Composer.Table(this.Table);
-            this.Composer.IdentifierDelimiter();
-            this.Composer.Star();
-            this.Composer.From();
-            this.Composer.Table(this.Table);
-            this.Composer.Where();
+            this.Builder = this.Database.QueryFactory.Build();
+            this.Builder.Select.AddColumns(this.Table.Columns);
+            this.Builder.From.AddTable(this.Table);
+        }
+
+        protected virtual IFragmentTarget Target
+        {
+            get
+            {
+                var target = this.Targets.Peek();
+                if (target == null)
+                {
+                    throw new InvalidOperationException("No target to write fragment to.");
+                }
+                return target;
+            }
+        }
+
+        protected virtual IFragmentTarget Push(IFragmentTarget target)
+        {
+            this.Targets.Push(target);
+            return target;
+        }
+
+        protected virtual IFragmentTarget Pop()
+        {
+            return this.Targets.Pop();
         }
 
         protected virtual LambdaExpression GetLambda(Expression node)
@@ -114,10 +152,21 @@ namespace FoxDb
             return node as ConstantExpression;
         }
 
+        protected virtual void Visit(ExpressionType nodeType)
+        {
+            var value = default(QueryOperator);
+            if (!this.Operators.TryGetValue(nodeType, out value))
+            {
+                throw new NotImplementedException();
+            }
+            this.Target.Write(this.Target.GetOperator(value));
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Where")
             {
+                this.Push(this.Builder.Where);
                 this.Visit(node.Arguments[0]);
                 var lambda = this.GetLambda(node.Arguments[1]);
                 this.Visit(lambda.Body);
@@ -133,34 +182,16 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
-            return node;
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            this.Composer.OpenParentheses();
+            var fragment = this.Push(this.Target.GetFragment<IBinaryExpressionBuilder>());
             this.Visit(node.Left);
-            switch (node.NodeType)
-            {
-                case ExpressionType.Equal:
-                    this.Composer.Equal();
-                    break;
-                case ExpressionType.NotEqual:
-                    this.Composer.NotEqual();
-                    break;
-                case ExpressionType.And:
-                case ExpressionType.AndAlso:
-                    this.Composer.And();
-                    break;
-                case ExpressionType.Or:
-                case ExpressionType.OrElse:
-                    this.Composer.Or();
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+            this.Visit(node.NodeType);
             this.Visit(node.Right);
-            this.Composer.CloseParentheses();
+            this.Pop();
+            this.Target.Write(fragment);
             return node;
         }
 
@@ -174,7 +205,7 @@ namespace FoxDb
                 {
                     throw new NotImplementedException();
                 }
-                this.Composer.Column(this.Table.Column(property));
+                this.Target.Write(this.Target.GetColumn(this.Table.Column(property)));
                 return node;
             }
             else if (node.Expression != null && node.Expression.NodeType == ExpressionType.MemberAccess)
@@ -190,16 +221,16 @@ namespace FoxDb
         {
             if (node.Value is IQueryable)
             {
-                this.BeginQuery();
+                //Nothing to do.
             }
             else if (node.Value == null)
             {
-                this.Composer.Null();
+                this.Target.Write(this.Target.GetOperator(QueryOperator.Null));
             }
             else
             {
                 var name = string.Format("parameter{0}", this.Constants.Count);
-                this.Composer.Parameter(name);
+                this.Target.Write(this.Target.GetParameter(name));
                 this.Constants[name] = node.Value;
             }
             return base.VisitConstant(node);

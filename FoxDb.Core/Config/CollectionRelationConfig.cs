@@ -53,10 +53,13 @@ namespace FoxDb
             return this;
         }
 
-        public ICollectionRelationConfig<T, TRelation> With(Action<ICollectionRelationConfig<T, TRelation>> relation)
+        public override IRelationConfig Invert()
         {
-            relation(this);
-            return this;
+            return new CollectionRelationConfig<T, TRelation>(this.Parent, this.Table, this.Getter, this.Setter)
+            {
+                Multiplicity = this.Multiplicity,
+                Inverted = true
+            };
         }
     }
 }

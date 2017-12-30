@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 
 namespace FoxDb
 {
@@ -26,91 +25,35 @@ namespace FoxDb
         {
             get
             {
-                var compose = this.Database.QueryFactory.Compose();
-                compose.Select();
-                var first = true;
+                var builder = this.Database.QueryFactory.Build();
                 foreach (var table in this.Mapper.Tables)
                 {
                     foreach (var column in this.Mapper.GetColumns(table))
                     {
-                        if (first)
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            compose.ListDelimiter();
-                        }
-                        compose.Column(column.Column);
+                        var expression = builder.Select.AddColumn(column.Column);
                         if (this.Mapper.IncludeRelations)
                         {
-                            compose.As();
-                            compose.Identifier(column.Identifier);
+                            expression.Alias = column.Identifier;
                         }
                     }
                 }
-                compose.From();
-                compose.Table(this.Mapper.Table);
+                builder.From.AddTable(this.Mapper.Table);
                 if (this.Mapper.IncludeRelations)
                 {
                     foreach (var relation in this.Mapper.Relations)
                     {
-                        this.Members.Invoke(this, "OnSelectRelation", new[] { relation.Parent.TableType, relation.RelationType }, compose, relation);
+                        builder.From.AddRelation(relation);
                     }
                 }
-                compose.OrderBy();
-                compose.Column(this.Mapper.Table.PrimaryKey);
+                builder.OrderBy.AddColumn(this.Mapper.Table.PrimaryKey);
                 if (this.Mapper.IncludeRelations)
                 {
                     foreach (var relation in this.Mapper.Relations)
                     {
-                        compose.ListDelimiter();
-                        compose.Column(relation.Table.PrimaryKey);
+                        builder.OrderBy.AddColumn(relation.Table.PrimaryKey);
                     }
                 }
-                return compose.Query;
-            }
-        }
-
-        protected virtual void OnSelectRelation<T, TRelation>(IDatabaseQueryComposer compose, IRelationConfig<T, TRelation> relation)
-        {
-            compose.Join();
-            compose.Table(relation.Table);
-            compose.On();
-            compose.Column(relation.Parent.PrimaryKey);
-            compose.Equal();
-            compose.Column(relation.Table.ForeignKey);
-        }
-
-        protected virtual void OnSelectRelation<T, TRelation>(IDatabaseQueryComposer compose, ICollectionRelationConfig<T, TRelation> relation)
-        {
-            switch (relation.Multiplicity)
-            {
-                case RelationMultiplicity.OneToMany:
-                    compose.Join();
-                    compose.Table(relation.Table);
-                    compose.On();
-                    compose.Column(relation.Parent.PrimaryKey);
-                    compose.Equal();
-                    compose.Column(relation.Table.ForeignKey);
-                    break;
-                case RelationMultiplicity.ManyToMany:
-                    var table = this.Database.Config.Table(relation.Parent.TableType, relation.RelationType);
-                    compose.Join();
-                    compose.Table(table);
-                    compose.On();
-                    compose.Column(table.LeftForeignKey);
-                    compose.Equal();
-                    compose.Column(table.LeftTable.PrimaryKey);
-                    compose.Join();
-                    compose.Table(table.RightTable);
-                    compose.On();
-                    compose.Column(table.RightForeignKey);
-                    compose.Equal();
-                    compose.Column(table.RightTable.PrimaryKey);
-                    break;
-                default:
-                    throw new NotImplementedException();
+                return this.Database.QueryFactory.Create(builder.Build());
             }
         }
     }

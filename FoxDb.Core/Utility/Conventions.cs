@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FoxDb.Interfaces;
+using System;
+using System.Reflection;
 
 namespace FoxDb
 {
@@ -11,5 +13,9 @@ namespace FoxDb
         public static string KeyColumn = "Id";
 
         public static Func<Type, string> RelationColumn = type => string.Format("{0}_{1}", type.Name, KeyColumn);
+
+        public static Func<PropertyInfo, string> ColumnName = property => property.Name;
+
+        public static Func<IColumnConfig, string> ParameterName = column => column.ColumnName;
     }
 }
