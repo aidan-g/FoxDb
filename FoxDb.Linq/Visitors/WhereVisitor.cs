@@ -17,10 +17,9 @@ namespace FoxDb
         {
             if (!node.Method.Name.Equals(MethodName))
             {
-                throw new NotImplementedException();
+                return base.VisitMethodCall(node);
             }
             this.Target.Push(this.Target.Builder.Where);
-            this.Visit(node.Arguments[0]);
             var lambda = this.GetLambda(node.Arguments[1]);
             return this.Visit(lambda.Body);
         }
