@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -33,6 +34,16 @@ namespace FoxDb
             {
                 this.AddColumn(column);
             }
+        }
+
+        public void Write(IFragmentBuilder fragment)
+        {
+            if (fragment is IColumnBuilder)
+            {
+                this.Columns.Add(fragment as IColumnBuilder);
+                return;
+            }
+            throw new NotImplementedException();
         }
     }
 }

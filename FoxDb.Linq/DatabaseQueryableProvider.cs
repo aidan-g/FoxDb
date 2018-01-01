@@ -74,7 +74,7 @@ namespace FoxDb
 
         protected virtual IDatabaseSet<T> Set<T>(Expression expression)
         {
-            var visitor = new DatabaseQueryExpressionVisitor<T>(this.Database);
+            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, typeof(T));
             visitor.Visit(expression);
             var source = new DatabaseQuerySource<T>(this.Database, this.Transaction);
             source.Select = visitor.Query;

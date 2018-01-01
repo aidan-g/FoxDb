@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace FoxDb
 {
-    public class DatabaseQueryable<T> : IQueryable<T>
+    public class DatabaseQueryable<T> : IOrderedQueryable<T>
     {
         protected DatabaseQueryable(IDatabaseQueryableProvider provider)
         {
