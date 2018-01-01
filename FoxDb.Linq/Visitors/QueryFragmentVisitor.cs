@@ -80,12 +80,34 @@ namespace FoxDb
 
         protected virtual void Visit(ExpressionType nodeType)
         {
-            var value = default(QueryOperator);
-            if (!this.Operators.TryGetValue(nodeType, out value))
+            var @operator = default(QueryOperator);
+            if (!this.Operators.TryGetValue(nodeType, out @operator))
             {
                 throw new NotImplementedException();
             }
-            this.Target.Peek.Write(this.Target.Peek.GetOperator(value));
+            this.Visit(@operator);
+        }
+
+        protected virtual void Visit(QueryOperator @operator)
+        {
+            this.Target.Peek.Write(this.Target.Peek.GetOperator(@operator));
+        }
+
+        protected virtual void Visit(PropertyInfo property)
+        {
+            var table = this.Target.Database.Config.Table(this.ElementType);
+            this.Visit(table.Column(property));
+        }
+
+        protected virtual void Visit(IColumnConfig column)
+        {
+            this.Target.Peek.Write(this.Target.Peek.GetColumn(column));
+        }
+
+        protected virtual void Visit(string name, object value)
+        {
+            this.Target.Peek.Write(this.Target.Peek.GetParameter(name));
+            this.Target.Constants[name] = value;
         }
 
         protected override Expression VisitUnary(UnaryExpression node)
@@ -118,8 +140,7 @@ namespace FoxDb
                 {
                     throw new NotImplementedException();
                 }
-                var table = this.Target.Database.Config.Table(this.ElementType);
-                this.Target.Peek.Write(this.Target.Peek.GetColumn(table.Column(property)));
+                this.Visit(property);
                 return node;
             }
             else if (node.Expression != null && node.Expression.NodeType == ExpressionType.MemberAccess)
@@ -139,13 +160,12 @@ namespace FoxDb
             }
             else if (node.Value == null)
             {
-                this.Target.Peek.Write(this.Target.Peek.GetOperator(QueryOperator.Null));
+                this.Visit(QueryOperator.Null);
             }
             else
             {
                 var name = string.Format("parameter{0}", this.Target.Constants.Count);
-                this.Target.Peek.Write(this.Target.Peek.GetParameter(name));
-                this.Target.Constants[name] = node.Value;
+                this.Visit(name, node.Value);
             }
             return base.VisitConstant(node);
         }

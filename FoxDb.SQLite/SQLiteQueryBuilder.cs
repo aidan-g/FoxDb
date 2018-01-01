@@ -222,6 +222,15 @@ namespace FoxDb
                 {
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.ColumnName));
                 }
+                switch (expression.Direction)
+                {
+                    case OrderByDirection.Ascending:
+                        this.Builder.AppendFormat("{0} ", SQLiteSyntax.ASC);
+                        break;
+                    case OrderByDirection.Descending:
+                        this.Builder.AppendFormat("{0} ", SQLiteSyntax.DESC);
+                        break;
+                }
                 this.VisitAlias(expression.Alias);
             }
 

@@ -40,6 +40,10 @@ namespace FoxDb
 
         public const string AS = "AS";
 
+        public const string ASC = "ASC";
+
+        public const string DESC = "DESC";
+
         public const string LIST_DELIMITER = ",";
 
         public const string IDENTIFIER_DELIMITER = ".";

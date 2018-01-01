@@ -91,6 +91,41 @@ namespace FoxDb
         }
 
         [Test]
+        public void OrderByDescending()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A"},
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B"},
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C"}
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                {
+                    Expression<Func<Test001, string>> func = element => element.Field1;
+                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
+                }
+                {
+                    Expression<Func<Test001, string>> func = element => element.Field2;
+                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
+                }
+                {
+                    Expression<Func<Test001, string>> func = element => element.Field3;
+                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
+                }
+                transaction.Rollback();
+            }
+        }
+
+        [Test]
         public void Composite()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
