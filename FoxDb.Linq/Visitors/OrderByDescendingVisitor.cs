@@ -4,13 +4,18 @@ using System.Linq.Expressions;
 
 namespace FoxDb
 {
-    public class OrderByVisitor : QueryFragmentVisitor
+    public class OrderByDescendingVisitor : QueryFragmentVisitor
     {
-        public const string MethodName = "OrderBy";
+        public const string MethodName = "OrderByDescending";
 
-        public OrderByVisitor(IDatabaseQueryableTarget target, Type elementType) : base(target, elementType)
+        public OrderByDescendingVisitor(IDatabaseQueryableTarget target, Type elementType) : base(target, elementType)
         {
 
+        }
+
+        protected override void Visit(IColumnConfig column)
+        {
+            this.Target.Peek.Write(this.Target.Peek.GetColumn(column).With(builder => builder.Direction = OrderByDirection.Descending));
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

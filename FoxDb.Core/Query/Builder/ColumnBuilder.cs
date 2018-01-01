@@ -4,6 +4,11 @@ namespace FoxDb
 {
     public class ColumnBuilder : ExpressionBuilder, IColumnBuilder
     {
+        public ColumnBuilder()
+        {
+            this.Direction = OrderByDirection.None;
+        }
+
         public override FragmentType FragmentType
         {
             get
@@ -11,6 +16,8 @@ namespace FoxDb
                 return FragmentType.Column;
             }
         }
+
+        public OrderByDirection Direction { get; set; }
 
         public IColumnConfig Column { get; set; }
     }

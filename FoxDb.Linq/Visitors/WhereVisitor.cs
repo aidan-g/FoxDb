@@ -4,11 +4,11 @@ using System.Linq.Expressions;
 
 namespace FoxDb
 {
-    public class WhereExpressionVisitor : QueryFragmentVisitor
+    public class WhereVisitor : QueryFragmentVisitor
     {
         public const string MethodName = "Where";
 
-        public WhereExpressionVisitor(IDatabaseQueryableTarget target, Type elementType) : base(target, elementType)
+        public WhereVisitor(IDatabaseQueryableTarget target, Type elementType) : base(target, elementType)
         {
 
         }

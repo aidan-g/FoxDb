@@ -10,8 +10,9 @@ namespace FoxDb
     {
         protected readonly IDictionary<string, QueryFragmentVisitorFactory> Factories = new Dictionary<string, QueryFragmentVisitorFactory>()
         {
-            { WhereExpressionVisitor.MethodName, new QueryFragmentVisitorFactory<WhereExpressionVisitor>() },
-            { OrderByExpressionVisitor.MethodName, new QueryFragmentVisitorFactory<OrderByExpressionVisitor>() }
+            { WhereVisitor.MethodName, new QueryFragmentVisitorFactory<WhereVisitor>() },
+            { OrderByVisitor.MethodName, new QueryFragmentVisitorFactory<OrderByVisitor>() },
+            { OrderByDescendingVisitor.MethodName, new QueryFragmentVisitorFactory<OrderByDescendingVisitor>() }
         };
 
         private DatabaseQueryableExpressionVisitor()
