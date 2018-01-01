@@ -96,6 +96,10 @@ namespace FoxDb
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            foreach(var argument in node.Arguments)
+            {
+                this.Visit(argument);
+            }
             if (node.Method.DeclaringType == typeof(Queryable))
             {
                 var factory = default(QueryFragmentVisitorFactory);
