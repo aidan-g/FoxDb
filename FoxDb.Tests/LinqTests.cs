@@ -52,5 +52,40 @@ namespace FoxDb
                 transaction.Rollback();
             }
         }
+
+        [Test]
+        public void OrderBy()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A"},
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B"},
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C"}
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                {
+                    var sequence = query.OrderBy(element => element.Field1);
+                    Assert.AreEqual(data.OrderBy(element => element.Field1), sequence);
+                }
+                {
+                    var sequence = query.OrderBy(element => element.Field2);
+                    Assert.AreEqual(data.OrderBy(element => element.Field2), sequence);
+                }
+                {
+                    var sequence = query.OrderBy(element => element.Field3);
+                    Assert.AreEqual(data.OrderBy(element => element.Field3), sequence);
+                }
+                transaction.Rollback();
+            }
+        }
     }
 }

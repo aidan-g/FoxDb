@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IOrderByBuilder : IFragmentBuilder
+    public interface IOrderByBuilder : IFragmentTarget
     {
         ICollection<IColumnBuilder> Columns { get; }
 

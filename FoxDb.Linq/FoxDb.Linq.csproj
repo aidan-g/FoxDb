@@ -42,10 +42,15 @@
   <ItemGroup>
     <Compile Include="DatabaseQueryable.cs" />
     <Compile Include="DatabaseQueryableProvider.cs" />
-    <Compile Include="DatabaseQueryExpressionVisitor.cs" />
+    <Compile Include="DatabaseQueryableExpressionVisitor.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces\IDatabaseQueryableTarget.cs" />
     <Compile Include="Interfaces\IDatabaseQueryableProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visitors\QueryFragmentVisitor.cs" />
+    <Compile Include="Visitors\OrderByVisitor.cs" />
+    <Compile Include="Visitors\QueryFragmentVisitorFactory.cs" />
+    <Compile Include="Visitors\WhereVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">

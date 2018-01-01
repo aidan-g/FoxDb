@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IWhereBuilder : IFragmentBuilder, IFragmentTarget
+    public interface IWhereBuilder : IFragmentTarget
     {
         ICollection<IBinaryExpressionBuilder> Expressions { get; }
 
