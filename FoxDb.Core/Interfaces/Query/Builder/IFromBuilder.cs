@@ -10,6 +10,6 @@ namespace FoxDb.Interfaces
 
         void AddRelation(IRelationConfig relation);
 
-        void AddSubQuery(IDatabaseQuery query);
+        void AddSubQuery(IQueryGraphBuilder query);
     }
 }

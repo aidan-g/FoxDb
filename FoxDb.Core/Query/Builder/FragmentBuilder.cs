@@ -46,7 +46,7 @@ namespace FoxDb
             return this.GetFragment<IRelationBuilder>().With(builder => builder.Relation = relation);
         }
 
-        public ISubQueryBuilder GetSubQuery(IDatabaseQuery query)
+        public ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query)
         {
             return this.GetFragment<ISubQueryBuilder>().With(builder => builder.Query = query);
         }

@@ -20,7 +20,8 @@ namespace FoxDb
             }
             else
             {
-                var key = this.Set.Database.Execute<object>(this.Set.Source.Insert, this.GetParameters(item), this.Set.Transaction);
+                var query = this.Set.Database.QueryFactory.Create(this.Set.Source.Insert);
+                var key = this.Set.Database.Execute<object>(query, this.GetParameters(item), this.Set.Transaction);
                 EntityKey<T>.SetKey(this.Set.Database, item, key);
             }
             Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item);

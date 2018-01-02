@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System.Collections.Generic;
 using System.Data;
 
 namespace FoxDb
@@ -25,13 +26,13 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public IDatabaseQuery Select { get; set; }
+        public IQueryGraphBuilder Select { get; set; }
 
-        public IDatabaseQuery Insert { get; set; }
+        public IEnumerable<IQueryGraphBuilder> Insert { get; set; }
 
-        public IDatabaseQuery Update { get; set; }
+        public IQueryGraphBuilder Update { get; set; }
 
-        public IDatabaseQuery Delete { get; set; }
+        public IQueryGraphBuilder Delete { get; set; }
 
         public DatabaseParameterHandler Parameters { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace FoxDb.Interfaces
+﻿using System.Collections.Generic;
+
+namespace FoxDb.Interfaces
 {
     public interface IDatabaseQueryFactory
     {
@@ -6,20 +8,26 @@
 
         IDatabaseQuery Create(params IQueryGraph[] graphs);
 
+        IDatabaseQuery Create(IEnumerable<IQueryGraph> graphs);
+
+        IDatabaseQuery Create(params IQueryGraphBuilder[] builders);
+
+        IDatabaseQuery Create(IEnumerable<IQueryGraphBuilder> builders);
+
         IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
-        IDatabaseQuery Select<T>();
+        IQueryGraphBuilder Select<T>();
 
-        IDatabaseQuery Insert<T>();
+        IEnumerable<IQueryGraphBuilder> Insert<T>();
 
-        IDatabaseQuery Insert<T1, T2>();
+        IEnumerable<IQueryGraphBuilder> Insert<T1, T2>();
 
-        IDatabaseQuery Update<T>();
+        IQueryGraphBuilder Update<T>();
 
-        IDatabaseQuery Delete<T>();
+        IQueryGraphBuilder Delete<T>();
 
-        IDatabaseQuery Delete<T1, T2>();
+        IQueryGraphBuilder Delete<T1, T2>();
 
-        IDatabaseQuery Count(IDatabaseQuery query);
+        IQueryGraphBuilder Count(IQueryGraphBuilder query);
     }
 }

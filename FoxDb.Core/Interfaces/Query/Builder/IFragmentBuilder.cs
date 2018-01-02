@@ -12,7 +12,7 @@
 
         IRelationBuilder GetRelation(IRelationConfig relation);
 
-        ISubQueryBuilder GetSubQuery(IDatabaseQuery query);
+        ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query);
 
         IColumnBuilder GetColumn(IColumnConfig column);
 

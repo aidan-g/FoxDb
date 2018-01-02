@@ -8,7 +8,7 @@ namespace FoxDb.Interfaces
 
         IDatabase Database { get; }
 
-        IQueryGraphBuilder Builder { get; }
+        IQueryGraphBuilder Query { get; }
 
         IFragmentTarget Peek { get; }
 

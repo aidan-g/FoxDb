@@ -30,7 +30,7 @@ namespace FoxDb
             this.Expressions.Add(this.GetRelation(relation));
         }
 
-        public void AddSubQuery(IDatabaseQuery query)
+        public void AddSubQuery(IQueryGraphBuilder query)
         {
             this.Expressions.Add(this.GetSubQuery(query));
         }

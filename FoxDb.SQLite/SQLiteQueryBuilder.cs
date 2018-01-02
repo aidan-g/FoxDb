@@ -30,6 +30,17 @@ namespace FoxDb
 
         protected class SQLiteQueryBuilderVisitor : QueryGraphVisitor
         {
+            protected readonly IDictionary<Type, byte> FragmentPriorities = new Dictionary<Type, byte>()
+            {
+                { typeof(IInsertBuilder), 10 },
+                { typeof(IUpdateBuilder), 20 },
+                { typeof(IDeleteBuilder), 30 },
+                { typeof(ISelectBuilder), 40 },
+                { typeof(IFromBuilder), 50 },
+                { typeof(IWhereBuilder), 60 },
+                { typeof(IOrderByBuilder), 70 }
+            };
+
             protected readonly IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
             {
                 { QueryOperator.Equal, SQLiteSyntax.EQUAL },
@@ -77,6 +88,23 @@ namespace FoxDb
                 {
                     return new DatabaseQuery(this.Builder.ToString(), this.ParameterNames.ToArray());
                 }
+            }
+
+            protected override IEnumerable<IFragmentBuilder> GetFragments(IQueryGraph graph)
+            {
+                return base.GetFragments(graph).OrderBy(fragment =>
+                {
+                    var type = fragment.GetType();
+                    foreach (var @interface in type.GetInterfaces())
+                    {
+                        var priority = default(byte);
+                        if (FragmentPriorities.TryGetValue(@interface, out priority))
+                        {
+                            return priority;
+                        }
+                    }
+                    throw new NotImplementedException();
+                });
             }
 
             protected override void VisitDelete(IDeleteBuilder expression)
@@ -181,13 +209,14 @@ namespace FoxDb
                 {
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
                 }
-                this.Builder.AppendFormat("{0} ", expression.Query.CommandText);
+                var query = this.Database.QueryFactory.Create(expression.Query);
+                this.Builder.AppendFormat("{0} ", query.CommandText);
                 if (parentheses)
                 {
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
                 }
                 this.VisitAlias(expression.Alias);
-                foreach (var parameterName in expression.Query.ParameterNames)
+                foreach (var parameterName in query.ParameterNames)
                 {
                     if (this.ParameterNames.Contains(parameterName, StringComparer.OrdinalIgnoreCase))
                     {

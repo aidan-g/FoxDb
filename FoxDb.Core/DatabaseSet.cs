@@ -59,7 +59,7 @@ namespace FoxDb
         {
             get
             {
-                var query = this.Database.QueryFactory.Count(this.Source.Select);
+                var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(this.Source.Select));
                 return this.Database.Execute<int>(query, this.Parameters, this.Transaction);
             }
         }
@@ -118,7 +118,7 @@ namespace FoxDb
             return this.GetEnumerator(this.Source.Select, this.Parameters);
         }
 
-        protected virtual IEnumerator<T> GetEnumerator(IDatabaseQuery query, DatabaseParameterHandler parameters)
+        protected virtual IEnumerator<T> GetEnumerator(IQueryGraphBuilder query, DatabaseParameterHandler parameters)
         {
             using (var reader = this.Database.ExecuteReader(query, parameters, this.Transaction))
             {
