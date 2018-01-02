@@ -8,7 +8,7 @@ namespace FoxDb
     {
         public WhereBuilder()
         {
-            this.Expressions = new List<IBinaryExpressionBuilder>();
+            this.Expressions = new List<IExpressionBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -19,7 +19,7 @@ namespace FoxDb
             }
         }
 
-        public ICollection<IBinaryExpressionBuilder> Expressions { get; private set; }
+        public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
@@ -41,9 +41,9 @@ namespace FoxDb
 
         public void Write(IFragmentBuilder fragment)
         {
-            if (fragment is IBinaryExpressionBuilder)
+            if (fragment is IExpressionBuilder)
             {
-                this.Expressions.Add(fragment as IBinaryExpressionBuilder);
+                this.Expressions.Add(fragment as IExpressionBuilder);
                 return;
             }
             throw new NotImplementedException();

@@ -74,6 +74,7 @@
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Interfaces\Query\Builder\IBinaryExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IColumnBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IConstantBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IDeleteBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFragmentBuilder.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Interfaces\Query\Builder\IWhereBuilder.cs" />
     <Compile Include="Query\Builder\BinaryExpressionBuilder.cs" />
     <Compile Include="Query\Builder\ColumnBuilder.cs" />
+    <Compile Include="Query\Builder\ConstantBuilder.cs" />
     <Compile Include="Query\Builder\DeleteBuilder.cs" />
     <Compile Include="Query\Builder\ExpressionBuilder.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />

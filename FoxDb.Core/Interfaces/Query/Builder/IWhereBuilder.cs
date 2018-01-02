@@ -4,7 +4,7 @@ namespace FoxDb.Interfaces
 {
     public interface IWhereBuilder : IFragmentTarget
     {
-        ICollection<IBinaryExpressionBuilder> Expressions { get; }
+        ICollection<IExpressionBuilder> Expressions { get; }
 
         IBinaryExpressionBuilder AddColumn(IColumnConfig column);
 
