@@ -90,6 +90,11 @@ namespace FoxDb
             }
         }
 
+        public void Execute(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            this.Execute(this.QueryFactory.Create(query), parameters, transaction);
+        }
+
         public T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
@@ -98,10 +103,20 @@ namespace FoxDb
             }
         }
 
+        public T Execute<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.Execute<T>(this.QueryFactory.Create(query), parameters, transaction);
+        }
+
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             var command = this.Connection.CreateCommand(query, parameters, transaction);
             return new DatabaseReader(command.ExecuteReader());
+        }
+
+        public IDatabaseReader ExecuteReader(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.ExecuteReader(this.QueryFactory.Create(query), parameters, transaction);
         }
     }
 }

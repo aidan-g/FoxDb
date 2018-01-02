@@ -2,6 +2,6 @@
 {
     public interface IEntityRelationQueryComposer
     {
-        IDatabaseQuery Select { get; }
+        IQueryGraphBuilder Select { get; }
     }
 }

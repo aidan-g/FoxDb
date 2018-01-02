@@ -36,86 +36,111 @@ namespace FoxDb
             return new DatabaseQuery(builder.ToString(), parameterNames.ToArray());
         }
 
+        public IDatabaseQuery Create(IEnumerable<IQueryGraph> graphs)
+        {
+            return this.Create(graphs.ToArray());
+        }
+
+        public IDatabaseQuery Create(params IQueryGraphBuilder[] builders)
+        {
+            var graphs = builders.Select(builder => builder.Build());
+            return this.Create(graphs.ToArray());
+        }
+
+        public IDatabaseQuery Create(IEnumerable<IQueryGraphBuilder> builders)
+        {
+            return this.Create(builders.ToArray());
+        }
+
         public IDatabaseQuery Create(string commandText, params string[] parameterNames)
         {
             return new DatabaseQuery(commandText, parameterNames);
         }
 
-        public IDatabaseQuery Select<T>()
+        public IQueryGraphBuilder Select<T>()
         {
             var table = this.Database.Config.Table<T>();
             var builder = this.Build();
             builder.Select.AddColumns(table.Columns);
             builder.From.AddTable(table);
             builder.OrderBy.AddColumns(table.PrimaryKeys);
-            return this.Create(builder.Build());
+            return builder;
         }
 
-        public IDatabaseQuery Insert<T>()
+        public IEnumerable<IQueryGraphBuilder> Insert<T>()
         {
-            var graphs = new List<IQueryGraph>();
+            var graphs = new List<IQueryGraphBuilder>();
             var table = this.Database.Config.Table<T>();
             {
                 var builder = this.Build();
                 builder.Insert.SetTable(table);
                 builder.Insert.AddColumns(table.Columns.Except(table.PrimaryKeys));
                 builder.Select.AddParameters(table.Columns.Except(table.PrimaryKeys));
-                graphs.Add(builder.Build());
+                graphs.Add(builder);
             }
             {
                 var builder = this.Build();
                 builder.Select.AddFunction(QueryFunction.Identity);
-                graphs.Add(builder.Build());
+                graphs.Add(builder);
             }
-            return this.Create(graphs.ToArray());
+            return graphs;
         }
 
-        public IDatabaseQuery Insert<T1, T2>()
+        public IEnumerable<IQueryGraphBuilder> Insert<T1, T2>()
         {
+            var graphs = new List<IQueryGraphBuilder>();
             var table = this.Database.Config.Table<T1, T2>();
-            var builder = this.Build();
-            builder.Insert.SetTable(table);
-            builder.Insert.AddColumns(table.ForeignKeys);
-            builder.Select.AddParameters(table.ForeignKeys);
-            return this.Create(builder.Build());
+            {
+                var builder = this.Build();
+                builder.Insert.SetTable(table);
+                builder.Insert.AddColumns(table.ForeignKeys);
+                builder.Select.AddParameters(table.ForeignKeys);
+                graphs.Add(builder);
+            }
+            {
+                var builder = this.Build();
+                builder.Select.AddFunction(QueryFunction.Identity);
+                graphs.Add(builder);
+            }
+            return graphs;
         }
 
-        public IDatabaseQuery Update<T>()
+        public IQueryGraphBuilder Update<T>()
         {
             var table = this.Database.Config.Table<T>();
             var builder = this.Build();
             builder.Update.SetTable(table);
             builder.Update.AddColumns(table.Columns.Except(table.PrimaryKeys));
             builder.Where.AddColumns(table.PrimaryKeys);
-            return this.Create(builder.Build());
+            return builder;
         }
 
-        public IDatabaseQuery Delete<T>()
+        public IQueryGraphBuilder Delete<T>()
         {
             var table = this.Database.Config.Table<T>();
             var builder = this.Build();
             builder.Delete.Touch();
             builder.From.AddTable(table);
             builder.Where.AddColumns(table.PrimaryKeys);
-            return this.Create(builder.Build());
+            return builder;
         }
 
-        public IDatabaseQuery Delete<T1, T2>()
+        public IQueryGraphBuilder Delete<T1, T2>()
         {
             var table = this.Database.Config.Table<T1, T2>();
             var builder = this.Build();
             builder.Delete.Touch();
             builder.From.AddTable(table);
             builder.Where.AddColumns(table.ForeignKeys);
-            return this.Create(builder.Build());
+            return builder;
         }
 
-        public IDatabaseQuery Count(IDatabaseQuery query)
+        public IQueryGraphBuilder Count(IQueryGraphBuilder query)
         {
             var builder = this.Build();
             builder.Select.AddFunction(QueryFunction.Count, builder.Select.GetOperator(QueryOperator.Star));
             builder.From.AddSubQuery(query);
-            return this.Create(builder.Build());
+            return builder;
         }
     }
 }

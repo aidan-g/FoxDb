@@ -36,15 +36,7 @@ namespace FoxDb
 
         public Type ElementType { get; private set; }
 
-        public IQueryGraphBuilder Builder { get; private set; }
-
-        public IDatabaseQuery Query
-        {
-            get
-            {
-                return this.Database.QueryFactory.Create(this.Builder.Build());
-            }
-        }
+        public IQueryGraphBuilder Query { get; private set; }
 
         public DatabaseParameterHandler Parameters
         {
@@ -90,9 +82,9 @@ namespace FoxDb
         protected virtual void Begin()
         {
             var table = this.Database.Config.Table(this.ElementType);
-            this.Builder = this.Database.QueryFactory.Build();
-            this.Builder.Select.AddColumns(table.Columns);
-            this.Builder.From.AddTable(table);
+            this.Query = this.Database.QueryFactory.Build();
+            this.Query.Select.AddColumns(table.Columns);
+            this.Query.From.AddTable(table);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)

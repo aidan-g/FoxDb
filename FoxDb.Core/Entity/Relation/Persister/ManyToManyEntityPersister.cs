@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -102,9 +103,10 @@ namespace FoxDb
 
             protected virtual void AddRelation(TRelation child)
             {
-                var query = this.Set.Database.QueryFactory.Insert<T, TRelation>();
+                var builders = this.Set.Database.QueryFactory.Insert<T, TRelation>();
+                var queries = this.Set.Database.QueryFactory.Create(builders.ToArray());
                 var parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
-                this.Set.Database.Execute(query, parameters, this.Set.Transaction);
+                this.Set.Database.Execute(queries, parameters, this.Set.Transaction);
             }
 
             protected virtual void DeleteRelation(TRelation child)

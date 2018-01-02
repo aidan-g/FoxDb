@@ -12,6 +12,6 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseQuery Query { get; set; }
+        public IQueryGraphBuilder Query { get; set; }
     }
 }

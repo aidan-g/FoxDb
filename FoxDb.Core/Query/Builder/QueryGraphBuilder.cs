@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace FoxDb
@@ -25,6 +26,7 @@ namespace FoxDb
 
         public ICollection<IFragmentBuilder> Fragments { get; }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ISelectBuilder Select
         {
             get
@@ -33,6 +35,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IInsertBuilder Insert
         {
             get
@@ -41,6 +44,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IUpdateBuilder Update
         {
             get
@@ -49,6 +53,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IDeleteBuilder Delete
         {
             get
@@ -57,6 +62,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IFromBuilder From
         {
             get
@@ -65,6 +71,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IWhereBuilder Where
         {
             get
@@ -73,6 +80,7 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOrderByBuilder OrderBy
         {
             get

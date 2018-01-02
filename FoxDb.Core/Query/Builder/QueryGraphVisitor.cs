@@ -27,9 +27,14 @@ namespace FoxDb
             };
         }
 
+        protected virtual IEnumerable<IFragmentBuilder> GetFragments(IQueryGraph graph)
+        {
+            return graph.Fragments;
+        }
+
         public virtual void Visit(IQueryGraph graph)
         {
-            foreach (var fragment in graph.Fragments)
+            foreach (var fragment in this.GetFragments(graph))
             {
                 this.Visit(fragment);
             }

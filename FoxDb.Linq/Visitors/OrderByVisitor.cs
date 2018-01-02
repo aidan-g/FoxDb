@@ -19,7 +19,7 @@ namespace FoxDb
             {
                 return base.VisitMethodCall(node);
             }
-            this.Target.Push(this.Target.Builder.OrderBy);
+            this.Target.Push(this.Target.Query.OrderBy);
             var lambda = this.GetLambda(node.Arguments[1]);
             return this.Visit(lambda.Body);
         }

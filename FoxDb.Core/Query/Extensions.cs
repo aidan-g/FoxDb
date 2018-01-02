@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IDatabaseQuery SelectByPrimaryKey<T>(this IDatabase database)
+        public static IQueryGraphBuilder SelectByPrimaryKey<T>(this IDatabase database)
         {
             var table = database.Config.Table<T>();
             var builder = database.QueryFactory.Build();
@@ -12,10 +12,10 @@ namespace FoxDb
             builder.From.AddTable(table);
             builder.Where.AddColumns(table.PrimaryKeys);
             builder.OrderBy.AddColumns(table.PrimaryKeys);
-            return database.QueryFactory.Create(builder.Build());
+            return builder;
         }
 
-        public static IDatabaseQuery SelectByRelation<T>(this IDatabase database, IRelationConfig relation)
+        public static IQueryGraphBuilder SelectByRelation<T>(this IDatabase database, IRelationConfig relation)
         {
             var table = database.Config.Table<T>();
             var builder = database.QueryFactory.Build();
@@ -23,10 +23,10 @@ namespace FoxDb
             builder.From.AddTable(table);
             builder.Where.AddColumn(relation.Column);
             builder.OrderBy.AddColumns(table.PrimaryKeys);
-            return database.QueryFactory.Create(builder.Build());
+            return builder;
         }
 
-        public static IDatabaseQuery SelectByRelation<T1, T2>(this IDatabase database, IRelationConfig relation)
+        public static IQueryGraphBuilder SelectByRelation<T1, T2>(this IDatabase database, IRelationConfig relation)
         {
             var table1 = database.Config.Table<T2>();
             var table2 = database.Config.Table<T1, T2>();
@@ -36,7 +36,7 @@ namespace FoxDb
             builder.From.AddRelation(relation.Invert());
             builder.Where.AddColumn(table2.LeftForeignKey);
             builder.OrderBy.AddColumns(table1.PrimaryKeys);
-            return database.QueryFactory.Create(builder.Build());
+            return builder;
         }
     }
 }
