@@ -21,6 +21,8 @@
         IFunctionBuilder GetFunction(QueryFunction function, params IExpressionBuilder[] arguments);
 
         IOperatorBuilder GetOperator(QueryOperator @operator);
+
+        IConstantBuilder GetConstant(object value);
     }
 
     public enum FragmentType : byte
@@ -29,6 +31,7 @@
         Unary,
         Binary,
         Operator,
+        Constant,
         Table,
         Relation,
         SubQuery,

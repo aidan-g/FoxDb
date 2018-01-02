@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
+using System;
 
 namespace FoxDb
 {
@@ -21,5 +22,11 @@ namespace FoxDb
         public QueryFunction Function { get; set; }
 
         public ICollection<IExpressionBuilder> Arguments { get; private set; }
+
+        public IFunctionBuilder AddArgument(IExpressionBuilder argument)
+        {
+            this.Arguments.Add(argument);
+            return this;
+        }
     }
 }

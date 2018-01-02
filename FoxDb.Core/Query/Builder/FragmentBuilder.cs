@@ -16,6 +16,7 @@ namespace FoxDb
             { typeof(IParameterBuilder), () => new ParameterBuilder() },
             { typeof(IFunctionBuilder), () => new FunctionBuilder() },
             { typeof(IOperatorBuilder), () => new OperatorBuilder() },
+            { typeof(IConstantBuilder), () => new ConstantBuilder() },
         };
 
         public abstract FragmentType FragmentType { get; }
@@ -75,6 +76,11 @@ namespace FoxDb
         public IOperatorBuilder GetOperator(QueryOperator @operator)
         {
             return this.GetFragment<IOperatorBuilder>().With(builder => builder.Operator = @operator);
+        }
+
+        public IConstantBuilder GetConstant(object value)
+        {
+            return this.GetFragment<IConstantBuilder>().With(builder => builder.Value = value);
         }
     }
 }

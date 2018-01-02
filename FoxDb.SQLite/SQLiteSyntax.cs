@@ -34,6 +34,8 @@ namespace FoxDb
 
         public const string COUNT = "COUNT";
 
+        public const string EXISTS = "EXISTS";
+
         public const string STAR = "*";
 
         public const string NULL = "NULL";

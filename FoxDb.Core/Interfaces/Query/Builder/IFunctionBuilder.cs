@@ -7,12 +7,15 @@ namespace FoxDb.Interfaces
         QueryFunction Function { get; set; }
 
         ICollection<IExpressionBuilder> Arguments { get; }
+
+        IFunctionBuilder AddArgument(IExpressionBuilder argument);
     }
 
     public enum QueryFunction : byte
     {
         None,
         Identity,
-        Count
+        Count,
+        Exists
     }
 }

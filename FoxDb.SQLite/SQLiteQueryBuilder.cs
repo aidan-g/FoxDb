@@ -47,7 +47,8 @@ namespace FoxDb
             protected readonly IDictionary<QueryFunction, string> Functions = new Dictionary<QueryFunction, string>()
             {
                 { QueryFunction.Identity, SQLiteSyntax.IDENTITY },
-                { QueryFunction.Count, SQLiteSyntax.COUNT }
+                { QueryFunction.Count, SQLiteSyntax.COUNT },
+                { QueryFunction.Exists, SQLiteSyntax.EXISTS }
             };
 
             private SQLiteQueryBuilderVisitor()
@@ -174,11 +175,17 @@ namespace FoxDb
                 }));
             }
 
-            protected virtual void VisitSubQuery(ISubQueryBuilder expression)
+            protected virtual void VisitSubQuery(ISubQueryBuilder expression, bool parentheses)
             {
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                if (parentheses)
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                }
                 this.Builder.AppendFormat("{0} ", expression.Query.CommandText);
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                if (parentheses)
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                }
                 this.VisitAlias(expression.Alias);
                 foreach (var parameterName in expression.Query.ParameterNames)
                 {
@@ -265,6 +272,25 @@ namespace FoxDb
                 this.Builder.AppendFormat("{0} ", @operator);
             }
 
+            protected virtual void VisitConstant(IConstantBuilder expression)
+            {
+                if (expression.Value == null)
+                {
+                    this.Visit(expression.GetOperator(QueryOperator.Null));
+                }
+                else
+                {
+                    switch (Type.GetTypeCode(expression.Value.GetType()))
+                    {
+                        case TypeCode.Int32:
+                            this.Builder.AppendFormat("{0} ", expression.Value);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+            }
+
             protected virtual void VisitAlias(string alias)
             {
                 if (string.IsNullOrEmpty(alias))
@@ -294,7 +320,7 @@ namespace FoxDb
                 }
                 else if (expression is ISubQueryBuilder)
                 {
-                    this.VisitSubQuery(expression as ISubQueryBuilder);
+                    this.VisitSubQuery(expression as ISubQueryBuilder, true);
                 }
                 else
                 {
@@ -341,6 +367,14 @@ namespace FoxDb
                 {
                     this.VisitOperator(expression as IOperatorBuilder);
                 }
+                else if (expression is IConstantBuilder)
+                {
+                    this.VisitConstant(expression as IConstantBuilder);
+                }
+                else if (expression is ISubQueryBuilder)
+                {
+                    this.VisitSubQuery(expression as ISubQueryBuilder, false);
+                }
                 else
                 {
                     throw new NotImplementedException();
@@ -371,7 +405,7 @@ namespace FoxDb
                 this.VisitExpression(expression.Right, false);
             }
 
-            protected virtual void VisitCriteriaList(IEnumerable<IBinaryExpressionBuilder> expressions)
+            protected virtual void VisitCriteriaList(IEnumerable<IExpressionBuilder> expressions)
             {
                 var first = true;
                 foreach (var expression in expressions)
@@ -382,18 +416,27 @@ namespace FoxDb
                     }
                     else
                     {
-                        this.Builder.AppendFormat("{0} ", SQLiteSyntax.AND);
+                        this.Builder.AppendFormat("{0} ", SQLiteSyntax.AND_ALSO);
                     }
-                    this.VisitCriteria(expression);
+                    this.VisitExpression(expression, true);
                 }
             }
 
             protected virtual void VisitCriteria(IBinaryExpressionBuilder expression)
             {
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
-                this.VisitExpression(expression.Left, true);
-                this.VisitOperator(expression.Operator);
-                this.VisitExpression(expression.Right, true);
+                if (expression.Left != null)
+                {
+                    this.VisitExpression(expression.Left, true);
+                }
+                if (expression.Operator != null)
+                {
+                    this.VisitOperator(expression.Operator);
+                }
+                if (expression.Right != null)
+                {
+                    this.VisitExpression(expression.Right, true);
+                }
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
             }
         }
