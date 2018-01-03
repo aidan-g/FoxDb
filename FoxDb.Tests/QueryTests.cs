@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,15 +10,19 @@ namespace FoxDb
     [TestFixture]
     public class QueryTests : TestBase
     {
-        [Test]
-        public void Exists()
+        [TestCase(RelationMultiplicity.OneToMany)]
+        [TestCase(RelationMultiplicity.ManyToMany)]
+        public void Exists(RelationMultiplicity multiplicity)
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                database.Config.Table<Test002>().Relation(item => item.Test004, (item, value) => item.Test004 = value).Behaviour = RelationBehaviour.EagerFetch;
+                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, (item, value) => item.Test004 = value, multiplicity).With(_ =>
+                {
+                    _.Behaviour = RelationBehaviour.EagerFetch;
+                });
                 var set = database.Set<Test002>(true, transaction);
                 var data = new List<Test002>();
                 set.Clear();
@@ -33,13 +38,18 @@ namespace FoxDb
                     var query = database.QueryFactory.Build();
                     query.Select.AddColumns(database.Config.Table<Test004>().Columns);
                     query.From.AddTable(database.Config.Table<Test004>());
-                    query.Where.Expressions.Add(query.Where.GetFragment<IBinaryExpressionBuilder>().With(condition =>
+                    switch (relation.Multiplicity)
                     {
-                        var relation = database.Config.Table<Test002>().Relations.First();
-                        condition.Left = condition.GetColumn(relation.Column);
-                        condition.Operator = condition.GetOperator(QueryOperator.Equal);
-                        condition.Right = condition.GetColumn(database.Config.Table<Test002>().PrimaryKey);
-                    }));
+                        case RelationMultiplicity.OneToMany:
+                            query.Where.AddColumn(relation.Table.ForeignKey, relation.Parent.PrimaryKey);
+                            break;
+                        case RelationMultiplicity.ManyToMany:
+                            query.From.AddRelation(relation.Invert());
+                            query.Where.AddColumn(relation.LeftColumn, relation.Parent.PrimaryKey);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                     query.Where.AddColumn(database.Config.Table<Test004>().Column("Name"));
                     function.Function = QueryFunction.Exists;
                     function.AddArgument(function.GetSubQuery(query));

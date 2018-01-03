@@ -125,10 +125,14 @@ namespace FoxDb
 
         public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true)
         {
+            if (typeof(TRelation).IsGenericType)
+            {
+                throw new NotImplementedException();
+            }
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var config = new RelationConfig<T, TRelation>(this, this.Database.Config.Table<TRelation>(), getter, setter);
+                var config = new RelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), getter, setter);
                 this.Relations.Add(key, config);
                 if (useDefaultColumns)
                 {
@@ -138,12 +142,24 @@ namespace FoxDb
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true)
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, RelationMultiplicity multiplicity, bool useDefaultColumns = true)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var config = new CollectionRelationConfig<T, TRelation>(this, this.Database.Config.Table<TRelation>(), getter, setter);
+
+                var config = default(ICollectionRelationConfig<T, TRelation>);
+                switch (multiplicity)
+                {
+                    case RelationMultiplicity.OneToMany:
+                        config = new OneToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), getter, setter);
+                        break;
+                    case RelationMultiplicity.ManyToMany:
+                        config = new ManyToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<T, TRelation>(), this.Database.Config.Table<TRelation>(), getter, setter);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
                 this.Relations.Add(typeof(TRelation), config);
                 if (useDefaultColumns)
                 {

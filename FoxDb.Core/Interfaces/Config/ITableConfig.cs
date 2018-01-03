@@ -33,7 +33,7 @@ namespace FoxDb.Interfaces
 
         IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true);
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, bool useDefaultColumns = true);
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, RelationMultiplicity multiplicity, bool useDefaultColumns = true);
     }
 
     public interface IIntermediateTableConfig : ITableConfig
