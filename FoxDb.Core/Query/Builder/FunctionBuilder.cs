@@ -1,6 +1,6 @@
 ﻿using FoxDb.Interfaces;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace FoxDb
 {
@@ -27,6 +27,16 @@ namespace FoxDb
         {
             this.Arguments.Add(argument);
             return this;
+        }
+
+        public void Write(IFragmentBuilder fragment)
+        {
+            if (fragment is IExpressionBuilder)
+            {
+                this.Arguments.Add(fragment as IExpressionBuilder);
+                return;
+            }
+            throw new NotImplementedException();
         }
     }
 }

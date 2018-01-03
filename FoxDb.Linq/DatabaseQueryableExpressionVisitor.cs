@@ -1,18 +1,23 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FoxDb
 {
-    public class DatabaseQueryableExpressionVisitor : ExpressionVisitor, IDatabaseQueryableTarget
+    public class DatabaseQueryableExpressionVisitor : ExpressionVisitor
     {
-        protected readonly IDictionary<string, QueryFragmentVisitorFactory> Factories = new Dictionary<string, QueryFragmentVisitorFactory>()
+        protected readonly IDictionary<ExpressionType, QueryOperator> Operators = new Dictionary<ExpressionType, QueryOperator>()
         {
-            { WhereVisitor.MethodName, new QueryFragmentVisitorFactory<WhereVisitor>() },
-            { OrderByVisitor.MethodName, new QueryFragmentVisitorFactory<OrderByVisitor>() },
-            { OrderByDescendingVisitor.MethodName, new QueryFragmentVisitorFactory<OrderByDescendingVisitor>() }
+            { ExpressionType.Equal, QueryOperator.Equal },
+            { ExpressionType.NotEqual, QueryOperator.NotEqual },
+            { ExpressionType.And, QueryOperator.And },
+            { ExpressionType.AndAlso, QueryOperator.AndAlso },
+            { ExpressionType.Or, QueryOperator.Or },
+            { ExpressionType.OrElse, QueryOperator.OrElse },
         };
 
         private DatabaseQueryableExpressionVisitor()
@@ -21,11 +26,11 @@ namespace FoxDb
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public DatabaseQueryableExpressionVisitor(IDatabase database, Type elementType) : this()
+        public DatabaseQueryableExpressionVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
         {
             this.Database = database;
+            this.Query = query;
             this.ElementType = elementType;
-            this.Begin();
         }
 
         public IDictionary<string, object> Constants { get; private set; }
@@ -35,6 +40,8 @@ namespace FoxDb
         public IDatabase Database { get; private set; }
 
         public Type ElementType { get; private set; }
+
+        public OrderByDirection Direction { get; private set; }
 
         public IQueryGraphBuilder Query { get; private set; }
 
@@ -79,31 +86,333 @@ namespace FoxDb
             return this.Targets.Pop();
         }
 
-        protected virtual void Begin()
+        protected virtual LambdaExpression GetLambda(Expression node)
         {
-            var table = this.Database.Config.Table(this.ElementType);
-            this.Query = this.Database.QueryFactory.Build();
-            this.Query.Select.AddColumns(table.Columns);
-            this.Query.From.AddTable(table);
+            while (node != null && !(node is LambdaExpression))
+            {
+                if (node is UnaryExpression)
+                {
+                    node = (node as UnaryExpression).Operand;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            return node as LambdaExpression;
+        }
+
+        protected virtual ConstantExpression GetConstant(Expression node)
+        {
+            while (node != null && !(node is ConstantExpression))
+            {
+                if (node is MemberExpression)
+                {
+                    var member = node as MemberExpression;
+                    var target = this.GetConstant(member.Expression);
+                    var value = default(object);
+                    if (member.Member is FieldInfo)
+                    {
+                        var field = member.Member as FieldInfo;
+                        value = field.GetValue(target.Value);
+                    }
+                    else if (member.Member is PropertyInfo)
+                    {
+                        var property = member.Member as PropertyInfo;
+                        value = property.GetValue(target.Value);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                    return Expression.Constant(value);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            return node as ConstantExpression;
+        }
+
+        protected virtual bool TryGetRelation(PropertyInfo property, out IRelationConfig result)
+        {
+            if (property.DeclaringType != this.ElementType)
+            {
+                result = default(IRelationConfig);
+                return false;
+            }
+            var type = property.PropertyType;
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericArguments()[0];
+            }
+            var table = this.Database.Config.Table(property.DeclaringType);
+            foreach (var relation in table.Relations)
+            {
+                if (relation.RelationType == type)
+                {
+                    result = relation;
+                    return true;
+                }
+            }
+            result = default(IRelationConfig);
+            return false;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            foreach(var argument in node.Arguments)
+            switch (node.Method.Name)
             {
-                this.Visit(argument);
+                case "Any":
+                    this.VisitAny(node);
+                    break;
+                case "Where":
+                    this.VisitWhere(node);
+                    break;
+                case "OrderBy":
+                    this.VisitOrderBy(node);
+                    break;
+                case "OrderByDescending":
+                    this.VisitOrderByDescending(node);
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
-            if (node.Method.DeclaringType == typeof(Queryable))
+            return node;
+        }
+
+        protected virtual void VisitAny(MethodCallExpression node)
+        {
+            var relation = this.Capture<IRelationBuilder>(node.Arguments[0]).Relation;
+            this.Query.Where.AddFunction(this.Query.Where.GetFunction(QueryFunction.Exists).With(function =>
             {
-                var factory = default(QueryFragmentVisitorFactory);
-                if (!this.Factories.TryGetValue(node.Method.Name, out factory))
+                var query = this.Database.QueryFactory.Build();
+                query.Select.AddOperator(QueryOperator.Star);
+                query.From.AddTable(relation.Table);
+                query.Where.AddColumn(relation.Table.ForeignKey, relation.Parent.PrimaryKey);
+                function.AddArgument(function.GetSubQuery(query));
+                this.Push(query.Where);
+            }));
+            try
+            {
+                var lambda = this.GetLambda(node.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void VisitWhere(MethodCallExpression node)
+        {
+            this.Visit(node.Arguments[0]);
+            this.Push(this.Query.Where);
+            try
+            {
+                var lambda = this.GetLambda(node.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void VisitOrderBy(MethodCallExpression node)
+        {
+            this.Query.OrderBy.Columns.Clear();
+            this.Direction = OrderByDirection.None;
+            this.Visit(node.Arguments[0]);
+            this.Push(this.Query.OrderBy);
+            try
+            {
+                var lambda = this.GetLambda(node.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void VisitOrderByDescending(MethodCallExpression node)
+        {
+            this.Query.OrderBy.Columns.Clear();
+            this.Direction = OrderByDirection.Descending;
+            this.Visit(node.Arguments[0]);
+            this.Push(this.Query.OrderBy);
+            try
+            {
+                var lambda = this.GetLambda(node.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void Visit(ExpressionType nodeType)
+        {
+            var @operator = default(QueryOperator);
+            if (!this.Operators.TryGetValue(nodeType, out @operator))
+            {
+                throw new NotImplementedException();
+            }
+            this.Visit(@operator);
+        }
+
+        protected virtual void Visit(QueryOperator @operator)
+        {
+            this.Peek.Write(this.Peek.GetOperator(@operator));
+        }
+
+        protected virtual void Visit(PropertyInfo property)
+        {
+            var relation = default(IRelationConfig);
+            if (this.TryGetRelation(property, out relation))
+            {
+                this.Visit(relation);
+            }
+            else
+            {
+                var table = this.Database.Config.Table(property.DeclaringType);
+                this.Visit(table.Column(property));
+            }
+        }
+
+        protected virtual void Visit(ITableConfig table)
+        {
+            this.Peek.Write(this.Peek.GetTable(table));
+        }
+
+        protected virtual void Visit(IRelationConfig relation)
+        {
+            this.Peek.Write(this.Peek.GetRelation(relation));
+        }
+
+        protected virtual void Visit(IColumnConfig column)
+        {
+            this.Peek.Write(this.Peek.GetColumn(column).With(builder => builder.Direction = this.Direction));
+        }
+
+        protected virtual void Visit(string name, object value)
+        {
+            this.Peek.Write(this.Peek.GetParameter(name));
+            this.Constants[name] = value;
+        }
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            switch (node.NodeType)
+            {
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            var fragment = this.Push(this.Peek.GetFragment<IBinaryExpressionBuilder>());
+            try
+            {
+                this.Visit(node.Left);
+                this.Visit(node.NodeType);
+                this.Visit(node.Right);
+            }
+            finally
+            {
+                this.Pop();
+            }
+            this.Peek.Write(fragment);
+            return node;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Expression != null && node.Expression.NodeType == ExpressionType.Parameter)
+            {
+                var type = node.Expression.Type;
+                var property = node.Member as PropertyInfo;
+                if (property == null)
                 {
                     throw new NotImplementedException();
                 }
-                var visitor = factory.Create(this, this.ElementType);
-                return visitor.Visit(node);
+                this.Visit(property);
+                return node;
+            }
+            else if (node.Expression != null && node.Expression.NodeType == ExpressionType.MemberAccess)
+            {
+                var constant = this.GetConstant(node);
+                this.VisitConstant(constant);
+                return node;
             }
             throw new NotImplementedException();
+        }
+
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            if (node.Value is IQueryable)
+            {
+                //Nothing to do.
+            }
+            else if (node.Value == null)
+            {
+                this.Visit(QueryOperator.Null);
+            }
+            else
+            {
+                var name = string.Format("parameter{0}", this.Constants.Count);
+                this.Visit(name, node.Value);
+            }
+            return base.VisitConstant(node);
+        }
+
+        protected virtual T Capture<T>(Expression node) where T : IFragmentBuilder
+        {
+            var capture = new CaptureFragmentTarget();
+            this.Push(capture);
+            try
+            {
+                this.Visit(node);
+            }
+            finally
+            {
+                this.Pop();
+            }
+            foreach (var expression in capture.Expressions)
+            {
+                if (expression is T)
+                {
+                    return (T)expression;
+                }
+            }
+            return default(T);
+        }
+
+        protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
+        {
+            public CaptureFragmentTarget()
+            {
+                this.Expressions = new List<IFragmentBuilder>();
+            }
+
+            public override FragmentType FragmentType
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public ICollection<IFragmentBuilder> Expressions { get; private set; }
+
+            public void Write(IFragmentBuilder fragment)
+            {
+                this.Expressions.Add(fragment);
+            }
         }
     }
 }
