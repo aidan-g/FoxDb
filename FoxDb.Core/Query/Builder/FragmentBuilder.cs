@@ -38,26 +38,46 @@ namespace FoxDb
 
         public ITableBuilder GetTable(ITableConfig table)
         {
+            if (table == null)
+            {
+                throw new NotImplementedException();
+            }
             return this.GetFragment<ITableBuilder>().With(builder => builder.Table = table);
         }
 
         public IRelationBuilder GetRelation(IRelationConfig relation)
         {
+            if (relation == null)
+            {
+                throw new NotImplementedException();
+            }
             return this.GetFragment<IRelationBuilder>().With(builder => builder.Relation = relation);
         }
 
         public ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query)
         {
+            if (query == null)
+            {
+                throw new NotImplementedException();
+            }
             return this.GetFragment<ISubQueryBuilder>().With(builder => builder.Query = query);
         }
 
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
+            if (column == null)
+            {
+                throw new NotImplementedException();
+            }
             return this.GetFragment<IColumnBuilder>().With(builder => builder.Column = column);
         }
 
         public IParameterBuilder GetParameter(string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new NotImplementedException();
+            }
             return this.GetFragment<IParameterBuilder>().With(builder => builder.Name = name);
         }
 

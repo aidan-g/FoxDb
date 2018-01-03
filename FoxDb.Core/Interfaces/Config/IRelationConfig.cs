@@ -5,15 +5,21 @@ namespace FoxDb.Interfaces
 {
     public interface IRelationConfig
     {
+        IConfig Config { get; }
+
         ITableConfig Parent { get; }
+
+        IIntermediateTableConfig Intermediate { get; }
 
         ITableConfig Table { get; }
 
-        IColumnConfig Column { get; }
+        IColumnConfig LeftColumn { get; }
+
+        IColumnConfig RightColumn { get; }
 
         RelationBehaviour Behaviour { get; set; }
 
-        RelationMultiplicity Multiplicity { get; set; }
+        RelationMultiplicity Multiplicity { get; }
 
         Type RelationType { get; }
 
@@ -24,24 +30,20 @@ namespace FoxDb.Interfaces
 
     public interface IRelationConfig<T, TRelation> : IRelationConfig
     {
-        new ITableConfig<T> Parent { get; }
-
-        new ITableConfig<TRelation> Table { get; }
-
         Func<T, TRelation> Getter { get; }
 
         Action<T, TRelation> Setter { get; }
+
+        IRelationConfig<T, TRelation> UseDefaultColumns();
     }
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
     {
-        new ITableConfig<T> Parent { get; }
-
-        new ITableConfig<TRelation> Table { get; }
-
         Func<T, ICollection<TRelation>> Getter { get; }
 
         Action<T, ICollection<TRelation>> Setter { get; }
+
+        ICollectionRelationConfig<T, TRelation> UseDefaultColumns();
     }
 
     [Flags]

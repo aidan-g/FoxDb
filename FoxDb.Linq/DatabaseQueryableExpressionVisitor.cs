@@ -1,7 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -190,7 +189,18 @@ namespace FoxDb
                 var query = this.Database.QueryFactory.Build();
                 query.Select.AddOperator(QueryOperator.Star);
                 query.From.AddTable(relation.Table);
-                query.Where.AddColumn(relation.Table.ForeignKey, relation.Parent.PrimaryKey);
+                switch (relation.Multiplicity)
+                {
+                    case RelationMultiplicity.OneToMany:
+                        query.Where.AddColumn(relation.Table.ForeignKey, relation.Parent.PrimaryKey);
+                        break;
+                    case RelationMultiplicity.ManyToMany:
+                        query.From.AddRelation(relation.Invert());
+                        query.Where.AddColumn(relation.LeftColumn, relation.Parent.PrimaryKey);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
                 function.AddArgument(function.GetSubQuery(query));
                 this.Push(query.Where);
             }));

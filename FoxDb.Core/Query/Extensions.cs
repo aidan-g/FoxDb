@@ -21,7 +21,7 @@ namespace FoxDb
             var builder = database.QueryFactory.Build();
             builder.Select.AddColumns(table.Columns);
             builder.From.AddTable(table);
-            builder.Where.AddColumn(relation.Column);
+            builder.Where.AddColumn(relation.RightColumn);
             builder.OrderBy.AddColumns(table.PrimaryKeys);
             return builder;
         }
