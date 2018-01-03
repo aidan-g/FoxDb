@@ -51,5 +51,10 @@ namespace FoxDb
         {
             this.Expressions.Add(this.GetFunction(function, arguments));
         }
+
+        public void AddOperator(QueryOperator @operator)
+        {
+            this.Expressions.Add(this.GetOperator(@operator));
+        }
     }
 }

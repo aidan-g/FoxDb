@@ -21,6 +21,16 @@ namespace FoxDb
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
+        public IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
+        {
+            var expression = this.GetFragment<IBinaryExpressionBuilder>();
+            expression.Left = this.GetColumn(leftColumn);
+            expression.Operator = this.GetOperator(QueryOperator.Equal);
+            expression.Right = this.GetColumn(rightColumn);
+            this.Expressions.Add(expression);
+            return expression;
+        }
+
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
             var expression = this.GetFragment<IBinaryExpressionBuilder>();
@@ -37,6 +47,12 @@ namespace FoxDb
             {
                 this.AddColumn(column);
             }
+        }
+
+        public IFunctionBuilder AddFunction(IFunctionBuilder function)
+        {
+            this.Expressions.Add(function);
+            return function;
         }
 
         public void Write(IFragmentBuilder fragment)

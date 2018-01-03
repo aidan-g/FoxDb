@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IFunctionBuilder : IExpressionBuilder
+    public interface IFunctionBuilder : IExpressionBuilder, IFragmentTarget
     {
         QueryFunction Function { get; set; }
 

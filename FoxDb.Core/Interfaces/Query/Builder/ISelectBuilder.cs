@@ -17,5 +17,7 @@ namespace FoxDb.Interfaces
         void AddParameters(IEnumerable<IColumnConfig> columns);
 
         void AddFunction(QueryFunction function, params IExpressionBuilder[] arguments);
+
+        void AddOperator(QueryOperator @operator);
     }
 }

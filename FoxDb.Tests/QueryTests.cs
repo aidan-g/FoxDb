@@ -28,7 +28,7 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                set.Source.Select.Where.Expressions.Add(set.Source.Select.Where.GetFragment<IFunctionBuilder>().With(function =>
+                set.Source.Select.Where.AddFunction(set.Source.Select.Where.GetFunction(QueryFunction.Exists).With(function =>
                 {
                     var query = database.QueryFactory.Build();
                     query.Select.AddColumns(database.Config.Table<Test004>().Columns);
