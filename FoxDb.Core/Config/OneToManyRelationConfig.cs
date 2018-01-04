@@ -22,7 +22,7 @@ namespace FoxDb
         public override ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
         {
             this.LeftColumn = this.Parent.PrimaryKey;
-            (this.RightColumn = this.Table.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
+            (this.RightColumn = this.Child.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
             return this;
         }
 

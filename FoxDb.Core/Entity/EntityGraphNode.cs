@@ -33,7 +33,7 @@ namespace FoxDb
 
     public class EntityRelationGraphNode<T, TRelation> : EntityGraphNode<TRelation>, IEntityGraphNode<T, TRelation>
     {
-        public EntityRelationGraphNode(IEntityGraphNode<T> parent, IRelationConfig<T, TRelation> relation) : base(relation.Table, relation)
+        public EntityRelationGraphNode(IEntityGraphNode<T> parent, IRelationConfig<T, TRelation> relation) : base(relation.Child, relation)
         {
             this.Parent = parent;
         }
@@ -51,7 +51,7 @@ namespace FoxDb
 
     public class CollectionEntityRelationGraphNode<T, TRelation> : EntityGraphNode<TRelation>, ICollectionEntityGraphNode<T, TRelation>
     {
-        public CollectionEntityRelationGraphNode(IEntityGraphNode<T> parent, ICollectionRelationConfig<T, TRelation> relation) : base(relation.Table, relation)
+        public CollectionEntityRelationGraphNode(IEntityGraphNode<T> parent, ICollectionRelationConfig<T, TRelation> relation) : base(relation.Child, relation)
         {
             this.Parent = parent;
         }

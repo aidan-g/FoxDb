@@ -50,7 +50,7 @@ namespace FoxDb
                 {
                     foreach (var relation in this.Mapper.Relations)
                     {
-                        builder.OrderBy.AddColumn(relation.Table.PrimaryKey);
+                        builder.OrderBy.AddColumn(relation.Child.PrimaryKey);
                     }
                 }
                 return builder;

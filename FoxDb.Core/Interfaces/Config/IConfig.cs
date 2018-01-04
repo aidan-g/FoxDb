@@ -8,8 +8,6 @@ namespace FoxDb.Interfaces
 
         ITableConfig<T> Table<T>(bool useDefaultColumns = true);
 
-        IIntermediateTableConfig Table(Type parentTableType, Type childTableType, bool useDefaultColumns = true);
-
         ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true);
     }
 }

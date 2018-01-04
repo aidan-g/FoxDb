@@ -44,12 +44,6 @@ namespace FoxDb
             return this.Tables[key] as ITableConfig<T>;
         }
 
-        public IIntermediateTableConfig Table(Type parentTableType, Type childTableType, bool useDefaultColumns = true)
-        {
-            var table = this.Members.Invoke(this, "Table", new[] { parentTableType, childTableType }, useDefaultColumns);
-            return (IIntermediateTableConfig)table;
-        }
-
         public ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true)
         {
             var key = new TableKey(typeof(T1), typeof(T2));
