@@ -97,6 +97,7 @@
     <Compile Include="Interfaces\Query\Builder\IInsertBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IWhereBuilder.cs" />
+    <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Query\Builder\BinaryExpressionBuilder.cs" />
     <Compile Include="Query\Builder\ColumnBuilder.cs" />
     <Compile Include="Query\Builder\ConstantBuilder.cs" />
@@ -160,12 +161,14 @@
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />
+    <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\Factories.cs" />
     <Compile Include="Utility\ListCollectionFactory.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
+    <Compile Include="Utility\PropertyAccessorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

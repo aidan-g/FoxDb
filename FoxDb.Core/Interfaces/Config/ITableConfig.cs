@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FoxDb.Interfaces
@@ -31,9 +32,9 @@ namespace FoxDb.Interfaces
     {
         ITableConfig<T> UseDefaultColumns();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true);
+        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, bool useDefaultColumns = true);
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, RelationMultiplicity multiplicity, bool useDefaultColumns = true);
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, bool useDefaultColumns = true);
     }
 
     public interface IMappingTableConfig : ITableConfig

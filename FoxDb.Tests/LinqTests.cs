@@ -135,10 +135,10 @@ namespace FoxDb
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                database.Config.Table<Test002>().Relation(item => item.Test004, (item, value) => item.Test004 = value, multiplicity).With(relation =>
-                {
-                    relation.Behaviour = RelationBehaviour.EagerFetch;
-                });
+                database.Config.Table<Test002>().Relation(item => item.Test004, multiplicity).With(relation =>
+               {
+                   relation.Behaviour = RelationBehaviour.EagerFetch;
+               });
                 var set = database.Set<Test002>(true, transaction);
                 var data = new List<Test002>();
                 set.Clear();

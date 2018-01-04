@@ -19,7 +19,7 @@ namespace FoxDb
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, (item, value) => item.Test004 = value, multiplicity).With(_ =>
+                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, multiplicity).With(_ =>
                 {
                     _.Behaviour = RelationBehaviour.EagerFetch;
                 });
