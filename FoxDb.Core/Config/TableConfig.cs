@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FoxDb
@@ -123,7 +124,7 @@ namespace FoxDb
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(Func<T, TRelation> getter, Action<T, TRelation> setter, bool useDefaultColumns = true)
+        public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, bool useDefaultColumns = true)
         {
             if (typeof(TRelation).IsGenericType)
             {
@@ -132,7 +133,8 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var config = new RelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), getter, setter);
+                var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
+                var config = new RelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
                 this.Relations.Add(key, config);
                 if (useDefaultColumns)
                 {
@@ -142,20 +144,20 @@ namespace FoxDb
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter, RelationMultiplicity multiplicity, bool useDefaultColumns = true)
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, bool useDefaultColumns = true)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-
+                var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
                 var config = default(ICollectionRelationConfig<T, TRelation>);
                 switch (multiplicity)
                 {
                     case RelationMultiplicity.OneToMany:
-                        config = new OneToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), getter, setter);
+                        config = new OneToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
                         break;
                     case RelationMultiplicity.ManyToMany:
-                        config = new ManyToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<T, TRelation>(), this.Database.Config.Table<TRelation>(), getter, setter);
+                        config = new ManyToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<T, TRelation>(), this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
                         break;
                     default:
                         throw new NotImplementedException();
