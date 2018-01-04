@@ -41,11 +41,11 @@ namespace FoxDb
                     switch (relation.Multiplicity)
                     {
                         case RelationMultiplicity.OneToMany:
-                            query.Where.AddColumn(relation.Child.ForeignKey, relation.Parent.PrimaryKey);
+                            query.Where.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
                             break;
                         case RelationMultiplicity.ManyToMany:
                             query.From.AddRelation(relation.Invert());
-                            query.Where.AddColumn(relation.LeftColumn, relation.Parent.PrimaryKey);
+                            query.Where.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
                             break;
                         default:
                             throw new NotImplementedException();

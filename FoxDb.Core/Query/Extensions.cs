@@ -19,8 +19,8 @@ namespace FoxDb
         public static IQueryGraphBuilder SelectByRelation(this IDatabase database, IRelationConfig relation)
         {
             var builder = database.QueryFactory.Build();
-            builder.Select.AddColumns(relation.Child.Columns);
-            builder.From.AddTable(relation.Child);
+            builder.Select.AddColumns(relation.RightTable.Columns);
+            builder.From.AddTable(relation.RightTable);
             switch (relation.Multiplicity)
             {
                 case RelationMultiplicity.OneToOne:
@@ -29,13 +29,13 @@ namespace FoxDb
                     break;
                 case RelationMultiplicity.ManyToMany:
                     builder.From.AddRelation(relation.Invert());
-                    builder.Where.AddColumn(relation.Intermediate.LeftForeignKey);
+                    builder.Where.AddColumn(relation.MappingTable.LeftForeignKey);
                     break;
                 default:
                     throw new NotImplementedException();
             }
 
-            builder.OrderBy.AddColumns(relation.Child.PrimaryKeys);
+            builder.OrderBy.AddColumns(relation.RightTable.PrimaryKeys);
             return builder;
         }
     }

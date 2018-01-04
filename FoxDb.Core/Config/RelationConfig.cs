@@ -5,21 +5,21 @@ namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        protected RelationConfig(IConfig config, ITableConfig parent, IIntermediateTableConfig intermediate, ITableConfig child)
+        protected RelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable)
         {
             this.Config = config;
-            this.Parent = parent;
-            this.Intermediate = intermediate;
-            this.Child = child;
+            this.LeftTable = leftTable;
+            this.MappingTable = mappingTable;
+            this.RightTable = rightTable;
         }
 
         public IConfig Config { get; private set; }
 
-        public ITableConfig Parent { get; private set; }
+        public ITableConfig LeftTable { get; private set; }
 
-        public IIntermediateTableConfig Intermediate { get; private set; }
+        public IMappingTableConfig MappingTable { get; private set; }
 
-        public ITableConfig Child { get; private set; }
+        public ITableConfig RightTable { get; private set; }
 
         public IColumnConfig LeftColumn { get; set; }
 
@@ -66,8 +66,8 @@ namespace FoxDb
 
         public virtual IRelationConfig<T, TRelation> UseDefaultColumns()
         {
-            this.LeftColumn = this.Parent.PrimaryKey;
-            (this.RightColumn = this.Child.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
+            this.LeftColumn = this.LeftTable.PrimaryKey;
+            (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
             return this;
         }
 

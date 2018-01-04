@@ -1,20 +1,21 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
     public class ForeignKeysParameterHandlerStrategy<T, TRelation> : IParameterHandlerStrategy
     {
-        public ForeignKeysParameterHandlerStrategy(IDatabase database, T item, TRelation child, IRelationConfig relation)
+        public ForeignKeysParameterHandlerStrategy(IDatabase database, T parent, TRelation child, IRelationConfig relation)
         {
             this.Database = database;
-            this.Item = item;
+            this.Parent = parent;
             this.Child = child;
             this.Relation = relation;
         }
 
         public IDatabase Database { get; private set; }
 
-        public T Item { get; private set; }
+        public T Parent { get; private set; }
 
         public TRelation Child { get; private set; }
 
@@ -24,19 +25,69 @@ namespace FoxDb
         {
             get
             {
-                return new DatabaseParameterHandler(parameters =>
+                return (DatabaseParameterHandler)Delegate.Combine(this.LeftHandler, this.RightHandler);
+            }
+        }
+
+        protected virtual DatabaseParameterHandler LeftHandler
+        {
+            get
+            {
+                return parameters =>
                 {
-                    if (this.Item != null && parameters.Contains(Conventions.RelationColumn(typeof(T))))
+                    if (this.Parent != null && !string.IsNullOrEmpty(this.LeftParameter) && parameters.Contains(this.LeftParameter))
                     {
-                        var table = this.Database.Config.Table<T>();
-                        parameters[Conventions.RelationColumn(typeof(T))] = table.PrimaryKey.Getter(this.Item);
+                        parameters[this.LeftParameter] = this.Relation.LeftTable.PrimaryKey.Getter(this.Parent);
                     }
-                    if (this.Child != null && parameters.Contains(Conventions.RelationColumn(typeof(TRelation))))
+                };
+            }
+        }
+
+        protected virtual DatabaseParameterHandler RightHandler
+        {
+            get
+            {
+                return parameters =>
+                {
+                    if (this.Child != null && !string.IsNullOrEmpty(this.RightParameter) && parameters.Contains(this.RightParameter))
                     {
-                        var table = this.Database.Config.Table<TRelation>();
-                        parameters[Conventions.RelationColumn(typeof(TRelation))] = table.PrimaryKey.Getter(this.Child);
+                        parameters[this.RightParameter] = this.Relation.RightTable.PrimaryKey.Getter(this.Child);
                     }
-                });
+                };
+            }
+        }
+
+        protected virtual string LeftParameter
+        {
+            get
+            {
+                switch (this.Relation.Multiplicity)
+                {
+                    case RelationMultiplicity.OneToOne:
+                    case RelationMultiplicity.OneToMany:
+                        return Conventions.ParameterName(this.Relation.RightTable.ForeignKey);
+                    case RelationMultiplicity.ManyToMany:
+                        return Conventions.ParameterName(this.Relation.MappingTable.LeftForeignKey);
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+        }
+
+        protected virtual string RightParameter
+        {
+            get
+            {
+                switch (this.Relation.Multiplicity)
+                {
+                    case RelationMultiplicity.OneToOne:
+                    case RelationMultiplicity.OneToMany:
+                        return string.Empty;
+                    case RelationMultiplicity.ManyToMany:
+                        return Conventions.ParameterName(this.Relation.MappingTable.RightForeignKey);
+                    default:
+                        throw new NotImplementedException();
+                }
             }
         }
     }
