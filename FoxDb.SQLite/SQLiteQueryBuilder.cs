@@ -170,19 +170,18 @@ namespace FoxDb
                         }
                         else
                         {
-                            this.VisitRelation(expression, expression.Relation.Table, expression.Relation.Parent.PrimaryKey, expression.Relation.Table.ForeignKey);
+                            this.VisitRelation(expression, expression.Relation.Child, expression.Relation.Parent.PrimaryKey, expression.Relation.Child.ForeignKey);
                         }
                         break;
                     case RelationMultiplicity.ManyToMany:
-                        var table = this.Database.Config.Table(expression.Relation.Parent.TableType, expression.Relation.RelationType);
                         if (expression.Relation.Inverted)
                         {
-                            this.VisitRelation(expression, table, table.RightForeignKey, table.RightTable.PrimaryKey);
+                            this.VisitRelation(expression, expression.Relation.Intermediate, expression.Relation.Intermediate.RightForeignKey, expression.Relation.Child.PrimaryKey);
                         }
                         else
                         {
-                            this.VisitRelation(expression, table, table.LeftForeignKey, table.LeftTable.PrimaryKey);
-                            this.VisitRelation(expression, table.RightTable, table.RightForeignKey, table.RightTable.PrimaryKey);
+                            this.VisitRelation(expression, expression.Relation.Intermediate, expression.Relation.Intermediate.LeftForeignKey, expression.Relation.Parent.PrimaryKey);
+                            this.VisitRelation(expression, expression.Relation.Child, expression.Relation.Intermediate.RightForeignKey, expression.Relation.Child.PrimaryKey);
                         }
                         break;
                     default:

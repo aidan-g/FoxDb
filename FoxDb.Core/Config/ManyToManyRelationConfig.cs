@@ -27,7 +27,7 @@ namespace FoxDb
 
         public override IRelationConfig Invert()
         {
-            return new ManyToManyRelationConfig<T, TRelation>(this.Config, this.Parent, this.Intermediate, this.Table, this.Getter, this.Setter)
+            return new ManyToManyRelationConfig<T, TRelation>(this.Config, this.Parent, this.Intermediate, this.Child, this.Getter, this.Setter)
             {
                 Inverted = true
             };

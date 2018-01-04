@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
@@ -15,27 +16,26 @@ namespace FoxDb
             return builder;
         }
 
-        public static IQueryGraphBuilder SelectByRelation<T>(this IDatabase database, IRelationConfig relation)
+        public static IQueryGraphBuilder SelectByRelation(this IDatabase database, IRelationConfig relation)
         {
-            var table = database.Config.Table<T>();
             var builder = database.QueryFactory.Build();
-            builder.Select.AddColumns(table.Columns);
-            builder.From.AddTable(table);
-            builder.Where.AddColumn(relation.RightColumn);
-            builder.OrderBy.AddColumns(table.PrimaryKeys);
-            return builder;
-        }
+            builder.Select.AddColumns(relation.Child.Columns);
+            builder.From.AddTable(relation.Child);
+            switch (relation.Multiplicity)
+            {
+                case RelationMultiplicity.OneToOne:
+                case RelationMultiplicity.OneToMany:
+                    builder.Where.AddColumn(relation.RightColumn);
+                    break;
+                case RelationMultiplicity.ManyToMany:
+                    builder.From.AddRelation(relation.Invert());
+                    builder.Where.AddColumn(relation.Intermediate.LeftForeignKey);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
 
-        public static IQueryGraphBuilder SelectByRelation<T1, T2>(this IDatabase database, IRelationConfig relation)
-        {
-            var table1 = database.Config.Table<T2>();
-            var table2 = database.Config.Table<T1, T2>();
-            var builder = database.QueryFactory.Build();
-            builder.Select.AddColumns(table1.Columns);
-            builder.From.AddTable(table1);
-            builder.From.AddRelation(relation.Invert());
-            builder.Where.AddColumn(table2.LeftForeignKey);
-            builder.OrderBy.AddColumns(table1.PrimaryKeys);
+            builder.OrderBy.AddColumns(relation.Child.PrimaryKeys);
             return builder;
         }
     }

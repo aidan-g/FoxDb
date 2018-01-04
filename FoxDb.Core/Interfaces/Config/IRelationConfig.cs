@@ -11,7 +11,7 @@ namespace FoxDb.Interfaces
 
         IIntermediateTableConfig Intermediate { get; }
 
-        ITableConfig Table { get; }
+        ITableConfig Child { get; }
 
         IColumnConfig LeftColumn { get; }
 

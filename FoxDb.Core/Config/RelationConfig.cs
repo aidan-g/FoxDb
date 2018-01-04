@@ -5,12 +5,12 @@ namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        protected RelationConfig(IConfig config, ITableConfig parent, IIntermediateTableConfig intermediate, ITableConfig table)
+        protected RelationConfig(IConfig config, ITableConfig parent, IIntermediateTableConfig intermediate, ITableConfig child)
         {
             this.Config = config;
             this.Parent = parent;
             this.Intermediate = intermediate;
-            this.Table = table;
+            this.Child = child;
         }
 
         public IConfig Config { get; private set; }
@@ -19,7 +19,7 @@ namespace FoxDb
 
         public IIntermediateTableConfig Intermediate { get; private set; }
 
-        public ITableConfig Table { get; private set; }
+        public ITableConfig Child { get; private set; }
 
         public IColumnConfig LeftColumn { get; set; }
 
@@ -67,7 +67,7 @@ namespace FoxDb
         public virtual IRelationConfig<T, TRelation> UseDefaultColumns()
         {
             this.LeftColumn = this.Parent.PrimaryKey;
-            (this.RightColumn = this.Table.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
+            (this.RightColumn = this.Child.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
             return this;
         }
 
