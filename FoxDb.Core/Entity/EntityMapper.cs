@@ -37,7 +37,7 @@ namespace FoxDb
                         {
                             continue;
                         }
-                        queue.Enqueue(relation.Child);
+                        queue.Enqueue(relation.RightTable);
                         yield return relation;
                     }
                 }
@@ -51,7 +51,7 @@ namespace FoxDb
                 yield return this.Table;
                 foreach (var relation in this.Relations)
                 {
-                    yield return relation.Child;
+                    yield return relation.RightTable;
                 }
             }
         }

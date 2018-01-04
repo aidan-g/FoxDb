@@ -7,11 +7,11 @@ namespace FoxDb.Interfaces
     {
         IConfig Config { get; }
 
-        ITableConfig Parent { get; }
+        ITableConfig LeftTable { get; }
 
-        IIntermediateTableConfig Intermediate { get; }
+        IMappingTableConfig MappingTable { get; }
 
-        ITableConfig Child { get; }
+        ITableConfig RightTable { get; }
 
         IColumnConfig LeftColumn { get; }
 

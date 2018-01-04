@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public abstract class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
     {
-        public CollectionRelationConfig(IConfig config, ITableConfig parent, IIntermediateTableConfig intermediate, ITableConfig table, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, parent, intermediate, table)
+        public CollectionRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable)
         {
             this.Getter = getter;
             this.Setter = setter;

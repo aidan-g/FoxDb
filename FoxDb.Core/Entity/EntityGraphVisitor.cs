@@ -23,7 +23,7 @@ namespace FoxDb
                 this.Members.Invoke(this, "OnVisit", node.Table.TableType, node);
                 if (node.Relation != null)
                 {
-                    this.Members.Invoke(this, "OnVisit", new[] { node.Relation.Parent.TableType, node.Relation.RelationType }, node);
+                    this.Members.Invoke(this, "OnVisit", new[] { node.Relation.LeftTable.TableType, node.Relation.RelationType }, node);
                 }
             }
             foreach (var child in node.Children)
