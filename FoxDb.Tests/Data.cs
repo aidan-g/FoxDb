@@ -14,7 +14,7 @@ namespace FoxDb
 
         public string Field3 { get; set; }
 
-        public bool Equals(Test001 other)
+        public virtual bool Equals(Test001 other)
         {
             if (other == null)
             {

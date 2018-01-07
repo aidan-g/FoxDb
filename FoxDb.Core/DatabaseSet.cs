@@ -103,9 +103,8 @@ namespace FoxDb
 
         public T Find(object id)
         {
-            var query = this.Database.SelectByPrimaryKey<T>();
             var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
-            var sequence = this.GetEnumerator(query, parameters);
+            var sequence = this.GetEnumerator(this.Source.Find, parameters);
             if (sequence.MoveNext())
             {
                 return sequence.Current;

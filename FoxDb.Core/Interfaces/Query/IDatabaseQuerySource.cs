@@ -11,6 +11,8 @@ namespace FoxDb.Interfaces
 
         IQueryGraphBuilder Select { get; set; }
 
+        IQueryGraphBuilder Find { get; set; }
+
         IEnumerable<IQueryGraphBuilder> Insert { get; set; }
 
         IQueryGraphBuilder Update { get; set; }

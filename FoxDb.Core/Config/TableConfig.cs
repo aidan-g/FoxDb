@@ -137,11 +137,16 @@ namespace FoxDb
                 {
                     continue;
                 }
-                if (!this.Config.Database.Schema.GetColumnNames(this.TableName).Contains(Conventions.ColumnName(property)))
+                var column = this.CreateColumn(property);
+                if (this.Columns.ContainsKey(column.ColumnName))
                 {
                     continue;
                 }
-                var column = this.Column(property);
+                if (!this.Config.Database.Schema.GetColumnNames(this.TableName).Contains(column.ColumnName))
+                {
+                    continue;
+                }
+                this.Columns.Add(column.ColumnName, column);
                 if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
                 {
                     column.IsPrimaryKey = true;

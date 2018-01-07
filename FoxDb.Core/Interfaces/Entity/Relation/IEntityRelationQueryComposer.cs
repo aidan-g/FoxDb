@@ -3,5 +3,7 @@
     public interface IEntityRelationQueryComposer
     {
         IQueryGraphBuilder Select { get; }
+
+        IQueryGraphBuilder Find { get; }
     }
 }

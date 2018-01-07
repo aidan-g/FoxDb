@@ -13,14 +13,17 @@ namespace FoxDb
 
         public IColumnConfig Create(ITableConfig table, PropertyInfo property)
         {
-            var getter = default(Func<object, object>);
-            var setter = default(Action<object, object>);
-            if (property != null)
+            if (property == null)
             {
-                getter = item => property.GetValue(item);
-                setter = (item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType));
+                throw new NotImplementedException();
             }
-            return new ColumnConfig(table, Conventions.ColumnName(property), property, getter, setter);
+            var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute()
+            {
+                Name = Conventions.ColumnName(property)
+            };
+            var getter = new Func<object, object>(item => property.GetValue(item));
+            var setter = new Action<object, object>((item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType)));
+            return new ColumnConfig(table, attribute.Name, property, getter, setter);
         }
     }
 }
