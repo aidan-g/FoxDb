@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Linq;
 
 namespace FoxDb
@@ -45,7 +46,7 @@ namespace FoxDb
 
         protected virtual void Initialize<TEntity, TRelation>(TEntity item, ICollectionRelationConfig<TEntity, TRelation> relation)
         {
-            relation.Setter(item, relation.CollectionFactory());
+            relation.Setter(item, Factories.Collection.Create<TRelation>(relation.Property.PropertyType));
         }
     }
 }

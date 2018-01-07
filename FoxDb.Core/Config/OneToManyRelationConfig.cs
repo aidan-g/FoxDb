@@ -1,12 +1,13 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FoxDb
 {
     public class OneToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public OneToManyRelationConfig(IConfig config, ITableConfig parent, ITableConfig table, Func<ICollection<TRelation>> collectionFactory, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, parent, null, table, collectionFactory, getter, setter)
+        public OneToManyRelationConfig(IConfig config, ITableConfig leftTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, null, rightTable, property, getter, setter)
         {
 
         }

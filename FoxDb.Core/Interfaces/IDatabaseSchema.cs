@@ -6,6 +6,6 @@ namespace FoxDb.Interfaces
     {
         IEnumerable<string> GetTableNames();
 
-        IEnumerable<string> GetColumnNames<T>();
+        IEnumerable<string> GetColumnNames(string tableName);
     }
 }

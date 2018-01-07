@@ -7,6 +7,12 @@ namespace FoxDb
 {
     public static class PropertyAccessorFactory
     {
+        public static Expression Create(PropertyInfo property)
+        {
+            var parameter = Expression.Parameter(property.DeclaringType);
+            return Expression.Lambda(Expression.Property(parameter, property), parameter);
+        }
+
         public static IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression)
         {
             if (expression.NodeType != ExpressionType.Lambda)
@@ -26,19 +32,19 @@ namespace FoxDb
             var property = member.Member as PropertyInfo;
             var get = property.GetGetMethod().CreateDelegate<Func<T, TValue>>();
             var set = property.GetSetMethod().CreateDelegate<Action<T, TValue>>();
-            return new PropertyAccessor<T, TValue>(property.PropertyType, get, set);
+            return new PropertyAccessor<T, TValue>(property, get, set);
         }
 
         private class PropertyAccessor<T, TValue> : IPropertyAccessor<T, TValue>
         {
-            public PropertyAccessor(Type propertyType, Func<T, TValue> get, Action<T, TValue> set)
+            public PropertyAccessor(PropertyInfo property, Func<T, TValue> get, Action<T, TValue> set)
             {
-                this.PropertyType = propertyType;
+                this.Property = property;
                 this.Get = get;
                 this.Set = set;
             }
 
-            public Type PropertyType { get; private set; }
+            public PropertyInfo Property { get; private set; }
 
             public Func<T, TValue> Get { get; private set; }
 

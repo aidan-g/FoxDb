@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -132,7 +133,7 @@ namespace FoxDb
                 var sequence = node.Relation.Getter(parent);
                 if (sequence == null)
                 {
-                    node.Relation.Setter(parent, Factories.CollectionFactory.Create<TRelation>(new[] { child }));
+                    throw new NotImplementedException();
                 }
                 else
                 {

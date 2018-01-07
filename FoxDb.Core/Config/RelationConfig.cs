@@ -1,16 +1,18 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Reflection;
 
 namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        protected RelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable)
+        protected RelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property)
         {
             this.Config = config;
             this.LeftTable = leftTable;
             this.MappingTable = mappingTable;
             this.RightTable = rightTable;
+            this.Property = property;
         }
 
         public IConfig Config { get; private set; }
@@ -20,6 +22,8 @@ namespace FoxDb
         public IMappingTableConfig MappingTable { get; private set; }
 
         public ITableConfig RightTable { get; private set; }
+
+        public PropertyInfo Property { get; private set; }
 
         public IColumnConfig LeftColumn { get; set; }
 
@@ -38,7 +42,7 @@ namespace FoxDb
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
     {
-        public RelationConfig(IConfig config, ITableConfig parent, ITableConfig table, Func<T, TRelation> getter, Action<T, TRelation> setter) : base(config, parent, null, table)
+        public RelationConfig(IConfig config, ITableConfig parent, ITableConfig table, PropertyInfo property, Func<T, TRelation> getter, Action<T, TRelation> setter) : base(config, parent, null, table, property)
         {
             this.Getter = getter;
             this.Setter = setter;
@@ -59,8 +63,6 @@ namespace FoxDb
                 return RelationMultiplicity.OneToOne;
             }
         }
-
-        public Func<TRelation> EntityFactory { get; private set; }
 
         public Func<T, TRelation> Getter { get; private set; }
 

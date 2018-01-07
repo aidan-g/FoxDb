@@ -18,7 +18,7 @@ namespace FoxDb
                 throw new InvalidOperationException(string.Format("Table \"{0}\" does not have a valid primary key configuration.", table.TableName));
             }
             var key = table.PrimaryKey.Getter(item);
-            if (key != null && !key.Equals(table.PrimaryKey.PropertyType.DefaultValue()))
+            if (key != null && !key.Equals(table.PrimaryKey.Property.PropertyType.DefaultValue()))
             {
                 return true;
             }

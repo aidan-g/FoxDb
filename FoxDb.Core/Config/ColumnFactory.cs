@@ -1,25 +1,26 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Reflection;
 
 namespace FoxDb
 {
-    public static class ColumnFactory
+    public class ColumnFactory : IColumnFactory
     {
-        public static IColumnConfig Create(ITableConfig table, string columnName)
+        public IColumnConfig Create(ITableConfig table, string name)
         {
-            var propertyName = default(string);
-            var propertyType = default(Type);
+            return new ColumnConfig(table, name, null, null, null);
+        }
+
+        public IColumnConfig Create(ITableConfig table, PropertyInfo property)
+        {
             var getter = default(Func<object, object>);
             var setter = default(Action<object, object>);
-            var property = EntityPropertyResolver.GetProperty(table.TableType, columnName);
             if (property != null)
             {
-                propertyName = property.Name;
-                propertyType = property.PropertyType;
                 getter = item => property.GetValue(item);
                 setter = (item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType));
             }
-            return new ColumnConfig(table, columnName, propertyName, propertyType, getter, setter);
+            return new ColumnConfig(table, Conventions.ColumnName(property), property, getter, setter);
         }
     }
 }

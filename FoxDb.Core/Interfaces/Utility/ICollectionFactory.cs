@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FoxDb.Interfaces
 {
     public interface ICollectionFactory
     {
-        ICollection<T> Create<T>();
-
-        ICollection<T> Create<T>(IEnumerable<T> sequence);
+        ICollection<T> Create<T>(Type type);
     }
 }

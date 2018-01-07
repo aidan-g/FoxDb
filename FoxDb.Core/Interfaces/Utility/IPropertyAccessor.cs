@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
     public interface IPropertyAccessor<T, TValue>
     {
-        Type PropertyType { get; }
+        PropertyInfo Property { get; }
 
         Func<T, TValue> Get { get; }
 

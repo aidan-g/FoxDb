@@ -41,15 +41,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\Attributes\ColumnAttribute.cs" />
+    <Compile Include="Config\Attributes\RelationAttribute.cs" />
+    <Compile Include="Config\Attributes\TableAttribute.cs" />
     <Compile Include="Config\ColumnConfig.cs" />
     <Compile Include="Config\ColumnFactory.cs" />
     <Compile Include="Config\Config.cs" />
+    <Compile Include="Config\Defaults.cs" />
+    <Compile Include="Config\Extensions.cs" />
     <Compile Include="Config\ManyToManyRelationConfig.cs" />
     <Compile Include="Config\OneToManyRelationConfig.cs" />
+    <Compile Include="Config\RelationFactory.cs" />
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
-    <Compile Include="Entity\EntityCollectionFactory.cs" />
     <Compile Include="Entity\EntityColumnMap.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />
     <Compile Include="Entity\EntityEnumeratorBuffer.cs" />
@@ -61,8 +66,10 @@
     <Compile Include="Entity\EntityInitializer.cs" />
     <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityMapper.cs" />
-    <Compile Include="Entity\EntityPropertyResolver.cs" />
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
+    <Compile Include="Interfaces\Config\IColumnFactory.cs" />
+    <Compile Include="Interfaces\Config\IRelationFactory.cs" />
+    <Compile Include="Interfaces\Config\ITableFactory.cs" />
     <Compile Include="Interfaces\Entity\IEntityColumnMap.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumeratorBuffer.cs" />
