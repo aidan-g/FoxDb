@@ -56,5 +56,15 @@ namespace FoxDb
                 return builder;
             }
         }
+
+        public IQueryGraphBuilder Find
+        {
+            get
+            {
+                var query = this.Select;
+                query.Where.AddColumns(this.Mapper.Table.PrimaryKeys);
+                return query;
+            }
+        }
     }
 }
