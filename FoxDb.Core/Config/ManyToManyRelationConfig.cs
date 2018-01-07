@@ -1,12 +1,13 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FoxDb
 {
     public class ManyToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public ManyToManyRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, Func<ICollection<TRelation>> collectionFactory, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable, collectionFactory, getter, setter)
+        public ManyToManyRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable, property, getter, setter)
         {
         }
 
@@ -27,7 +28,7 @@ namespace FoxDb
 
         public override IRelationConfig Invert()
         {
-            return new ManyToManyRelationConfig<T, TRelation>(this.Config, this.LeftTable, this.MappingTable, this.RightTable, this.CollectionFactory, this.Getter, this.Setter)
+            return new ManyToManyRelationConfig<T, TRelation>(this.Config, this.LeftTable, this.MappingTable, this.RightTable, this.Property, this.Getter, this.Setter)
             {
                 Inverted = true
             };

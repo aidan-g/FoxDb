@@ -1,16 +1,16 @@
-﻿using System;
-using FoxDb.Interfaces;
+﻿using FoxDb.Interfaces;
+using System;
+using System.Reflection;
 
 namespace FoxDb
 {
     public class ColumnConfig : IColumnConfig
     {
-        public ColumnConfig(ITableConfig table, string columnName, string propertyName, Type propertyType, Func<object, object> getter, Action<object, object> setter)
+        public ColumnConfig(ITableConfig table, string columnName, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
         {
             this.Table = table;
             this.ColumnName = columnName;
-            this.PropertyName = propertyName;
-            this.PropertyType = propertyType;
+            this.Property = property;
             this.Getter = getter;
             this.Setter = setter;
         }
@@ -19,9 +19,7 @@ namespace FoxDb
 
         public string ColumnName { get; set; }
 
-        public string PropertyName { get; set; }
-
-        public Type PropertyType { get; set; }
+        public PropertyInfo Property { get; set; }
 
         public bool IsPrimaryKey { get; set; }
 

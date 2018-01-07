@@ -7,6 +7,8 @@ namespace FoxDb.Interfaces
 {
     public interface ITableConfig
     {
+        IConfig Config { get; }
+
         string TableName { get; set; }
 
         Type TableType { get; }
@@ -19,7 +21,7 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> ForeignKeys { get; }
 
-        IColumnConfig Column(string columnName);
+        IColumnConfig Column(string name);
 
         IColumnConfig Column(PropertyInfo property);
 
@@ -34,9 +36,9 @@ namespace FoxDb.Interfaces
 
         ITableConfig<T> UseDefaultRelations();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, ConfigDefaults defaults = ConfigDefaults.Default);
+        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression);
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, ConfigDefaults defaults = ConfigDefaults.Default);
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity);
     }
 
     public interface IMappingTableConfig : ITableConfig

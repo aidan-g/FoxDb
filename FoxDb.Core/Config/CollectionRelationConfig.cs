@@ -1,14 +1,14 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FoxDb
 {
     public abstract class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
     {
-        public CollectionRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, Func<ICollection<TRelation>> collectionFactory, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable)
+        public CollectionRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable, property)
         {
-            this.CollectionFactory = collectionFactory;
             this.Getter = getter;
             this.Setter = setter;
         }
@@ -20,8 +20,6 @@ namespace FoxDb
                 return typeof(TRelation);
             }
         }
-
-        public Func<ICollection<TRelation>> CollectionFactory { get; private set; }
 
         public Func<T, ICollection<TRelation>> Getter { get; private set; }
 

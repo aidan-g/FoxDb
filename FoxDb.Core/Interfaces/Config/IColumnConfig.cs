@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
@@ -8,9 +9,7 @@ namespace FoxDb.Interfaces
 
         string ColumnName { get; set; }
 
-        string PropertyName { get; set; }
-
-        Type PropertyType { get; set; }
+        PropertyInfo Property { get; set; }
 
         bool IsPrimaryKey { get; set; }
 

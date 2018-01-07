@@ -23,44 +23,40 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public ITableConfig Table(Type tableType, ConfigDefaults defaults = ConfigDefaults.Default)
+        public ITableConfig Table(Type tableType)
         {
-            var table = this.Members.Invoke(this, "Table", tableType, defaults);
+            var table = this.Members.Invoke(this, "Table", tableType);
             return (ITableConfig)table;
         }
 
-        public ITableConfig<T> Table<T>(ConfigDefaults defaults = ConfigDefaults.Default)
+        public ITableConfig<T> Table<T>()
         {
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
             {
-                var config = TableFactory.Create<T>(this.Database);
-                this.Tables.Add(key, config);
-                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
-                {
-                    config.UseDefaultColumns();
-                }
-                if (defaults.HasFlag(ConfigDefaults.DefaultRelations))
-                {
-                    config.UseDefaultRelations();
-                }
+                this.Tables[key] = this.CreateTable<T>();
             }
             return this.Tables[key] as ITableConfig<T>;
         }
 
-        public ITableConfig<T1, T2> Table<T1, T2>(ConfigDefaults defaults = ConfigDefaults.Default)
+        protected virtual ITableConfig<T> CreateTable<T>()
+        {
+            return Factories.Table.Create<T>(this);
+        }
+
+        public ITableConfig<T1, T2> Table<T1, T2>()
         {
             var key = new TableKey(typeof(T1), typeof(T2));
             if (!this.Tables.ContainsKey(key))
             {
-                var config = TableFactory.Create<T1, T2>(this.Database);
-                this.Tables.Add(key, config);
-                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
-                {
-                    config.UseDefaultColumns();
-                }
+                this.Tables[key] = this.CreateTable<T1, T2>();
             }
             return this.Tables[key] as ITableConfig<T1, T2>;
+        }
+
+        protected virtual ITableConfig<T1, T2> CreateTable<T1, T2>()
+        {
+            return Factories.Table.Create<T1, T2>(this);
         }
 
         protected class TableKey : IEquatable<TableKey>

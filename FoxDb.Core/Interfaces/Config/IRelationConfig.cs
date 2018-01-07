@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
@@ -12,6 +13,8 @@ namespace FoxDb.Interfaces
         IMappingTableConfig MappingTable { get; }
 
         ITableConfig RightTable { get; }
+
+        PropertyInfo Property { get; }
 
         IColumnConfig LeftColumn { get; }
 
@@ -39,8 +42,6 @@ namespace FoxDb.Interfaces
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
     {
-        Func<ICollection<TRelation>> CollectionFactory { get; }
-
         Func<T, ICollection<TRelation>> Getter { get; }
 
         Action<T, ICollection<TRelation>> Setter { get; }

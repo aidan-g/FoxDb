@@ -7,42 +7,45 @@ namespace FoxDb
 {
     public class SQLiteSchema : IDatabaseSchema
     {
-        private SQLiteSchema()
-        {
-            this.ColumnNames = new Dictionary<Type, IEnumerable<string>>();
-        }
-
-        public SQLiteSchema(IDatabase database) : this()
+        public SQLiteSchema(IDatabase database)
         {
             this.Database = database;
         }
 
         public IDatabase Database { get; private set; }
 
-        protected IDictionary<Type, IEnumerable<string>> ColumnNames { get; set; }
+        protected IEnumerable<string> TableNames { get; set; }
+
+        protected IDictionary<string, IEnumerable<string>> ColumnNames { get; set; }
 
         public IEnumerable<string> GetTableNames()
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> GetColumnNames<T>()
-        {
-            var key = typeof(T);
-            if (!this.ColumnNames.ContainsKey(key))
+            if (this.TableNames == null)
             {
-                var table = this.Database.Config.Table<T>();
-                var query = new DatabaseQuery(string.Format("PRAGMA table_info('{0}')", table.TableName));
+                var query = new DatabaseQuery("SELECT name FROM sqlite_master WHERE type = 'table'");
                 using (var reader = this.Database.ExecuteReader(query))
                 {
-                    this.ColumnNames[key] = reader.Select(element => element.Get<string>("name")).ToArray();
-                }
-                if (!this.ColumnNames.Any())
-                {
-                    throw new InvalidOperationException(string.Format("Table \"{0}\" does not exist.", table.TableName));
+                    this.TableNames = reader.Select(element => element.Get<string>("name")).ToArray();
                 }
             }
-            return this.ColumnNames[key];
+            return this.TableNames;
+        }
+
+        public IEnumerable<string> GetColumnNames(string tableName)
+        {
+            if (this.ColumnNames == null)
+            {
+                this.ColumnNames = new Dictionary<string, IEnumerable<string>>(StringComparer.OrdinalIgnoreCase);
+            }
+            if (!this.ColumnNames.ContainsKey(tableName))
+            {
+                var query = new DatabaseQuery(string.Format("PRAGMA table_info('{0}')", tableName));
+                using (var reader = this.Database.ExecuteReader(query))
+                {
+                    this.ColumnNames[tableName] = reader.Select(element => element.Get<string>("name")).ToArray();
+                }
+            }
+            return this.ColumnNames[tableName];
         }
     }
 }

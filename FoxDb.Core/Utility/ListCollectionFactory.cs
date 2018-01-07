@@ -1,19 +1,22 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FoxDb
 {
     public class ListCollectionFactory : ICollectionFactory
     {
-        public ICollection<T> Create<T>()
+        public ICollection<T> Create<T>(Type type)
         {
-            return this.Create<T>(Enumerable.Empty<T>());
-        }
-
-        public ICollection<T> Create<T>(IEnumerable<T> sequence)
-        {
-            return new List<T>(sequence);
+            if (type.IsInterface)
+            {
+                return new List<T>();
+            }
+            if (typeof(ICollection<T>).IsAssignableFrom(type))
+            {
+                return (ICollection<T>)Activator.CreateInstance(type);
+            }
+            throw new NotImplementedException();
         }
     }
 }
