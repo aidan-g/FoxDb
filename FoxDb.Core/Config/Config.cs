@@ -23,35 +23,39 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public ITableConfig Table(Type tableType, bool useDefaultColumns = true)
+        public ITableConfig Table(Type tableType, ConfigDefaults defaults = ConfigDefaults.Default)
         {
-            var table = this.Members.Invoke(this, "Table", tableType, useDefaultColumns);
+            var table = this.Members.Invoke(this, "Table", tableType, defaults);
             return (ITableConfig)table;
         }
 
-        public ITableConfig<T> Table<T>(bool useDefaultColumns = true)
+        public ITableConfig<T> Table<T>(ConfigDefaults defaults = ConfigDefaults.Default)
         {
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
             {
                 var config = TableFactory.Create<T>(this.Database);
                 this.Tables.Add(key, config);
-                if (useDefaultColumns)
+                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
                 {
                     config.UseDefaultColumns();
+                }
+                if (defaults.HasFlag(ConfigDefaults.DefaultRelations))
+                {
+                    config.UseDefaultRelations();
                 }
             }
             return this.Tables[key] as ITableConfig<T>;
         }
 
-        public ITableConfig<T1, T2> Table<T1, T2>(bool useDefaultColumns = true)
+        public ITableConfig<T1, T2> Table<T1, T2>(ConfigDefaults defaults = ConfigDefaults.Default)
         {
             var key = new TableKey(typeof(T1), typeof(T2));
             if (!this.Tables.ContainsKey(key))
             {
                 var config = TableFactory.Create<T1, T2>(this.Database);
                 this.Tables.Add(key, config);
-                if (useDefaultColumns)
+                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
                 {
                     config.UseDefaultColumns();
                 }

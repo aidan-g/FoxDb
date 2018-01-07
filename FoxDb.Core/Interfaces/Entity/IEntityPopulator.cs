@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IEntityPopulator<T>
     {
-        void Populate(T item, IDictionary<string, object> data);
+        void Populate(T item, IDatabaseReaderRecord record);
     }
 }

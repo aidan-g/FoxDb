@@ -60,6 +60,8 @@ namespace FoxDb
             }
         }
 
+        public Func<TRelation> EntityFactory { get; private set; }
+
         public Func<T, TRelation> Getter { get; private set; }
 
         public Action<T, TRelation> Setter { get; private set; }

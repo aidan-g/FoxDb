@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class OneToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public OneToManyRelationConfig(IConfig config, ITableConfig parent, ITableConfig table, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, parent,null, table, getter, setter)
+        public OneToManyRelationConfig(IConfig config, ITableConfig parent, ITableConfig table, Func<ICollection<TRelation>> collectionFactory, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, parent, null, table, collectionFactory, getter, setter)
         {
 
         }

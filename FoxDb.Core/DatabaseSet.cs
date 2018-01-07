@@ -60,7 +60,7 @@ namespace FoxDb
             get
             {
                 var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(this.Source.Select));
-                return this.Database.Execute<int>(query, this.Parameters, this.Transaction);
+                return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
         }
 

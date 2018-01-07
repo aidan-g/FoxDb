@@ -21,6 +21,11 @@ namespace FoxDb
 
         protected IDictionary<Type, IEnumerable<string>> ColumnNames { get; set; }
 
+        public IEnumerable<string> GetTableNames()
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<string> GetColumnNames<T>()
         {
             var key = typeof(T);

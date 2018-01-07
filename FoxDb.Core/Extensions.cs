@@ -8,6 +8,18 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
+        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, out IDatabaseParameters parameters, IDbTransaction transaction = null)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = query.CommandText;
+            parameters = command.CreateParameters(query);
+            if (transaction != null)
+            {
+                command.Transaction = transaction;
+            }
+            return command;
+        }
+
         public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
         {
             var command = connection.CreateCommand();
@@ -20,7 +32,7 @@ namespace FoxDb
             return command;
         }
 
-        public static IDatabaseParameters CreateParameters(this IDbCommand command, IDatabaseQuery query, DatabaseParameterHandler handler)
+        public static IDatabaseParameters CreateParameters(this IDbCommand command, IDatabaseQuery query, DatabaseParameterHandler handler = null)
         {
             foreach (var parameterName in query.ParameterNames)
             {
@@ -57,6 +69,60 @@ namespace FoxDb
         {
             action(value);
             return value;
+        }
+
+        public static bool IsScalar(this Type type)
+        {
+            return type.IsPrimitive || typeof(string).IsAssignableFrom(type);
+        }
+
+        public static bool IsGeneric(this Type type, out Type elementType)
+        {
+            if (!type.IsGenericType)
+            {
+                elementType = null;
+                return false;
+            }
+            var arguments = type.GetGenericArguments();
+            if (arguments.Length != 1)
+            {
+                elementType = null;
+                return false;
+            }
+            elementType = arguments[0];
+            return true;
+        }
+
+        public static bool IsCollection(this Type type, out Type elementType)
+        {
+            if (!type.IsGeneric(out elementType))
+            {
+                return false;
+            }
+            foreach (var @interface in type.GetInterfaces())
+            {
+                if (!type.IsGenericType)
+                {
+                    continue;
+                }
+                if (type.GetGenericTypeDefinition() == typeof(ICollection<>))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static IDictionary<string, object> ToDictionary(this IDataReader reader)
+        {
+            var data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            for (var a = 0; a < reader.FieldCount; a++)
+            {
+                var name = reader.GetName(a);
+                var value = reader.GetValue(a);
+                data[name] = value;
+            }
+            return data;
         }
     }
 }

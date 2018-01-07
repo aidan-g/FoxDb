@@ -32,9 +32,11 @@ namespace FoxDb.Interfaces
     {
         ITableConfig<T> UseDefaultColumns();
 
-        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, bool useDefaultColumns = true);
+        ITableConfig<T> UseDefaultRelations();
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, bool useDefaultColumns = true);
+        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, ConfigDefaults defaults = ConfigDefaults.Default);
+
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, ConfigDefaults defaults = ConfigDefaults.Default);
     }
 
     public interface IMappingTableConfig : ITableConfig

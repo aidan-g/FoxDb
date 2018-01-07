@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System.Collections.Generic;
 
 namespace FoxDb
 {
@@ -15,13 +14,13 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public void Populate(T item, IDictionary<string, object> data)
+        public void Populate(T item, IDatabaseReaderRecord record)
         {
             foreach (var column in this.Mapper.GetColumns(this.Table))
             {
-                if (data.ContainsKey(column.Identifier) && column.Column.Setter != null)
+                if (record.Contains(column.Identifier) && column.Column.Setter != null)
                 {
-                    var value = data[column.Identifier];
+                    var value = record[column.Identifier];
                     column.Column.Setter(item, value);
                 }
             }

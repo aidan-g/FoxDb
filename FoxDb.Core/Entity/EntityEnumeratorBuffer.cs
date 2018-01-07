@@ -23,7 +23,7 @@ namespace FoxDb
 
         public IDatabaseSet Set { get; private set; }
 
-        public IDictionary<string, object> Data { get; set; }
+        public IDatabaseReaderRecord Record { get; set; }
 
         protected virtual IEntityFactory<T> GetFactory<T>()
         {
@@ -41,7 +41,7 @@ namespace FoxDb
 
         public void Update(IDatabaseReaderRecord record)
         {
-            this.Data = record.ToDictionary();
+            this.Record = record;
         }
 
         public bool Exists<T>()
@@ -51,7 +51,7 @@ namespace FoxDb
 
         public T Create<T>()
         {
-            var item = this.GetFactory<T>().Create(this.Data);
+            var item = this.GetFactory<T>().Create(this.Record);
             this.Buffer.Add(typeof(T), item);
             return item;
         }
@@ -74,11 +74,11 @@ namespace FoxDb
                 return null;
             }
             var identifier = this.Set.Mapper.GetColumn(table.PrimaryKey).Identifier;
-            if (!this.Data.ContainsKey(identifier))
+            if (!this.Record.Contains(identifier))
             {
                 return null;
             }
-            return this.Data[identifier];
+            return this.Record[identifier];
         }
 
         public bool HasKey<T>()

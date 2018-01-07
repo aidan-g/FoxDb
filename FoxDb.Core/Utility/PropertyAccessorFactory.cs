@@ -26,16 +26,19 @@ namespace FoxDb
             var property = member.Member as PropertyInfo;
             var get = property.GetGetMethod().CreateDelegate<Func<T, TValue>>();
             var set = property.GetSetMethod().CreateDelegate<Action<T, TValue>>();
-            return new PropertyAccessor<T, TValue>(get, set);
+            return new PropertyAccessor<T, TValue>(property.PropertyType, get, set);
         }
 
         private class PropertyAccessor<T, TValue> : IPropertyAccessor<T, TValue>
         {
-            public PropertyAccessor(Func<T, TValue> get, Action<T, TValue> set)
+            public PropertyAccessor(Type propertyType, Func<T, TValue> get, Action<T, TValue> set)
             {
+                this.PropertyType = propertyType;
                 this.Get = get;
                 this.Set = set;
             }
+
+            public Type PropertyType { get; private set; }
 
             public Func<T, TValue> Get { get; private set; }
 

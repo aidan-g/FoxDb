@@ -111,20 +111,48 @@ namespace FoxDb
             var properties = new EntityPropertyEnumerator<T>();
             foreach (var property in properties)
             {
+                if (!property.PropertyType.IsScalar())
+                {
+                    continue;
+                }
                 if (!this.Database.Schema.GetColumnNames<T>().Contains(property.Name))
                 {
                     continue;
                 }
-                var column = this.Column(property.Name);
-                if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
-                {
-                    column.IsPrimaryKey = true;
-                }
+                this.TryCreateColumn(property);
             }
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, bool useDefaultColumns = true)
+        protected virtual void TryCreateColumn(PropertyInfo property)
+        {
+            var column = this.Column(property.Name);
+            if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
+            {
+                column.IsPrimaryKey = true;
+            }
+        }
+
+        public ITableConfig<T> UseDefaultRelations()
+        {
+            var properties = new EntityPropertyEnumerator<T>();
+            foreach (var property in properties)
+            {
+                if (property.PropertyType.IsScalar())
+                {
+                    continue;
+                }
+                this.TryCreateRelation(property);
+            }
+            return this;
+        }
+
+        protected virtual void TryCreateRelation(PropertyInfo property)
+        {
+            //Nothing to do.
+        }
+
+        public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression, ConfigDefaults defaults = ConfigDefaults.Default)
         {
             if (typeof(TRelation).IsGenericType)
             {
@@ -136,7 +164,7 @@ namespace FoxDb
                 var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
                 var config = new RelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
                 this.Relations.Add(key, config);
-                if (useDefaultColumns)
+                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
                 {
                     config.UseDefaultColumns();
                 }
@@ -144,26 +172,27 @@ namespace FoxDb
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, bool useDefaultColumns = true)
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity, ConfigDefaults defaults = ConfigDefaults.Default)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
                 var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
+                var collectionFactory = EntityCollectionFactory<TRelation>.Create(accessor.PropertyType);
                 var config = default(ICollectionRelationConfig<T, TRelation>);
                 switch (multiplicity)
                 {
                     case RelationMultiplicity.OneToMany:
-                        config = new OneToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
+                        config = new OneToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<TRelation>(), collectionFactory, accessor.Get, accessor.Set);
                         break;
                     case RelationMultiplicity.ManyToMany:
-                        config = new ManyToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<T, TRelation>(), this.Database.Config.Table<TRelation>(), accessor.Get, accessor.Set);
+                        config = new ManyToManyRelationConfig<T, TRelation>(this.Database.Config, this, this.Database.Config.Table<T, TRelation>(), this.Database.Config.Table<TRelation>(), collectionFactory, accessor.Get, accessor.Set);
                         break;
                     default:
                         throw new NotImplementedException();
                 }
                 this.Relations.Add(typeof(TRelation), config);
-                if (useDefaultColumns)
+                if (defaults.HasFlag(ConfigDefaults.DefaultColumns))
                 {
                     config.UseDefaultColumns();
                 }

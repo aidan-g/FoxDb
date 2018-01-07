@@ -21,7 +21,7 @@ namespace FoxDb
             else
             {
                 var query = this.Set.Database.QueryFactory.Create(this.Set.Source.Insert);
-                var key = this.Set.Database.Execute<object>(query, this.GetParameters(item), this.Set.Transaction);
+                var key = this.Set.Database.ExecuteScalar<object>(query, this.GetParameters(item), this.Set.Transaction);
                 EntityKey<T>.SetKey(this.Set.Database, item, key);
             }
             Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item);
