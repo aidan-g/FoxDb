@@ -232,7 +232,7 @@ namespace FoxDb
 
         protected virtual void VisitOrderBy(MethodCallExpression node)
         {
-            this.Query.OrderBy.Columns.Clear();
+            this.Query.OrderBy.Expressions.Clear();
             this.Direction = OrderByDirection.None;
             this.Visit(node.Arguments[0]);
             this.Push(this.Query.OrderBy);
@@ -249,7 +249,7 @@ namespace FoxDb
 
         protected virtual void VisitOrderByDescending(MethodCallExpression node)
         {
-            this.Query.OrderBy.Columns.Clear();
+            this.Query.OrderBy.Expressions.Clear();
             this.Direction = OrderByDirection.Descending;
             this.Visit(node.Arguments[0]);
             this.Push(this.Query.OrderBy);

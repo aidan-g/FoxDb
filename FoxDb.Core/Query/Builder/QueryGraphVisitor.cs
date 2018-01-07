@@ -40,15 +40,7 @@ namespace FoxDb
             }
         }
 
-        protected virtual void Visit(IEnumerable<IFragmentBuilder> expressions)
-        {
-            foreach (var expression in expressions)
-            {
-                this.Visit(expression);
-            }
-        }
-
-        protected virtual void Visit(IFragmentBuilder fragment)
+        public virtual void Visit(IFragmentBuilder fragment)
         {
             var handler = default(QueryGraphVisitorHandler);
             if (!this.Handlers.TryGetValue(fragment.FragmentType, out handler))
@@ -71,7 +63,7 @@ namespace FoxDb
         protected abstract void VisitWhere(IWhereBuilder expression);
 
         protected abstract void VisitOrderBy(IOrderByBuilder expression);
-
-        protected delegate void QueryGraphVisitorHandler(IFragmentBuilder fragment);
     }
+
+    public delegate void QueryGraphVisitorHandler(IFragmentBuilder fragment);
 }
