@@ -45,7 +45,7 @@ namespace FoxDb
 
         protected virtual void Initialize<TEntity, TRelation>(TEntity item, ICollectionRelationConfig<TEntity, TRelation> relation)
         {
-            relation.Setter(item, Factories.CollectionFactory.Create<TRelation>());
+            relation.Setter(item, relation.CollectionFactory());
         }
     }
 }

@@ -21,9 +21,9 @@ namespace FoxDb
                 this.AssertSequence(data, set);
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
-                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
-                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
@@ -75,9 +75,9 @@ namespace FoxDb
                 set.Clear();
                 set.AddOrUpdate(new[]
                 {
-                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
-                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
-                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 Assert.AreEqual(3, set.Count);
                 set.Clear();

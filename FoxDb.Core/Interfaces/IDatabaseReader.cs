@@ -15,16 +15,10 @@ namespace FoxDb.Interfaces
 
         int Count { get; }
 
-        object this[int index] { get; }
-
         object this[string name] { get; }
 
         bool Contains(string name);
 
-        T Get<T>(int index);
-
         T Get<T>(string name);
-
-        IDictionary<string, object> ToDictionary();
     }
 }

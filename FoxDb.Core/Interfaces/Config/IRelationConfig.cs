@@ -39,6 +39,8 @@ namespace FoxDb.Interfaces
 
     public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
     {
+        Func<ICollection<TRelation>> CollectionFactory { get; }
+
         Func<T, ICollection<TRelation>> Getter { get; }
 
         Action<T, ICollection<TRelation>> Setter { get; }

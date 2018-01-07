@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IEntityFactory
     {
-        object Create(IDictionary<string, object> data);
+        object Create(IDatabaseReaderRecord record);
     }
 
     public interface IEntityFactory<T> : IEntityFactory
     {
-        new T Create(IDictionary<string, object> data);
+        new T Create(IDatabaseReaderRecord record);
     }
 }

@@ -17,7 +17,7 @@ namespace FoxDb
                 propertyName = property.Name;
                 propertyType = property.PropertyType;
                 getter = item => property.GetValue(item);
-                setter = (item, value) => property.SetValue(item, value);
+                setter = (item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType));
             }
             return new ColumnConfig(table, columnName, propertyName, propertyType, getter, setter);
         }

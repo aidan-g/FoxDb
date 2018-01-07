@@ -1,14 +1,24 @@
-﻿using System;
+﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FoxDb.Interfaces;
 
 namespace FoxDb
 {
     public class EntityEnumerator : IEntityEnumerator
     {
+        public IEnumerable<T> AsEnumerable<T>(IDatabase database, IDatabaseReader reader)
+        {
+            var table = database.Config.Table<T>();
+            var mapper = new EntityMapper(database, table, false);
+            var initializer = new EntityInitializer<T>(table, mapper);
+            var populator = new EntityPopulator<T>(table, mapper);
+            var factory = new EntityFactory<T>(initializer, populator);
+            foreach (var record in reader)
+            {
+                yield return factory.Create(record);
+            }
+            reader.Dispose();
+        }
+
         public IEnumerable<T> AsEnumerable<T>(IDatabaseSet<T> set, IDatabaseReader reader)
         {
             var buffer = new List<T>();
@@ -33,6 +43,7 @@ namespace FoxDb
             {
                 yield return item;
             }
+            reader.Dispose();
         }
 
         private class EntityEnumeratorVisitor<T> : EntityGraphVisitor

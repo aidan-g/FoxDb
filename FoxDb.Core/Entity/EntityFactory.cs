@@ -16,17 +16,17 @@ namespace FoxDb
 
         public IEntityPopulator<T> Populator { get; private set; }
 
-        public T Create(IDictionary<string, object> data)
+        public T Create(IDatabaseReaderRecord record)
         {
             var item = Activator.CreateInstance<T>();
             this.Initializer.Initialize(item);
-            this.Populator.Populate(item, data);
+            this.Populator.Populate(item, record);
             return item;
         }
 
-        object IEntityFactory.Create(IDictionary<string, object> data)
+        object IEntityFactory.Create(IDatabaseReaderRecord record)
         {
-            return this.Create(data);
+            return this.Create(record);
         }
     }
 }

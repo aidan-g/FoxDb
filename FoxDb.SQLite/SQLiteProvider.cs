@@ -24,7 +24,6 @@ namespace FoxDb
             }
         }
 
-
         public IDbConnection CreateConnection(IDatabase database)
         {
             if (!File.Exists(this.FileName))

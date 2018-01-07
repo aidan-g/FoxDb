@@ -24,9 +24,9 @@ namespace FoxDb
                 set.Clear();
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
-                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
-                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(false, transaction);
@@ -69,9 +69,9 @@ namespace FoxDb
                 set.Clear();
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A"},
-                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B"},
-                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C"}
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(false, transaction);
@@ -104,9 +104,9 @@ namespace FoxDb
                 set.Clear();
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A"},
-                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B"},
-                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C"}
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(false, transaction);
@@ -169,9 +169,9 @@ namespace FoxDb
                 set.Clear();
                 data.AddRange(new[]
                 {
-                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3"},
-                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3"},
-                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3"}
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(false, transaction);

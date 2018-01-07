@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
@@ -9,6 +10,10 @@ namespace FoxDb.Interfaces
         IProvider Provider { get; }
 
         IDbConnection Connection { get; }
+
+        IDbTransaction BeginTransaction();
+
+        IDbTransaction BeginTransaction(IsolationLevel isolationLevel);
 
         IDatabaseSchema Schema { get; }
 
@@ -24,9 +29,17 @@ namespace FoxDb.Interfaces
 
         void Execute(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        T Execute<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        T Execute<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        T ExecuteScalar<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+
+        T ExecuteComplex<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+
+        T ExecuteComplex<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+
+        IEnumerable<T> ExecuteEnumerator<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+
+        IEnumerable<T> ExecuteEnumerator<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
         IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
