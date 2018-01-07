@@ -7,7 +7,7 @@ namespace FoxDb
     {
         public InsertBuilder()
         {
-            this.Columns = new List<IColumnBuilder>();
+            this.Expressions = new List<IExpressionBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -20,19 +20,27 @@ namespace FoxDb
 
         public ITableBuilder Table { get; set; }
 
-        public void SetTable(ITableConfig table)
+        public IInsertBuilder SetTable(ITableConfig table)
         {
             this.Table = this.GetTable(table);
+            return this;
         }
 
-        public ICollection<IColumnBuilder> Columns { get; private set; }
+        public ICollection<IExpressionBuilder> Expressions { get; }
 
-        public void AddColumns(IEnumerable<IColumnConfig> columns)
+        public IInsertBuilder AddColumn(IColumnConfig column)
+        {
+            this.Expressions.Add(this.GetColumn(column));
+            return this;
+        }
+
+        public IInsertBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
-                this.Columns.Add(this.GetColumn(column));
+                this.AddColumn(column);
             }
+            return this;
         }
     }
 }

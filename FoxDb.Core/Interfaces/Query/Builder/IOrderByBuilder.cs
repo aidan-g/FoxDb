@@ -4,10 +4,10 @@ namespace FoxDb.Interfaces
 {
     public interface IOrderByBuilder : IFragmentTarget
     {
-        ICollection<IColumnBuilder> Columns { get; }
+        ICollection<IExpressionBuilder> Expressions { get; }
 
-        IColumnBuilder AddColumn(IColumnConfig column);
+        IOrderByBuilder AddColumn(IColumnConfig column);
 
-        void AddColumns(IEnumerable<IColumnConfig> columns);
+        IOrderByBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }
 }

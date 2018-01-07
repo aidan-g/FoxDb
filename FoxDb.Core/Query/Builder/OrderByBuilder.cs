@@ -8,7 +8,7 @@ namespace FoxDb
     {
         public OrderByBuilder()
         {
-            this.Columns = new List<IColumnBuilder>();
+            this.Expressions = new List<IExpressionBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -19,28 +19,28 @@ namespace FoxDb
             }
         }
 
-        public ICollection<IColumnBuilder> Columns { get; private set; }
+        public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
-        public IColumnBuilder AddColumn(IColumnConfig column)
+        public IOrderByBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.GetColumn(column);
-            this.Columns.Add(expression);
-            return expression;
+            this.Expressions.Add(this.GetColumn(column));
+            return this;
         }
 
-        public void AddColumns(IEnumerable<IColumnConfig> columns)
+        public IOrderByBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
                 this.AddColumn(column);
             }
+            return this;
         }
 
         public void Write(IFragmentBuilder fragment)
         {
             if (fragment is IColumnBuilder)
             {
-                this.Columns.Add(fragment as IColumnBuilder);
+                this.Expressions.Add(fragment as IColumnBuilder);
                 return;
             }
             throw new NotImplementedException();

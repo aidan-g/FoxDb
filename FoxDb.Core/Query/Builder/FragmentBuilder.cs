@@ -86,10 +86,7 @@ namespace FoxDb
             return this.GetFragment<IFunctionBuilder>().With(builder =>
             {
                 builder.Function = function;
-                foreach (var argument in arguments)
-                {
-                    builder.Arguments.Add(argument);
-                }
+                builder.AddArguments(arguments);
             });
         }
 

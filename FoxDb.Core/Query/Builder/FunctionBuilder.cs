@@ -8,7 +8,7 @@ namespace FoxDb
     {
         public FunctionBuilder()
         {
-            this.Arguments = new List<IExpressionBuilder>();
+            this.Expressions = new List<IExpressionBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -21,11 +21,20 @@ namespace FoxDb
 
         public QueryFunction Function { get; set; }
 
-        public ICollection<IExpressionBuilder> Arguments { get; private set; }
+        public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
         public IFunctionBuilder AddArgument(IExpressionBuilder argument)
         {
-            this.Arguments.Add(argument);
+            this.Expressions.Add(argument);
+            return this;
+        }
+
+        public IFunctionBuilder AddArguments(IEnumerable<IExpressionBuilder> arguments)
+        {
+            foreach (var argument in arguments)
+            {
+                this.AddArgument(argument);
+            }
             return this;
         }
 
@@ -33,7 +42,7 @@ namespace FoxDb
         {
             if (fragment is IExpressionBuilder)
             {
-                this.Arguments.Add(fragment as IExpressionBuilder);
+                this.Expressions.Add(fragment as IExpressionBuilder);
                 return;
             }
             throw new NotImplementedException();
