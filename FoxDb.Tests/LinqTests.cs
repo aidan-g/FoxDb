@@ -29,7 +29,7 @@ namespace FoxDb
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
-                var query = database.AsQueryable<Test001>(false, transaction);
+                var query = database.AsQueryable<Test001>(transaction);
                 {
                     Expression<Func<Test001, bool>> func = element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3";
                     this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
@@ -74,7 +74,7 @@ namespace FoxDb
                     new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
                 });
                 set.AddOrUpdate(data);
-                var query = database.AsQueryable<Test001>(false, transaction);
+                var query = database.AsQueryable<Test001>(transaction);
                 {
                     Expression<Func<Test001, string>> func = element => element.Field1;
                     this.AssertSequence(data.AsQueryable().OrderBy(func), query.OrderBy(func));
@@ -109,7 +109,7 @@ namespace FoxDb
                     new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
                 });
                 set.AddOrUpdate(data);
-                var query = database.AsQueryable<Test001>(false, transaction);
+                var query = database.AsQueryable<Test001>(transaction);
                 {
                     Expression<Func<Test001, string>> func = element => element.Field1;
                     this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
@@ -139,7 +139,7 @@ namespace FoxDb
                 {
                     relation.Behaviour = RelationBehaviour.EagerFetch;
                 });
-                var set = database.Set<Test002>(true, transaction);
+                var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
                 data.AddRange(new[]
@@ -149,7 +149,7 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                var query = database.AsQueryable<Test002>(true, transaction);
+                var query = database.AsQueryable<Test002>(transaction);
                 Expression<Func<Test002, bool>> func = element => element.Test004.Any(child => child.Name == "2_2");
                 this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
                 transaction.Rollback();
@@ -174,7 +174,7 @@ namespace FoxDb
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
-                var query = database.AsQueryable<Test001>(false, transaction);
+                var query = database.AsQueryable<Test001>(transaction);
                 Expression<Func<Test001, bool>> func1 = element => element.Field1 == "1_1" || element.Field2 == "2_1" || element.Field3 == "3_1";
                 Expression<Func<Test001, string>> func2 = element => element.Field1;
                 this.AssertSequence(data.AsQueryable().Where(func1).OrderBy(func2), query.Where(func1).OrderBy(func2));

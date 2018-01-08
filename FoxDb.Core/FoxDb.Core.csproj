@@ -55,7 +55,6 @@
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
-    <Compile Include="Entity\EntityColumnMap.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />
     <Compile Include="Entity\EntityEnumeratorBuffer.cs" />
     <Compile Include="Entity\EntityGraph.cs" />
@@ -70,7 +69,6 @@
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
     <Compile Include="Interfaces\Config\IRelationFactory.cs" />
     <Compile Include="Interfaces\Config\ITableFactory.cs" />
-    <Compile Include="Interfaces\Entity\IEntityColumnMap.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumeratorBuffer.cs" />
     <Compile Include="Interfaces\Entity\IEntityFactory.cs" />

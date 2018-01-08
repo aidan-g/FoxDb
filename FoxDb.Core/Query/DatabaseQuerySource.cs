@@ -6,15 +6,10 @@ namespace FoxDb
 {
     public class DatabaseQuerySource<T> : IDatabaseQuerySource
     {
-        public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null) : this(database, false, transaction)
-        {
-
-        }
-
-        public DatabaseQuerySource(IDatabase database, bool includeRelations = false, IDbTransaction transaction = null)
+        public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null)
         {
             this.Database = database;
-            this.Mapper = new EntityMapper(this.Database, this.Database.Config.Table<T>(), includeRelations);
+            this.Mapper = new EntityMapper(this.Database, this.Database.Config.Table<T>());
             this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
             this.Select = this.Composer.Select;
             this.Find = this.Composer.Find;

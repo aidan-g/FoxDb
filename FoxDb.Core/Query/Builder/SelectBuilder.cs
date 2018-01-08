@@ -27,6 +27,7 @@ namespace FoxDb
         public IColumnBuilder AddColumn(IColumnConfig column)
         {
             var expression = this.GetColumn(column);
+            expression.Alias = column.Identifier;
             this.Expressions.Add(expression);
             return expression;
         }

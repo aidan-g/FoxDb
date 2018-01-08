@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Linq;
 
 namespace FoxDb
@@ -25,10 +24,6 @@ namespace FoxDb
 
         public void Initialize(T item)
         {
-            if (!this.Mapper.IncludeRelations)
-            {
-                return;
-            }
             foreach (var relation in this.Table.Relations)
             {
                 if (!this.Mapper.Relations.Contains(relation))

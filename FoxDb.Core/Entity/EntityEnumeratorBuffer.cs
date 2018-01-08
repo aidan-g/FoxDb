@@ -73,12 +73,11 @@ namespace FoxDb
             {
                 return null;
             }
-            var identifier = this.Set.Mapper.GetColumn(table.PrimaryKey).Identifier;
-            if (!this.Record.Contains(identifier))
+            if (!this.Record.Contains(table.PrimaryKey.Identifier))
             {
                 return null;
             }
-            return this.Record[identifier];
+            return this.Record[table.PrimaryKey.Identifier];
         }
 
         public bool HasKey<T>()

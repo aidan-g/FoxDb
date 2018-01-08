@@ -16,12 +16,12 @@ namespace FoxDb
 
         public void Populate(T item, IDatabaseReaderRecord record)
         {
-            foreach (var column in this.Mapper.GetColumns(this.Table))
+            foreach (var column in this.Table.Columns)
             {
-                if (record.Contains(column.Identifier) && column.Column.Setter != null)
+                if (record.Contains(column.Identifier) && column.Setter != null)
                 {
                     var value = record[column.Identifier];
-                    column.Column.Setter(item, value);
+                    column.Setter(item, value);
                 }
             }
         }

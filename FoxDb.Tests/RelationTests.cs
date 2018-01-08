@@ -18,7 +18,7 @@ namespace FoxDb
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Test002>().Relation(item => item.Test003).Behaviour = RelationBehaviour.EagerFetch;
-                var set = database.Set<Test002>(true, transaction);
+                var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
                 this.AssertSequence(data, set);
@@ -55,7 +55,7 @@ namespace FoxDb
                 {
                     relation.Behaviour = RelationBehaviour.EagerFetch;
                 });
-                var set = database.Set<Test002>(true, transaction);
+                var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
                 this.AssertSequence(data, set);
@@ -89,7 +89,7 @@ namespace FoxDb
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Test002>().Relation(item => item.Test004, RelationMultiplicity.OneToMany).Behaviour = RelationBehaviour.EagerFetch;
-                var set = database.Set<Test002>(true, transaction);
+                var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
                 this.AssertSequence(data, set);
