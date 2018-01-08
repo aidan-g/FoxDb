@@ -54,6 +54,19 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void InvalidColumn()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var table = database.Config.Table<Rabbit>();
+                Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field4", StringComparison.OrdinalIgnoreCase)));
+            }
+        }
+
         [Table(Name = "Test001", DefaultColumns = true)]
         public class GrapeFruit : Test001
         {
@@ -80,6 +93,19 @@ namespace FoxDb
                 set
                 {
                     base.Field3 = value;
+                }
+            }
+        }
+
+        [Table(Name = "Test001", DefaultColumns = true)]
+        public class Rabbit : Test001
+        {
+            [Column(Name = "Field3")]
+            public string Field4
+            {
+                get
+                {
+                    throw new NotImplementedException();
                 }
             }
         }

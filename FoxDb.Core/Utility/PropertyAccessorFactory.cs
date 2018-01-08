@@ -30,6 +30,10 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
             var property = member.Member as PropertyInfo;
+            if (!property.CanRead || !property.CanWrite)
+            {
+                throw new NotImplementedException();
+            }
             var get = property.GetGetMethod().CreateDelegate<Func<T, TValue>>();
             var set = property.GetSetMethod().CreateDelegate<Action<T, TValue>>();
             return new PropertyAccessor<T, TValue>(property, get, set);
