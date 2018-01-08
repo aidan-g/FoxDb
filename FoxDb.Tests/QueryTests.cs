@@ -23,7 +23,7 @@ namespace FoxDb
                 {
                     _.Behaviour = RelationBehaviour.EagerFetch;
                 });
-                var set = database.Set<Test002>(true, transaction);
+                var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
                 data.AddRange(new[]

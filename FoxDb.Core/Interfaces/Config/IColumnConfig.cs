@@ -7,6 +7,8 @@ namespace FoxDb.Interfaces
     {
         ITableConfig Table { get; }
 
+        string Identifier { get; }
+
         string ColumnName { get; set; }
 
         PropertyInfo Property { get; set; }

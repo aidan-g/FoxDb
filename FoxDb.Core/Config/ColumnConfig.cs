@@ -17,6 +17,14 @@ namespace FoxDb
 
         public ITableConfig Table { get; private set; }
 
+        public string Identifier
+        {
+            get
+            {
+                return string.Format("{0}_{1}", this.Table.TableName, this.ColumnName);
+            }
+        }
+
         public string ColumnName { get; set; }
 
         public PropertyInfo Property { get; set; }

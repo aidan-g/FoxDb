@@ -5,17 +5,6 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IQueryGraphBuilder SelectByPrimaryKey<T>(this IDatabase database)
-        {
-            var table = database.Config.Table<T>();
-            var builder = database.QueryFactory.Build();
-            builder.Select.AddColumns(table.Columns);
-            builder.From.AddTable(table);
-            builder.Where.AddColumns(table.PrimaryKeys);
-            builder.OrderBy.AddColumns(table.PrimaryKeys);
-            return builder;
-        }
-
         public static IQueryGraphBuilder SelectByRelation(this IDatabase database, IRelationConfig relation)
         {
             var builder = database.QueryFactory.Build();

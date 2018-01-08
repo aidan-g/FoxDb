@@ -9,7 +9,7 @@ namespace FoxDb
         public IEnumerable<T> AsEnumerable<T>(IDatabase database, IDatabaseReader reader)
         {
             var table = database.Config.Table<T>();
-            var mapper = new EntityMapper(database, table, false);
+            var mapper = new EntityMapper(database, table);
             var initializer = new EntityInitializer<T>(table, mapper);
             var populator = new EntityPopulator<T>(table, mapper);
             var factory = new EntityFactory<T>(initializer, populator);

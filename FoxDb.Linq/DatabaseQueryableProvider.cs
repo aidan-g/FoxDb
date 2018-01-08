@@ -14,18 +14,15 @@ namespace FoxDb
             this.Members = new DynamicMethod(this.GetType());
         }
 
-        public DatabaseQueryableProvider(IDatabase database, bool includeRelations = false, IDbTransaction transaction = null) : this()
+        public DatabaseQueryableProvider(IDatabase database, IDbTransaction transaction = null) : this()
         {
             this.Database = database;
-            this.IncludeRelations = includeRelations;
             this.Transaction = transaction;
         }
 
         protected DynamicMethod Members { get; private set; }
 
         public IDatabase Database { get; private set; }
-
-        public bool IncludeRelations { get; private set; }
 
         public IDbTransaction Transaction { get; private set; }
 
@@ -77,7 +74,7 @@ namespace FoxDb
 
         protected virtual IDatabaseSet<T> Set<T>(Expression expression)
         {
-            var source = new DatabaseQuerySource<T>(this.Database, this.IncludeRelations, this.Transaction);
+            var source = new DatabaseQuerySource<T>(this.Database, this.Transaction);
             var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Select, typeof(T));
             visitor.Visit(expression);
             if (source.Parameters != null)
