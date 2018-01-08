@@ -152,18 +152,18 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var relation = Factories.Relation.Create(this, expression);
+                var relation = Factories.Relation.Create<T, TRelation>(this, expression);
                 this.Relations.Add(key, relation);
             }
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity)
+        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, IEnumerable<TRelation>>> expression, RelationMultiplicity multiplicity)
         {
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var relation = Factories.Relation.Create(this, expression, multiplicity);
+                var relation = Factories.Relation.Create<T, TRelation>(this, expression, multiplicity);
                 this.Relations.Add(key, relation);
             }
             return this.Relations[key] as ICollectionRelationConfig<T, TRelation>;
@@ -172,10 +172,15 @@ namespace FoxDb
 
     public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2>
     {
-        public TableConfig(IConfig config) : base(config, Conventions.RelationTableName(typeof(T1), typeof(T2)), typeof(T2))
+        protected TableConfig(IConfig config, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, Conventions.RelationTableName(leftTable, rightTable), typeof(T2))
         {
-            this.LeftTable = config.Table<T1>();
-            this.RightTable = config.Table<T2>();
+            this.LeftTable = leftTable;
+            this.RightTable = rightTable;
+        }
+
+        public TableConfig(IConfig config) : this(config, config.Table<T1>(), config.Table<T2>())
+        {
+
         }
 
         public ITableConfig LeftTable { get; private set; }
@@ -188,8 +193,8 @@ namespace FoxDb
 
         public ITableConfig<T1, T2> UseDefaultColumns()
         {
-            (this.LeftForeignKey = this.Column(Conventions.RelationColumn(typeof(T1)))).IsForeignKey = true;
-            (this.RightForeignKey = this.Column(Conventions.RelationColumn(typeof(T2)))).IsForeignKey = true;
+            (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+            (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
             return this;
         }
     }

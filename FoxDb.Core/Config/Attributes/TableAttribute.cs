@@ -7,7 +7,8 @@ namespace FoxDb
     {
         public TableAttribute()
         {
-
+            this.DefaultColumns = Defaults.Table.DefaultColumns;
+            this.DefaultRelations = Defaults.Table.DefaultRelations;
         }
 
         public string Name { get; set; }

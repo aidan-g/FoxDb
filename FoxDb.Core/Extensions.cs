@@ -99,13 +99,17 @@ namespace FoxDb
             {
                 return false;
             }
+            if (type.GetGenericTypeDefinition() == typeof(ICollection<>))
+            {
+                return true;
+            }
             foreach (var @interface in type.GetInterfaces())
             {
-                if (!type.IsGenericType)
+                if (!@interface.IsGenericType)
                 {
                     continue;
                 }
-                if (type.GetGenericTypeDefinition() == typeof(ICollection<>))
+                if (@interface.GetGenericTypeDefinition() == typeof(ICollection<>))
                 {
                     return true;
                 }

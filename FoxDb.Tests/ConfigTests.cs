@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -67,20 +69,53 @@ namespace FoxDb
             }
         }
 
-        [Table(Name = "Test001", DefaultColumns = true)]
+        [Test]
+        public void ObservableCollection()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Cloud>(transaction);
+                var data = new List<Cloud>();
+                set.Clear();
+                this.AssertSequence(data, set);
+                data.AddRange(new[]
+                {
+                    new Cloud() { Name = "1_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Cloud() { Name = "2_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                    new Cloud() { Name = "3_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                });
+                set.AddOrUpdate(data);
+                this.AssertSequence(data, set);
+                data[1].Test004.First().Name = "updated";
+                set.AddOrUpdate(data);
+                this.AssertSequence(data, set);
+                data[1].Test004.RemoveRange(data[1].Test004);
+                set.AddOrUpdate(data);
+                this.AssertSequence(data, set);
+                set.Delete(data[1]);
+                data.RemoveAt(1);
+                this.AssertSequence(data, set);
+                transaction.Rollback();
+            }
+        }
+
+        [Table(Name = "Test001")]
         public class GrapeFruit : Test001
         {
 
         }
 
-        [Table(Name = "Test001", DefaultColumns = true)]
+        [Table(Name = "Test001")]
         public class Orange : Test001
         {
             [Column(Name = "Field3")]
             public string Field4 { get; set; }
         }
 
-        [Table(Name = "Test001", DefaultColumns = true)]
+        [Table(Name = "Test001")]
         public class Cheese : Test001
         {
             [Ignore]
@@ -97,7 +132,7 @@ namespace FoxDb
             }
         }
 
-        [Table(Name = "Test001", DefaultColumns = true)]
+        [Table(Name = "Test001")]
         public class Rabbit : Test001
         {
             [Column(Name = "Field3")]
@@ -108,6 +143,12 @@ namespace FoxDb
                     throw new NotImplementedException();
                 }
             }
+        }
+
+        [Table(Name = "Test002")]
+        public class Cloud : Test002
+        {
+            new public ObservableCollection<Test004> Test004 { get; set; }
         }
     }
 }

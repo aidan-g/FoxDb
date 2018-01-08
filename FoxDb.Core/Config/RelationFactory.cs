@@ -28,7 +28,7 @@ namespace FoxDb
             }
         }
 
-        public IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression<Func<T, TRelation>> expression)
+        public IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression)
         {
             var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
@@ -47,7 +47,7 @@ namespace FoxDb
             return relation;
         }
 
-        public ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity)
+        public ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationMultiplicity multiplicity)
         {
             var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()

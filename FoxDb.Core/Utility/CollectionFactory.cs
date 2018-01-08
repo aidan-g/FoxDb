@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class ListCollectionFactory : ICollectionFactory
+    public class CollectionFactory : ICollectionFactory
     {
         public ICollection<T> Create<T>(Type type)
         {
-            if (type.IsInterface)
+            if (type.IsAssignableFrom(typeof(IList<T>)))
             {
                 return new List<T>();
             }

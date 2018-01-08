@@ -38,7 +38,7 @@ namespace FoxDb.Interfaces
 
         IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression);
 
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity);
+        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, IEnumerable<TRelation>>> expression, RelationMultiplicity multiplicity);
     }
 
     public interface IMappingTableConfig : ITableConfig

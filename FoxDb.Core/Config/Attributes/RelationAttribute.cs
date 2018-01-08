@@ -8,9 +8,9 @@ namespace FoxDb
     {
         public RelationAttribute()
         {
-            this.DefaultColumns = true;
-            this.Behaviour = RelationBehaviour.EagerFetch;
-            this.Multiplicity = RelationMultiplicity.None;
+            this.DefaultColumns = Defaults.Relation.DefaultColumns;
+            this.Behaviour = Defaults.Relation.DefaultBehaviour;
+            this.Multiplicity = Defaults.Relation.DefaultMultiplicity;
         }
 
         public bool DefaultColumns { get; set; }
