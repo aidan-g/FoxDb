@@ -1,12 +1,33 @@
-﻿using System;
+﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using FoxDb.Interfaces;
+using System.Reflection;
 
 namespace FoxDb
 {
     public class RelationFactory : IRelationFactory
     {
+        public RelationFactory()
+        {
+            this.Members = new DynamicMethod(this.GetType());
+        }
+
+        protected DynamicMethod Members { get; private set; }
+
+        public IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property)
+        {
+            var elementType = default(Type);
+            if (property.PropertyType.IsCollection(out elementType))
+            {
+                return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), elementType }, table, PropertyAccessorFactory.Create(property), Defaults.Relation.DefaultMultiplicity);
+            }
+            else
+            {
+                return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), property.PropertyType }, table, PropertyAccessorFactory.Create(property));
+            }
+        }
+
         public IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression<Func<T, TRelation>> expression)
         {
             var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);

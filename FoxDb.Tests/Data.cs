@@ -8,11 +8,11 @@ namespace FoxDb
     {
         public long Id { get; set; }
 
-        public string Field1 { get; set; }
+        public virtual string Field1 { get; set; }
 
-        public string Field2 { get; set; }
+        public virtual string Field2 { get; set; }
 
-        public string Field3 { get; set; }
+        public virtual string Field3 { get; set; }
 
         public virtual bool Equals(Test001 other)
         {

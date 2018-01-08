@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -39,6 +41,19 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void Ignore()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var table = database.Config.Table<Cheese>();
+                Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field3", StringComparison.OrdinalIgnoreCase)));
+            }
+        }
+
         [Table(Name = "Test001", DefaultColumns = true)]
         public class GrapeFruit : Test001
         {
@@ -50,6 +65,23 @@ namespace FoxDb
         {
             [Column(Name = "Field3")]
             public string Field4 { get; set; }
+        }
+
+        [Table(Name = "Test001", DefaultColumns = true)]
+        public class Cheese : Test001
+        {
+            [Ignore]
+            public override string Field3
+            {
+                get
+                {
+                    return base.Field3;
+                }
+                set
+                {
+                    base.Field3 = value;
+                }
+            }
         }
     }
 }

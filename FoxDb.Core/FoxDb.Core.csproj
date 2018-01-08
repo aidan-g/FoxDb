@@ -42,15 +42,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\Attributes\ColumnAttribute.cs" />
+    <Compile Include="Config\Attributes\IgnoreAttribute.cs" />
     <Compile Include="Config\Attributes\RelationAttribute.cs" />
     <Compile Include="Config\Attributes\TableAttribute.cs" />
     <Compile Include="Config\ColumnConfig.cs" />
     <Compile Include="Config\ColumnFactory.cs" />
     <Compile Include="Config\Config.cs" />
+    <Compile Include="Config\ColumnEnumerator.cs" />
     <Compile Include="Config\Defaults.cs" />
     <Compile Include="Config\Extensions.cs" />
     <Compile Include="Config\ManyToManyRelationConfig.cs" />
     <Compile Include="Config\OneToManyRelationConfig.cs" />
+    <Compile Include="Config\RelationEnumerator.cs" />
     <Compile Include="Config\RelationFactory.cs" />
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
@@ -66,7 +69,9 @@
     <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityMapper.cs" />
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
+    <Compile Include="Interfaces\Config\IColumnEnumerator.cs" />
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
+    <Compile Include="Interfaces\Config\IRelationEnumerator.cs" />
     <Compile Include="Interfaces\Config\IRelationFactory.cs" />
     <Compile Include="Interfaces\Config\ITableFactory.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
