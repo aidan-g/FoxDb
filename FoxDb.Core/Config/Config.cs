@@ -19,7 +19,7 @@ namespace FoxDb
 
         protected DynamicMethod Members { get; private set; }
 
-        protected IDictionary<TableKey, ITableConfig> Tables { get; private set; }
+        protected virtual IDictionary<TableKey, ITableConfig> Tables { get; private set; }
 
         public IDatabase Database { get; private set; }
 

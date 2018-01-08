@@ -9,8 +9,8 @@ namespace FoxDb
             var attribute = typeof(T).GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
             {
                 Name = Conventions.TableName(typeof(T)),
-                DefaultColumns = Defaults.DefaultColumns,
-                DefaultRelations = Defaults.DefaultRelations
+                DefaultColumns = Defaults.Table.DefaultColumns,
+                DefaultRelations = Defaults.Table.DefaultRelations
             };
             var table = new TableConfig<T>(config, attribute.Name);
             if (attribute.DefaultColumns)
@@ -27,7 +27,7 @@ namespace FoxDb
         public ITableConfig<T1, T2> Create<T1, T2>(IConfig config)
         {
             var table = new TableConfig<T1, T2>(config);
-            if (Defaults.DefaultColumns)
+            if (Defaults.Table.DefaultColumns)
             {
                 table.UseDefaultColumns();
             }

@@ -142,7 +142,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                if (!this.Config.Database.Schema.GetColumnNames(this.TableName).Contains(column.ColumnName))
+                if (!this.ValidateColumn(column))
                 {
                     continue;
                 }
@@ -155,6 +155,15 @@ namespace FoxDb
             return this;
         }
 
+        protected virtual bool ValidateColumn(IColumnConfig column)
+        {
+            if (!this.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public ITableConfig<T> UseDefaultRelations()
         {
             var properties = new EntityPropertyEnumerator<T>();
@@ -164,26 +173,38 @@ namespace FoxDb
                 {
                     continue;
                 }
-                if (!this.Config.Database.Schema.GetTableNames().Contains(Conventions.TableName(property.PropertyType)))
+                var relation = this.CreateRelation(property);
+                if (this.Relations.ContainsKey(relation.RelationType))
                 {
                     continue;
                 }
-                this.Relation(property);
+                if (!this.ValidateRelation(relation))
+                {
+                    continue;
+                }
+                this.Relations.Add(relation.RelationType, relation);
             }
             return this;
         }
 
-        protected virtual IRelationConfig Relation(PropertyInfo property)
+        protected virtual bool ValidateRelation(IRelationConfig relation)
         {
-            var elementType = default(Type);
-            if (property.PropertyType.IsCollection(out elementType))
+            if (!this.Config.Database.Schema.TableExists(relation.LeftTable.TableName))
             {
-                return (IRelationConfig)this.Members.Invoke(this, "Relation", elementType, PropertyAccessorFactory.Create(property));
+                return false;
             }
-            else
+            if (relation.MappingTable != null)
             {
-                return (IRelationConfig)this.Members.Invoke(this, "Relation", property.PropertyType, PropertyAccessorFactory.Create(property));
+                if (!this.Config.Database.Schema.TableExists(relation.MappingTable.TableName))
+                {
+                    return false;
+                }
             }
+            if (!this.Config.Database.Schema.TableExists(relation.RightTable.TableName))
+            {
+                return false;
+            }
+            return true;
         }
 
         public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression)
@@ -201,11 +222,6 @@ namespace FoxDb
             return this.Relations[key] as IRelationConfig<T, TRelation>;
         }
 
-        protected virtual IRelationConfig<T, TRelation> CreateRelation<TRelation>(Expression<Func<T, TRelation>> expression)
-        {
-            return Factories.Relation.Create<T, TRelation>(this, expression);
-        }
-
         public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity)
         {
             var key = typeof(TRelation);
@@ -215,6 +231,24 @@ namespace FoxDb
                 this.Relations.Add(key, relation);
             }
             return this.Relations[key] as ICollectionRelationConfig<T, TRelation>;
+        }
+
+        protected virtual IRelationConfig CreateRelation(PropertyInfo property)
+        {
+            var elementType = default(Type);
+            if (property.PropertyType.IsCollection(out elementType))
+            {
+                return (IRelationConfig)this.Members.Invoke(this, "Relation", elementType, PropertyAccessorFactory.Create(property), Defaults.Relation.DefaultMultiplicity);
+            }
+            else
+            {
+                return (IRelationConfig)this.Members.Invoke(this, "Relation", property.PropertyType, PropertyAccessorFactory.Create(property));
+            }
+        }
+
+        protected virtual IRelationConfig<T, TRelation> CreateRelation<TRelation>(Expression<Func<T, TRelation>> expression)
+        {
+            return Factories.Relation.Create<T, TRelation>(this, expression);
         }
 
         protected virtual ICollectionRelationConfig<T, TRelation> CreateRelation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity)

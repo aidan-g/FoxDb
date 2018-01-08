@@ -11,7 +11,7 @@ namespace FoxDb
             this.Handlers = this.GetHandlers();
         }
 
-        protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
+        protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
 
         protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {

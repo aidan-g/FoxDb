@@ -20,5 +20,7 @@ namespace FoxDb.Interfaces
         bool Contains(string name);
 
         T Get<T>(string name);
+
+        bool TryGetValue(string name, out object value);
     }
 }

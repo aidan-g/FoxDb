@@ -18,6 +18,16 @@ namespace FoxDb
 
         protected IDictionary<string, IEnumerable<string>> ColumnNames { get; set; }
 
+        public bool TableExists(string tableName)
+        {
+            return this.GetTableNames().Contains(tableName, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public bool ColumnExists(string tableName, string columnName)
+        {
+            return this.GetColumnNames(tableName).Contains(columnName, StringComparer.OrdinalIgnoreCase);
+        }
+
         public IEnumerable<string> GetTableNames()
         {
             if (this.TableNames == null)

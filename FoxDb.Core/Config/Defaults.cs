@@ -6,15 +6,44 @@ namespace FoxDb
     {
         static Defaults()
         {
-            DefaultColumns = true;
-            DefaultRelations = true;
-            DefaultRelationBehaviour = RelationBehaviour.EagerFetch;
+            //Nothing to do.
         }
 
-        public static bool DefaultColumns { get; set; }
+        public static class Table
+        {
+            static Table()
+            {
+                DefaultColumns = true;
+                DefaultRelations = true;
+            }
 
-        public static bool DefaultRelations { get; set; }
+            public static bool DefaultColumns { get; set; }
 
-        public static RelationBehaviour DefaultRelationBehaviour { get; set; }
+            public static bool DefaultRelations { get; set; }
+        }
+
+        public static class Column
+        {
+            static Column()
+            {
+                //Nothing to do.
+            }
+        }
+
+        public static class Relation
+        {
+            static Relation()
+            {
+                DefaultColumns = true;
+                DefaultMultiplicity = RelationMultiplicity.OneToMany;
+                DefaultBehaviour = RelationBehaviour.EagerFetch;
+            }
+
+            public static bool DefaultColumns { get; set; }
+
+            public static RelationMultiplicity DefaultMultiplicity { get; set; }
+
+            public static RelationBehaviour DefaultBehaviour { get; set; }
+        }
     }
 }
