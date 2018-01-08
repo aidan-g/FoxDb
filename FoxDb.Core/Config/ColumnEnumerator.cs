@@ -35,6 +35,10 @@ namespace FoxDb
             {
                 return false;
             }
+            if (!property.CanRead || !property.CanWrite)
+            {
+                return false;
+            }
             if (!property.PropertyType.IsScalar())
             {
                 return false;
