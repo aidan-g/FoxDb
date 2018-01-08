@@ -79,6 +79,7 @@
     <Compile Include="Interfaces\Entity\IEntityGraphVisitor.cs" />
     <Compile Include="Interfaces\Entity\IEntityInitializer.cs" />
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
+    <Compile Include="Interfaces\Entity\IEntityPopulatorStrategy.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Interfaces\Query\Builder\IBinaryExpressionBuilder.cs" />

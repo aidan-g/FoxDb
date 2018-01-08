@@ -12,10 +12,13 @@ namespace FoxDb
             var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
-                DefaultColumns = Defaults.DefaultColumns,
-                Behaviour = Defaults.DefaultRelationBehaviour
+                DefaultColumns = Defaults.Relation.DefaultColumns,
+                Behaviour = Defaults.Relation.DefaultBehaviour
             };
-            var relation = new RelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+            var relation = new RelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
+            {
+                Behaviour = attribute.Behaviour
+            };
             if (attribute.DefaultColumns)
             {
                 relation.UseDefaultColumns();
@@ -29,18 +32,26 @@ namespace FoxDb
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
                 Multiplicity = multiplicity,
-                DefaultColumns = Defaults.DefaultColumns,
-                Behaviour = Defaults.DefaultRelationBehaviour
+                DefaultColumns = Defaults.Relation.DefaultColumns,
+                Behaviour = Defaults.Relation.DefaultBehaviour
             };
             var relation = default(ICollectionRelationConfig<T, TRelation>);
             switch (attribute.Multiplicity)
             {
                 case RelationMultiplicity.OneToMany:
-                    relation = new OneToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+                    relation = new OneToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
+                    {
+                        Behaviour = attribute.Behaviour
+                    };
                     break;
                 case RelationMultiplicity.ManyToMany:
-                    relation = new ManyToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+                    relation = new ManyToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
+                    {
+                        Behaviour = attribute.Behaviour
+                    };
                     break;
+                default:
+                    throw new NotImplementedException();
             }
             if (attribute.DefaultColumns)
             {

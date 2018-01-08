@@ -40,7 +40,7 @@ namespace FoxDb
                 this.Data = reader.ToDictionary();
             }
 
-            public IDictionary<string, object> Data { get; private set; }
+            protected virtual IDictionary<string, object> Data { get; private set; }
 
             public object this[string name]
             {
@@ -83,6 +83,11 @@ namespace FoxDb
             {
                 var value = this[name];
                 return Converter.ChangeType<T>(value);
+            }
+
+            public bool TryGetValue(string name, out object value)
+            {
+                return this.Data.TryGetValue(name, out value);
             }
         }
     }
