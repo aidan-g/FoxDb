@@ -9,12 +9,7 @@ namespace FoxDb
 {
     public abstract class TableConfig : ITableConfig
     {
-        private TableConfig()
-        {
-            this.Members = new DynamicMethod(this.GetType());
-        }
-
-        protected TableConfig(IConfig config, string tableName, Type tableType) : this()
+        protected TableConfig(IConfig config, string tableName, Type tableType)
         {
             this.Config = config;
             this.TableName = tableName;
@@ -22,8 +17,6 @@ namespace FoxDb
             this.Columns = new Dictionary<string, IColumnConfig>();
             this.Relations = new Dictionary<Type, IRelationConfig>();
         }
-
-        protected DynamicMethod Members { get; private set; }
 
         public IConfig Config { get; private set; }
 
@@ -88,15 +81,10 @@ namespace FoxDb
             var column = default(IColumnConfig);
             if (!this.Columns.TryGetValue(name, out column))
             {
-                column = this.CreateColumn(name);
+                column = Factories.Column.Create(this, name);
                 this.Columns[column.ColumnName] = column;
             }
             return column;
-        }
-
-        protected virtual IColumnConfig CreateColumn(string name)
-        {
-            return Factories.Column.Create(this, name);
         }
 
         public IColumnConfig Column(PropertyInfo property)
@@ -109,15 +97,10 @@ namespace FoxDb
                 }
             }
             {
-                var column = this.CreateColumn(property);
+                var column = Factories.Column.Create(this, property);
                 this.Columns[column.ColumnName] = column;
                 return column;
             }
-        }
-
-        protected virtual IColumnConfig CreateColumn(PropertyInfo property)
-        {
-            return Factories.Column.Create(this, property);
         }
     }
 
@@ -130,19 +113,10 @@ namespace FoxDb
 
         public ITableConfig<T> UseDefaultColumns()
         {
-            var properties = new EntityPropertyEnumerator<T>();
-            foreach (var property in properties)
+            var enumerator = new ColumnEnumerator();
+            foreach (var column in enumerator.GetColumns(this))
             {
-                if (!property.PropertyType.IsScalar())
-                {
-                    continue;
-                }
-                var column = this.CreateColumn(property);
                 if (this.Columns.ContainsKey(column.ColumnName))
-                {
-                    continue;
-                }
-                if (!this.ValidateColumn(column))
                 {
                     continue;
                 }
@@ -155,56 +129,18 @@ namespace FoxDb
             return this;
         }
 
-        protected virtual bool ValidateColumn(IColumnConfig column)
-        {
-            if (!this.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
-            {
-                return false;
-            }
-            return true;
-        }
-
         public ITableConfig<T> UseDefaultRelations()
         {
-            var properties = new EntityPropertyEnumerator<T>();
-            foreach (var property in properties)
+            var enumerator = new RelationEnumerator();
+            foreach (var relation in enumerator.GetRelations(this))
             {
-                if (property.PropertyType.IsScalar())
-                {
-                    continue;
-                }
-                var relation = this.CreateRelation(property);
                 if (this.Relations.ContainsKey(relation.RelationType))
-                {
-                    continue;
-                }
-                if (!this.ValidateRelation(relation))
                 {
                     continue;
                 }
                 this.Relations.Add(relation.RelationType, relation);
             }
             return this;
-        }
-
-        protected virtual bool ValidateRelation(IRelationConfig relation)
-        {
-            if (!this.Config.Database.Schema.TableExists(relation.LeftTable.TableName))
-            {
-                return false;
-            }
-            if (relation.MappingTable != null)
-            {
-                if (!this.Config.Database.Schema.TableExists(relation.MappingTable.TableName))
-                {
-                    return false;
-                }
-            }
-            if (!this.Config.Database.Schema.TableExists(relation.RightTable.TableName))
-            {
-                return false;
-            }
-            return true;
         }
 
         public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression)
@@ -216,7 +152,7 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var relation = this.CreateRelation(expression);
+                var relation = Factories.Relation.Create(this, expression);
                 this.Relations.Add(key, relation);
             }
             return this.Relations[key] as IRelationConfig<T, TRelation>;
@@ -227,33 +163,10 @@ namespace FoxDb
             var key = typeof(TRelation);
             if (!this.Relations.ContainsKey(key))
             {
-                var relation = this.CreateRelation(expression, multiplicity);
+                var relation = Factories.Relation.Create(this, expression, multiplicity);
                 this.Relations.Add(key, relation);
             }
             return this.Relations[key] as ICollectionRelationConfig<T, TRelation>;
-        }
-
-        protected virtual IRelationConfig CreateRelation(PropertyInfo property)
-        {
-            var elementType = default(Type);
-            if (property.PropertyType.IsCollection(out elementType))
-            {
-                return (IRelationConfig)this.Members.Invoke(this, "Relation", elementType, PropertyAccessorFactory.Create(property), Defaults.Relation.DefaultMultiplicity);
-            }
-            else
-            {
-                return (IRelationConfig)this.Members.Invoke(this, "Relation", property.PropertyType, PropertyAccessorFactory.Create(property));
-            }
-        }
-
-        protected virtual IRelationConfig<T, TRelation> CreateRelation<TRelation>(Expression<Func<T, TRelation>> expression)
-        {
-            return Factories.Relation.Create<T, TRelation>(this, expression);
-        }
-
-        protected virtual ICollectionRelationConfig<T, TRelation> CreateRelation<TRelation>(Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity)
-        {
-            return Factories.Relation.Create<T, TRelation>(this, expression, multiplicity);
         }
     }
 
