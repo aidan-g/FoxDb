@@ -175,7 +175,7 @@
     <Compile Include="Utility\DynamicMethod.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\Factories.cs" />
-    <Compile Include="Utility\ListCollectionFactory.cs" />
+    <Compile Include="Utility\CollectionFactory.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />

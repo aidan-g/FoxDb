@@ -10,6 +10,6 @@ namespace FoxDb
 
         public static IRelationFactory Relation = new RelationFactory();
 
-        public static ICollectionFactory Collection = new ListCollectionFactory();
+        public static ICollectionFactory Collection = new CollectionFactory();
     }
 }

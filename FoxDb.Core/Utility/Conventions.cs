@@ -8,11 +8,11 @@ namespace FoxDb
     {
         public static Func<Type, string> TableName = type => Pluralization.Pluralize(type.Name);
 
-        public static Func<Type, Type, string> RelationTableName = (type1, type2) => string.Format("{0}_{1}", Pluralization.Singularize(type1.Name), Pluralization.Singularize(type2.Name));
+        public static Func<ITableConfig, ITableConfig, string> RelationTableName = (table1, table2) => string.Format("{0}_{1}", Pluralization.Singularize(table1.TableName), Pluralization.Singularize(table2.TableName));
 
         public static string KeyColumn = "Id";
 
-        public static Func<Type, string> RelationColumn = type => string.Format("{0}_{1}", type.Name, KeyColumn);
+        public static Func<ITableConfig, string> RelationColumn = table => string.Format("{0}_{1}", table.TableName, KeyColumn);
 
         public static Func<PropertyInfo, string> ColumnName = property => property.Name;
 

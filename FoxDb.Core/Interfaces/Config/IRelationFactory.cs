@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FoxDb.Interfaces
@@ -9,8 +7,8 @@ namespace FoxDb.Interfaces
     {
         IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property);
 
-        IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression<Func<T, TRelation>> expression);
+        IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression);
 
-        ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression<Func<T, ICollection<TRelation>>> expression, RelationMultiplicity multiplicity);
+        ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationMultiplicity multiplicity);
     }
 }

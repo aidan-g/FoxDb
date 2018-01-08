@@ -21,8 +21,8 @@ namespace FoxDb
 
         public override ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
         {
-            (this.LeftColumn = this.MappingTable.Column(Conventions.RelationColumn(typeof(T)))).IsForeignKey = true;
-            (this.RightColumn = this.MappingTable.Column(Conventions.RelationColumn(typeof(TRelation)))).IsForeignKey = true;
+            (this.LeftColumn = this.MappingTable.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+            (this.RightColumn = this.MappingTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
             return this;
         }
 
