@@ -58,9 +58,8 @@ namespace FoxDb
             return new DatabaseQuery(commandText, parameterNames);
         }
 
-        public IQueryGraphBuilder Select<T>()
+        public IQueryGraphBuilder Select(ITableConfig table)
         {
-            var table = this.Database.Config.Table<T>();
             var builder = this.Build();
             builder.Select.AddColumns(table.Columns);
             builder.From.AddTable(table);
@@ -68,10 +67,9 @@ namespace FoxDb
             return builder;
         }
 
-        public IEnumerable<IQueryGraphBuilder> Insert<T>()
+        public IEnumerable<IQueryGraphBuilder> Insert(ITableConfig table)
         {
             var graphs = new List<IQueryGraphBuilder>();
-            var table = this.Database.Config.Table<T>();
             {
                 var builder = this.Build();
                 builder.Insert.SetTable(table);
@@ -87,28 +85,8 @@ namespace FoxDb
             return graphs;
         }
 
-        public IEnumerable<IQueryGraphBuilder> Insert<T1, T2>()
+        public IQueryGraphBuilder Update(ITableConfig table)
         {
-            var graphs = new List<IQueryGraphBuilder>();
-            var table = this.Database.Config.Table<T1, T2>();
-            {
-                var builder = this.Build();
-                builder.Insert.SetTable(table);
-                builder.Insert.AddColumns(table.ForeignKeys);
-                builder.Select.AddParameters(table.ForeignKeys);
-                graphs.Add(builder);
-            }
-            {
-                var builder = this.Build();
-                builder.Select.AddFunction(QueryFunction.Identity);
-                graphs.Add(builder);
-            }
-            return graphs;
-        }
-
-        public IQueryGraphBuilder Update<T>()
-        {
-            var table = this.Database.Config.Table<T>();
             var builder = this.Build();
             builder.Update.SetTable(table);
             builder.Update.AddColumns(table.Columns.Except(table.PrimaryKeys));
@@ -116,23 +94,17 @@ namespace FoxDb
             return builder;
         }
 
-        public IQueryGraphBuilder Delete<T>()
+        public IQueryGraphBuilder Delete(ITableConfig table)
         {
-            var table = this.Database.Config.Table<T>();
-            var builder = this.Build();
-            builder.Delete.Touch();
-            builder.From.AddTable(table);
-            builder.Where.AddColumns(table.PrimaryKeys);
-            return builder;
+            return this.Delete(table, table.PrimaryKeys);
         }
 
-        public IQueryGraphBuilder Delete<T1, T2>()
+        public IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys)
         {
-            var table = this.Database.Config.Table<T1, T2>();
             var builder = this.Build();
             builder.Delete.Touch();
             builder.From.AddTable(table);
-            builder.Where.AddColumns(table.ForeignKeys);
+            builder.Where.AddColumns(keys);
             return builder;
         }
 

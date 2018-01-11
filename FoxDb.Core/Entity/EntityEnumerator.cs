@@ -6,10 +6,9 @@ namespace FoxDb
 {
     public class EntityEnumerator : IEntityEnumerator
     {
-        public IEnumerable<T> AsEnumerable<T>(IDatabase database, IDatabaseReader reader)
+        public IEnumerable<T> AsEnumerable<T>(ITableConfig table, IDatabaseReader reader)
         {
-            var table = database.Config.Table<T>();
-            var mapper = new EntityMapper(database, table);
+            var mapper = new EntityMapper(table);
             var initializer = new EntityInitializer<T>(table, mapper);
             var populator = new EntityPopulator<T>(table, mapper);
             var factory = new EntityFactory<T>(initializer, populator);
@@ -25,7 +24,7 @@ namespace FoxDb
             var buffer = new List<T>();
             var sink = new EntityGraphSink<T>((sender, e) => buffer.Add(e.Item));
             var builder = new EntityGraphBuilder();
-            var graph = builder.Build<T>(set.Database, set.Mapper);
+            var graph = builder.Build<T>(set.Table, set.Mapper);
             var visitor = new EntityEnumeratorVisitor<T>(set, sink);
             foreach (var record in reader)
             {

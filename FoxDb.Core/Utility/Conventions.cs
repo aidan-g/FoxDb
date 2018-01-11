@@ -12,7 +12,7 @@ namespace FoxDb
 
         public static string KeyColumn = "Id";
 
-        public static Func<ITableConfig, string> RelationColumn = table => string.Format("{0}_{1}", table.TableName, KeyColumn);
+        public static Func<ITableConfig, string> RelationColumn = table => string.Format("{0}_{1}", Pluralization.Singularize(table.TableName), KeyColumn);
 
         public static Func<PropertyInfo, string> ColumnName = property => property.Name;
 

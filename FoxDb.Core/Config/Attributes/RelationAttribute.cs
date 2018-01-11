@@ -1,5 +1,4 @@
-﻿using FoxDb.Interfaces;
-using System;
+﻿using System;
 
 namespace FoxDb
 {
@@ -8,15 +7,9 @@ namespace FoxDb
     {
         public RelationAttribute()
         {
-            this.DefaultColumns = Defaults.Relation.DefaultColumns;
-            this.Behaviour = Defaults.Relation.DefaultBehaviour;
-            this.Multiplicity = Defaults.Relation.DefaultMultiplicity;
+            this.Flags = Defaults.Relation.Flags;
         }
 
-        public bool DefaultColumns { get; set; }
-
-        public RelationBehaviour Behaviour { get; set; }
-
-        public RelationMultiplicity Multiplicity { get; set; }
+        public RelationFlags Flags { get; set; }
     }
 }

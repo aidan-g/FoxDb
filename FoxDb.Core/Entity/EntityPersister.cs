@@ -14,6 +14,10 @@ namespace FoxDb
 
         public void AddOrUpdate(T item)
         {
+            if (!this.Set.Source.CanWrite)
+            {
+                throw new InvalidOperationException(string.Format("Query source cannot be written."));
+            }
             if (EntityKey<T>.HasKey(this.Set.Database, item))
             {
                 this.Set.Database.Execute(this.Set.Source.Update, this.GetParameters(item), this.Set.Transaction);
@@ -29,15 +33,19 @@ namespace FoxDb
 
         public void Delete(T item)
         {
+            if (!this.Set.Source.CanWrite)
+            {
+                throw new InvalidOperationException(string.Format("Query source cannot be written."));
+            }
             this.Set.Database.Execute(this.Set.Source.Delete, this.GetParameters(item), this.Set.Transaction);
             Behaviours.Invoke<T>(BehaviourType.Deleting, this.Set, item);
         }
 
         protected virtual DatabaseParameterHandler GetParameters(T item)
         {
-            if (this.Set.Parameters != null)
+            if (this.Set.Source.Parameters != null)
             {
-                return this.Set.Parameters;
+                return this.Set.Source.Parameters;
             }
             return new ParameterHandlerStrategy<T>(this.Set.Database, item).Handler;
         }

@@ -126,16 +126,16 @@ namespace FoxDb
             }
         }
 
-        [TestCase(RelationMultiplicity.OneToMany)]
-        [TestCase(RelationMultiplicity.ManyToMany)]
-        public void Any(RelationMultiplicity multiplicity)
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void Any(RelationFlags flags)
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                database.Config.Table<Test002>().Relation(item => item.Test004, multiplicity);
+                database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();

@@ -20,7 +20,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                var relation = Factories.Relation.Create(table, property);
+                var relation = Factories.Relation.Create(table, property, Defaults.Relation.Flags);
                 if (!this.ValidateRelation(relation))
                 {
                     continue;
@@ -32,6 +32,10 @@ namespace FoxDb
         protected virtual bool ValidateRelation(PropertyInfo property)
         {
             if (this.IsIgnored(property))
+            {
+                return false;
+            }
+            if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 return false;
             }

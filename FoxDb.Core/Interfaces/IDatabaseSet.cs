@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 
@@ -14,8 +13,6 @@ namespace FoxDb.Interfaces
         IEntityMapper Mapper { get; }
 
         IDatabaseQuerySource Source { get; }
-
-        DatabaseParameterHandler Parameters { get; }
 
         IDbTransaction Transaction { get; }
 

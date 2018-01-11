@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IEntityGraphBuilder
     {
-        IEntityGraph Build<T>(IDatabase database, IEntityMapper mapper);
+        IEntityGraph Build<T>(ITableConfig table, IEntityMapper mapper);
     }
 }

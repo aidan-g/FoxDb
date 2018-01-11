@@ -15,70 +15,61 @@ namespace FoxDb
 
         protected DynamicMethod Members { get; private set; }
 
-        public IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property)
+        public IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property, RelationFlags flags)
+        {
+            return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), property.PropertyType }, table, PropertyAccessorFactory.Create(property), flags);
+        }
+
+        public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
         {
             var elementType = default(Type);
-            if (property.PropertyType.IsCollection(out elementType))
+            if (PropertyAccessorFactory.GetLambdaProperty(expression).PropertyType.IsCollection(out elementType))
             {
-                return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), elementType }, table, PropertyAccessorFactory.Create(property), Defaults.Relation.DefaultMultiplicity);
+                flags = flags.EnsureMultiplicity(RelationFlags.OneToMany);
+                switch (flags.GetMultiplicity())
+                {
+                    case RelationFlags.OneToMany:
+                        return (IRelationConfig)this.Members.Invoke(this, "CreateOneToMany", new[] { typeof(T), elementType }, table, expression, flags);
+                    case RelationFlags.ManyToMany:
+                        return (IRelationConfig)this.Members.Invoke(this, "CreateManyToMany", new[] { typeof(T), elementType }, table, expression, flags);
+                    default:
+                        throw new NotImplementedException();
+                }
             }
             else
             {
-                return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), property.PropertyType }, table, PropertyAccessorFactory.Create(property));
+                return this.CreateOneToOne<T, TRelation>(table, expression, flags.EnsureMultiplicity(RelationFlags.OneToOne));
             }
         }
 
-        public IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression)
+        public IRelationConfig<T, TRelation> CreateOneToOne<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
         {
             var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
-                DefaultColumns = Defaults.Relation.DefaultColumns,
-                Behaviour = Defaults.Relation.DefaultBehaviour
+                Flags = flags
             };
-            var relation = new RelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
-            {
-                Behaviour = attribute.Behaviour
-            };
-            if (attribute.DefaultColumns)
-            {
-                relation.UseDefaultColumns();
-            }
-            return relation;
+            return new RelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
         }
 
-        public ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationMultiplicity multiplicity)
+        public ICollectionRelationConfig<T, TRelation> CreateOneToMany<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
         {
             var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
             var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
-                Multiplicity = multiplicity,
-                DefaultColumns = Defaults.Relation.DefaultColumns,
-                Behaviour = Defaults.Relation.DefaultBehaviour
+                Flags = flags
             };
-            var relation = default(ICollectionRelationConfig<T, TRelation>);
-            switch (attribute.Multiplicity)
+            return new OneToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+        }
+
+        public ICollectionRelationConfig<T, TRelation> CreateManyToMany<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        {
+            var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
+            var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
-                case RelationMultiplicity.OneToMany:
-                    relation = new OneToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
-                    {
-                        Behaviour = attribute.Behaviour
-                    };
-                    break;
-                case RelationMultiplicity.ManyToMany:
-                    relation = new ManyToManyRelationConfig<T, TRelation>(table.Config, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set)
-                    {
-                        Behaviour = attribute.Behaviour
-                    };
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            if (attribute.DefaultColumns)
-            {
-                relation.UseDefaultColumns();
-            }
-            return relation;
+                Flags = flags
+            };
+            return new ManyToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
         }
     }
 }

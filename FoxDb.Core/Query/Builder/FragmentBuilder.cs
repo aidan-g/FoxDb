@@ -42,6 +42,10 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
+            if (table.Flags.HasFlag(TableFlags.Transient))
+            {
+                throw new InvalidOperationException(string.Format("Table of type \"{0}\" is is transient and cannot be queried.", table.TableType.FullName));
+            }
             return this.GetFragment<ITableBuilder>().With(builder => builder.Table = table);
         }
 

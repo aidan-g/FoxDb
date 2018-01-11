@@ -9,6 +9,8 @@ namespace FoxDb.Interfaces
     {
         IConfig Config { get; }
 
+        TableFlags Flags { get; }
+
         string TableName { get; set; }
 
         Type TableType { get; }
@@ -32,13 +34,9 @@ namespace FoxDb.Interfaces
 
     public interface ITableConfig<T> : ITableConfig
     {
-        ITableConfig<T> UseDefaultColumns();
+        IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression);
 
-        ITableConfig<T> UseDefaultRelations();
-
-        IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression);
-
-        ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, IEnumerable<TRelation>>> expression, RelationMultiplicity multiplicity);
+        IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags);
     }
 
     public interface IMappingTableConfig : ITableConfig
@@ -54,6 +52,6 @@ namespace FoxDb.Interfaces
 
     public interface ITableConfig<T1, T2> : IMappingTableConfig
     {
-        ITableConfig<T1, T2> UseDefaultColumns();
+
     }
 }

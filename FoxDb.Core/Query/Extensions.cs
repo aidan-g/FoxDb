@@ -10,13 +10,13 @@ namespace FoxDb
             var builder = database.QueryFactory.Build();
             builder.Select.AddColumns(relation.RightTable.Columns);
             builder.From.AddTable(relation.RightTable);
-            switch (relation.Multiplicity)
+            switch (relation.Flags.GetMultiplicity())
             {
-                case RelationMultiplicity.OneToOne:
-                case RelationMultiplicity.OneToMany:
+                case RelationFlags.OneToOne:
+                case RelationFlags.OneToMany:
                     builder.Where.AddColumn(relation.RightColumn);
                     break;
-                case RelationMultiplicity.ManyToMany:
+                case RelationFlags.ManyToMany:
                     builder.From.AddRelation(relation.Invert());
                     builder.Where.AddColumn(relation.MappingTable.LeftForeignKey);
                     break;

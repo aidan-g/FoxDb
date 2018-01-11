@@ -7,14 +7,11 @@ namespace FoxDb
     {
         public TableAttribute()
         {
-            this.DefaultColumns = Defaults.Table.DefaultColumns;
-            this.DefaultRelations = Defaults.Table.DefaultRelations;
+            this.Flags = Defaults.Table.Flags;
         }
 
         public string Name { get; set; }
 
-        public bool DefaultColumns { get; set; }
-
-        public bool DefaultRelations { get; set; }
+        public TableFlags Flags { get; set; }
     }
 }

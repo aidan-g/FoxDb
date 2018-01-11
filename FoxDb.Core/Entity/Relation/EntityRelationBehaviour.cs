@@ -6,13 +6,13 @@ namespace FoxDb
 {
     public abstract class EntityRelationBehaviour : Behaviour
     {
-        public abstract RelationMultiplicity Multiplicity { get; }
+        public abstract RelationFlags Flags { get; }
 
         public override void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item)
         {
             foreach (var relation in set.Table.Relations)
             {
-                if (relation.Multiplicity == this.Multiplicity)
+                if (relation.Flags.HasFlag(this.Flags))
                 {
                     this.Members.Invoke(this, "Invoke", new[] { typeof(T), relation.RelationType }, behaviourType, set, item, relation);
                 }

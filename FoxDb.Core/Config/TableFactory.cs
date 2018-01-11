@@ -8,30 +8,20 @@ namespace FoxDb
         {
             var attribute = typeof(T).GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
             {
-                Name = Conventions.TableName(typeof(T)),
-                DefaultColumns = Defaults.Table.DefaultColumns,
-                DefaultRelations = Defaults.Table.DefaultRelations
+                Name = Conventions.TableName(typeof(T))
             };
-            var table = new TableConfig<T>(config, attribute.Name);
-            if (attribute.DefaultColumns)
-            {
-                table.UseDefaultColumns();
-            }
-            if (attribute.DefaultRelations)
-            {
-                table.UseDefaultRelations();
-            }
-            return table;
+            return new TableConfig<T>(config, attribute.Flags, attribute.Name);
         }
 
         public ITableConfig<T1, T2> Create<T1, T2>(IConfig config)
         {
-            var table = new TableConfig<T1, T2>(config);
-            if (Defaults.Table.DefaultColumns)
+            var leftTable = config.Table<T1>();
+            var rightTable = config.Table<T2>();
+            var attribute = new TableAttribute()
             {
-                table.UseDefaultColumns();
-            }
-            return table;
+                Name = Conventions.RelationTableName(leftTable, rightTable)
+            };
+            return new TableConfig<T1, T2>(config, attribute.Flags, attribute.Name, leftTable, rightTable);
         }
     }
 }

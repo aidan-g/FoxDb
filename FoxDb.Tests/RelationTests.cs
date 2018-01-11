@@ -17,7 +17,7 @@ namespace FoxDb
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                database.Config.Table<Test002>().Relation(item => item.Test003).Behaviour = RelationBehaviour.EagerFetch;
+                database.Config.Table<Test002>().Relation(item => item.Test003);
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
@@ -51,7 +51,7 @@ namespace FoxDb
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                database.Config.Table<Test002>().Relation(item => item.Test004, RelationMultiplicity.ManyToMany);
+                database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | RelationFlags.ManyToMany);
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();

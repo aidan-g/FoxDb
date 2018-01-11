@@ -8,8 +8,9 @@ namespace FoxDb
 {
     public class DatabaseSet<T> : IDatabaseSet<T>
     {
-        public DatabaseSet(IDatabaseQuerySource source)
+        public DatabaseSet(ITableConfig table, IDatabaseQuerySource source)
         {
+            this.Table = table;
             this.Source = source;
         }
 
@@ -21,13 +22,7 @@ namespace FoxDb
             }
         }
 
-        public ITableConfig Table
-        {
-            get
-            {
-                return this.Database.Config.Table<T>();
-            }
-        }
+        public ITableConfig Table { get; private set; }
 
         public IEntityMapper Mapper
         {
@@ -59,6 +54,10 @@ namespace FoxDb
         {
             get
             {
+                if (!this.Source.CanRead)
+                {
+                    throw new InvalidOperationException(string.Format("Query source cannot be read."));
+                }
                 var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(this.Source.Select));
                 return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
@@ -103,6 +102,10 @@ namespace FoxDb
 
         public T Find(object id)
         {
+            if (!this.Source.CanSearch)
+            {
+                throw new InvalidOperationException(string.Format("Query source cannot be searched."));
+            }
             var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
             var sequence = this.GetEnumerator(this.Source.Find, parameters);
             if (sequence.MoveNext())
@@ -114,6 +117,10 @@ namespace FoxDb
 
         public IEnumerator<T> GetEnumerator()
         {
+            if (!this.Source.CanRead)
+            {
+                throw new InvalidOperationException(string.Format("Query source cannot be read."));
+            }
             return this.GetEnumerator(this.Source.Select, this.Parameters);
         }
 

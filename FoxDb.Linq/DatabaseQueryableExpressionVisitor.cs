@@ -189,12 +189,12 @@ namespace FoxDb
                 var query = this.Database.QueryFactory.Build();
                 query.Select.AddOperator(QueryOperator.Star);
                 query.From.AddTable(relation.RightTable);
-                switch (relation.Multiplicity)
+                switch (relation.Flags.GetMultiplicity())
                 {
-                    case RelationMultiplicity.OneToMany:
+                    case RelationFlags.OneToMany:
                         query.Where.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
                         break;
-                    case RelationMultiplicity.ManyToMany:
+                    case RelationFlags.ManyToMany:
                         query.From.AddRelation(relation.Invert());
                         query.Where.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
                         break;
