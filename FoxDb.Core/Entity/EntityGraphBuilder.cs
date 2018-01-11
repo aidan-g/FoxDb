@@ -13,9 +13,8 @@ namespace FoxDb
 
         protected DynamicMethod Members { get; private set; }
 
-        public IEntityGraph Build<T>(IDatabase database, IEntityMapper mapper)
+        public IEntityGraph Build<T>(ITableConfig table, IEntityMapper mapper)
         {
-            var table = database.Config.Table<T>();
             return new EntityGraph(this.CreateNode(table, mapper));
         }
 

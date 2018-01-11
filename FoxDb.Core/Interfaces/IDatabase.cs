@@ -19,6 +19,10 @@ namespace FoxDb.Interfaces
 
         IDatabaseQueryFactory QueryFactory { get; }
 
+        IDatabaseQuerySource Source<T>(IDbTransaction transaction = null);
+
+        IDatabaseQuerySource Source<T>(ITableConfig table, IDbTransaction transaction = null);
+
         IDatabaseSet<T> Set<T>(IDbTransaction transaction = null);
 
         IDatabaseSet<T> Query<T>(IDatabaseQuerySource source);
@@ -31,13 +35,13 @@ namespace FoxDb.Interfaces
 
         T ExecuteScalar<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        T ExecuteComplex<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        T ExecuteComplex<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        T ExecuteComplex<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        T ExecuteComplex<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        IEnumerable<T> ExecuteEnumerator<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
-        IEnumerable<T> ExecuteEnumerator<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
+        IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 
         IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null);
 

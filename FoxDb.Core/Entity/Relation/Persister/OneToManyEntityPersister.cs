@@ -12,11 +12,11 @@ namespace FoxDb
             }
         }
 
-        public override RelationMultiplicity Multiplicity
+        public override RelationFlags Flags
         {
             get
             {
-                return RelationMultiplicity.OneToMany;
+                return RelationFlags.OneToMany;
             }
         }
 
@@ -52,30 +52,24 @@ namespace FoxDb
 
             public virtual void Update()
             {
-                var set = default(IDatabaseSet<TRelation>);
+                var table = this.Set.Database.Config.Table<TRelation>();
+                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, table, this.Set.Transaction)
+                {
+                    Select = this.Set.Database.SelectByRelation(this.Relation)
+                });
                 var children = this.Relation.Getter(this.Item);
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
-                        {
-                            Select = this.Set.Database.SelectByRelation(this.Relation),
-                            Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation),
-                            Transaction = this.Set.Transaction
-                        });
+                        set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                         if (child != null)
                         {
                             set.AddOrUpdate(child);
                         }
                     }
                 }
-                set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
-                {
-                    Select = this.Set.Database.SelectByRelation(this.Relation),
-                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation),
-                    Transaction = this.Set.Transaction
-                });
+                set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation);
                 if (children == null)
                 {
                     set.Clear();
@@ -92,11 +86,11 @@ namespace FoxDb
 
             public virtual void Delete()
             {
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
+                var table = this.Set.Database.Config.Table<TRelation>();
+                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, table, this.Set.Transaction)
                 {
                     Select = this.Set.Database.SelectByRelation(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation),
-                    Transaction = this.Set.Transaction
                 });
                 set.Clear();
             }

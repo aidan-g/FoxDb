@@ -1,17 +1,15 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
 {
     public class EntityMapper : IEntityMapper
     {
-        public EntityMapper(IDatabase database, ITableConfig table)
+        public EntityMapper(ITableConfig table)
         {
-            this.Database = database;
             this.Table = table;
         }
-
-        public IDatabase Database { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
@@ -26,7 +24,7 @@ namespace FoxDb
                     var table = queue.Dequeue();
                     foreach (var relation in table.Relations)
                     {
-                        if (!relation.Behaviour.HasFlag(RelationBehaviour.EagerFetch))
+                        if (!relation.Flags.HasFlag(RelationFlags.EagerFetch))
                         {
                             continue;
                         }

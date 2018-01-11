@@ -1,6 +1,5 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -17,7 +16,7 @@ namespace FoxDb
         public static IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression)
         {
             var property = GetLambdaProperty(expression);
-            if (!property.CanRead || !property.CanWrite)
+            if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 throw new NotImplementedException();
             }
@@ -26,7 +25,7 @@ namespace FoxDb
             return new PropertyAccessor<T, TValue>(property, get, set);
         }
 
-        private static PropertyInfo GetLambdaProperty(Expression expression)
+        public static PropertyInfo GetLambdaProperty(Expression expression)
         {
             if (expression.NodeType != ExpressionType.Lambda)
             {

@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -6,20 +7,47 @@ namespace FoxDb
 {
     public class DatabaseQuerySource<T> : IDatabaseQuerySource
     {
-        public DatabaseQuerySource(IDatabase database, IDbTransaction transaction = null)
+        public DatabaseQuerySource(IDatabase database, ITableConfig table, IDbTransaction transaction = null)
         {
             this.Database = database;
-            this.Mapper = new EntityMapper(this.Database, this.Database.Config.Table<T>());
+            this.Table = table;
+            this.Mapper = new EntityMapper(table);
             this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
             this.Select = this.Composer.Select;
             this.Find = this.Composer.Find;
-            this.Insert = database.QueryFactory.Insert<T>();
-            this.Update = database.QueryFactory.Update<T>();
-            this.Delete = database.QueryFactory.Delete<T>();
+            this.Insert = database.QueryFactory.Insert(table);
+            this.Update = database.QueryFactory.Update(table);
+            this.Delete = database.QueryFactory.Delete(table);
             this.Transaction = transaction;
         }
 
         public IDatabase Database { get; private set; }
+
+        public ITableConfig Table { get; private set; }
+
+        public bool CanRead
+        {
+            get
+            {
+                return this.Select != null;
+            }
+        }
+
+        public bool CanSearch
+        {
+            get
+            {
+                return this.Find != null;
+            }
+        }
+
+        public bool CanWrite
+        {
+            get
+            {
+                return this.Insert != null && this.Update != null && this.Delete != null;
+            }
+        }
 
         public IEntityMapper Mapper { get; private set; }
 
@@ -37,6 +65,6 @@ namespace FoxDb
 
         public DatabaseParameterHandler Parameters { get; set; }
 
-        public IDbTransaction Transaction { get; set; }
+        public IDbTransaction Transaction { get; private set; }
     }
 }

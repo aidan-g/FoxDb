@@ -5,10 +5,8 @@ namespace FoxDb.Interfaces
 {
     public interface IRelationFactory
     {
-        IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property);
+        IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property, RelationFlags flags);
 
-        IRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression);
-
-        ICollectionRelationConfig<T, TRelation> Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationMultiplicity multiplicity);
+        IRelationConfig Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags);
     }
 }

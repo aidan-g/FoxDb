@@ -103,29 +103,15 @@ namespace FoxDb
 
         protected virtual void VisitRelation(IRelationBuilder expression)
         {
-            switch (expression.Relation.Multiplicity)
+            switch (expression.Relation.Flags.GetMultiplicity())
             {
-                case RelationMultiplicity.OneToOne:
-                case RelationMultiplicity.OneToMany:
-                    if (expression.Relation.Inverted)
-                    {
-                        throw new NotImplementedException();
-                    }
-                    else
-                    {
-                        this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.LeftTable.PrimaryKey, expression.Relation.RightTable.ForeignKey);
-                    }
+                case RelationFlags.OneToOne:
+                case RelationFlags.OneToMany:
+                    this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.LeftColumn, expression.Relation.RightColumn);
                     break;
-                case RelationMultiplicity.ManyToMany:
-                    if (expression.Relation.Inverted)
-                    {
-                        this.VisitRelation(expression, expression.Relation.MappingTable, expression.Relation.MappingTable.RightForeignKey, expression.Relation.RightTable.PrimaryKey);
-                    }
-                    else
-                    {
-                        this.VisitRelation(expression, expression.Relation.MappingTable, expression.Relation.MappingTable.LeftForeignKey, expression.Relation.LeftTable.PrimaryKey);
-                        this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.MappingTable.RightForeignKey, expression.Relation.RightTable.PrimaryKey);
-                    }
+                case RelationFlags.ManyToMany:
+                    this.VisitRelation(expression, expression.Relation.MappingTable, expression.Relation.LeftColumn, expression.Relation.LeftTable.PrimaryKey);
+                    this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.RightColumn, expression.Relation.RightTable.PrimaryKey);
                     break;
                 default:
                     throw new NotImplementedException();

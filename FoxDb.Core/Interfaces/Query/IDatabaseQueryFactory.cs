@@ -16,17 +16,15 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
-        IQueryGraphBuilder Select<T>();
+        IQueryGraphBuilder Select(ITableConfig table);
 
-        IEnumerable<IQueryGraphBuilder> Insert<T>();
+        IEnumerable<IQueryGraphBuilder> Insert(ITableConfig table);
 
-        IEnumerable<IQueryGraphBuilder> Insert<T1, T2>();
+        IQueryGraphBuilder Update(ITableConfig table);
 
-        IQueryGraphBuilder Update<T>();
+        IQueryGraphBuilder Delete(ITableConfig table);
 
-        IQueryGraphBuilder Delete<T>();
-
-        IQueryGraphBuilder Delete<T1, T2>();
+        IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys);
 
         IQueryGraphBuilder Count(IQueryGraphBuilder query);
     }

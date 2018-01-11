@@ -10,16 +10,16 @@ namespace FoxDb
     [TestFixture]
     public class QueryTests : TestBase
     {
-        [TestCase(RelationMultiplicity.OneToMany)]
-        [TestCase(RelationMultiplicity.ManyToMany)]
-        public void Exists(RelationMultiplicity multiplicity)
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void Exists(RelationFlags flags)
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
             using (var transaction = database.Connection.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, multiplicity);
+                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
                 var set = database.Set<Test002>(transaction);
                 var data = new List<Test002>();
                 set.Clear();
@@ -35,12 +35,12 @@ namespace FoxDb
                     var query = database.QueryFactory.Build();
                     query.Select.AddColumns(database.Config.Table<Test004>().Columns);
                     query.From.AddTable(database.Config.Table<Test004>());
-                    switch (relation.Multiplicity)
+                    switch (relation.Flags.GetMultiplicity())
                     {
-                        case RelationMultiplicity.OneToMany:
+                        case RelationFlags.OneToMany:
                             query.Where.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
                             break;
-                        case RelationMultiplicity.ManyToMany:
+                        case RelationFlags.ManyToMany:
                             query.From.AddRelation(relation.Invert());
                             query.Where.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
                             break;

@@ -9,9 +9,10 @@ namespace FoxDb
 {
     public abstract class TableConfig : ITableConfig
     {
-        protected TableConfig(IConfig config, string tableName, Type tableType)
+        protected TableConfig(IConfig config, TableFlags flags, string tableName, Type tableType)
         {
             this.Config = config;
+            this.Flags = flags;
             this.TableName = tableName;
             this.TableType = tableType;
             this.Columns = new Dictionary<string, IColumnConfig>();
@@ -19,6 +20,8 @@ namespace FoxDb
         }
 
         public IConfig Config { get; private set; }
+
+        public TableFlags Flags { get; private set; }
 
         public string TableName { get; set; }
 
@@ -106,12 +109,19 @@ namespace FoxDb
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>
     {
-        public TableConfig(IConfig config, string name) : base(config, name, typeof(T))
+        public TableConfig(IConfig config, TableFlags flags, string name) : base(config, flags, name, typeof(T))
         {
-
+            if (flags.HasFlag(TableFlags.AutoColumns))
+            {
+                this.AutoColumns();
+            }
+            if (flags.HasFlag(TableFlags.AutoRelations))
+            {
+                this.AutoRelations();
+            }
         }
 
-        public ITableConfig<T> UseDefaultColumns()
+        protected virtual ITableConfig<T> AutoColumns()
         {
             var enumerator = new ColumnEnumerator();
             foreach (var column in enumerator.GetColumns(this))
@@ -129,7 +139,7 @@ namespace FoxDb
             return this;
         }
 
-        public ITableConfig<T> UseDefaultRelations()
+        protected virtual ITableConfig<T> AutoRelations()
         {
             var enumerator = new RelationEnumerator();
             foreach (var relation in enumerator.GetRelations(this))
@@ -143,44 +153,35 @@ namespace FoxDb
             return this;
         }
 
-        public IRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, TRelation>> expression)
+        public IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression)
         {
-            if (typeof(TRelation).IsGenericType)
-            {
-                throw new NotImplementedException();
-            }
-            var key = typeof(TRelation);
-            if (!this.Relations.ContainsKey(key))
-            {
-                var relation = Factories.Relation.Create<T, TRelation>(this, expression);
-                this.Relations.Add(key, relation);
-            }
-            return this.Relations[key] as IRelationConfig<T, TRelation>;
+            return this.Relation(expression, Defaults.Relation.Flags);
         }
 
-        public ICollectionRelationConfig<T, TRelation> Relation<TRelation>(Expression<Func<T, IEnumerable<TRelation>>> expression, RelationMultiplicity multiplicity)
+        public IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
         {
-            var key = typeof(TRelation);
-            if (!this.Relations.ContainsKey(key))
-            {
-                var relation = Factories.Relation.Create<T, TRelation>(this, expression, multiplicity);
-                this.Relations.Add(key, relation);
-            }
-            return this.Relations[key] as ICollectionRelationConfig<T, TRelation>;
+            var relation = Factories.Relation.Create<T, TRelation>(this, expression, flags);
+            return this.Relations[relation.RelationType] = relation;
         }
     }
 
     public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2>
     {
-        protected TableConfig(IConfig config, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, Conventions.RelationTableName(leftTable, rightTable), typeof(T2))
+        public TableConfig(IConfig config, TableFlags flags, string tableName, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, flags, tableName, typeof(T2))
         {
             this.LeftTable = leftTable;
             this.RightTable = rightTable;
-        }
-
-        public TableConfig(IConfig config) : this(config, config.Table<T1>(), config.Table<T2>())
-        {
-
+            if (flags.HasFlag(TableFlags.AutoColumns))
+            {
+                if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
+                {
+                    (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+                }
+                if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+                {
+                    (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+                }
+            }
         }
 
         public ITableConfig LeftTable { get; private set; }
@@ -190,12 +191,5 @@ namespace FoxDb
         public IColumnConfig LeftForeignKey { get; set; }
 
         public IColumnConfig RightForeignKey { get; set; }
-
-        public ITableConfig<T1, T2> UseDefaultColumns()
-        {
-            (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
-            (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
-            return this;
-        }
     }
 }

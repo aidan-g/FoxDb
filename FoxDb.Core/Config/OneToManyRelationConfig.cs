@@ -7,23 +7,21 @@ namespace FoxDb
 {
     public class OneToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public OneToManyRelationConfig(IConfig config, ITableConfig leftTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, null, rightTable, property, getter, setter)
+        public OneToManyRelationConfig(IConfig config, RelationFlags flags, ITableConfig leftTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, flags, leftTable, null, rightTable, property, getter, setter)
         {
 
         }
 
-        public override RelationMultiplicity Multiplicity
+        protected override ICollectionRelationConfig<T, TRelation> AutoColumns()
         {
-            get
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                return RelationMultiplicity.OneToMany;
+                this.LeftColumn = this.LeftTable.PrimaryKey;
             }
-        }
-
-        public override ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
-        {
-            this.LeftColumn = this.LeftTable.PrimaryKey;
-            (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+            }
             return this;
         }
 

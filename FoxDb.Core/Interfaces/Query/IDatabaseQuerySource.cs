@@ -7,6 +7,14 @@ namespace FoxDb.Interfaces
     {
         IDatabase Database { get; }
 
+        ITableConfig Table { get; }
+
+        bool CanRead { get; }
+
+        bool CanSearch { get; }
+
+        bool CanWrite { get; }
+
         IEntityMapper Mapper { get; }
 
         IQueryGraphBuilder Select { get; set; }
@@ -21,6 +29,6 @@ namespace FoxDb.Interfaces
 
         DatabaseParameterHandler Parameters { get; set; }
 
-        IDbTransaction Transaction { get; set; }
+        IDbTransaction Transaction { get; }
     }
 }

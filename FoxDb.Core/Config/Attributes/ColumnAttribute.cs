@@ -7,9 +7,11 @@ namespace FoxDb
     {
         public ColumnAttribute()
         {
-
+            this.Flags = Defaults.Column.Flags;
         }
 
         public string Name { get; set; }
+
+        public ColumnFlags Flags { get; set; }
     }
 }

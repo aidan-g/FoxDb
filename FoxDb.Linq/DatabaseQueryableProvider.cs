@@ -48,7 +48,8 @@ namespace FoxDb
             {
                 throw new InvalidOperationException("Can only create query returning a sequence (IEnumerable<T>).");
             }
-            return (T)this.Set(elementType, expression);
+            var table = this.Database.Config.Table(elementType);
+            return (T)this.Set(elementType, table, expression);
         }
 
         protected virtual bool CanCreateSet<T>(out Type elementType)
@@ -67,14 +68,14 @@ namespace FoxDb
             return true;
         }
 
-        protected virtual IDatabaseSet Set(Type elementType, Expression expression)
+        protected virtual IDatabaseSet Set(Type elementType, ITableConfig table, Expression expression)
         {
-            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, expression);
+            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, table, expression);
         }
 
-        protected virtual IDatabaseSet<T> Set<T>(Expression expression)
+        protected virtual IDatabaseSet<T> Set<T>(ITableConfig table, Expression expression)
         {
-            var source = new DatabaseQuerySource<T>(this.Database, this.Transaction);
+            var source = new DatabaseQuerySource<T>(this.Database, table, this.Transaction);
             var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Select, typeof(T));
             visitor.Visit(expression);
             if (source.Parameters != null)

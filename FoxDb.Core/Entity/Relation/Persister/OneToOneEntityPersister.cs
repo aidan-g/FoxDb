@@ -13,11 +13,11 @@ namespace FoxDb
             }
         }
 
-        public override RelationMultiplicity Multiplicity
+        public override RelationFlags Flags
         {
             get
             {
-                return RelationMultiplicity.OneToOne;
+                return RelationFlags.OneToOne;
             }
         }
 
@@ -53,11 +53,11 @@ namespace FoxDb
             public virtual void Update()
             {
                 var child = this.Relation.Getter(this.Item);
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
+                var table = this.Set.Database.Config.Table<TRelation>();
+                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, table, this.Set.Transaction)
                 {
                     Select = this.Set.Database.SelectByRelation(this.Relation),
-                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation),
-                    Transaction = this.Set.Transaction
+                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation)
                 });
                 if (child != null)
                 {
@@ -77,11 +77,11 @@ namespace FoxDb
             public virtual void Delete()
             {
                 var child = this.Relation.Getter(this.Item);
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, this.Set.Transaction)
+                var table = this.Set.Database.Config.Table<TRelation>();
+                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource<TRelation>(this.Set.Database, table, this.Set.Transaction)
                 {
                     Select = this.Set.Database.SelectByRelation(this.Relation),
-                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation),
-                    Transaction = this.Set.Transaction
+                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation)
                 });
                 if (child != null)
                 {

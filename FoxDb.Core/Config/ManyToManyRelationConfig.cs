@@ -7,30 +7,31 @@ namespace FoxDb
 {
     public class ManyToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public ManyToManyRelationConfig(IConfig config, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, leftTable, mappingTable, rightTable, property, getter, setter)
+        public ManyToManyRelationConfig(IConfig config, RelationFlags flags, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, flags, leftTable, mappingTable, rightTable, property, getter, setter)
         {
+
         }
 
-        public override RelationMultiplicity Multiplicity
+        protected override ICollectionRelationConfig<T, TRelation> AutoColumns()
         {
-            get
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                return RelationMultiplicity.ManyToMany;
+                (this.LeftColumn = this.MappingTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
             }
-        }
-
-        public override ICollectionRelationConfig<T, TRelation> UseDefaultColumns()
-        {
-            (this.LeftColumn = this.MappingTable.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
-            (this.RightColumn = this.MappingTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                (this.RightColumn = this.MappingTable.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+            }
             return this;
         }
 
         public override IRelationConfig Invert()
         {
-            return new ManyToManyRelationConfig<T, TRelation>(this.Config, this.LeftTable, this.MappingTable, this.RightTable, this.Property, this.Getter, this.Setter)
+            var flags = this.Flags.SetMultiplicity(RelationFlags.OneToMany) ^ RelationFlags.AutoColumns;
+            return new OneToManyRelationConfig<T, TRelation>(this.Config, flags, this.LeftTable, this.MappingTable, this.Property, this.Getter, this.Setter)
             {
-                Inverted = true
+                LeftColumn = this.RightColumn,
+                RightColumn = this.RightTable.PrimaryKey
             };
         }
     }

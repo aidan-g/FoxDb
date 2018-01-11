@@ -44,7 +44,7 @@ namespace FoxDb
         }
 
         [Test]
-        public void Ignore()
+        public void IgnoreColumn()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
@@ -133,12 +133,22 @@ namespace FoxDb
         }
 
         [Table(Name = "Test001")]
+        public class Biscuit : Test001
+        {
+
+        }
+
+        [Table(Name = "Test001")]
         public class Rabbit : Test001
         {
             [Column(Name = "Field3")]
             public string Field4
             {
                 get
+                {
+                    throw new NotImplementedException();
+                }
+                protected set
                 {
                     throw new NotImplementedException();
                 }

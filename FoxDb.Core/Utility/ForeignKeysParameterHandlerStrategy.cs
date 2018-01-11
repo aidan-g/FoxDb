@@ -61,12 +61,12 @@ namespace FoxDb
         {
             get
             {
-                switch (this.Relation.Multiplicity)
+                switch (this.Relation.Flags.GetMultiplicity())
                 {
-                    case RelationMultiplicity.OneToOne:
-                    case RelationMultiplicity.OneToMany:
+                    case RelationFlags.OneToOne:
+                    case RelationFlags.OneToMany:
                         return Conventions.ParameterName(this.Relation.RightTable.ForeignKey);
-                    case RelationMultiplicity.ManyToMany:
+                    case RelationFlags.ManyToMany:
                         return Conventions.ParameterName(this.Relation.MappingTable.LeftForeignKey);
                     default:
                         throw new NotImplementedException();
@@ -78,12 +78,12 @@ namespace FoxDb
         {
             get
             {
-                switch (this.Relation.Multiplicity)
+                switch (this.Relation.Flags.GetMultiplicity())
                 {
-                    case RelationMultiplicity.OneToOne:
-                    case RelationMultiplicity.OneToMany:
+                    case RelationFlags.OneToOne:
+                    case RelationFlags.OneToMany:
                         return string.Empty;
-                    case RelationMultiplicity.ManyToMany:
+                    case RelationFlags.ManyToMany:
                         return Conventions.ParameterName(this.Relation.MappingTable.RightForeignKey);
                     default:
                         throw new NotImplementedException();

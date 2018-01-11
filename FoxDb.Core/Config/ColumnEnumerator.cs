@@ -35,7 +35,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!property.CanRead || !property.CanWrite)
+            if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 return false;
             }
