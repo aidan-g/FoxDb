@@ -1,5 +1,4 @@
-﻿using FoxDb.Interfaces;
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 

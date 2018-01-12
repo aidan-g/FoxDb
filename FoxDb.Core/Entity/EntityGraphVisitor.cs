@@ -20,10 +20,10 @@ namespace FoxDb
         {
             if (node.Table != null)
             {
-                this.Members.Invoke(this, "OnVisit", node.Table.TableType, node);
+                this.Members.Invoke(this, "OnVisit", node.EntityType, node);
                 if (node.Relation != null)
                 {
-                    this.Members.Invoke(this, "OnVisit", new[] { node.Relation.LeftTable.TableType, node.Relation.RelationType }, node);
+                    this.Members.Invoke(this, "OnVisit", new[] { node.Parent.EntityType, node.Relation.RelationType }, node);
                 }
             }
             foreach (var child in node.Children)

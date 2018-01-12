@@ -8,7 +8,7 @@ namespace FoxDb
     {
         public IColumnConfig Create(ITableConfig table, string name)
         {
-            return new ColumnConfig(table, name, null, null, null);
+            return new ColumnConfig(table.Config, Defaults.Column.Flags, table, name, null, null, null);
         }
 
         public IColumnConfig Create(ITableConfig table, PropertyInfo property)
@@ -23,7 +23,7 @@ namespace FoxDb
             };
             var getter = new Func<object, object>(item => property.GetValue(item));
             var setter = new Action<object, object>((item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType)));
-            return new ColumnConfig(table, attribute.Name, property, getter, setter);
+            return new ColumnConfig(table.Config, attribute.Flags, table, attribute.Name, property, getter, setter);
         }
     }
 }

@@ -10,6 +10,11 @@ namespace FoxDb
             this.Flags = Defaults.Table.Flags;
         }
 
+        public TableAttribute(TableFlags flags) : this()
+        {
+            this.Flags |= flags;
+        }
+
         public string Name { get; set; }
 
         public TableFlags Flags { get; set; }

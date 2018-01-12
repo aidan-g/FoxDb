@@ -64,6 +64,7 @@
     <Compile Include="Entity\EntityGraphBuilder.cs" />
     <Compile Include="Entity\EntityGraphNode.cs" />
     <Compile Include="Entity\EntityGraphSink.cs" />
+    <Compile Include="Entity\EntityGraphMapping.cs" />
     <Compile Include="Entity\EntityGraphVisitor.cs" />
     <Compile Include="Entity\EntityInitializer.cs" />
     <Compile Include="Entity\EntityKey.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Interfaces\Entity\IEntityGraphBuilder.cs" />
     <Compile Include="Interfaces\Entity\IEntityGraphNode.cs" />
     <Compile Include="Interfaces\Entity\IEntityGraphSink.cs" />
+    <Compile Include="Interfaces\Entity\IEntityGraphMapping.cs" />
     <Compile Include="Interfaces\Entity\IEntityGraphVisitor.cs" />
     <Compile Include="Interfaces\Entity\IEntityInitializer.cs" />
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />

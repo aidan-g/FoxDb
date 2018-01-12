@@ -35,7 +35,7 @@ namespace FoxDb
 
         public Test003 Test003 { get; set; }
 
-        public ICollection<Test004> Test004 { get; set; }
+        public virtual ICollection<Test004> Test004 { get; set; }
 
         public bool Equals(Test002 other)
         {

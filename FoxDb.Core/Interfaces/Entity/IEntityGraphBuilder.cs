@@ -2,6 +2,6 @@
 {
     public interface IEntityGraphBuilder
     {
-        IEntityGraph Build<T>(ITableConfig table, IEntityMapper mapper);
+        IEntityGraph Build(ITableConfig table, IEntityMapper mapper);
     }
 }

@@ -11,10 +11,6 @@ namespace FoxDb
         {
             this.Getter = getter;
             this.Setter = setter;
-            if (flags.HasFlag(RelationFlags.AutoColumns))
-            {
-                this.AutoColumns();
-            }
         }
 
         public override Type RelationType
@@ -24,8 +20,6 @@ namespace FoxDb
                 return typeof(TRelation);
             }
         }
-
-        protected abstract ICollectionRelationConfig<T, TRelation> AutoColumns();
 
         public Func<T, ICollection<TRelation>> Getter { get; private set; }
 

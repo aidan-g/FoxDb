@@ -1,15 +1,23 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
 {
     public abstract class EntityGraphNode : IEntityGraphNode
     {
-        public EntityGraphNode(ITableConfig table, IRelationConfig relation)
+        public EntityGraphNode(Type entityType, IEntityGraphNode parent, ITableConfig table, IRelationConfig relation)
         {
+            this.EntityType = entityType;
+            this.Parent = parent;
             this.Table = table;
             this.Relation = relation;
         }
+
+        public Type EntityType { get; private set; }
+
+
+        public IEntityGraphNode Parent { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
@@ -20,12 +28,12 @@ namespace FoxDb
 
     public class EntityGraphNode<T> : EntityGraphNode, IEntityGraphNode<T>
     {
-        public EntityGraphNode(ITableConfig table) : this(table, null)
+        public EntityGraphNode(ITableConfig table) : this(null, table, null)
         {
 
         }
 
-        protected EntityGraphNode(ITableConfig table, IRelationConfig relation) : base(table, relation)
+        protected EntityGraphNode(IEntityGraphNode parent, ITableConfig table, IRelationConfig relation) : base(typeof(T), parent, table, relation)
         {
 
         }
@@ -33,12 +41,10 @@ namespace FoxDb
 
     public class EntityRelationGraphNode<T, TRelation> : EntityGraphNode<TRelation>, IEntityGraphNode<T, TRelation>
     {
-        public EntityRelationGraphNode(IEntityGraphNode<T> parent, IRelationConfig<T, TRelation> relation) : base(relation.RightTable, relation)
+        public EntityRelationGraphNode(IEntityGraphNode parent, IRelationConfig<T, TRelation> relation) : base(parent, relation.RightTable, relation)
         {
-            this.Parent = parent;
-        }
 
-        public IEntityGraphNode<T> Parent { get; private set; }
+        }
 
         new public IRelationConfig<T, TRelation> Relation
         {
@@ -51,12 +57,10 @@ namespace FoxDb
 
     public class CollectionEntityRelationGraphNode<T, TRelation> : EntityGraphNode<TRelation>, ICollectionEntityGraphNode<T, TRelation>
     {
-        public CollectionEntityRelationGraphNode(IEntityGraphNode<T> parent, ICollectionRelationConfig<T, TRelation> relation) : base(relation.RightTable, relation)
+        public CollectionEntityRelationGraphNode(IEntityGraphNode parent, ICollectionRelationConfig<T, TRelation> relation) : base(parent, relation.RightTable, relation)
         {
-            this.Parent = parent;
-        }
 
-        public IEntityGraphNode<T> Parent { get; private set; }
+        }
 
         new public ICollectionRelationConfig<T, TRelation> Relation
         {

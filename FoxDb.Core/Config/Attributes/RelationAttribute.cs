@@ -10,6 +10,11 @@ namespace FoxDb
             this.Flags = Defaults.Relation.Flags;
         }
 
+        public RelationAttribute(RelationFlags flags) : this()
+        {
+            this.Flags |= flags;
+        }
+
         public RelationFlags Flags { get; set; }
     }
 }
