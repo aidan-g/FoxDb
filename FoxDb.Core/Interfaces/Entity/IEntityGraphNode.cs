@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FoxDb.Interfaces
 {
     public interface IEntityGraphNode
     {
+        Type EntityType { get; }
+
+        IEntityGraphNode Parent { get; }
+
         ITableConfig Table { get; }
 
         IRelationConfig Relation { get; }
@@ -18,15 +23,11 @@ namespace FoxDb.Interfaces
 
     public interface IEntityGraphNode<T, TRelation> : IEntityGraphNode<T>
     {
-        IEntityGraphNode<T> Parent { get; }
-
         new IRelationConfig<T, TRelation> Relation { get; }
     }
 
     public interface ICollectionEntityGraphNode<T, TRelation> : IEntityGraphNode<T>
     {
-        IEntityGraphNode<T> Parent { get; }
-
         new ICollectionRelationConfig<T, TRelation> Relation { get; }
     }
 }

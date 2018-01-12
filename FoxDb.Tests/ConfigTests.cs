@@ -70,6 +70,15 @@ namespace FoxDb
         }
 
         [Test]
+        public void SetRelationFlags()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            var table = database.Config.Table<Toast>();
+            Assert.AreEqual(RelationFlags.ManyToMany, table.Relation(item => item.Test004).Flags.GetMultiplicity());
+        }
+
+        [Test]
         public void ObservableCollection()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
@@ -159,6 +168,23 @@ namespace FoxDb
         public class Cloud : Test002
         {
             new public ObservableCollection<Test004> Test004 { get; set; }
+        }
+
+        [Table(TableFlags.AutoRelations, Name = "Test002")]
+        public class Toast : Test002
+        {
+            [Relation(RelationFlags.ManyToMany)]
+            public override ICollection<Test004> Test004
+            {
+                get
+                {
+                    return base.Test004;
+                }
+                set
+                {
+                    base.Test004 = value;
+                }
+            }
         }
     }
 }

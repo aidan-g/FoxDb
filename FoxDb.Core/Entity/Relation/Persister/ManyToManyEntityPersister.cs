@@ -62,7 +62,7 @@ namespace FoxDb
                 {
                     foreach (var child in children)
                     {
-                        var hasKey = EntityKey<TRelation>.HasKey(this.Set.Database, child);
+                        var hasKey = EntityKey.HasKey(table, child);
                         set.AddOrUpdate(child);
                         if (!hasKey)
                         {

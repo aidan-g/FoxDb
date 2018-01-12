@@ -40,7 +40,7 @@ namespace FoxDb
             using (var reader = database.ExecuteReader(set.Source.Select, null, transaction))
             {
                 var enumerator = new EntityEnumerator();
-                this.AssertSequence(expected, enumerator.AsEnumerable<T>(set.Table, reader));
+                this.AssertSequence(expected, enumerator.AsEnumerable<T>(set, reader));
             }
         }
 
@@ -67,25 +67,23 @@ namespace FoxDb
                 var data = new List<Transient>();
                 data.AddRange(new[]
                 {
-                    new Transient() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
-                    new Transient() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
-                    new Transient() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+                    new Transient() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Transient() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                    new Transient() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 {
-                    var set = database.Set<Test001>(transaction);
+                    var set = database.Set<Test002>(transaction);
                     set.AddOrUpdate(data);
                 }
                 {
-                    var set = database.Query<Transient>(database.Source<Test001>(transaction));
+                    var set = database.Query<Transient>(database.Source<Test002>(transaction));
                     this.AssertEnumerator_1(data, database, set, transaction);
-                    this.AssertEnumerator_2(data, database, set, transaction);
-                    this.AssertEnumerator_3(data, database, set, transaction);
                 }
             }
         }
 
         [Table(Flags = TableFlags.Transient)]
-        public class Transient : Test001
+        public class Transient : Test002
         {
 
         }

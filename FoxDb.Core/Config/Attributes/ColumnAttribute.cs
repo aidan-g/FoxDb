@@ -10,6 +10,11 @@ namespace FoxDb
             this.Flags = Defaults.Column.Flags;
         }
 
+        public ColumnAttribute(ColumnFlags flags) : this()
+        {
+            this.Flags |= flags;
+        }
+
         public string Name { get; set; }
 
         public ColumnFlags Flags { get; set; }

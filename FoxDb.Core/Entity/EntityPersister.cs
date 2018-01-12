@@ -18,7 +18,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Query source cannot be written."));
             }
-            if (EntityKey<T>.HasKey(this.Set.Database, item))
+            if (EntityKey.HasKey(this.Set.Table, item))
             {
                 this.Set.Database.Execute(this.Set.Source.Update, this.GetParameters(item), this.Set.Transaction);
             }
@@ -26,7 +26,7 @@ namespace FoxDb
             {
                 var query = this.Set.Database.QueryFactory.Create(this.Set.Source.Insert);
                 var key = this.Set.Database.ExecuteScalar<object>(query, this.GetParameters(item), this.Set.Transaction);
-                EntityKey<T>.SetKey(this.Set.Database, item, key);
+                EntityKey.SetKey(this.Set.Table, item, key);
             }
             Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item);
         }

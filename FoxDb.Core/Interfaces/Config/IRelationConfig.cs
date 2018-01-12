@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
-    public interface IRelationConfig
+    public interface IRelationConfig : IEquatable<IRelationConfig>
     {
         IConfig Config { get; }
 
@@ -25,16 +25,18 @@ namespace FoxDb.Interfaces
         Type RelationType { get; }
 
         IRelationConfig Invert();
+
+        IRelationConfig AutoColumns();
     }
 
-    public interface IRelationConfig<T, TRelation> : IRelationConfig
+    public interface IRelationConfig<in T, TRelation> : IRelationConfig
     {
         Func<T, TRelation> Getter { get; }
 
         Action<T, TRelation> Setter { get; }
     }
 
-    public interface ICollectionRelationConfig<T, TRelation> : IRelationConfig
+    public interface ICollectionRelationConfig<in T, TRelation> : IRelationConfig
     {
         Func<T, ICollection<TRelation>> Getter { get; }
 

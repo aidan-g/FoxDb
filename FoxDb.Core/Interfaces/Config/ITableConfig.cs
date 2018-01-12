@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
-    public interface ITableConfig
+    public interface ITableConfig : IEquatable<ITableConfig>
     {
         IConfig Config { get; }
 
@@ -30,6 +30,10 @@ namespace FoxDb.Interfaces
         IEnumerable<IColumnConfig> Columns { get; }
 
         IEnumerable<IRelationConfig> Relations { get; }
+
+        ITableConfig AutoColumns();
+
+        ITableConfig AutoRelations();
     }
 
     public interface ITableConfig<T> : ITableConfig

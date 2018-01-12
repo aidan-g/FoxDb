@@ -3,16 +3,15 @@ using System;
 
 namespace FoxDb
 {
-    public static class EntityKey<T>
+    public static class EntityKey
     {
-        public static bool IsKey(IDatabase database, object key)
+        public static bool IsKey(object key)
         {
             return key != null && !DBNull.Value.Equals(key);
         }
 
-        public static bool HasKey(IDatabase database, T item)
+        public static bool HasKey(ITableConfig table, object item)
         {
-            var table = database.Config.Table<T>();
             if (table.PrimaryKey == null)
             {
                 throw new InvalidOperationException(string.Format("Table \"{0}\" does not have a valid primary key configuration.", table.TableName));
@@ -25,9 +24,8 @@ namespace FoxDb
             return false;
         }
 
-        public static object GetKey(IDatabase database, T item)
+        public static object GetKey(ITableConfig table, object item)
         {
-            var table = database.Config.Table<T>();
             if (table.PrimaryKey == null)
             {
                 throw new InvalidOperationException(string.Format("Table \"{0}\" does not have a valid primary key configuration.", table.TableName));
@@ -35,9 +33,8 @@ namespace FoxDb
             return table.PrimaryKey.Getter(item);
         }
 
-        public static void SetKey(IDatabase database, T item, object key)
+        public static void SetKey(ITableConfig table, object item, object key)
         {
-            var table = database.Config.Table<T>();
             if (table.PrimaryKey == null)
             {
                 throw new InvalidOperationException(string.Format("Table \"{0}\" does not have a valid primary key configuration.", table.TableName));
@@ -45,9 +42,9 @@ namespace FoxDb
             table.PrimaryKey.Setter(item, key);
         }
 
-        public static bool KeyEquals(IDatabase database, T item, object key)
+        public static bool KeyEquals(ITableConfig table, object item, object key)
         {
-            return GetKey(database, item).Equals(key);
+            return GetKey(table, item).Equals(key);
         }
     }
 }

@@ -25,12 +25,11 @@ namespace FoxDb
 
         public IDatabaseReaderRecord Record { get; set; }
 
-        protected virtual IEntityFactory<T> GetFactory<T>()
+        protected virtual IEntityFactory<T> GetFactory<T>(ITableConfig table)
         {
             var factory = default(IEntityFactory);
             if (!this.Factories.TryGetValue(typeof(T), out factory))
             {
-                var table = this.Set.Database.Config.Table<T>();
                 var initializer = new EntityInitializer<T>(table, this.Set.Mapper);
                 var populator = new EntityPopulator<T>(table, this.Set.Mapper);
                 factory = new EntityFactory<T>(initializer, populator);
@@ -49,9 +48,9 @@ namespace FoxDb
             return this.Buffer.ContainsKey(typeof(T));
         }
 
-        public T Create<T>()
+        public T Create<T>(ITableConfig table)
         {
-            var item = this.GetFactory<T>().Create(this.Record);
+            var item = this.GetFactory<T>(table).Create(this.Record);
             this.Buffer.Add(typeof(T), item);
             return item;
         }
@@ -66,9 +65,8 @@ namespace FoxDb
             return default(T);
         }
 
-        protected virtual object Key<T>()
+        protected virtual object Key(ITableConfig table)
         {
-            var table = this.Set.Database.Config.Table<T>();
             if (table.PrimaryKey == null)
             {
                 return null;
@@ -80,16 +78,16 @@ namespace FoxDb
             return this.Record[table.PrimaryKey.Identifier];
         }
 
-        public bool HasKey<T>()
+        public bool HasKey(ITableConfig table)
         {
             var key = default(object);
-            return this.HasKey<T>(out key);
+            return this.HasKey(table, out key);
         }
 
-        protected virtual bool HasKey<T>(out object key)
+        public bool HasKey(ITableConfig table, out object key)
         {
-            key = this.Key<T>();
-            if (EntityKey<T>.IsKey(this.Set.Database, key))
+            key = this.Key(table);
+            if (EntityKey.IsKey(key))
             {
                 return true;
             }
@@ -97,19 +95,19 @@ namespace FoxDb
             return false;
         }
 
-        public bool KeyChanged<T>()
+        public bool KeyChanged<T>(ITableConfig table)
         {
             if (!this.Exists<T>())
             {
                 return false;
             }
             var key = default(object);
-            if (!this.HasKey<T>(out key))
+            if (!this.HasKey(table, out key))
             {
                 return true;
             }
             var item = this.Get<T>();
-            if (!EntityKey<T>.KeyEquals(this.Set.Database, item, key))
+            if (!EntityKey.KeyEquals(table, item, key))
             {
                 return true;
             }

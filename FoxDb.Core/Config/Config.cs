@@ -34,7 +34,17 @@ namespace FoxDb
             var key = new TableKey(typeof(T));
             if (!this.Tables.ContainsKey(key))
             {
-                this.Tables[key] = this.CreateTable<T>();
+                var table = this.CreateTable<T>();
+                this.Tables[key] = table;
+                if (table.Flags.HasFlag(TableFlags.AutoColumns))
+                {
+                    table.AutoColumns();
+                }
+                if (table.Flags.HasFlag(TableFlags.AutoRelations))
+                {
+                    table.AutoRelations();
+                }
+                return table;
             }
             return this.Tables[key] as ITableConfig<T>;
         }
@@ -49,7 +59,17 @@ namespace FoxDb
             var key = new TableKey(typeof(T1), typeof(T2));
             if (!this.Tables.ContainsKey(key))
             {
-                this.Tables[key] = this.CreateTable<T1, T2>();
+                var table = this.CreateTable<T1, T2>();
+                this.Tables[key] = table;
+                if (table.Flags.HasFlag(TableFlags.AutoColumns))
+                {
+                    table.AutoColumns();
+                }
+                if (table.Flags.HasFlag(TableFlags.AutoRelations))
+                {
+                    table.AutoRelations();
+                }
+                return table;
             }
             return this.Tables[key] as ITableConfig<T1, T2>;
         }
@@ -71,9 +91,12 @@ namespace FoxDb
             public override int GetHashCode()
             {
                 var hashCode = 0;
-                foreach (var type in this.Types)
+                unchecked
                 {
-                    unchecked { hashCode += type.GetHashCode(); }
+                    foreach (var type in this.Types)
+                    {
+                        hashCode += type.GetHashCode();
+                    }
                 }
                 return hashCode;
             }

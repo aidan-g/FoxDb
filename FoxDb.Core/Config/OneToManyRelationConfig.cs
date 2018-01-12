@@ -12,7 +12,7 @@ namespace FoxDb
 
         }
 
-        protected override ICollectionRelationConfig<T, TRelation> AutoColumns()
+        public override IRelationConfig AutoColumns()
         {
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {

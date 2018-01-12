@@ -6,13 +6,15 @@
 
         bool Exists<T>();
 
-        T Create<T>();
+        T Create<T>(ITableConfig table);
 
         T Get<T>();
 
-        bool HasKey<T>();
+        bool HasKey(ITableConfig table);
 
-        bool KeyChanged<T>();
+        bool HasKey(ITableConfig table, out object key);
+
+        bool KeyChanged<T>(ITableConfig table);
 
         void Remove<T>();
     }

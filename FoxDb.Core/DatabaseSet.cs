@@ -10,6 +10,14 @@ namespace FoxDb
     {
         public DatabaseSet(ITableConfig table, IDatabaseQuerySource source)
         {
+            if (table == null)
+            {
+                throw new ArgumentNullException("table");
+            }
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
             this.Table = table;
             this.Source = source;
         }
@@ -54,11 +62,8 @@ namespace FoxDb
         {
             get
             {
-                if (!this.Source.CanRead)
-                {
-                    throw new InvalidOperationException(string.Format("Query source cannot be read."));
-                }
-                var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(this.Source.Select));
+                var select = this.Database.QueryFactory.Select(this.Table);
+                var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(select));
                 return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
         }

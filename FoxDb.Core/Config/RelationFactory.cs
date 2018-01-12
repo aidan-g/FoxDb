@@ -23,53 +23,42 @@ namespace FoxDb
         public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
         {
             var elementType = default(Type);
-            if (PropertyAccessorFactory.GetLambdaProperty(expression).PropertyType.IsCollection(out elementType))
+            var property = PropertyAccessorFactory.GetLambdaProperty<T>(expression);
+            var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute(flags);
+            if (property.PropertyType.IsCollection(out elementType))
             {
-                flags = flags.EnsureMultiplicity(RelationFlags.OneToMany);
-                switch (flags.GetMultiplicity())
+                switch (attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany).GetMultiplicity())
                 {
                     case RelationFlags.OneToMany:
-                        return (IRelationConfig)this.Members.Invoke(this, "CreateOneToMany", new[] { typeof(T), elementType }, table, expression, flags);
+                        return (IRelationConfig)this.Members.Invoke(this, "CreateOneToMany", new[] { typeof(T), elementType }, table, attribute, expression);
                     case RelationFlags.ManyToMany:
-                        return (IRelationConfig)this.Members.Invoke(this, "CreateManyToMany", new[] { typeof(T), elementType }, table, expression, flags);
+                        return (IRelationConfig)this.Members.Invoke(this, "CreateManyToMany", new[] { typeof(T), elementType }, table, attribute, expression);
                     default:
                         throw new NotImplementedException();
                 }
             }
             else
             {
-                return this.CreateOneToOne<T, TRelation>(table, expression, flags.EnsureMultiplicity(RelationFlags.OneToOne));
+                return this.CreateOneToOne<T, TRelation>(table, attribute, expression);
             }
         }
 
-        public IRelationConfig<T, TRelation> CreateOneToOne<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        public IRelationConfig<T, TRelation> CreateOneToOne<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, Expression expression)
         {
             var accessor = PropertyAccessorFactory.Create<T, TRelation>(expression);
-            var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
-            {
-                Flags = flags
-            };
-            return new RelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+            return new RelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.OneToOne), table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
         }
 
-        public ICollectionRelationConfig<T, TRelation> CreateOneToMany<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        public ICollectionRelationConfig<T, TRelation> CreateOneToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, Expression expression)
         {
             var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
-            var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
-            {
-                Flags = flags
-            };
-            return new OneToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+            return new OneToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany), table, table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
         }
 
-        public ICollectionRelationConfig<T, TRelation> CreateManyToMany<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        public ICollectionRelationConfig<T, TRelation> CreateManyToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, Expression expression)
         {
             var accessor = PropertyAccessorFactory.Create<T, ICollection<TRelation>>(expression);
-            var attribute = accessor.Property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
-            {
-                Flags = flags
-            };
-            return new ManyToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
+            return new ManyToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.ManyToMany), table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor.Property, accessor.Get, accessor.Set);
         }
     }
 }

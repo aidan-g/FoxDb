@@ -3,8 +3,12 @@ using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
-    public interface IColumnConfig
+    public interface IColumnConfig : IEquatable<IColumnConfig>
     {
+        IConfig Config { get; }
+
+        ColumnFlags Flags { get; }
+
         ITableConfig Table { get; }
 
         string Identifier { get; }

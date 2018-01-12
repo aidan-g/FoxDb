@@ -15,7 +15,7 @@ namespace FoxDb
 
         public static IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression)
         {
-            var property = GetLambdaProperty(expression);
+            var property = GetLambdaProperty<T>(expression);
             if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 throw new NotImplementedException();
@@ -25,7 +25,7 @@ namespace FoxDb
             return new PropertyAccessor<T, TValue>(property, get, set);
         }
 
-        public static PropertyInfo GetLambdaProperty(Expression expression)
+        public static PropertyInfo GetLambdaProperty<T>(Expression expression)
         {
             if (expression.NodeType != ExpressionType.Lambda)
             {
@@ -41,7 +41,12 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            return member.Member as PropertyInfo;
+            var property = member.Member as PropertyInfo;
+            if (property.DeclaringType == typeof(T))
+            {
+                return property;
+            }
+            return typeof(T).GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) ?? typeof(T).GetProperty(property.Name);
         }
 
         private static Func<T, TValue> CreateGetter<T, TValue>(PropertyInfo property)

@@ -34,6 +34,40 @@ namespace FoxDb
 
         public abstract Type RelationType { get; }
 
+        public abstract IRelationConfig AutoColumns();
+
+        public override int GetHashCode()
+        {
+            var hashCode = 0;
+            unchecked
+            {
+                hashCode += this.Property.GetHashCode();
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IRelationConfig)
+            {
+                return this.Equals(obj as IRelationConfig);
+            }
+            return base.Equals(obj);
+        }
+
+        public bool Equals(IRelationConfig other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            if (this.Property != other.Property)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public abstract IRelationConfig Invert();
     }
 
@@ -43,14 +77,6 @@ namespace FoxDb
         {
             this.Getter = getter;
             this.Setter = setter;
-            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
-            {
-                this.LeftColumn = this.LeftTable.PrimaryKey;
-            }
-            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
-            {
-                (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
-            }
         }
 
         public override Type RelationType
@@ -59,6 +85,19 @@ namespace FoxDb
             {
                 return typeof(TRelation);
             }
+        }
+
+        public override IRelationConfig AutoColumns()
+        {
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                this.LeftColumn = this.LeftTable.PrimaryKey;
+            }
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+            }
+            return this;
         }
 
         public Func<T, TRelation> Getter { get; private set; }

@@ -105,23 +105,57 @@ namespace FoxDb
                 return column;
             }
         }
+
+        public abstract ITableConfig AutoColumns();
+
+        public abstract ITableConfig AutoRelations();
+
+        public override int GetHashCode()
+        {
+            var hashCode = 0;
+            unchecked
+            {
+                hashCode += this.TableName.GetHashCode();
+                hashCode += this.TableType.GetHashCode();
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ITableConfig)
+            {
+                return this.Equals(obj as ITableConfig);
+            }
+            return base.Equals(obj);
+        }
+
+        public bool Equals(ITableConfig other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            if (!string.Equals(this.TableName, other.TableName, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            if (this.TableType != other.TableType)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>
     {
         public TableConfig(IConfig config, TableFlags flags, string name) : base(config, flags, name, typeof(T))
         {
-            if (flags.HasFlag(TableFlags.AutoColumns))
-            {
-                this.AutoColumns();
-            }
-            if (flags.HasFlag(TableFlags.AutoRelations))
-            {
-                this.AutoRelations();
-            }
+
         }
 
-        protected virtual ITableConfig<T> AutoColumns()
+        public override ITableConfig AutoColumns()
         {
             var enumerator = new ColumnEnumerator();
             foreach (var column in enumerator.GetColumns(this))
@@ -139,7 +173,7 @@ namespace FoxDb
             return this;
         }
 
-        protected virtual ITableConfig<T> AutoRelations()
+        public override ITableConfig AutoRelations()
         {
             var enumerator = new RelationEnumerator();
             foreach (var relation in enumerator.GetRelations(this))
@@ -149,6 +183,10 @@ namespace FoxDb
                     continue;
                 }
                 this.Relations.Add(relation.RelationType, relation);
+                if (relation.Flags.HasFlag(RelationFlags.AutoColumns))
+                {
+                    relation.AutoColumns();
+                }
             }
             return this;
         }
@@ -161,7 +199,19 @@ namespace FoxDb
         public IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
         {
             var relation = Factories.Relation.Create<T, TRelation>(this, expression, flags);
-            return this.Relations[relation.RelationType] = relation;
+            if (!this.Relations.ContainsKey(relation.RelationType) || this.Relations[relation.RelationType] != relation)
+            {
+                this.Relations[relation.RelationType] = relation;
+                if (relation.Flags.HasFlag(RelationFlags.AutoColumns))
+                {
+                    relation.AutoColumns();
+                }
+                return relation;
+            }
+            else
+            {
+                return this.Relations[relation.RelationType];
+            }
         }
     }
 
@@ -171,17 +221,24 @@ namespace FoxDb
         {
             this.LeftTable = leftTable;
             this.RightTable = rightTable;
-            if (flags.HasFlag(TableFlags.AutoColumns))
+        }
+
+        public override ITableConfig AutoColumns()
+        {
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
-                {
-                    (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
-                }
-                if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
-                {
-                    (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
-                }
+                (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
             }
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+            }
+            return this;
+        }
+
+        public override ITableConfig AutoRelations()
+        {
+            return this;
         }
 
         public ITableConfig LeftTable { get; private set; }
