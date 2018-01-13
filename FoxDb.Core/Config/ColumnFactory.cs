@@ -13,9 +13,9 @@ namespace FoxDb
 
         public IColumnConfig Create(ITableConfig table, PropertyInfo property)
         {
-            if (property == null)
+            if (!ColumnValidator.ValidateColumn(property))
             {
-                throw new NotImplementedException();
+                throw new InvalidOperationException(string.Format("Property \"{0}\" of type \"{1}\" is unsuitable for column mapping.", property.Name, property.DeclaringType.FullName));
             }
             var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute()
             {

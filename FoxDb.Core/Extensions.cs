@@ -73,7 +73,7 @@ namespace FoxDb
 
         public static bool IsScalar(this Type type)
         {
-            return type.IsPrimitive || typeof(string).IsAssignableFrom(type);
+            return type.IsPrimitive || type.IsValueType || typeof(string).IsAssignableFrom(type);
         }
 
         public static bool IsGeneric(this Type type, out Type elementType)

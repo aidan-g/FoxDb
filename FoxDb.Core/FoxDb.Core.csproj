@@ -47,6 +47,7 @@
     <Compile Include="Config\Attributes\TableAttribute.cs" />
     <Compile Include="Config\ColumnConfig.cs" />
     <Compile Include="Config\ColumnFactory.cs" />
+    <Compile Include="Config\ColumnValidator.cs" />
     <Compile Include="Config\Config.cs" />
     <Compile Include="Config\ColumnEnumerator.cs" />
     <Compile Include="Config\Defaults.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="Config\OneToManyRelationConfig.cs" />
     <Compile Include="Config\RelationEnumerator.cs" />
     <Compile Include="Config\RelationFactory.cs" />
+    <Compile Include="Config\RelationValidator.cs" />
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
