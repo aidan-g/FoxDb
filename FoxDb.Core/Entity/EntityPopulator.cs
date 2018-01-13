@@ -37,8 +37,6 @@ namespace FoxDb
 
         protected abstract class EntityPopulatorStrategy : IEntityPopulatorStrategy
         {
-            public static readonly IValueUnpackerStrategy Strategy = new NullableValueUnpackerStrategy();
-
             public bool Populate(object item, IColumnConfig column, IDatabaseReaderRecord record)
             {
                 if (column.Setter == null)
@@ -50,7 +48,7 @@ namespace FoxDb
                 {
                     return false;
                 }
-                column.Setter(item, Strategy.Unpack(column.Property.PropertyType, value));
+                column.Setter(item, value);
                 return true;
             }
 

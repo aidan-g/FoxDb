@@ -114,7 +114,6 @@
     <Compile Include="Interfaces\Query\Builder\IInsertBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IWhereBuilder.cs" />
-    <Compile Include="Interfaces\Utility\IValueUnpackerStrategy.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorStrategy.cs" />
     <Compile Include="Query\Builder\BinaryExpressionBuilder.cs" />
@@ -183,7 +182,6 @@
     <Compile Include="Utility\Factories.cs" />
     <Compile Include="Utility\CollectionFactory.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
-    <Compile Include="Utility\NullableHandlerStrategy.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
