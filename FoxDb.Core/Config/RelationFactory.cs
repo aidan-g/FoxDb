@@ -17,6 +17,10 @@ namespace FoxDb
 
         public IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property, RelationFlags flags)
         {
+            if (!RelationValidator.ValidateRelation(property))
+            {
+                throw new InvalidOperationException(string.Format("Property \"{0}\" of type \"{1}\" is unsuitable for relation mapping.", property.Name, property.DeclaringType.FullName));
+            }
             return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), property.PropertyType }, table, PropertyAccessorFactory.Create(property), flags);
         }
 
@@ -24,6 +28,10 @@ namespace FoxDb
         {
             var elementType = default(Type);
             var property = PropertyAccessorFactory.GetLambdaProperty<T>(expression);
+            if (!RelationValidator.ValidateRelation(property))
+            {
+                throw new InvalidOperationException(string.Format("Property \"{0}\" of type \"{1}\" is unsuitable for relation mapping.", property.Name, property.DeclaringType.FullName));
+            }
             var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute(flags);
             if (property.PropertyType.IsCollection(out elementType))
             {

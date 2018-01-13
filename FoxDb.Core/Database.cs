@@ -131,14 +131,29 @@ namespace FoxDb
             return this.ExecuteScalar<T>(this.QueryFactory.Create(query), parameters, transaction);
         }
 
+        public T ExecuteComplex<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.ExecuteComplex<T>(this.Config.Table<T>(), query, parameters, transaction);
+        }
+
         public T ExecuteComplex<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             return this.ExecuteEnumerator<T>(table, query, parameters, transaction).FirstOrDefault();
         }
 
+        public T ExecuteComplex<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.ExecuteComplex<T>(this.Config.Table<T>(), query, parameters, transaction);
+        }
+
         public T ExecuteComplex<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
         {
             return this.ExecuteComplex<T>(table, this.QueryFactory.Create(query), parameters, transaction);
+        }
+
+        public IEnumerable<T> ExecuteEnumerator<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.ExecuteEnumerator<T>(this.Config.Table<T>(), query, parameters, transaction);
         }
 
         public IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
@@ -151,6 +166,11 @@ namespace FoxDb
                     yield return item;
                 }
             }
+        }
+
+        public IEnumerable<T> ExecuteEnumerator<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
+        {
+            return this.ExecuteEnumerator<T>(this.Config.Table<T>(), query, parameters, transaction);
         }
 
         public IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, IDbTransaction transaction = null)
