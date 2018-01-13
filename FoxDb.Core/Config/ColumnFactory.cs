@@ -21,9 +21,8 @@ namespace FoxDb
             {
                 Name = Conventions.ColumnName(property)
             };
-            var getter = new Func<object, object>(item => property.GetValue(item));
-            var setter = new Action<object, object>((item, value) => property.SetValue(item, Convert.ChangeType(value, property.PropertyType)));
-            return new ColumnConfig(table.Config, attribute.Flags, table, attribute.Name, property, getter, setter);
+            var accessor = PropertyAccessorFactory.Create<object, object>(property);
+            return new ColumnConfig(table.Config, attribute.Flags, table, attribute.Name, property, accessor.Get, accessor.Set);
         }
     }
 }
