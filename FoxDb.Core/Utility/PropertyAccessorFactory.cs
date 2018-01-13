@@ -7,6 +7,8 @@ namespace FoxDb
 {
     public static class PropertyAccessorFactory
     {
+        public static readonly IPropertyAccessorStrategy Strategy = new LambdaPropertyAccessorStrategy();
+
         public static Expression Create(PropertyInfo property)
         {
             var parameter = Expression.Parameter(property.DeclaringType);
@@ -16,12 +18,17 @@ namespace FoxDb
         public static IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression)
         {
             var property = GetLambdaProperty<T>(expression);
+            return Create<T, TValue>(property);
+        }
+
+        public static IPropertyAccessor<T, TValue> Create<T, TValue>(PropertyInfo property)
+        {
             if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 throw new NotImplementedException();
             }
-            var get = CreateGetter<T, TValue>(property);
-            var set = CreateSetter<T, TValue>(property);
+            var get = Strategy.CreateGetter<T, TValue>(property);
+            var set = Strategy.CreateSetter<T, TValue>(property);
             return new PropertyAccessor<T, TValue>(property, get, set);
         }
 
@@ -47,39 +54,6 @@ namespace FoxDb
                 return property;
             }
             return typeof(T).GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) ?? typeof(T).GetProperty(property.Name);
-        }
-
-        private static Func<T, TValue> CreateGetter<T, TValue>(PropertyInfo property)
-        {
-            if (typeof(TValue).IsAssignableFrom(property.PropertyType))
-            {
-                return property.GetGetMethod().CreateDelegate<Func<T, TValue>>();
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private static Action<T, TValue> CreateSetter<T, TValue>(PropertyInfo property)
-        {
-            if (property.PropertyType.IsAssignableFrom(typeof(TValue)))
-            {
-                return property.GetSetMethod().CreateDelegate<Action<T, TValue>>();
-            }
-            else
-            {
-                var parameter1 = Expression.Parameter(typeof(T));
-                var parameter2 = Expression.Parameter(typeof(TValue));
-                return Expression.Lambda<Action<T, TValue>>(
-                    Expression.Assign(
-                        Expression.Property(parameter1, property),
-                        Expression.Convert(parameter2, property.PropertyType)
-                    ),
-                    parameter1,
-                    parameter2
-                ).Compile();
-            }
         }
 
         private class PropertyAccessor<T, TValue> : IPropertyAccessor<T, TValue>

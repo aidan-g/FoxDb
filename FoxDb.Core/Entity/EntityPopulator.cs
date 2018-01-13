@@ -1,10 +1,11 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
     public class EntityPopulator<T> : IEntityPopulator<T>
     {
-        protected readonly IEntityPopulatorStrategy[] Strategies = new IEntityPopulatorStrategy[]
+        public static readonly IEntityPopulatorStrategy[] Strategies = new IEntityPopulatorStrategy[]
         {
             new IdentifierEntityPopulatorStrategy(),
             new ColumnNameEntityPopulatorStrategy()
@@ -24,7 +25,7 @@ namespace FoxDb
         {
             foreach (var column in this.Table.Columns)
             {
-                foreach (var strategy in this.Strategies)
+                foreach (var strategy in Strategies)
                 {
                     if (strategy.Populate(item, column, record))
                     {
@@ -36,6 +37,8 @@ namespace FoxDb
 
         protected abstract class EntityPopulatorStrategy : IEntityPopulatorStrategy
         {
+            public static readonly IValueUnpackerStrategy Strategy = new NullableValueUnpackerStrategy();
+
             public bool Populate(object item, IColumnConfig column, IDatabaseReaderRecord record)
             {
                 if (column.Setter == null)
@@ -47,7 +50,7 @@ namespace FoxDb
                 {
                     return false;
                 }
-                column.Setter(item, value);
+                column.Setter(item, Strategy.Unpack(column.Property.PropertyType, value));
                 return true;
             }
 
