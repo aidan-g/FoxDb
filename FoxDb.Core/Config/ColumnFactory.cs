@@ -6,6 +6,13 @@ namespace FoxDb
 {
     public class ColumnFactory : IColumnFactory
     {
+        public ColumnFactory()
+        {
+            this.AccessorFactory = new PropertyAccessorFactory(true);
+        }
+
+        public IPropertyAccessorFactory AccessorFactory { get; private set; }
+
         public IColumnConfig Create(ITableConfig table, string name)
         {
             return new ColumnConfig(table.Config, Defaults.Column.Flags, table, name, null, null, null);
@@ -21,7 +28,7 @@ namespace FoxDb
             {
                 Name = Conventions.ColumnName(property)
             };
-            var accessor = PropertyAccessorFactory.Create<object, object>(property);
+            var accessor = this.AccessorFactory.Create<object, object>(property);
             return new ColumnConfig(table.Config, attribute.Flags, table, attribute.Name, property, accessor.Get, accessor.Set);
         }
     }
