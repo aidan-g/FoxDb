@@ -47,6 +47,7 @@
     <Compile Include="Config\Attributes\TableAttribute.cs" />
     <Compile Include="Config\ColumnConfig.cs" />
     <Compile Include="Config\ColumnFactory.cs" />
+    <Compile Include="Config\ColumnSelector.cs" />
     <Compile Include="Config\ColumnValidator.cs" />
     <Compile Include="Config\Config.cs" />
     <Compile Include="Config\ColumnEnumerator.cs" />
@@ -56,8 +57,10 @@
     <Compile Include="Config\OneToManyRelationConfig.cs" />
     <Compile Include="Config\RelationEnumerator.cs" />
     <Compile Include="Config\RelationFactory.cs" />
+    <Compile Include="Config\RelationSelector.cs" />
     <Compile Include="Config\RelationValidator.cs" />
     <Compile Include="Config\TableFactory.cs" />
+    <Compile Include="Config\TableValidator.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />
@@ -74,8 +77,10 @@
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
     <Compile Include="Interfaces\Config\IColumnEnumerator.cs" />
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
+    <Compile Include="Interfaces\Config\IColumnSelector.cs" />
     <Compile Include="Interfaces\Config\IRelationEnumerator.cs" />
     <Compile Include="Interfaces\Config\IRelationFactory.cs" />
+    <Compile Include="Interfaces\Config\IRelationSelector.cs" />
     <Compile Include="Interfaces\Config\ITableFactory.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumeratorBuffer.cs" />

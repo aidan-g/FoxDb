@@ -5,17 +5,17 @@ namespace FoxDb
 {
     public class RelationEnumerator : IRelationEnumerator
     {
-        public IEnumerable<IRelationConfig> GetRelations<T>(ITableConfig<T> table)
+        public IEnumerable<IRelationConfig> GetRelations(ITableConfig table)
         {
-            var properties = new EntityPropertyEnumerator<T>();
+            var properties = new EntityPropertyEnumerator(table.TableType);
             foreach (var property in properties)
             {
-                if (!RelationValidator.ValidateRelation(property))
+                if (!RelationValidator.Validate(property))
                 {
                     continue;
                 }
-                var relation = Factories.Relation.Create(table, property, Defaults.Relation.Flags);
-                if (!RelationValidator.ValidateRelation(relation))
+                var relation = Factories.Relation.Create(table, RelationConfig.By(property, Defaults.Relation.Flags));
+                if (!RelationValidator.Validate(true, relation))
                 {
                     continue;
                 }

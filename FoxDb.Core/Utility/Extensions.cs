@@ -13,6 +13,11 @@ namespace FoxDb
 
         public static PropertyInfo GetLambdaProperty<T>(this Expression expression)
         {
+            return expression.GetLambdaProperty(typeof(T));
+        }
+
+        public static PropertyInfo GetLambdaProperty(this Expression expression, Type type)
+        {
             if (expression.NodeType != ExpressionType.Lambda)
             {
                 throw new NotImplementedException();
@@ -28,12 +33,11 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
             var property = member.Member as PropertyInfo;
-            if (property.DeclaringType == typeof(T))
+            if (property.DeclaringType == type)
             {
                 return property;
             }
-            return typeof(T).GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) ?? typeof(T).GetProperty(property.Name);
+            return type.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) ?? type.GetProperty(property.Name);
         }
-
     }
 }

@@ -70,12 +70,29 @@ namespace FoxDb
         }
 
         [Test]
+        public void InvalidRelation()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var table = database.Config.Table<Rabbit>();
+                Assert.IsFalse(table.Relations.Any(relation => relation.RelationType == typeof(Rabbit)));
+            }
+        }
+
+        [Test]
         public void SetRelationFlags()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            var table = database.Config.Table<Toast>();
-            Assert.AreEqual(RelationFlags.ManyToMany, table.Relation(item => item.Test004).Flags.GetMultiplicity());
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var table = database.Config.Table<Toast>();
+                Assert.AreEqual(RelationFlags.ManyToMany, table.Relation(item => item.Test004).Flags.GetMultiplicity());
+            }
         }
 
         [Test]
@@ -158,6 +175,18 @@ namespace FoxDb
                     throw new NotImplementedException();
                 }
                 protected set
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public ICollection<Rabbit> Rabbits
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+                set
                 {
                     throw new NotImplementedException();
                 }

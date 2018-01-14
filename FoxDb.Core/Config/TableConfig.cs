@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace FoxDb
 {
@@ -79,31 +77,32 @@ namespace FoxDb
             }
         }
 
-        public IColumnConfig Column(string name)
+        public IColumnConfig GetColumn(IColumnSelector selector)
         {
-            var column = default(IColumnConfig);
-            if (!this.Columns.TryGetValue(name, out column))
+            var column = Factories.Column.Create(this, selector);
+            return this.Columns[column.ColumnName];
+        }
+
+        public IColumnConfig CreateColumn(IColumnSelector selector)
+        {
+            var column = Factories.Column.Create(this, selector);
+            if (!ColumnValidator.Validate(column))
             {
-                column = Factories.Column.Create(this, name);
-                this.Columns[column.ColumnName] = column;
+                throw new InvalidOperationException("Column configuration is not valid.");
             }
+            this.Columns[column.ColumnName] = column;
             return column;
         }
 
-        public IColumnConfig Column(PropertyInfo property)
+        public bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column)
         {
-            foreach (var column in this.Columns.Values)
+            column = Factories.Column.Create(this, selector);
+            if (!ColumnValidator.Validate(column))
             {
-                if (column.Property == property)
-                {
-                    return column;
-                }
+                return false;
             }
-            {
-                var column = Factories.Column.Create(this, property);
-                this.Columns[column.ColumnName] = column;
-                return column;
-            }
+            this.Columns[column.ColumnName] = column;
+            return true;
         }
 
         public abstract ITableConfig AutoColumns();
@@ -155,6 +154,34 @@ namespace FoxDb
 
         }
 
+        public IRelationConfig GetRelation<TRelation>(IRelationSelector<T, TRelation> selector)
+        {
+            var relation = Factories.Relation.Create(this, selector);
+            return this.Relations[relation.RelationType];
+        }
+
+        public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T, TRelation> selector)
+        {
+            var relation = Factories.Relation.Create(this, selector);
+            if (!RelationValidator.Validate(false, relation))
+            {
+                throw new InvalidOperationException("Relation configuration is not valid.");
+            }
+            this.Relations[relation.RelationType] = relation;
+            return relation;
+        }
+
+        public bool TryCreateRelation<TRelation>(IRelationSelector<T, TRelation> selector, out IRelationConfig relation)
+        {
+            relation = Factories.Relation.Create(this, selector);
+            if (!RelationValidator.Validate(false, relation))
+            {
+                return false;
+            }
+            this.Relations[relation.RelationType] = relation;
+            return true;
+        }
+
         public override ITableConfig AutoColumns()
         {
             var enumerator = new ColumnEnumerator();
@@ -183,35 +210,8 @@ namespace FoxDb
                     continue;
                 }
                 this.Relations.Add(relation.RelationType, relation);
-                if (relation.Flags.HasFlag(RelationFlags.AutoColumns))
-                {
-                    relation.AutoColumns();
-                }
             }
             return this;
-        }
-
-        public IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression)
-        {
-            return this.Relation(expression, Defaults.Relation.Flags);
-        }
-
-        public IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
-        {
-            var relation = Factories.Relation.Create<T, TRelation>(this, expression, flags);
-            if (!this.Relations.ContainsKey(relation.RelationType) || this.Relations[relation.RelationType] != relation)
-            {
-                this.Relations[relation.RelationType] = relation;
-                if (relation.Flags.HasFlag(RelationFlags.AutoColumns))
-                {
-                    relation.AutoColumns();
-                }
-                return relation;
-            }
-            else
-            {
-                return this.Relations[relation.RelationType];
-            }
         }
     }
 
@@ -227,11 +227,21 @@ namespace FoxDb
         {
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.LeftForeignKey = this.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                {
+                    this.LeftForeignKey = column;
+                    this.LeftForeignKey.IsForeignKey = true;
+                }
             }
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.RightForeignKey = this.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), Defaults.Column.Flags), out column))
+                {
+                    this.RightForeignKey = column;
+                    this.RightForeignKey.IsForeignKey = true;
+                }
             }
             return this;
         }

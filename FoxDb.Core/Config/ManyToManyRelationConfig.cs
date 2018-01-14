@@ -16,11 +16,21 @@ namespace FoxDb
         {
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.LeftColumn = this.MappingTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                {
+                    this.LeftColumn = column;
+                    this.LeftColumn.IsForeignKey = true;
+                }
             }
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.RightColumn = this.MappingTable.Column(Conventions.RelationColumn(this.RightTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), Defaults.Column.Flags), out column))
+                {
+                    this.RightColumn = column;
+                    this.RightColumn.IsForeignKey = true;
+                }
             }
             return this;
         }

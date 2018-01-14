@@ -13,18 +13,31 @@ namespace FoxDb
 
         public IPropertyAccessorFactory AccessorFactory { get; private set; }
 
-        public IColumnConfig Create(ITableConfig table, string name)
+        public IColumnConfig Create(ITableConfig table, IColumnSelector selector)
         {
-            return new ColumnConfig(table.Config, Defaults.Column.Flags, table, name, null, null, null);
+            switch (selector.Type)
+            {
+                case ColumnSelectorType.ColumnName:
+                    return this.Create(table, selector.ColumnName, selector.Flags);
+                case ColumnSelectorType.Property:
+                    return this.Create(table, selector.Property, selector.Flags);
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
-        public IColumnConfig Create(ITableConfig table, PropertyInfo property)
+        public IColumnConfig Create(ITableConfig table, string columnName, ColumnFlags flags)
         {
-            if (!ColumnValidator.ValidateColumn(property))
+            var attribute = new ColumnAttribute(flags)
             {
-                throw new InvalidOperationException(string.Format("Property \"{0}\" of type \"{1}\" is unsuitable for column mapping.", property.Name, property.DeclaringType.FullName));
-            }
-            var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute()
+                Name = columnName
+            };
+            return new ColumnConfig(table.Config, attribute.Flags, table, attribute.Name, null, null, null);
+        }
+
+        public IColumnConfig Create(ITableConfig table, PropertyInfo property, ColumnFlags flags)
+        {
+            var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute(flags)
             {
                 Name = Conventions.ColumnName(property)
             };

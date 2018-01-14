@@ -23,9 +23,11 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> ForeignKeys { get; }
 
-        IColumnConfig Column(string name);
+        IColumnConfig GetColumn(IColumnSelector selector);
 
-        IColumnConfig Column(PropertyInfo property);
+        IColumnConfig CreateColumn(IColumnSelector selector);
+
+        bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column);
 
         IEnumerable<IColumnConfig> Columns { get; }
 
@@ -38,9 +40,11 @@ namespace FoxDb.Interfaces
 
     public interface ITableConfig<T> : ITableConfig
     {
-        IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression);
+        IRelationConfig GetRelation<TRelation>(IRelationSelector<T, TRelation> selector);
 
-        IRelationConfig Relation<TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags);
+        IRelationConfig CreateRelation<TRelation>(IRelationSelector<T, TRelation> selector);
+
+        bool TryCreateRelation<TRelation>(IRelationSelector<T, TRelation> selector, out IRelationConfig relation);
     }
 
     public interface IMappingTableConfig : ITableConfig

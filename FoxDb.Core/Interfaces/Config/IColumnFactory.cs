@@ -1,11 +1,7 @@
-﻿using System.Reflection;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IColumnFactory
     {
-        IColumnConfig Create(ITableConfig table, string name);
-
-        IColumnConfig Create(ITableConfig table, PropertyInfo property);
+        IColumnConfig Create(ITableConfig table, IColumnSelector selector);
     }
 }
