@@ -31,20 +31,20 @@ namespace FoxDb
 
         public Action<T, TValue> CreateSetter<T, TValue>(PropertyInfo property)
         {
-            var nullable = Nullable.GetUnderlyingType(property.PropertyType);
+            var interimType = default(Type);
             var parameter1 = Expression.Parameter(typeof(T));
             var parameter2 = Expression.Parameter(typeof(TValue));
             var convert = default(Expression);
-            if (nullable == null)
+            if (this.TryGetInterimType(property.PropertyType, out interimType))
+            {
+                convert = this.ChangeType(parameter2, interimType, property.PropertyType);
+            }
+            else
             {
                 convert = Expression.Convert(
                     this.ChangeType(parameter2, property.PropertyType),
                     property.PropertyType
                 );
-            }
-            else
-            {
-                convert = this.ChangeType(parameter2, nullable, property.PropertyType);
             }
             var lambda = Expression.Lambda<Action<T, TValue>>(
                 Expression.Assign(
@@ -60,26 +60,42 @@ namespace FoxDb
             return lambda.Compile();
         }
 
-        protected virtual Expression ChangeType(Expression parameter, Type propertyType)
+        protected virtual bool TryGetInterimType(Type type, out Type interimType)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                interimType = Nullable.GetUnderlyingType(type);
+                return true;
+            }
+            if (type.IsEnum)
+            {
+                interimType = Enum.GetUnderlyingType(type);
+                return true;
+            }
+            interimType = default(Type);
+            return false;
+        }
+
+        protected virtual Expression ChangeType(Expression parameter, Type targetType)
         {
             if (!this.ConversionEnabled)
             {
                 return parameter;
             }
-            //Convert(Convert.ChangeType(object value, Type propertyType), propertyType))
+            //Convert(Convert.ChangeType(object value, Type propertyType), targetType))
             return Expression.Call(
                 null,
                 typeof(Convert).GetMethod("ChangeType", new[] { typeof(object), typeof(Type) }),
                 Expression.Convert(parameter, typeof(object)),
-                Expression.Constant(propertyType)
+                Expression.Constant(targetType)
             );
         }
 
-        protected virtual Expression ChangeType(Expression parameter, Type nullableType, Type propertyType)
+        protected virtual Expression ChangeType(Expression parameter, Type interimType, Type targetType)
         {
             //IIF(((Param_0 == null) Or (Param_0 == DBNull.Value)), 
-            //  Convert(null, propertyType), 
-            //  Convert(ChangeType(Convert(Param_0, nullableType), TValue), propertyType))
+            //  Convert(null, targetType), 
+            //  Convert(ChangeType(Convert(Param_0, interimType), TValue), targetType))
             return Expression.Condition(
                 Expression.Or(
                     Expression.Equal(parameter, Expression.Constant(null)),
@@ -87,11 +103,11 @@ namespace FoxDb
                 ),
                 Expression.Convert(
                     Expression.Constant(null),
-                    propertyType
+                    targetType
                 ),
                 Expression.Convert(
-                     this.ChangeType(parameter, nullableType),
-                    propertyType
+                     this.ChangeType(parameter, interimType),
+                    targetType
                 )
             );
         }
