@@ -25,8 +25,6 @@ namespace FoxDb.Interfaces
         Type RelationType { get; }
 
         IRelationConfig Invert();
-
-        IRelationConfig AutoColumns();
     }
 
     public interface IRelationConfig<in T, TRelation> : IRelationConfig

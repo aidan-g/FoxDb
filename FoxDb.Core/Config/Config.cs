@@ -35,6 +35,10 @@ namespace FoxDb
             if (!this.Tables.ContainsKey(key))
             {
                 var table = this.CreateTable<T>();
+                if (!TableValidator.Validate(table))
+                {
+                    throw new InvalidOperationException("Table configuration is not valid.");
+                }
                 this.Tables[key] = table;
                 if (table.Flags.HasFlag(TableFlags.AutoColumns))
                 {

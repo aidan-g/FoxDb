@@ -18,29 +18,31 @@ namespace FoxDb
 
         public IPropertyAccessorFactory AccessorFactory { get; private set; }
 
-        public IRelationConfig Create<T>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        public IRelationConfig Create(ITableConfig table, IRelationSelector selector)
         {
-            var property = expression.GetLambdaProperty<T>();
-            return this.Create<T>(table, property, flags);
+            switch (selector.Type)
+            {
+                case RelationSelectorType.Property:
+                    return this.Create(table, selector.Property, selector.Flags);
+                case RelationSelectorType.Expression:
+                    return this.Create(table, selector.Expression, selector.Flags);
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
-        public IRelationConfig Create<T>(ITableConfig<T> table, PropertyInfo property, RelationFlags flags)
+        public IRelationConfig Create(ITableConfig table, PropertyInfo property, RelationFlags flags)
         {
-            return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { typeof(T), property.PropertyType }, table, this.AccessorFactory.Create(property), flags);
+            return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { table.TableType, property.PropertyType }, table, property, flags);
         }
 
-        public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, Expression expression, RelationFlags flags)
+        public IRelationConfig Create(ITableConfig table, Expression expression, RelationFlags flags)
         {
-            var property = expression.GetLambdaProperty<T>();
-            return this.Create<T, TRelation>(table, property, flags);
+            return this.Create(table, expression.GetLambdaProperty(table.TableType), flags);
         }
 
         public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, PropertyInfo property, RelationFlags flags)
         {
-            if (!RelationValidator.ValidateRelation(property))
-            {
-                throw new InvalidOperationException(string.Format("Property \"{0}\" of type \"{1}\" is unsuitable for relation mapping.", property.Name, property.DeclaringType.FullName));
-            }
             var elementType = default(Type);
             var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute(flags);
             if (property.PropertyType.IsCollection(out elementType))

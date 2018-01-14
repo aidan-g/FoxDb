@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public static class RelationValidator
     {
-        public static bool ValidateRelation(PropertyInfo property)
+        public static bool Validate(PropertyInfo property)
         {
             if (property == null)
             {
@@ -43,22 +43,52 @@ namespace FoxDb
             return true;
         }
 
-        public static bool ValidateRelation(IRelationConfig relation)
+        public static bool Validate(bool strict, params IRelationConfig[] relations)
         {
-            if (!relation.Config.Database.Schema.TableExists(relation.LeftTable.TableName))
+            foreach (var relation in relations)
             {
-                return false;
-            }
-            if (relation.MappingTable != null)
-            {
-                if (!relation.Config.Database.Schema.TableExists(relation.MappingTable.TableName))
+                if (relation == null)
+                {
+                    if (strict)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                var valid =
+                    Validate(strict, relation.LeftColumn) &&
+                    (relation.MappingTable == null || Validate(strict, relation.MappingTable.LeftForeignKey, relation.MappingTable.RightForeignKey)) &&
+                    Validate(strict, relation.RightColumn);
+                if (!valid)
                 {
                     return false;
                 }
             }
-            if (!relation.Config.Database.Schema.TableExists(relation.RightTable.TableName))
+            return true;
+        }
+
+        private static bool Validate(bool strict, params IColumnConfig[] columns)
+        {
+            foreach (var column in columns)
             {
-                return false;
+                if (column == null)
+                {
+                    if (strict)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                if (!ColumnValidator.Validate(column))
+                {
+                    return false;
+                }
             }
             return true;
         }

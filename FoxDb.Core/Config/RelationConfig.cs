@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FoxDb
@@ -14,6 +15,10 @@ namespace FoxDb
             this.MappingTable = mappingTable;
             this.RightTable = rightTable;
             this.Property = property;
+            if (flags.HasFlag(RelationFlags.AutoColumns))
+            {
+                this.AutoColumns();
+            }
         }
 
         public IConfig Config { get; private set; }
@@ -69,6 +74,21 @@ namespace FoxDb
         }
 
         public abstract IRelationConfig Invert();
+
+        public static IRelationSelector By(PropertyInfo property, RelationFlags flags)
+        {
+            return RelationSelector.By(property, flags);
+        }
+
+        public static IRelationSelector By(Expression expression, RelationFlags flags)
+        {
+            return RelationSelector.By(expression, flags);
+        }
+
+        public static IRelationSelector<T, TRelation> By<T, TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        {
+            return RelationSelector<T, TRelation>.By(expression, flags);
+        }
     }
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
@@ -95,7 +115,12 @@ namespace FoxDb
             }
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.RightTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                {
+                    this.RightColumn = column;
+                    this.RightColumn.IsForeignKey = true;
+                }
             }
             return this;
         }

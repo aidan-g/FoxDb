@@ -20,7 +20,12 @@ namespace FoxDb
             }
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                (this.RightColumn = this.RightTable.Column(Conventions.RelationColumn(this.LeftTable))).IsForeignKey = true;
+                var column = default(IColumnConfig);
+                if (this.RightTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                {
+                    this.RightColumn = column;
+                    this.RightColumn.IsForeignKey = true;
+                }
             }
             return this;
         }

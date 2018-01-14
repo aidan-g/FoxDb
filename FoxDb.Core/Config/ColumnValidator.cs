@@ -5,7 +5,7 @@ namespace FoxDb
 {
     public static class ColumnValidator
     {
-        public static bool ValidateColumn(PropertyInfo property)
+        public static bool Validate(PropertyInfo property)
         {
             if (property == null)
             {
@@ -26,7 +26,7 @@ namespace FoxDb
             return true;
         }
 
-        public static bool ValidateColumn(IColumnConfig column)
+        public static bool Validate(IColumnConfig column)
         {
             if (!column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
             {

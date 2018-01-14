@@ -87,5 +87,15 @@ namespace FoxDb
             }
             return true;
         }
+
+        public static IColumnSelector By(string columnName, ColumnFlags flags)
+        {
+            return ColumnSelector.By(columnName, flags);
+        }
+
+        public static IColumnSelector By(PropertyInfo property, ColumnFlags flags)
+        {
+            return ColumnSelector.By(property, flags);
+        }
     }
 }

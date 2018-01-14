@@ -4,6 +4,6 @@ namespace FoxDb.Interfaces
 {
     public interface  IColumnEnumerator
     {
-        IEnumerable<IColumnConfig> GetColumns<T>(ITableConfig<T> table);
+        IEnumerable<IColumnConfig> GetColumns(ITableConfig table);
     }
 }
