@@ -72,9 +72,13 @@ namespace FoxDb
             var graphs = new List<IQueryGraphBuilder>();
             {
                 var builder = this.Build();
+                var columns = table.Columns.Except(table.PrimaryKeys);
                 builder.Insert.SetTable(table);
-                builder.Insert.AddColumns(table.Columns.Except(table.PrimaryKeys));
-                builder.Select.AddParameters(table.Columns.Except(table.PrimaryKeys));
+                if (columns.Any())
+                {
+                    builder.Insert.AddColumns(columns);
+                    builder.Select.AddParameters(columns);
+                }
                 graphs.Add(builder);
             }
             {
