@@ -62,6 +62,33 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void EnumColumns()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Apple>(transaction);
+                var data = new List<Apple>();
+                set.Clear();
+                this.AssertSequence(data, set);
+                data.AddRange(new[]
+                {
+                    new Apple() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = AppleType.Type1 },
+                    new Apple() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = AppleType.Type2 },
+                    new Apple() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = AppleType.Type3 }
+                });
+                set.AddOrUpdate(data);
+                this.AssertSequence(data, set);
+                data[1].Field4 = AppleType.None;
+                set.AddOrUpdate(data);
+                this.AssertSequence(data, set);
+                transaction.Rollback();
+            }
+        }
+
         [Table(Name = "Test001")]
         public class Orange : Test001
         {
@@ -74,6 +101,20 @@ namespace FoxDb
         public class Pear : Test001
         {
             public virtual int Field4 { get; set; }
+        }
+
+        [Table(Name = "Test001")]
+        public class Apple : Test001
+        {
+            public virtual AppleType Field4 { get; set; }
+        }
+
+        public enum AppleType : byte
+        {
+            None,
+            Type1,
+            Type2,
+            Type3
         }
     }
 }
