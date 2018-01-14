@@ -3,7 +3,7 @@
     [Field1] text NOT NULL,
     [Field2] text NOT NULL,
     [Field3] text NOT NULL,
-	[Fiedl4] INTEGER NULL,
+	[Field4] INTEGER NULL,
 	[Field5] numeric(53,0) NULL 
 );
 
