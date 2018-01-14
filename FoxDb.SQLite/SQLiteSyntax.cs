@@ -8,6 +8,8 @@ namespace FoxDb
 
         public const string INSERT = "INSERT INTO";
 
+        public const string VALUES = "VALUES";
+
         public const string UPDATE = "UPDATE";
 
         public const string SET = "SET";
@@ -63,6 +65,8 @@ namespace FoxDb
         public const string STATEMENT = ";";
 
         public const string IDENTITY = "LAST_INSERT_ROWID";
+
+        public const string DEFAULT = "DEFAULT";
 
         public const string IDENTIFIER_FORMAT = "\"{0}\"";
 

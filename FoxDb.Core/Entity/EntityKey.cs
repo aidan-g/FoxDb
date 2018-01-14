@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -44,7 +45,10 @@ namespace FoxDb
 
         public static bool KeyEquals(ITableConfig table, object item, object key)
         {
-            return GetKey(table, item).Equals(key);
+            //I don't really like using dynamic but it seems to work here.
+            //The problem is that either key could be a) boxed b) of differing types.
+            //The alternative is to determine the "widest" type and use Convert.ChangeType and Equals to determine equality.
+            return (dynamic)GetKey(table, item) == (dynamic)key;
         }
     }
 }

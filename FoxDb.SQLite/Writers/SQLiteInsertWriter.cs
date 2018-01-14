@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace FoxDb
@@ -19,9 +20,16 @@ namespace FoxDb
                 var expression = fragment as IInsertBuilder;
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.INSERT);
                 this.Visit(expression.Table);
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
-                this.Visit(expression.Expressions);
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                if (!expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.DEFAULT, SQLiteSyntax.VALUES);
+                }
+                else
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                    this.Visit(expression.Expressions);
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                }
                 return;
             }
             throw new NotImplementedException();
