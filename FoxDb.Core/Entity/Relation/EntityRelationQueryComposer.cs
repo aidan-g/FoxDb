@@ -21,7 +21,7 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public IQueryGraphBuilder Select
+        public IQueryGraphBuilder Query
         {
             get
             {
@@ -41,16 +41,6 @@ namespace FoxDb
                     builder.OrderBy.AddColumn(relation.RightTable.PrimaryKey);
                 }
                 return builder;
-            }
-        }
-
-        public IQueryGraphBuilder Find
-        {
-            get
-            {
-                var query = this.Select;
-                query.Where.AddColumns(this.Mapper.Table.PrimaryKeys);
-                return query;
             }
         }
     }

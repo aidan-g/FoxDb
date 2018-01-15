@@ -24,6 +24,34 @@ namespace FoxDb
             throw new NotImplementedException();
         }
 
+        protected override void Visit(IEnumerable<IExpressionBuilder> expressions)
+        {
+            var first = true;
+            foreach (var expression in expressions)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    if (expression is ITableBuilder || expression is ISubQueryBuilder)
+                    {
+                        this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    }
+                    else if (expression is IRelationBuilder)
+                    {
+                        //Nothing to do.
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                this.Visit(expression);
+            }
+        }
+
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);

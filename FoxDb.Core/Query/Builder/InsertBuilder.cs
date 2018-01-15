@@ -20,18 +20,18 @@ namespace FoxDb
 
         public ITableBuilder Table { get; set; }
 
-        public IInsertBuilder SetTable(ITableConfig table)
+        public ITableBuilder SetTable(ITableConfig table)
         {
-            this.Table = this.GetTable(table);
-            return this;
+            return this.Table = this.GetTable(table);
         }
 
         public ICollection<IExpressionBuilder> Expressions { get; }
 
-        public IInsertBuilder AddColumn(IColumnConfig column)
+        public IColumnBuilder AddColumn(IColumnConfig column)
         {
-            this.Expressions.Add(this.GetColumn(column));
-            return this;
+            var builder = this.GetColumn(column);
+            this.Expressions.Add(builder);
+            return builder;
         }
 
         public IInsertBuilder AddColumns(IEnumerable<IColumnConfig> columns)

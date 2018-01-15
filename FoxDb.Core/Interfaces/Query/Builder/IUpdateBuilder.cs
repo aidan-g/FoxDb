@@ -6,12 +6,12 @@ namespace FoxDb.Interfaces
     {
         ITableBuilder Table { get; set; }
 
-        void SetTable(ITableConfig table);
+        ITableBuilder SetTable(ITableConfig table);
 
         ICollection<IBinaryExpressionBuilder> Expressions { get; }
 
         IBinaryExpressionBuilder AddColumn(IColumnConfig column);
 
-        void AddColumns(IEnumerable<IColumnConfig> columns);
+        IUpdateBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }
 }

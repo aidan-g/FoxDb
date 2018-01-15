@@ -11,15 +11,13 @@ namespace FoxDb.Interfaces
 
         bool CanRead { get; }
 
-        bool CanSearch { get; }
-
         bool CanWrite { get; }
 
         IEntityMapper Mapper { get; }
 
-        IQueryGraphBuilder Select { get; set; }
+        IEntityRelationQueryComposer Composer { get; }
 
-        IQueryGraphBuilder Find { get; set; }
+        IQueryGraphBuilder Select { get; set; }
 
         IEnumerable<IQueryGraphBuilder> Insert { get; set; }
 

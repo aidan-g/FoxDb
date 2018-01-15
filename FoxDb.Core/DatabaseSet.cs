@@ -107,12 +107,22 @@ namespace FoxDb
 
         public T Find(object id)
         {
-            if (!this.Source.CanSearch)
+            var query = default(IQueryGraphBuilder);
+            if (this.Source.Composer != null)
             {
-                throw new InvalidOperationException(string.Format("Query source cannot be searched."));
+                query = this.Source.Composer.Query;
             }
+            else if (this.Source.Select != null)
+            {
+                query = this.Source.Select.Clone();
+            }
+            else
+            {
+                query = this.Database.QueryFactory.Select(this.Table);
+            }
+            query.Where.AddColumns(this.Table.PrimaryKeys);
             var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
-            var sequence = this.GetEnumerator(this.Source.Find, parameters);
+            var sequence = this.GetEnumerator(query, parameters);
             if (sequence.MoveNext())
             {
                 return sequence.Current;

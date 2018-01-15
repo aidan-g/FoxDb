@@ -6,7 +6,7 @@ namespace FoxDb.Interfaces
     {
         ICollection<IExpressionBuilder> Expressions { get; }
 
-        IOrderByBuilder AddColumn(IColumnConfig column);
+        IColumnBuilder AddColumn(IColumnConfig column);
 
         IOrderByBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }
