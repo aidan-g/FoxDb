@@ -145,6 +145,28 @@ namespace FoxDb
             }
             return true;
         }
+
+        public static bool operator ==(TableConfig a, TableConfig b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(TableConfig a, TableConfig b)
+        {
+            return !(a == b);
+        }
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>

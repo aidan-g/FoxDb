@@ -20,9 +20,9 @@ namespace FoxDb
 
         public ITableBuilder Table { get; set; }
 
-        public void SetTable(ITableConfig table)
+        public ITableBuilder SetTable(ITableConfig table)
         {
-            this.Table = this.GetTable(table);
+            return this.Table = this.GetTable(table);
         }
 
         public ICollection<IBinaryExpressionBuilder> Expressions { get; private set; }
@@ -37,12 +37,13 @@ namespace FoxDb
             return expression;
         }
 
-        public void AddColumns(IEnumerable<IColumnConfig> columns)
+        public IUpdateBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
                 this.AddColumn(column);
             }
+            return this;
         }
     }
 }

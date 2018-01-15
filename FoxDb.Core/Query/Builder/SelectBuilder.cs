@@ -18,10 +18,6 @@ namespace FoxDb
             }
         }
 
-        public int Limit { get; set; }
-
-        public int Offset { get; set; }
-
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
         public IColumnBuilder AddColumn(IColumnConfig column)
@@ -32,30 +28,36 @@ namespace FoxDb
             return expression;
         }
 
-        public void AddColumns(IEnumerable<IColumnConfig> columns)
+        public ISelectBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
                 this.AddColumn(column);
             }
+            return this;
         }
 
-        public void AddParameters(IEnumerable<IColumnConfig> columns)
+        public ISelectBuilder AddParameters(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
                 this.Expressions.Add(this.GetParameter(Conventions.ParameterName(column)));
             }
+            return this;
         }
 
-        public void AddFunction(QueryFunction function, params IExpressionBuilder[] arguments)
+        public IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
-            this.Expressions.Add(this.GetFunction(function, arguments));
+            var builder = this.GetFunction(function, arguments);
+            this.Expressions.Add(builder);
+            return builder;
         }
 
-        public void AddOperator(QueryOperator @operator)
+        public IOperatorBuilder AddOperator(QueryOperator @operator)
         {
-            this.Expressions.Add(this.GetOperator(@operator));
+            var builder = this.GetOperator(@operator);
+            this.Expressions.Add(builder);
+            return builder;
         }
     }
 }

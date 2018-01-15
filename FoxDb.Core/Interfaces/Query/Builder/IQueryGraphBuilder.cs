@@ -28,5 +28,7 @@ namespace FoxDb.Interfaces
         T Fragment<T>() where T : IFragmentBuilder;
 
         IQueryGraph Build();
+
+        IQueryGraphBuilder Clone();
     }
 }

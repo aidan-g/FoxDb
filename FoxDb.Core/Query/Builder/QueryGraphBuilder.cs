@@ -110,5 +110,10 @@ namespace FoxDb
         {
             return new QueryGraph(this.Fragments);
         }
+
+        public IQueryGraphBuilder Clone()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

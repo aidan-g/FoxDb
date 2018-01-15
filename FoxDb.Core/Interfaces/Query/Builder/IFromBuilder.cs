@@ -6,10 +6,10 @@ namespace FoxDb.Interfaces
     {
         ICollection<IExpressionBuilder> Expressions { get; }
 
-        void AddTable(ITableConfig table);
+        ITableBuilder AddTable(ITableConfig table);
 
-        void AddRelation(IRelationConfig relation);
+        IRelationBuilder AddRelation(IRelationConfig relation);
 
-        void AddSubQuery(IQueryGraphBuilder query);
+        ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query);
     }
 }

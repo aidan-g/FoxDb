@@ -6,11 +6,11 @@ namespace FoxDb.Interfaces
     {
         ITableBuilder Table { get; set; }
 
-        IInsertBuilder SetTable(ITableConfig table);
+        ITableBuilder SetTable(ITableConfig table);
 
         ICollection<IExpressionBuilder> Expressions { get; }
 
-        IInsertBuilder AddColumn(IColumnConfig column);
+        IColumnBuilder AddColumn(IColumnConfig column);
 
         IInsertBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }

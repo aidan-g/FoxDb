@@ -48,6 +48,10 @@ namespace FoxDb
 
         public const string DESC = "DESC";
 
+        public const string LIMIT = "LIMIT";
+
+        public const string OFFSET = "OFFSET";
+
         public const string LIST_DELIMITER = ",";
 
         public const string IDENTIFIER_DELIMITER = ".";

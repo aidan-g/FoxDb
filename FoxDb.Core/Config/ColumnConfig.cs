@@ -88,6 +88,28 @@ namespace FoxDb
             return true;
         }
 
+        public static bool operator ==(ColumnConfig a, ColumnConfig b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(ColumnConfig a, ColumnConfig b)
+        {
+            return !(a == b);
+        }
+
         public static IColumnSelector By(string columnName, ColumnFlags flags)
         {
             return ColumnSelector.By(columnName, flags);
