@@ -6,41 +6,38 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class QueryGraphBuilder : IQueryGraphBuilder
+    public class QueryGraphBuilder : FragmentBuilder, IQueryGraphBuilder
     {
-        public static readonly IDictionary<Type, Func<IFragmentBuilder>> Factories = new Dictionary<Type, Func<IFragmentBuilder>>()
-        {
-            { typeof(ISelectBuilder), () => new SelectBuilder() },
-            { typeof(IInsertBuilder), () => new InsertBuilder() },
-            { typeof(IUpdateBuilder), () => new UpdateBuilder() },
-            { typeof(IDeleteBuilder), () => new DeleteBuilder() },
-            { typeof(IFromBuilder), () => new FromBuilder() },
-            { typeof(IWhereBuilder), () => new WhereBuilder() },
-            { typeof(IOrderByBuilder), () => new OrderByBuilder() }
-        };
-
         public QueryGraphBuilder()
         {
             this.Fragments = new List<IFragmentBuilder>();
         }
 
-        public ICollection<IFragmentBuilder> Fragments { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ISelectBuilder Select
+        public override FragmentType FragmentType
         {
             get
             {
-                return this.Fragment<ISelectBuilder>();
+                throw new NotImplementedException();
+            }
+        }
+
+        public ICollection<IFragmentBuilder> Fragments { get; private set; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public IOutputBuilder Output
+        {
+            get
+            {
+                return this.Fragment<IOutputBuilder>();
             }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public IInsertBuilder Insert
+        public IAddBuilder Add
         {
             get
             {
-                return this.Fragment<IInsertBuilder>();
+                return this.Fragment<IAddBuilder>();
             }
         }
 
@@ -63,29 +60,29 @@ namespace FoxDb
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public IFromBuilder From
+        public ISourceBuilder Source
         {
             get
             {
-                return this.Fragment<IFromBuilder>();
+                return this.Fragment<ISourceBuilder>();
             }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public IWhereBuilder Where
+        public IFilterBuilder Filter
         {
             get
             {
-                return this.Fragment<IWhereBuilder>();
+                return this.Fragment<IFilterBuilder>();
             }
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public IOrderByBuilder OrderBy
+        public ISortBuilder Sort
         {
             get
             {
-                return this.Fragment<IOrderByBuilder>();
+                return this.Fragment<ISortBuilder>();
             }
         }
 
@@ -94,12 +91,7 @@ namespace FoxDb
             var fragment = this.Fragments.OfType<T>().FirstOrDefault();
             if (fragment == null)
             {
-                var factory = default(Func<IFragmentBuilder>);
-                if (!Factories.TryGetValue(typeof(T), out factory))
-                {
-                    throw new NotImplementedException();
-                }
-                fragment = (T)factory();
+                fragment = this.GetFragment<T>();
                 this.Fragments.Add(fragment);
             }
             return fragment;

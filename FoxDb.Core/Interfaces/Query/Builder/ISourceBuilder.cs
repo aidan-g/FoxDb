@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IFromBuilder : IFragmentBuilder
+    public interface ISourceBuilder : IFragmentBuilder
     {
         ICollection<IExpressionBuilder> Expressions { get; }
 
@@ -13,3 +13,4 @@ namespace FoxDb.Interfaces
         ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query);
     }
 }
+

@@ -62,7 +62,7 @@ namespace FoxDb
         {
             get
             {
-                var select = this.Database.QueryFactory.Select(this.Table);
+                var select = this.Database.QueryFactory.Fetch(this.Table);
                 var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(select));
                 return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
@@ -112,15 +112,15 @@ namespace FoxDb
             {
                 query = this.Source.Composer.Query;
             }
-            else if (this.Source.Select != null)
+            else if (this.Source.Fetch != null)
             {
-                query = this.Source.Select.Clone();
+                query = this.Source.Fetch.Clone();
             }
             else
             {
-                query = this.Database.QueryFactory.Select(this.Table);
+                query = this.Database.QueryFactory.Fetch(this.Table);
             }
-            query.Where.AddColumns(this.Table.PrimaryKeys);
+            query.Filter.AddColumns(this.Table.PrimaryKeys);
             var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
             var sequence = this.GetEnumerator(query, parameters);
             if (sequence.MoveNext())
@@ -136,7 +136,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Query source cannot be read."));
             }
-            return this.GetEnumerator(this.Source.Select, this.Parameters);
+            return this.GetEnumerator(this.Source.Fetch, this.Parameters);
         }
 
         protected virtual IEnumerator<T> GetEnumerator(IQueryGraphBuilder query, DatabaseParameterHandler parameters)

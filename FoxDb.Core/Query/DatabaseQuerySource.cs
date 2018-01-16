@@ -12,8 +12,8 @@ namespace FoxDb
             this.Table = table;
             this.Mapper = new EntityMapper(table);
             this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
-            this.Select = this.Composer.Query;
-            this.Insert = database.QueryFactory.Insert(table);
+            this.Fetch = this.Composer.Query;
+            this.Add = database.QueryFactory.Add(table);
             this.Update = database.QueryFactory.Update(table);
             this.Delete = database.QueryFactory.Delete(table);
             this.Transaction = transaction;
@@ -27,7 +27,7 @@ namespace FoxDb
         {
             get
             {
-                return this.Select != null;
+                return this.Fetch != null;
             }
         }
 
@@ -35,7 +35,7 @@ namespace FoxDb
         {
             get
             {
-                return this.Insert != null && this.Update != null && this.Delete != null;
+                return this.Add != null && this.Update != null && this.Delete != null;
             }
         }
 
@@ -43,9 +43,9 @@ namespace FoxDb
 
         public IEntityRelationQueryComposer Composer { get; private set; }
 
-        public IQueryGraphBuilder Select { get; set; }
+        public IQueryGraphBuilder Fetch { get; set; }
 
-        public IEnumerable<IQueryGraphBuilder> Insert { get; set; }
+        public IEnumerable<IQueryGraphBuilder> Add { get; set; }
 
         public IQueryGraphBuilder Update { get; set; }
 

@@ -8,6 +8,15 @@ namespace FoxDb
     {
         public static readonly IDictionary<Type, Func<IFragmentBuilder>> Factories = new Dictionary<Type, Func<IFragmentBuilder>>()
         {
+            //Expressions.
+            { typeof(IOutputBuilder), () => new OutputBuilder() },
+            { typeof(IAddBuilder), () => new AddBuilder() },
+            { typeof(IUpdateBuilder), () => new UpdateBuilder() },
+            { typeof(IDeleteBuilder), () => new DeleteBuilder() },
+            { typeof(ISourceBuilder), () => new SourceBuilder() },
+            { typeof(IFilterBuilder), () => new FilterBuilder() },
+            { typeof(ISortBuilder), () => new SortBuilder() },
+            //Fragments.
             { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder() },
             { typeof(ITableBuilder), () => new TableBuilder() },
             { typeof(IRelationBuilder), () => new RelationBuilder() },

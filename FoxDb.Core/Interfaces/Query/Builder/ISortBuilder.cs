@@ -2,12 +2,12 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IOrderByBuilder : IFragmentTarget
+    public interface ISortBuilder : IFragmentTarget
     {
         ICollection<IExpressionBuilder> Expressions { get; }
 
         IColumnBuilder AddColumn(IColumnConfig column);
 
-        IOrderByBuilder AddColumns(IEnumerable<IColumnConfig> columns);
+        ISortBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }
 }

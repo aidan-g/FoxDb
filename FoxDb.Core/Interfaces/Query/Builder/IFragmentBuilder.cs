@@ -38,12 +38,12 @@
         Column,
         Function,
         Parameter,
-        Insert,
+        Add,
         Update,
         Delete,
-        Select,
-        From,
-        Where,
-        OrderBy
+        Output,
+        Source,
+        Filter,
+        Sort
     }
 }

@@ -4,6 +4,11 @@ namespace FoxDb
 {
     public class TableBuilder : ExpressionBuilder, ITableBuilder
     {
+        public TableBuilder()
+        {
+            this.Filter = this.GetFragment<IFilterBuilder>();
+        }
+
         public override FragmentType FragmentType
         {
             get
@@ -13,5 +18,7 @@ namespace FoxDb
         }
 
         public ITableConfig Table { get; set; }
+
+        public IFilterBuilder Filter { get; private set; }
     }
 }

@@ -77,7 +77,7 @@ namespace FoxDb
         protected virtual IDatabaseQuerySource GetSource(Type elementType, ITableConfig table, Expression expression)
         {
             var source = new DatabaseQuerySource(this.Database, table, this.Transaction);
-            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Select, elementType);
+            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Fetch, elementType);
             visitor.Visit(expression);
             if (source.Parameters != null)
             {

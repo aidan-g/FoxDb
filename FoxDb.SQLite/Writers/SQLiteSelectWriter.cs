@@ -14,9 +14,9 @@ namespace FoxDb
 
         public override void Write(IFragmentBuilder fragment)
         {
-            if (fragment is ISelectBuilder)
+            if (fragment is IOutputBuilder)
             {
-                var expression = fragment as ISelectBuilder;
+                var expression = fragment as IOutputBuilder;
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.SELECT);
                 this.Visit(expression.Expressions);
                 return;

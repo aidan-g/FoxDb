@@ -17,9 +17,9 @@ namespace FoxDb.Interfaces
 
         IEntityRelationQueryComposer Composer { get; }
 
-        IQueryGraphBuilder Select { get; set; }
+        IQueryGraphBuilder Fetch { get; set; }
 
-        IEnumerable<IQueryGraphBuilder> Insert { get; set; }
+        IEnumerable<IQueryGraphBuilder> Add { get; set; }
 
         IQueryGraphBuilder Update { get; set; }
 

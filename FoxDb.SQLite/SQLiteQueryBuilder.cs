@@ -32,13 +32,13 @@ namespace FoxDb
         {
             protected readonly IDictionary<Type, byte> FragmentPriorities = new Dictionary<Type, byte>()
             {
-                { typeof(IInsertBuilder), 10 },
+                { typeof(IAddBuilder), 10 },
                 { typeof(IUpdateBuilder), 20 },
                 { typeof(IDeleteBuilder), 30 },
-                { typeof(ISelectBuilder), 40 },
-                { typeof(IFromBuilder), 50 },
-                { typeof(IWhereBuilder), 60 },
-                { typeof(IOrderByBuilder), 70 }
+                { typeof(IOutputBuilder), 40 },
+                { typeof(ISourceBuilder), 50 },
+                { typeof(IFilterBuilder), 60 },
+                { typeof(ISortBuilder), 70 }
             };
 
             private SQLiteQueryBuilderVisitor()
@@ -113,7 +113,7 @@ namespace FoxDb
                 });
             }
 
-            protected override void VisitInsert(IInsertBuilder expression)
+            protected override void VisitAdd(IAddBuilder expression)
             {
                 this.Push(new SQLiteInsertWriter(this.Database, this, this.Builder, this.ParameterNames));
                 this.Peek.Write(expression);
@@ -134,28 +134,28 @@ namespace FoxDb
                 this.Pop();
             }
 
-            protected override void VisitSelect(ISelectBuilder expression)
+            protected override void VisitOutput(IOutputBuilder expression)
             {
                 this.Push(new SQLiteSelectWriter(this.Database, this, this.Builder, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
-            protected override void VisitFrom(IFromBuilder expression)
+            protected override void VisitSource(ISourceBuilder expression)
             {
                 this.Push(new SQLiteFromWriter(this.Database, this, this.Builder, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
-            protected override void VisitWhere(IWhereBuilder expression)
+            protected override void VisitFilter(IFilterBuilder expression)
             {
                 this.Push(new SQLiteWhereWriter(this.Database, this, this.Builder, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
-            protected override void VisitOrderBy(IOrderByBuilder expression)
+            protected override void VisitSort(ISortBuilder expression)
             {
                 this.Push(new SQLiteOrderByWriter(this.Database, this, this.Builder, this.ParameterNames));
                 this.Peek.Write(expression);
