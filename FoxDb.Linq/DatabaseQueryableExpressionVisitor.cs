@@ -197,25 +197,25 @@ namespace FoxDb
         protected virtual void VisitAny(MethodCallExpression node)
         {
             var relation = this.Capture<IRelationBuilder>(node.Arguments[0]).Relation;
-            this.Query.Where.AddFunction(this.Query.Where.GetFunction(QueryFunction.Exists).With(function =>
+            this.Query.Filter.AddFunction(this.Query.Filter.GetFunction(QueryFunction.Exists).With(function =>
             {
                 var query = this.Database.QueryFactory.Build();
-                query.Select.AddOperator(QueryOperator.Star);
-                query.From.AddTable(relation.RightTable);
+                query.Output.AddOperator(QueryOperator.Star);
+                query.Source.AddTable(relation.RightTable);
                 switch (relation.Flags.GetMultiplicity())
                 {
                     case RelationFlags.OneToMany:
-                        query.Where.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
+                        query.Filter.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
                         break;
                     case RelationFlags.ManyToMany:
-                        query.From.AddRelation(relation.Invert());
-                        query.Where.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
+                        query.Source.AddRelation(relation.Invert());
+                        query.Filter.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
                         break;
                     default:
                         throw new NotImplementedException();
                 }
                 function.AddArgument(function.GetSubQuery(query));
-                this.Push(query.Where);
+                this.Push(query.Filter);
             }));
             try
             {
@@ -231,7 +231,7 @@ namespace FoxDb
         protected virtual void VisitWhere(MethodCallExpression node)
         {
             this.Visit(node.Arguments[0]);
-            this.Push(this.Query.Where);
+            this.Push(this.Query.Filter);
             try
             {
                 var lambda = this.GetLambda(node.Arguments[1]);
@@ -245,10 +245,10 @@ namespace FoxDb
 
         protected virtual void VisitOrderBy(MethodCallExpression node)
         {
-            this.Query.OrderBy.Expressions.Clear();
+            this.Query.Sort.Expressions.Clear();
             this.Direction = OrderByDirection.None;
             this.Visit(node.Arguments[0]);
-            this.Push(this.Query.OrderBy);
+            this.Push(this.Query.Sort);
             try
             {
                 var lambda = this.GetLambda(node.Arguments[1]);
@@ -262,10 +262,10 @@ namespace FoxDb
 
         protected virtual void VisitOrderByDescending(MethodCallExpression node)
         {
-            this.Query.OrderBy.Expressions.Clear();
+            this.Query.Sort.Expressions.Clear();
             this.Direction = OrderByDirection.Descending;
             this.Visit(node.Arguments[0]);
-            this.Push(this.Query.OrderBy);
+            this.Push(this.Query.Sort);
             try
             {
                 var lambda = this.GetLambda(node.Arguments[1]);

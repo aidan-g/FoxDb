@@ -28,17 +28,17 @@ namespace FoxDb
                 var builder = this.Database.QueryFactory.Build();
                 foreach (var table in this.Mapper.Tables)
                 {
-                    builder.Select.AddColumns(table.Columns);
+                    builder.Output.AddColumns(table.Columns);
                 }
-                builder.From.AddTable(this.Mapper.Table);
+                builder.Source.AddTable(this.Mapper.Table);
                 foreach (var relation in this.Mapper.Relations)
                 {
-                    builder.From.AddRelation(relation);
+                    builder.Source.AddRelation(relation);
                 }
-                builder.OrderBy.AddColumn(this.Mapper.Table.PrimaryKey);
+                builder.Sort.AddColumn(this.Mapper.Table.PrimaryKey);
                 foreach (var relation in this.Mapper.Relations)
                 {
-                    builder.OrderBy.AddColumn(relation.RightTable.PrimaryKey);
+                    builder.Sort.AddColumn(relation.RightTable.PrimaryKey);
                 }
                 return builder;
             }

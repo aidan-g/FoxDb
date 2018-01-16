@@ -37,7 +37,7 @@ namespace FoxDb
 
         protected virtual void AssertEnumerator_1<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
         {
-            using (var reader = database.ExecuteReader(set.Source.Select, null, transaction))
+            using (var reader = database.ExecuteReader(set.Source.Fetch, null, transaction))
             {
                 var enumerator = new EntityEnumerator();
                 this.AssertSequence(expected, enumerator.AsEnumerable<T>(set, reader));
@@ -46,13 +46,13 @@ namespace FoxDb
 
         protected virtual void AssertEnumerator_2<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
         {
-            var query = database.QueryFactory.Create(set.Source.Select);
+            var query = database.QueryFactory.Create(set.Source.Fetch);
             this.AssertSequence(expected, database.ExecuteEnumerator<T>(set.Table, query, null, transaction));
         }
 
         protected virtual void AssertEnumerator_3<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
         {
-            var query = database.QueryFactory.Create(set.Source.Select);
+            var query = database.QueryFactory.Create(set.Source.Fetch);
             Assert.AreEqual(expected.First(), database.ExecuteComplex<T>(set.Table, query, null, transaction));
         }
 

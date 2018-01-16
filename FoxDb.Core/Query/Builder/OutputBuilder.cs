@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SelectBuilder : FragmentBuilder, ISelectBuilder
+    public class OutputBuilder : FragmentBuilder, IOutputBuilder
     {
-        public SelectBuilder()
+        public OutputBuilder()
         {
             this.Expressions = new List<IExpressionBuilder>();
         }
@@ -14,7 +14,7 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Select;
+                return FragmentType.Output;
             }
         }
 
@@ -28,7 +28,7 @@ namespace FoxDb
             return expression;
         }
 
-        public ISelectBuilder AddColumns(IEnumerable<IColumnConfig> columns)
+        public IOutputBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
@@ -37,7 +37,7 @@ namespace FoxDb
             return this;
         }
 
-        public ISelectBuilder AddParameters(IEnumerable<IColumnConfig> columns)
+        public IOutputBuilder AddParameters(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {

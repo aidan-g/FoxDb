@@ -15,9 +15,9 @@ namespace FoxDb
 
         public override void Write(IFragmentBuilder fragment)
         {
-            if (fragment is IInsertBuilder)
+            if (fragment is IAddBuilder)
             {
-                var expression = fragment as IInsertBuilder;
+                var expression = fragment as IAddBuilder;
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.INSERT);
                 this.Visit(expression.Table);
                 if (!expression.Expressions.Any())

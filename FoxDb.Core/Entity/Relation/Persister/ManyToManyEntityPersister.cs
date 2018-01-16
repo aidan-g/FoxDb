@@ -55,7 +55,7 @@ namespace FoxDb
                 var table = this.Set.Database.Config.Table<TRelation>();
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.SelectByRelation(this.Relation)
+                    Fetch = this.Set.Database.FetchByRelation(this.Relation)
                 });
                 var children = this.Relation.Getter(this.Item);
                 if (children != null)
@@ -89,7 +89,7 @@ namespace FoxDb
                 var table = this.Set.Database.Config.Table<TRelation>();
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.SelectByRelation(this.Relation),
+                    Fetch = this.Set.Database.FetchByRelation(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation)
                 });
                 foreach (var child in set)
@@ -102,7 +102,7 @@ namespace FoxDb
             protected virtual void AddRelation(TRelation child)
             {
                 var table = this.Set.Database.Config.Table<T, TRelation>();
-                var builders = this.Set.Database.QueryFactory.Insert(table);
+                var builders = this.Set.Database.QueryFactory.Add(table);
                 var queries = this.Set.Database.QueryFactory.Create(builders.ToArray());
                 var parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                 this.Set.Database.Execute(queries, parameters, this.Set.Transaction);

@@ -16,9 +16,9 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
-        IQueryGraphBuilder Select(ITableConfig table);
+        IQueryGraphBuilder Fetch(ITableConfig table);
 
-        IEnumerable<IQueryGraphBuilder> Insert(ITableConfig table);
+        IEnumerable<IQueryGraphBuilder> Add(ITableConfig table);
 
         IQueryGraphBuilder Update(ITableConfig table);
 

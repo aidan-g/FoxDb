@@ -17,13 +17,13 @@ namespace FoxDb
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
-                 { FragmentType.Insert, fragment => this.VisitInsert(fragment as IInsertBuilder) },
+                 { FragmentType.Add, fragment => this.VisitAdd(fragment as IAddBuilder) },
                  { FragmentType.Update, fragment => this.VisitUpdate(fragment as IUpdateBuilder) },
                  { FragmentType.Delete, fragment => this.VisitDelete(fragment as IDeleteBuilder) },
-                 { FragmentType.Select, fragment => this.VisitSelect(fragment as ISelectBuilder) },
-                 { FragmentType.From, fragment => this.VisitFrom(fragment as IFromBuilder) },
-                 { FragmentType.Where, fragment => this.VisitWhere(fragment as IWhereBuilder) },
-                 { FragmentType.OrderBy, fragment => this.VisitOrderBy(fragment as IOrderByBuilder) }
+                 { FragmentType.Output, fragment => this.VisitOutput(fragment as IOutputBuilder) },
+                 { FragmentType.Source, fragment => this.VisitSource(fragment as ISourceBuilder) },
+                 { FragmentType.Filter, fragment => this.VisitFilter(fragment as IFilterBuilder) },
+                 { FragmentType.Sort, fragment => this.VisitSort(fragment as ISortBuilder) }
             };
         }
 
@@ -50,19 +50,19 @@ namespace FoxDb
             handler(fragment);
         }
 
-        protected abstract void VisitInsert(IInsertBuilder expression);
+        protected abstract void VisitAdd(IAddBuilder expression);
 
         protected abstract void VisitUpdate(IUpdateBuilder expression);
 
         protected abstract void VisitDelete(IDeleteBuilder expression);
 
-        protected abstract void VisitSelect(ISelectBuilder expression);
+        protected abstract void VisitOutput(IOutputBuilder expression);
 
-        protected abstract void VisitFrom(IFromBuilder expression);
+        protected abstract void VisitSource(ISourceBuilder expression);
 
-        protected abstract void VisitWhere(IWhereBuilder expression);
+        protected abstract void VisitFilter(IFilterBuilder expression);
 
-        protected abstract void VisitOrderBy(IOrderByBuilder expression);
+        protected abstract void VisitSort(ISortBuilder expression);
     }
 
     public delegate void QueryGraphVisitorHandler(IFragmentBuilder fragment);

@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IInsertBuilder : IFragmentBuilder
+    public interface IAddBuilder : IFragmentBuilder
     {
         ITableBuilder Table { get; set; }
 
@@ -12,6 +12,6 @@ namespace FoxDb.Interfaces
 
         IColumnBuilder AddColumn(IColumnConfig column);
 
-        IInsertBuilder AddColumns(IEnumerable<IColumnConfig> columns);
+        IAddBuilder AddColumns(IEnumerable<IColumnConfig> columns);
     }
 }

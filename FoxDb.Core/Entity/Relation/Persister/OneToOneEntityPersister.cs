@@ -56,7 +56,7 @@ namespace FoxDb
                 var table = this.Set.Database.Config.Table<TRelation>();
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.SelectByRelation(this.Relation),
+                    Fetch = this.Set.Database.FetchByRelation(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation)
                 });
                 if (child != null)
@@ -80,7 +80,7 @@ namespace FoxDb
                 var table = this.Set.Database.Config.Table<TRelation>();
                 var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
                 {
-                    Select = this.Set.Database.SelectByRelation(this.Relation),
+                    Fetch = this.Set.Database.FetchByRelation(this.Relation),
                     Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation)
                 });
                 if (child != null)

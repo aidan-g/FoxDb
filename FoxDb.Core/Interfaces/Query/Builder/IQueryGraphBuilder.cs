@@ -5,10 +5,10 @@ namespace FoxDb.Interfaces
     public interface IQueryGraphBuilder
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ISelectBuilder Select { get; }
+        IOutputBuilder Output { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IInsertBuilder Insert { get; }
+        IAddBuilder Add { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IUpdateBuilder Update { get; }
@@ -17,13 +17,13 @@ namespace FoxDb.Interfaces
         IDeleteBuilder Delete { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IFromBuilder From { get; }
+        ISourceBuilder Source { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IWhereBuilder Where { get; }
+        IFilterBuilder Filter { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IOrderByBuilder OrderBy { get; }
+        ISortBuilder Sort { get; }
 
         T Fragment<T>() where T : IFragmentBuilder;
 

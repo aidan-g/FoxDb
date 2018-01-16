@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,32 +57,32 @@ namespace FoxDb
             return new DatabaseQuery(commandText, parameterNames);
         }
 
-        public IQueryGraphBuilder Select(ITableConfig table)
+        public IQueryGraphBuilder Fetch(ITableConfig table)
         {
             var builder = this.Build();
-            builder.Select.AddColumns(table.Columns);
-            builder.From.AddTable(table);
-            builder.OrderBy.AddColumns(table.PrimaryKeys);
+            builder.Output.AddColumns(table.Columns);
+            builder.Source.AddTable(table);
+            builder.Sort.AddColumns(table.PrimaryKeys);
             return builder;
         }
 
-        public IEnumerable<IQueryGraphBuilder> Insert(ITableConfig table)
+        public IEnumerable<IQueryGraphBuilder> Add(ITableConfig table)
         {
             var graphs = new List<IQueryGraphBuilder>();
             {
                 var builder = this.Build();
                 var columns = table.Columns.Except(table.PrimaryKeys);
-                builder.Insert.SetTable(table);
+                builder.Add.SetTable(table);
                 if (columns.Any())
                 {
-                    builder.Insert.AddColumns(columns);
-                    builder.Select.AddParameters(columns);
+                    builder.Add.AddColumns(columns);
+                    builder.Output.AddParameters(columns);
                 }
                 graphs.Add(builder);
             }
             {
                 var builder = this.Build();
-                builder.Select.AddFunction(QueryFunction.Identity);
+                builder.Output.AddFunction(QueryFunction.Identity);
                 graphs.Add(builder);
             }
             return graphs;
@@ -94,7 +93,7 @@ namespace FoxDb
             var builder = this.Build();
             builder.Update.SetTable(table);
             builder.Update.AddColumns(table.Columns.Except(table.PrimaryKeys));
-            builder.Where.AddColumns(table.PrimaryKeys);
+            builder.Filter.AddColumns(table.PrimaryKeys);
             return builder;
         }
 
@@ -107,16 +106,16 @@ namespace FoxDb
         {
             var builder = this.Build();
             builder.Delete.Touch();
-            builder.From.AddTable(table);
-            builder.Where.AddColumns(keys);
+            builder.Source.AddTable(table);
+            builder.Filter.AddColumns(keys);
             return builder;
         }
 
         public IQueryGraphBuilder Count(IQueryGraphBuilder query)
         {
             var builder = this.Build();
-            builder.Select.AddFunction(QueryFunction.Count, builder.Select.GetOperator(QueryOperator.Star));
-            builder.From.AddSubQuery(query);
+            builder.Output.AddFunction(QueryFunction.Count, builder.Output.GetOperator(QueryOperator.Star));
+            builder.Source.AddSubQuery(query);
             return builder;
         }
     }

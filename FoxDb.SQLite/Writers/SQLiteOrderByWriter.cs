@@ -14,9 +14,9 @@ namespace FoxDb
 
         public override void Write(IFragmentBuilder fragment)
         {
-            if (fragment is IOrderByBuilder)
+            if (fragment is ISortBuilder)
             {
-                var expression = fragment as IOrderByBuilder;
+                var expression = fragment as ISortBuilder;
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.ORDER_BY);
                 this.Visit(expression.Expressions);
                 return;

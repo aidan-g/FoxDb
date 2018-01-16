@@ -2,8 +2,12 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IWhereBuilder : IFragmentTarget
+    public interface IFilterBuilder : IFragmentTarget
     {
+        int Limit { get; set; }
+
+        int Offset { get; set; }
+
         ICollection<IExpressionBuilder> Expressions { get; }
 
         IBinaryExpressionBuilder Add();

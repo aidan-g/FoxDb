@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class FromBuilder : FragmentBuilder, IFromBuilder
+    public class SourceBuilder : FragmentBuilder, ISourceBuilder
     {
-        public FromBuilder()
+        public SourceBuilder()
         {
             this.Expressions = new List<IExpressionBuilder>();
         }
@@ -14,7 +14,7 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.From;
+                return FragmentType.Source;
             }
         }
 

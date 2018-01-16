@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class WhereBuilder : FragmentBuilder, IWhereBuilder
+    public class FilterBuilder : FragmentBuilder, IFilterBuilder
     {
-        public WhereBuilder()
+        public FilterBuilder()
         {
             this.Expressions = new List<IExpressionBuilder>();
         }
@@ -15,9 +15,13 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Where;
+                return FragmentType.Filter;
             }
         }
+
+        public int Limit { get; set; }
+
+        public int Offset { get; set; }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
