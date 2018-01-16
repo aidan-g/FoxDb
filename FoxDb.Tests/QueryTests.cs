@@ -56,5 +56,36 @@ namespace FoxDb
                 transaction.Rollback();
             }
         }
+
+        [TestCase(QueryOperator.Equal, 1, 1)]
+        [TestCase(QueryOperator.Greater, 1, 2)]
+        [TestCase(QueryOperator.Less, 3, 2)]
+        public void Where(QueryOperator @operator, object value, int count)
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test002() { Name = "1" },
+                    new Test002() { Name = "2" },
+                    new Test002() { Name = "3" }
+                });
+                set.AddOrUpdate(data);
+                set.Source.Select.Where.Add().With(builder =>
+                {
+                    builder.Left = builder.GetColumn(set.Table.PrimaryKey);
+                    builder.Operator = builder.GetOperator(@operator);
+                    builder.Right = builder.GetConstant(value);
+                });
+                Assert.AreEqual(count, set.Count());
+                transaction.Rollback();
+            }
+        }
     }
 }

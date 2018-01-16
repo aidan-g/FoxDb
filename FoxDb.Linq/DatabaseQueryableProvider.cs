@@ -44,12 +44,18 @@ namespace FoxDb
         public T Execute<T>(Expression expression)
         {
             var elementType = default(Type);
-            if (!this.CanCreateSet<T>(out elementType))
+            if (this.CanCreateSet<T>(out elementType))
             {
-                throw new InvalidOperationException("Can only create query returning a sequence (IEnumerable<T>).");
+                var table = this.Database.Config.Table(elementType);
+                var set = this.Set(elementType, table, expression);
+                return (T)set;
             }
-            var table = this.Database.Config.Table(elementType);
-            return (T)this.Set(elementType, table, expression);
+            else
+            {
+                var table = this.Database.Config.Table(typeof(T));
+                var set = this.Set<T>(table, expression);
+                return set.FirstOrDefault();
+            }
         }
 
         protected virtual bool CanCreateSet<T>(out Type elementType)
@@ -68,15 +74,10 @@ namespace FoxDb
             return true;
         }
 
-        protected virtual IDatabaseSet Set(Type elementType, ITableConfig table, Expression expression)
+        protected virtual IDatabaseQuerySource GetSource(Type elementType, ITableConfig table, Expression expression)
         {
-            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, table, expression);
-        }
-
-        protected virtual IDatabaseSet<T> Set<T>(ITableConfig table, Expression expression)
-        {
-            var source = new DatabaseQuerySource<T>(this.Database, table, this.Transaction);
-            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Select, typeof(T));
+            var source = new DatabaseQuerySource(this.Database, table, this.Transaction);
+            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Select, elementType);
             visitor.Visit(expression);
             if (source.Parameters != null)
             {
@@ -86,6 +87,17 @@ namespace FoxDb
             {
                 source.Parameters = visitor.Parameters;
             }
+            return source;
+        }
+
+        protected virtual IDatabaseSet Set(Type elementType, ITableConfig table, Expression expression)
+        {
+            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, table, expression);
+        }
+
+        protected virtual IDatabaseSet<T> Set<T>(ITableConfig table, Expression expression)
+        {
+            var source = this.GetSource(typeof(T), table, expression);
             return this.Database.Query<T>(source);
         }
     }

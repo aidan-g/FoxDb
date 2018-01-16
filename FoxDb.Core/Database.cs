@@ -71,12 +71,12 @@ namespace FoxDb
 
         public IDatabaseQuerySource Source<T>(IDbTransaction transaction = null)
         {
-            return this.Source<T>(this.Config.Table<T>(), transaction);
+            return this.Source(this.Config.Table<T>(), transaction);
         }
 
-        public IDatabaseQuerySource Source<T>(ITableConfig table, IDbTransaction transaction = null)
+        public IDatabaseQuerySource Source(ITableConfig table, IDbTransaction transaction = null)
         {
-            return new DatabaseQuerySource<T>(this, table, transaction);
+            return new DatabaseQuerySource(this, table, transaction);
         }
 
         public IDbTransaction BeginTransaction()
@@ -92,7 +92,7 @@ namespace FoxDb
         public IDatabaseSet<T> Set<T>(IDbTransaction transaction = null)
         {
             var table = this.Config.Table<T>();
-            return this.Query<T>(new DatabaseQuerySource<T>(this, table, transaction));
+            return this.Query<T>(new DatabaseQuerySource(this, table, transaction));
         }
 
         public IDatabaseSet<T> Query<T>(IDatabaseQuerySource source)

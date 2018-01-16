@@ -1,11 +1,10 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Data;
 
 namespace FoxDb
 {
-    public class DatabaseQuerySource<T> : IDatabaseQuerySource
+    public class DatabaseQuerySource : IDatabaseQuerySource
     {
         public DatabaseQuerySource(IDatabase database, ITableConfig table, IDbTransaction transaction = null)
         {

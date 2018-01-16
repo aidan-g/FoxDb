@@ -62,6 +62,10 @@ namespace FoxDb
 
         public const string NOT_EQUAL = "<>";
 
+        public const string GREATER = ">";
+
+        public const string LESS = "<";
+
         public const string OPEN_PARENTHESES = "(";
 
         public const string CLOSE_PARENTHESES = ")";

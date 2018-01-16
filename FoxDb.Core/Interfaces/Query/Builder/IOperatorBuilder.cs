@@ -10,6 +10,8 @@
         None,
         Equal,
         NotEqual,
+        Greater,
+        Less,
         And,
         AndAlso,
         Or,

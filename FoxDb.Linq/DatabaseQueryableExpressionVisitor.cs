@@ -9,6 +9,22 @@ namespace FoxDb
 {
     public class DatabaseQueryableExpressionVisitor : ExpressionVisitor
     {
+        protected virtual IDictionary<string, DatabaseQueryableExpressionVisitorHandler> Handlers { get; private set; }
+
+        protected virtual IDictionary<string, DatabaseQueryableExpressionVisitorHandler> GetHandlers()
+        {
+            return new Dictionary<string, DatabaseQueryableExpressionVisitorHandler>()
+            {
+                //Scalar methods.
+                { "First", this.VisitFirst },
+                //Enumerable methods.
+                { "Any", this.VisitAny },
+                { "Where", this.VisitWhere },
+                { "OrderBy", this.VisitOrderBy },
+                { "OrderByDescending", this.VisitOrderByDescending }
+            };
+        }
+
         protected readonly IDictionary<ExpressionType, QueryOperator> Operators = new Dictionary<ExpressionType, QueryOperator>()
         {
             { ExpressionType.Equal, QueryOperator.Equal },
@@ -21,6 +37,7 @@ namespace FoxDb
 
         private DatabaseQueryableExpressionVisitor()
         {
+            this.Handlers = this.GetHandlers();
             this.Constants = new Dictionary<string, object>();
             this.Targets = new Stack<IFragmentTarget>();
         }
@@ -161,24 +178,18 @@ namespace FoxDb
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            switch (node.Method.Name)
+            var handler = default(DatabaseQueryableExpressionVisitorHandler);
+            if (!this.Handlers.TryGetValue(node.Method.Name, out handler))
             {
-                case "Any":
-                    this.VisitAny(node);
-                    break;
-                case "Where":
-                    this.VisitWhere(node);
-                    break;
-                case "OrderBy":
-                    this.VisitOrderBy(node);
-                    break;
-                case "OrderByDescending":
-                    this.VisitOrderByDescending(node);
-                    break;
-                default:
-                    throw new NotImplementedException();
+                throw new NotImplementedException();
             }
+            handler(node);
             return node;
+        }
+
+        protected virtual void VisitFirst(MethodCallExpression node)
+        {
+            this.Visit(node.Arguments[0]);
         }
 
         protected virtual void VisitAny(MethodCallExpression node)
@@ -425,4 +436,6 @@ namespace FoxDb
             }
         }
     }
+
+    public delegate void DatabaseQueryableExpressionVisitorHandler(MethodCallExpression node);
 }

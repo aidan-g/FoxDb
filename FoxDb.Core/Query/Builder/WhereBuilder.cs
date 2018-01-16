@@ -21,6 +21,13 @@ namespace FoxDb
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
+        public IBinaryExpressionBuilder Add()
+        {
+            var expression = this.GetFragment<IBinaryExpressionBuilder>();
+            this.Expressions.Add(expression);
+            return expression;
+        }
+
         public IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
         {
             var expression = this.GetFragment<IBinaryExpressionBuilder>();
