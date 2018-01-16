@@ -29,6 +29,8 @@ namespace FoxDb
         {
             { ExpressionType.Equal, QueryOperator.Equal },
             { ExpressionType.NotEqual, QueryOperator.NotEqual },
+            { ExpressionType.LessThan, QueryOperator.Less },
+            { ExpressionType.GreaterThan, QueryOperator.Greater },
             { ExpressionType.And, QueryOperator.And },
             { ExpressionType.AndAlso, QueryOperator.AndAlso },
             { ExpressionType.Or, QueryOperator.Or },
