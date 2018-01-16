@@ -30,6 +30,8 @@ namespace FoxDb
         {
             { QueryOperator.Equal, SQLiteSyntax.EQUAL },
             { QueryOperator.NotEqual, SQLiteSyntax.NOT_EQUAL },
+            { QueryOperator.Greater, SQLiteSyntax.GREATER },
+            { QueryOperator.Less, SQLiteSyntax.LESS },
             { QueryOperator.And, SQLiteSyntax.AND },
             { QueryOperator.AndAlso, SQLiteSyntax.AND_ALSO },
             { QueryOperator.Or, SQLiteSyntax.OR },

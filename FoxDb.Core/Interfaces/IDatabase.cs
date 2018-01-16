@@ -21,7 +21,7 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuerySource Source<T>(IDbTransaction transaction = null);
 
-        IDatabaseQuerySource Source<T>(ITableConfig table, IDbTransaction transaction = null);
+        IDatabaseQuerySource Source(ITableConfig table, IDbTransaction transaction = null);
 
         IDatabaseSet<T> Set<T>(IDbTransaction transaction = null);
 

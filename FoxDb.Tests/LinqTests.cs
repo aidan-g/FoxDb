@@ -126,6 +126,37 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void First()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                {
+                    Expression<Func<Test001, string>> func = element => element.Field1;
+                    Assert.AreEqual(data.AsQueryable().OrderBy(func).First(), query.OrderBy(func).First());
+                }
+                {
+                    Expression<Func<Test001, string>> func = element => element.Field1;
+                    Assert.AreEqual(data.AsQueryable().OrderByDescending(func).First(), query.OrderByDescending(func).First());
+                }
+                transaction.Rollback();
+            }
+        }
+
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
         public void Any(RelationFlags flags)

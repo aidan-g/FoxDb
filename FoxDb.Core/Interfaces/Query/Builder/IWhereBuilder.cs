@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
     {
         ICollection<IExpressionBuilder> Expressions { get; }
 
+        IBinaryExpressionBuilder Add();
+
         IBinaryExpressionBuilder AddColumn(IColumnConfig column);
 
         IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn);
