@@ -52,6 +52,14 @@ namespace FoxDb
                     Expression<Func<Test001, bool>> func = element => (element.Field1 == container.A || element.Field1 == container.B) && element.Field3 != container.C;
                     this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
                 }
+                {
+                    Expression<Func<Test001, bool>> func = element => element.Id > 2;
+                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
+                }
+                {
+                    Expression<Func<Test001, bool>> func = element => element.Id < 2;
+                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
+                }
                 transaction.Rollback();
             }
         }
