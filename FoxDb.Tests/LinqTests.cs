@@ -118,6 +118,7 @@ namespace FoxDb
                 var query = database.AsQueryable<Test001>(transaction);
                 Assert.AreEqual(data[0], query.OrderBy(element => element.Field1).First());
                 Assert.AreEqual(data[2], query.OrderByDescending(element => element.Field1).First());
+                Assert.AreEqual(data[2], query.First(element => element.Field1 == "3"));
                 transaction.Rollback();
             }
         }
@@ -141,8 +142,9 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                Assert.AreEqual(data[0], query.Where(element => element.Id == 1).FirstOrDefault());
-                Assert.IsNull(query.Where(element => element.Id == 4).FirstOrDefault());
+                Assert.AreEqual(data[0], query.OrderBy(element => element.Field1).FirstOrDefault());
+                Assert.AreEqual(data[2], query.OrderByDescending(element => element.Field1).FirstOrDefault());
+                Assert.AreEqual(data[2], query.FirstOrDefault(element => element.Field1 == "3"));
                 transaction.Rollback();
             }
         }
@@ -166,7 +168,9 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                Assert.AreEqual(data.Count, query.Count());
+                Assert.AreEqual(3, query.Count());
+                Assert.AreEqual(2, query.Count(element => element.Id > 1));
+                Assert.AreEqual(0, query.Count(element => element.Id < 1));
                 transaction.Rollback();
             }
         }

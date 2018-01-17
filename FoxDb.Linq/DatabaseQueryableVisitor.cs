@@ -33,7 +33,8 @@ namespace FoxDb
         {
             return new Dictionary<ExpressionType, UnaryVisitorHandler>()
             {
-                { ExpressionType.Convert, this.VisitConvert }
+                { ExpressionType.Convert, this.VisitConvert },
+                { ExpressionType.Quote, this.VisitQuote }
             };
         }
 
@@ -254,11 +255,22 @@ namespace FoxDb
 
         protected virtual void VisitFirst(MethodCallExpression node)
         {
-            var sequence = node.Arguments[0];
             if (this.Table.TableType == node.Type)
             {
-                this.Query.Source.GetTable(this.Table).Filter.Limit = 1;
-                this.Visit(sequence);
+                var filter = this.Query.Source.GetTable(this.Table).Filter;
+                filter.Limit = 1;
+                this.Push(filter);
+                try
+                {
+                    foreach (var argument in node.Arguments)
+                    {
+                        this.Visit(argument);
+                    }
+                }
+                finally
+                {
+                    this.Pop();
+                }
             }
             else
             {
@@ -268,11 +280,21 @@ namespace FoxDb
 
         protected virtual void VisitCount(MethodCallExpression node)
         {
-            var sequence = node.Arguments[0];
-            if (typeof(IQueryable).IsAssignableFrom(sequence.Type))
+            if (typeof(IQueryable).IsAssignableFrom(node.Arguments[0].Type))
             {
                 //Count is not implemented here, LINQ will use the .Count property of IDatabaseSet.
-                this.Visit(sequence);
+                this.Push(this.Query.Filter);
+                try
+                {
+                    foreach (var argument in node.Arguments)
+                    {
+                        this.Visit(argument);
+                    }
+                }
+                finally
+                {
+                    this.Pop();
+                }
             }
             else
             {
@@ -446,6 +468,14 @@ namespace FoxDb
         }
 
         protected virtual void VisitConvert(UnaryExpression node)
+        {
+            if (node.Operand != null)
+            {
+                this.Visit(node.Operand);
+            }
+        }
+
+        protected virtual void VisitQuote(UnaryExpression node)
         {
             if (node.Operand != null)
             {
