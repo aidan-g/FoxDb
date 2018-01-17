@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FoxDb
 {
-    public class DatabaseQueryableExpressionVisitor : ExpressionVisitor
+    public class DatabaseQueryableVisitor : ExpressionVisitor
     {
         protected virtual IDictionary<string, MethodVisitorHandler> MethodHandlers { get; private set; }
 
@@ -17,6 +17,7 @@ namespace FoxDb
             {
                 //Scalar methods.
                 { "First", this.VisitFirst },
+                { "FirstOrDefault", this.VisitFirst },
                 { "Count", this.VisitCount },
                 //Enumerable methods.
                 { "Any", this.VisitAny },
@@ -48,7 +49,7 @@ namespace FoxDb
             { ExpressionType.OrElse, QueryOperator.OrElse },
         };
 
-        private DatabaseQueryableExpressionVisitor()
+        private DatabaseQueryableVisitor()
         {
             this.MethodHandlers = this.GetMethodHandlers();
             this.UnaryHandlers = this.GetUnaryHandlers();
@@ -56,7 +57,7 @@ namespace FoxDb
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public DatabaseQueryableExpressionVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
+        public DatabaseQueryableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
         {
             this.Database = database;
             this.Query = query;
@@ -124,12 +125,26 @@ namespace FoxDb
             var target = this.Targets.Pop();
             if (importConstants)
             {
-                foreach (var key in target.Constants.Keys)
-                {
-                    this.Constants[key] = target.Constants[key];
-                }
+                this.ImportConstants(target);
             }
             return target;
+        }
+
+        protected virtual void ImportConstants(IFragmentTarget target)
+        {
+            foreach (var key in target.Constants.Keys)
+            {
+                var value = target.Constants[key];
+                if (value != null)
+                {
+                    var type = value.GetType();
+                    if (!type.IsScalar())
+                    {
+                        throw new InvalidOperationException(string.Format("Constant with name \"{0}\" has invalid type \"{1}\".", key, type.FullName));
+                    }
+                }
+                this.Constants[key] = target.Constants[key];
+            }
         }
 
         protected virtual LambdaExpression GetLambda(Expression node)
@@ -216,21 +231,53 @@ namespace FoxDb
             var handler = default(MethodVisitorHandler);
             if (!this.MethodHandlers.TryGetValue(node.Method.Name, out handler))
             {
-                throw new NotImplementedException();
+                this.VisitUnsupportedMethodCall(node);
+                return node;
             }
             handler(node);
             return node;
         }
 
+        protected virtual void VisitUnsupportedMethodCall(MethodCallExpression node)
+        {
+            try
+            {
+                var lambda = Expression.Lambda(node).Compile();
+                var value = lambda.DynamicInvoke();
+                this.VisitParameter(value);
+            }
+            catch (Exception e)
+            {
+                throw new NotImplementedException(string.Format("The method \"{0}\" of type \"{0}\" is unsupported and could not be evaluated.", node.Method.Name, node.Type.FullName), e);
+            }
+        }
+
         protected virtual void VisitFirst(MethodCallExpression node)
         {
-            this.Query.Source.GetTable(this.Table).Filter.Limit = 1;
-            this.Visit(node.Arguments[0]);
+            var sequence = node.Arguments[0];
+            if (this.Table.TableType == node.Type)
+            {
+                this.Query.Source.GetTable(this.Table).Filter.Limit = 1;
+                this.Visit(sequence);
+            }
+            else
+            {
+                this.VisitUnsupportedMethodCall(node);
+            }
         }
 
         protected virtual void VisitCount(MethodCallExpression node)
         {
-            this.Visit(node.Arguments[0]);
+            var sequence = node.Arguments[0];
+            if (typeof(IQueryable).IsAssignableFrom(sequence.Type))
+            {
+                //Count is not implemented here, LINQ will use the .Count property of IDatabaseSet.
+                this.Visit(sequence);
+            }
+            else
+            {
+                this.VisitUnsupportedMethodCall(node);
+            }
         }
 
         protected virtual void VisitAny(MethodCallExpression node)
@@ -331,8 +378,15 @@ namespace FoxDb
             return this.Peek.Write(this.Peek.CreateOperator(@operator));
         }
 
-        protected virtual bool TryVisitMember(MemberInfo member)
+        protected virtual bool TryVisitMember(MemberInfo member, Expression expression)
         {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Parameter:
+                    break;
+                default:
+                    return false;
+            }
             var table = default(ITableConfig);
             var relation = default(IRelationConfig);
             var column = default(IColumnConfig);
@@ -412,17 +466,24 @@ namespace FoxDb
             {
                 this.Pop();
             }
-            if (fragment.Left == null || fragment.Operator == null || fragment.Right == null)
+            //if (fragment.Left == null || fragment.Operator == null || fragment.Right == null)
+            //{
+            //    throw new InvalidOperationException(string.Format("Binary expression is invalid: Left = \"{0}\" Operator = \"{1}\" Right = \"{2}\".", fragment.Left, fragment.Operator, fragment.Right));
+            //}
+            if (fragment.Right == null)
             {
-                throw new InvalidOperationException(string.Format("Binary expression is invalid: Left = \"{0}\" Operator = \"{1}\" Right = \"{2}\".", fragment.Left, fragment.Operator, fragment.Right));
+                this.Peek.Write(fragment.Left);
             }
-            this.Peek.Write(fragment);
+            else
+            {
+                this.Peek.Write(fragment);
+            }
             return node;
         }
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (this.TryVisitMember(node.Member))
+            if (this.TryVisitMember(node.Member, node.Expression))
             {
                 return node;
             }
