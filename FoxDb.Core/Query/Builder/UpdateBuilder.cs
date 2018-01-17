@@ -22,17 +22,17 @@ namespace FoxDb
 
         public ITableBuilder SetTable(ITableConfig table)
         {
-            return this.Table = this.GetTable(table);
+            return this.Table = this.CreateTable(table);
         }
 
         public ICollection<IBinaryExpressionBuilder> Expressions { get; private set; }
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.GetFragment<IBinaryExpressionBuilder>();
-            expression.Left = this.GetColumn(column);
-            expression.Operator = this.GetOperator(QueryOperator.Equal);
-            expression.Right = this.GetParameter(Conventions.ParameterName(column));
+            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            expression.Left = this.CreateColumn(column);
+            expression.Operator = this.CreateOperator(QueryOperator.Equal);
+            expression.Right = this.CreateParameter(Conventions.ParameterName(column));
             this.Expressions.Add(expression);
             return expression;
         }

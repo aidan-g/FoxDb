@@ -30,7 +30,7 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                set.Source.Fetch.Filter.AddFunction(set.Source.Fetch.Filter.GetFunction(QueryFunction.Exists).With(function =>
+                set.Source.Fetch.Filter.AddFunction(set.Source.Fetch.Filter.CreateFunction(QueryFunction.Exists).With(function =>
                 {
                     var query = database.QueryFactory.Build();
                     query.Output.AddColumns(database.Config.Table<Test004>().Columns);
@@ -49,7 +49,7 @@ namespace FoxDb
                     }
                     query.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
                     function.Function = QueryFunction.Exists;
-                    function.AddArgument(function.GetSubQuery(query));
+                    function.AddArgument(function.CreateSubQuery(query));
                 }));
                 set.Source.Parameters = parameters => parameters["Name"] = "2_2";
                 this.AssertSequence(data.Skip(1).Take(1), set);
@@ -79,9 +79,9 @@ namespace FoxDb
                 set.AddOrUpdate(data);
                 set.Source.Fetch.Filter.Add().With(builder =>
                 {
-                    builder.Left = builder.GetColumn(set.Table.PrimaryKey);
-                    builder.Operator = builder.GetOperator(@operator);
-                    builder.Right = builder.GetConstant(value);
+                    builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
+                    builder.Operator = builder.CreateOperator(@operator);
+                    builder.Right = builder.CreateConstant(value);
                 });
                 Assert.AreEqual(count, set.Count());
                 transaction.Rollback();
@@ -108,7 +108,54 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                //Nothing to do.
+                set.Source.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
+                {
+                    filter.Limit = 1;
+                    filter.Add().With(binary =>
+                    {
+                        binary.Left = binary.CreateColumn(set.Table.PrimaryKey);
+                        binary.Operator = binary.CreateOperator(QueryOperator.Greater);
+                        binary.Right = binary.CreateParameter("Id");
+                    });
+                });
+                for (var a = 0; a < data.Count; a++)
+                {
+                    set.Source.Parameters = parameters => parameters["Id"] = a;
+                    this.AssertSequence(new[] { data.Where(element => element.Id > a).First() }, set);
+                }
+                transaction.Rollback();
+            }
+        }
+
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void Offset(RelationFlags flags)
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var relation = database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Test002() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                    new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                });
+                set.AddOrUpdate(data);
+                for (var a = 0; a < data.Count; a++)
+                {
+                    set.Source.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
+                    {
+                        filter.Limit = 1;
+                        filter.Offset = a;
+                    });
+                    this.AssertSequence(new[] { data[a] }, set);
+                }
                 transaction.Rollback();
             }
         }

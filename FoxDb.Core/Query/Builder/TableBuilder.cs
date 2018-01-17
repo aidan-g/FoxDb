@@ -6,7 +6,7 @@ namespace FoxDb
     {
         public TableBuilder()
         {
-            this.Filter = this.GetFragment<IFilterBuilder>();
+            this.Filter = this.CreateFragment<IFilterBuilder>();
         }
 
         public override FragmentType FragmentType

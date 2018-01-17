@@ -27,27 +27,51 @@ namespace FoxDb
 
         public IBinaryExpressionBuilder Add()
         {
-            var expression = this.GetFragment<IBinaryExpressionBuilder>();
+            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
             this.Expressions.Add(expression);
             return expression;
         }
 
-        public IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
+        public IFilterBuilder Add(IFilterBuilder builder)
         {
-            var expression = this.GetFragment<IBinaryExpressionBuilder>();
-            expression.Left = this.GetColumn(leftColumn);
-            expression.Operator = this.GetOperator(QueryOperator.Equal);
-            expression.Right = this.GetColumn(rightColumn);
-            this.Expressions.Add(expression);
-            return expression;
+            this.Limit = builder.Limit;
+            this.Offset = builder.Offset;
+            this.Expressions.AddRange(builder.Expressions);
+            return this;
+        }
+
+        public IBinaryExpressionBuilder GetColumn(IColumnConfig column)
+        {
+            return this.GetExpression<IBinaryExpressionBuilder>(
+                builder => builder.Left is IColumnBuilder && (builder.Left as IColumnBuilder).Column == column
+            );
         }
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.GetFragment<IBinaryExpressionBuilder>();
-            expression.Left = this.GetColumn(column);
-            expression.Operator = this.GetOperator(QueryOperator.Equal);
-            expression.Right = this.GetParameter(Conventions.ParameterName(column));
+            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            expression.Left = this.CreateColumn(column);
+            expression.Operator = this.CreateOperator(QueryOperator.Equal);
+            expression.Right = this.CreateParameter(Conventions.ParameterName(column));
+            this.Expressions.Add(expression);
+            return expression;
+        }
+
+        public IBinaryExpressionBuilder GetColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
+        {
+            return this.GetExpression<IBinaryExpressionBuilder>(
+                builder =>
+                    builder.Left is IColumnBuilder && (builder.Left as IColumnBuilder).Column == leftColumn &&
+                    builder.Right is IColumnBuilder && (builder.Right as IColumnBuilder).Column == rightColumn
+            );
+        }
+
+        public IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
+        {
+            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            expression.Left = this.CreateColumn(leftColumn);
+            expression.Operator = this.CreateOperator(QueryOperator.Equal);
+            expression.Right = this.CreateColumn(rightColumn);
             this.Expressions.Add(expression);
             return expression;
         }
@@ -64,6 +88,11 @@ namespace FoxDb
         {
             this.Expressions.Add(function);
             return function;
+        }
+
+        public IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments)
+        {
+            return this.AddFunction(this.CreateFunction(function, arguments));
         }
 
         public void Write(IFragmentBuilder fragment)

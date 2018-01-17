@@ -1,15 +1,22 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FoxDb
 {
     public class SQLiteSelectWriter : SQLiteQueryWriter
     {
-        public SQLiteSelectWriter(IDatabase database, IQueryGraphVisitor visitor, StringBuilder builder, ICollection<string> parameterNames) : base(database, visitor, builder, parameterNames)
+        public SQLiteSelectWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
         {
 
+        }
+
+        public override FragmentType FragmentType
+        {
+            get
+            {
+                return FragmentType.Output;
+            }
         }
 
         public override void Write(IFragmentBuilder fragment)
@@ -65,15 +72,6 @@ namespace FoxDb
             base.VisitSubQuery(expression);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
             this.VisitAlias(expression.Alias);
-        }
-
-        protected virtual void VisitAlias(string alias)
-        {
-            if (string.IsNullOrEmpty(alias))
-            {
-                return;
-            }
-            this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.AS, SQLiteSyntax.Identifier(alias));
         }
     }
 }

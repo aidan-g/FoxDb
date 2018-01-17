@@ -114,7 +114,7 @@ namespace FoxDb
         public IQueryGraphBuilder Count(IQueryGraphBuilder query)
         {
             var builder = this.Build();
-            builder.Output.AddFunction(QueryFunction.Count, builder.Output.GetOperator(QueryOperator.Star));
+            builder.Output.AddFunction(QueryFunction.Count, builder.Output.CreateOperator(QueryOperator.Star));
             builder.Source.AddSubQuery(query);
             return builder;
         }

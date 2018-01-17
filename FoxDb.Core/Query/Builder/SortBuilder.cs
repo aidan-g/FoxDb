@@ -21,9 +21,14 @@ namespace FoxDb
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
+        public IColumnBuilder GetColumn(IColumnConfig column)
+        {
+            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+        }
+
         public IColumnBuilder AddColumn(IColumnConfig column)
         {
-            var builder = this.GetColumn(column);
+            var builder = this.CreateColumn(column);
             this.Expressions.Add(builder);
             return builder;
         }

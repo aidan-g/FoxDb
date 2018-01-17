@@ -1,15 +1,22 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FoxDb
 {
     public class SQLiteFromWriter : SQLiteQueryWriter
     {
-        public SQLiteFromWriter(IDatabase database, IQueryGraphVisitor visitor, StringBuilder builder, ICollection<string> parameterNames) : base(database, visitor, builder, parameterNames)
+        public SQLiteFromWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
         {
 
+        }
+
+        public override FragmentType FragmentType
+        {
+            get
+            {
+                return FragmentType.Source;
+            }
         }
 
         public override void Write(IFragmentBuilder fragment)
@@ -52,11 +59,30 @@ namespace FoxDb
             }
         }
 
+        protected override void VisitTable(ITableBuilder expression)
+        {
+            if (expression.Filter.Limit == 0 && expression.Filter.Offset == 0 && expression.Filter.IsEmpty())
+            {
+                base.VisitTable(expression);
+            }
+            else
+            {
+                var builder = this.Database.QueryFactory.Build();
+                builder.Output.AddOperator(QueryOperator.Star);
+                builder.Source.AddTable(expression.Table);
+                builder.Filter.Add(expression.Filter);
+                this.VisitSubQuery(this.CreateSubQuery(builder).With(
+                    query => query.Alias = expression.Table.TableName
+                ));
+            }
+        }
+
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
             base.VisitSubQuery(expression);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+            this.VisitAlias(expression.Alias);
         }
     }
 }

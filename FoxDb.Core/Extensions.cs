@@ -128,5 +128,13 @@ namespace FoxDb
             }
             return data;
         }
+
+        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> sequence)
+        {
+            foreach (var element in sequence)
+            {
+                collection.Add(element);
+            }
+        }
     }
 }

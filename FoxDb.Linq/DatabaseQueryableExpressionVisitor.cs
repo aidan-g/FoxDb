@@ -197,7 +197,7 @@ namespace FoxDb
         protected virtual void VisitAny(MethodCallExpression node)
         {
             var relation = this.Capture<IRelationBuilder>(node.Arguments[0]).Relation;
-            this.Query.Filter.AddFunction(this.Query.Filter.GetFunction(QueryFunction.Exists).With(function =>
+            this.Query.Filter.AddFunction(this.Query.Filter.CreateFunction(QueryFunction.Exists).With(function =>
             {
                 var query = this.Database.QueryFactory.Build();
                 query.Output.AddOperator(QueryOperator.Star);
@@ -214,7 +214,7 @@ namespace FoxDb
                     default:
                         throw new NotImplementedException();
                 }
-                function.AddArgument(function.GetSubQuery(query));
+                function.AddArgument(function.CreateSubQuery(query));
                 this.Push(query.Filter);
             }));
             try
@@ -289,7 +289,7 @@ namespace FoxDb
 
         protected virtual void Visit(QueryOperator @operator)
         {
-            this.Peek.Write(this.Peek.GetOperator(@operator));
+            this.Peek.Write(this.Peek.CreateOperator(@operator));
         }
 
         protected virtual void Visit(PropertyInfo property)
@@ -308,22 +308,22 @@ namespace FoxDb
 
         protected virtual void Visit(ITableConfig table)
         {
-            this.Peek.Write(this.Peek.GetTable(table));
+            this.Peek.Write(this.Peek.CreateTable(table));
         }
 
         protected virtual void Visit(IRelationConfig relation)
         {
-            this.Peek.Write(this.Peek.GetRelation(relation));
+            this.Peek.Write(this.Peek.CreateRelation(relation));
         }
 
         protected virtual void Visit(IColumnConfig column)
         {
-            this.Peek.Write(this.Peek.GetColumn(column).With(builder => builder.Direction = this.Direction));
+            this.Peek.Write(this.Peek.CreateColumn(column).With(builder => builder.Direction = this.Direction));
         }
 
         protected virtual void Visit(string name, object value)
         {
-            this.Peek.Write(this.Peek.GetParameter(name));
+            this.Peek.Write(this.Peek.CreateParameter(name));
             this.Constants[name] = value;
         }
 
@@ -338,7 +338,7 @@ namespace FoxDb
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            var fragment = this.Push(this.Peek.GetFragment<IBinaryExpressionBuilder>());
+            var fragment = this.Push(this.Peek.CreateFragment<IBinaryExpressionBuilder>());
             try
             {
                 this.Visit(node.Left);
