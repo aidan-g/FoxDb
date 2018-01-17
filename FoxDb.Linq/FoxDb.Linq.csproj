@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabaseQueryable.cs" />
     <Compile Include="DatabaseQueryableProvider.cs" />
     <Compile Include="DatabaseQueryableExpressionVisitor.cs" />
     <Compile Include="Extensions.cs" />

@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public override void Write(IFragmentBuilder fragment)
+        public override T Write<T>(T fragment)
         {
             if (fragment is IAddBuilder)
             {
@@ -37,7 +37,7 @@ namespace FoxDb
                     this.Visit(expression.Expressions);
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
                 }
-                return;
+                return fragment;
             }
             throw new NotImplementedException();
         }

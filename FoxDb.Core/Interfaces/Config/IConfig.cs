@@ -1,15 +1,13 @@
-﻿using System;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IConfig
     {
         IDatabase Database { get; }
 
-        ITableConfig Table(Type tableType);
+        ITableConfig GetTable(ITableSelector selector);
 
-        ITableConfig<T> Table<T>();
+        ITableConfig CreateTable(ITableSelector selector);
 
-        ITableConfig<T1, T2> Table<T1, T2>();
+        bool TryCreateTable(ITableSelector selector, out ITableConfig table);
     }
 }

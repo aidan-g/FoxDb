@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 
@@ -6,6 +7,8 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseSet : IEnumerable
     {
+        Type ElementType { get; }
+
         IDatabase Database { get; }
 
         ITableConfig Table { get; }

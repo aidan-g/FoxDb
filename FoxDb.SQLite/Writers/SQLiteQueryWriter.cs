@@ -86,7 +86,15 @@ namespace FoxDb
             }
         }
 
-        public abstract void Write(IFragmentBuilder fragment);
+        public IDictionary<string, object> Constants
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public abstract T Write<T>(T fragment) where T : IFragmentBuilder;
 
         protected virtual void Visit(IExpressionBuilder expression)
         {

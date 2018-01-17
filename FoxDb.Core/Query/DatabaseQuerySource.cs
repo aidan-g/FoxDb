@@ -12,11 +12,8 @@ namespace FoxDb
             this.Table = table;
             this.Mapper = new EntityMapper(table);
             this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
-            this.Fetch = this.Composer.Query;
-            this.Add = database.QueryFactory.Add(table);
-            this.Update = database.QueryFactory.Update(table);
-            this.Delete = database.QueryFactory.Delete(table);
             this.Transaction = transaction;
+            this.Reset();
         }
 
         public IDatabase Database { get; private set; }
@@ -54,5 +51,13 @@ namespace FoxDb
         public DatabaseParameterHandler Parameters { get; set; }
 
         public IDbTransaction Transaction { get; private set; }
+
+        public void Reset()
+        {
+            this.Fetch = this.Composer.Query;
+            this.Add = this.Database.QueryFactory.Add(this.Table);
+            this.Update = this.Database.QueryFactory.Update(this.Table);
+            this.Delete = this.Database.QueryFactory.Delete(this.Table);
+        }
     }
 }

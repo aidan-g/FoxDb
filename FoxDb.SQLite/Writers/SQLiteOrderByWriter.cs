@@ -19,14 +19,14 @@ namespace FoxDb
             }
         }
 
-        public override void Write(IFragmentBuilder fragment)
+        public override T Write<T>(T fragment)
         {
             if (fragment is ISortBuilder)
             {
                 var expression = fragment as ISortBuilder;
                 this.Builder.AppendFormat("{0} ", SQLiteSyntax.ORDER_BY);
                 this.Visit(expression.Expressions);
-                return;
+                return fragment;
             }
             throw new NotImplementedException();
         }
