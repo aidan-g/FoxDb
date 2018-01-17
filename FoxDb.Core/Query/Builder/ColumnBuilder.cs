@@ -7,6 +7,7 @@ namespace FoxDb
         public ColumnBuilder()
         {
             this.Direction = OrderByDirection.None;
+            this.Flags = ColumnBuilderFlags.None;
         }
 
         public override FragmentType FragmentType
@@ -20,5 +21,9 @@ namespace FoxDb
         public OrderByDirection Direction { get; set; }
 
         public IColumnConfig Column { get; set; }
+
+        public bool UseIdentifier { get; set; }
+
+        public ColumnBuilderFlags Flags { get; set; }
     }
 }

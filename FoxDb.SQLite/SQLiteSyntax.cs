@@ -26,6 +26,8 @@ namespace FoxDb
 
         public const string ORDER_BY = "ORDER BY";
 
+        public const string GROUP_BY = "GROUP BY";
+
         public const string AND = "&";
 
         public const string AND_ALSO = "AND";
@@ -51,6 +53,8 @@ namespace FoxDb
         public const string LIMIT = "LIMIT";
 
         public const string OFFSET = "OFFSET";
+
+        public const string DISTINCT = "DISTINCT";
 
         public const string LIST_DELIMITER = ",";
 

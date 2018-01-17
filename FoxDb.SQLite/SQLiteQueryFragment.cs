@@ -18,9 +18,10 @@ namespace FoxDb
             { FragmentType.Output, 40 },
             { FragmentType.Source, 50 },
             { FragmentType.Filter, 60 },
-            { FragmentType.Sort, 70 },
-            { Limit, 80 },
-            { Offset, 90 }
+            { FragmentType.Aggregate, 70 },
+            { FragmentType.Sort, 80 },
+            { Limit, 90 },
+            { Offset, 100 }
         };
 
         public SQLiteQueryFragment(IFragmentTarget target) : this(target.CommandText, GetPriority(target))

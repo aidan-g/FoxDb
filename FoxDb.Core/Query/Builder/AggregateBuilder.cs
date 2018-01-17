@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SortBuilder : FragmentBuilder, ISortBuilder
+    public class AggregateBuilder : FragmentBuilder, IAggregateBuilder
     {
-        public SortBuilder()
+        public AggregateBuilder()
         {
             this.Expressions = new List<IExpressionBuilder>();
             this.Constants = new Dictionary<string, object>();
@@ -16,7 +16,7 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Sort;
+                return FragmentType.Aggregate;
             }
         }
 
@@ -36,7 +36,7 @@ namespace FoxDb
             return builder;
         }
 
-        public ISortBuilder AddColumns(IEnumerable<IColumnConfig> columns)
+        public IAggregateBuilder AddColumns(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {

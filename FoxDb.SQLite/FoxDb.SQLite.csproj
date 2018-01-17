@@ -60,6 +60,7 @@
     <Compile Include="Writers\SQLiteInsertWriter.cs" />
     <Compile Include="Writers\SQLiteOffsetWriter.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />
+    <Compile Include="Writers\SQLiteGroupByWriter.cs" />
     <Compile Include="Writers\SQLiteOrderByWriter.cs" />
     <Compile Include="SQLiteQueryFragment.cs" />
     <Compile Include="Writers\SQLiteQueryWriter.cs" />

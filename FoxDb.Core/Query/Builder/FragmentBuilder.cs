@@ -15,6 +15,7 @@ namespace FoxDb
             { typeof(IDeleteBuilder), () => new DeleteBuilder() },
             { typeof(ISourceBuilder), () => new SourceBuilder() },
             { typeof(IFilterBuilder), () => new FilterBuilder() },
+            { typeof(IAggregateBuilder), () => new AggregateBuilder() },
             { typeof(ISortBuilder), () => new SortBuilder() },
             //Fragments.
             { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder() },

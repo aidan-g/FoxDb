@@ -118,5 +118,20 @@ namespace FoxDb
             builder.Source.AddSubQuery(query);
             return builder;
         }
+
+        public IQueryGraphBuilder Count(ITableConfig table, IQueryGraphBuilder query)
+        {
+            var builder = this.Build();
+            builder.Output.AddFunction(
+                QueryFunction.Count,
+                builder.Output.CreateColumn(table.PrimaryKey).With(
+                    column => column.Flags = ColumnBuilderFlags.Identifier | ColumnBuilderFlags.Distinct
+                )
+            );
+            builder.Source.AddSubQuery(query).With(
+                subQuery => subQuery.Alias = table.TableName
+            );
+            return builder;
+        }
     }
 }

@@ -70,8 +70,7 @@ namespace FoxDb
         {
             get
             {
-                var select = this.Database.QueryFactory.Fetch(this.Table);
-                var query = this.Database.QueryFactory.Create(this.Database.QueryFactory.Count(select));
+                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
                 return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
         }
@@ -138,6 +137,14 @@ namespace FoxDb
             return default(T);
         }
 
+        public void CopyTo(T[] target, int index)
+        {
+            foreach (var element in this)
+            {
+                target[index++] = element;
+            }
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             if (!this.Source.CanRead)
@@ -163,5 +170,36 @@ namespace FoxDb
         {
             return this.GetEnumerator();
         }
+
+        #region ICollection<T>
+
+        /*
+         * We only implement these things so LINQ uses the Count property instead of iterating.
+         */
+
+        bool ICollection<T>.IsReadOnly
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<T>.Contains(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<T>.Remove(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

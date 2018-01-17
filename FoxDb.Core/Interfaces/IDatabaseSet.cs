@@ -18,13 +18,9 @@ namespace FoxDb.Interfaces
         IDatabaseQuerySource Source { get; }
 
         IDbTransaction Transaction { get; }
-
-        int Count { get; }
-
-        void Clear();
     }
 
-    public interface IDatabaseSet<T> : IDatabaseSet, IEnumerable<T>
+    public interface IDatabaseSet<T> : IDatabaseSet, ICollection<T>
     {
         T Find(object id);
 

@@ -158,7 +158,20 @@ namespace FoxDb
 
         protected virtual void VisitColumn(IColumnBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.Table.TableName, expression.Column.ColumnName));
+            var identifier = default(string);
+            if (expression.Flags.HasFlag(ColumnBuilderFlags.Identifier))
+            {
+                identifier = expression.Column.Identifier;
+            }
+            else
+            {
+                identifier = expression.Column.ColumnName;
+            }
+            if (expression.Flags.HasFlag(ColumnBuilderFlags.Distinct))
+            {
+                this.Builder.AppendFormat("{0} ", SQLiteSyntax.DISTINCT);
+            }
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.Table.TableName, identifier));
         }
 
         protected virtual void VisitParameter(IParameterBuilder expression)

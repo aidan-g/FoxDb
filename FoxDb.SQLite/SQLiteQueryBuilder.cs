@@ -153,6 +153,13 @@ namespace FoxDb
                 this.Pop();
             }
 
+            protected override void VisitAggregate(IAggregateBuilder expression)
+            {
+                this.Push(new SQLiteGroupByWriter(this.Database, this, this.ParameterNames));
+                this.Peek.Write(expression);
+                this.Pop();
+            }
+
             protected override void VisitSort(ISortBuilder expression)
             {
                 this.Push(new SQLiteOrderByWriter(this.Database, this, this.ParameterNames));

@@ -99,6 +99,7 @@
     <Compile Include="Interfaces\Entity\IEntityPopulatorStrategy.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
+    <Compile Include="Interfaces\Query\Builder\IAggregateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IBinaryExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IColumnBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IConstantBuilder.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Query\Builder\ExpressionBuilder.cs" />
     <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
+    <Compile Include="Query\Builder\AggregateBuilder.cs" />
     <Compile Include="Query\Builder\SourceBuilder.cs" />
     <Compile Include="Query\Builder\FunctionBuilder.cs" />
     <Compile Include="Query\Builder\OperatorBuilder.cs" />
