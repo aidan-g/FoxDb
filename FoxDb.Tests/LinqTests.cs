@@ -1,5 +1,4 @@
-﻿using FoxDb.Interfaces;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +13,12 @@ namespace FoxDb
         [Test]
         public void Where()
         {
+            var container = new
+            {
+                A = "1_1",
+                B = "1_2",
+                C = "1_2"
+            };
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
             using (var transaction = database.Connection.BeginTransaction())
@@ -30,36 +35,12 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Expression<Func<Test001, bool>> func = element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3";
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
-                {
-                    Expression<Func<Test001, bool>> func = element => element.Field1 == "1_1" || element.Field2 == "2_2" || element.Field3 == "3_3";
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
-                {
-                    Expression<Func<Test001, bool>> func = element => (element.Field1 == "1_1" && element.Field2 == "1_2") || element.Field3 == "2_3";
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
-                {
-                    var container = new
-                    {
-                        A = "1_1",
-                        B = "1_2",
-                        C = "1_2"
-                    };
-                    Expression<Func<Test001, bool>> func = element => (element.Field1 == container.A || element.Field1 == container.B) && element.Field3 != container.C;
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
-                {
-                    Expression<Func<Test001, bool>> func = element => element.Id > 2;
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
-                {
-                    Expression<Func<Test001, bool>> func = element => element.Id < 2;
-                    this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
-                }
+                this.AssertSequence(new[] { data[1] }, query.Where(element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3"));
+                this.AssertSequence(data, query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_2" || element.Field3 == "3_3"));
+                this.AssertSequence(new[] { data[0], data[1] }, query.Where(element => (element.Field1 == "1_1" && element.Field2 == "1_2") || element.Field3 == "2_3"));
+                this.AssertSequence(new[] { data[0] }, query.Where(element => (element.Field1 == container.A || element.Field1 == container.B) && element.Field3 != container.C));
+                this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id > 2));
+                this.AssertSequence(new[] { data[0] }, query.Where(element => element.Id < 2));
                 transaction.Rollback();
             }
         }
@@ -83,18 +64,9 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field1;
-                    this.AssertSequence(data.AsQueryable().OrderBy(func), query.OrderBy(func));
-                }
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field2;
-                    this.AssertSequence(data.AsQueryable().OrderBy(func), query.OrderBy(func));
-                }
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field3;
-                    this.AssertSequence(data.AsQueryable().OrderBy(func), query.OrderBy(func));
-                }
+                this.AssertSequence(data, query.OrderBy(element => element.Field1));
+                this.AssertSequence(data.Reverse<Test001>(), query.OrderBy(element => element.Field2));
+                this.AssertSequence(data, query.OrderBy(element => element.Field3));
                 transaction.Rollback();
             }
         }
@@ -118,18 +90,9 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field1;
-                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
-                }
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field2;
-                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
-                }
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field3;
-                    this.AssertSequence(data.AsQueryable().OrderByDescending(func), query.OrderByDescending(func));
-                }
+                this.AssertSequence(data.Reverse<Test001>(), query.OrderByDescending(element => element.Field1));
+                this.AssertSequence(data, query.OrderByDescending(element => element.Field2));
+                this.AssertSequence(data.Reverse<Test001>(), query.OrderByDescending(element => element.Field3));
                 transaction.Rollback();
             }
         }
@@ -153,14 +116,8 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field1;
-                    Assert.AreEqual(data.AsQueryable().OrderBy(func).First(), query.OrderBy(func).First());
-                }
-                {
-                    Expression<Func<Test001, string>> func = element => element.Field1;
-                    Assert.AreEqual(data.AsQueryable().OrderByDescending(func).First(), query.OrderByDescending(func).First());
-                }
+                Assert.AreEqual(data[0], query.OrderBy(element => element.Field1).First());
+                Assert.AreEqual(data[2], query.OrderByDescending(element => element.Field1).First());
                 transaction.Rollback();
             }
         }
@@ -184,12 +141,8 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Assert.AreEqual(data[0], query.Where(element => element.Id == 1).FirstOrDefault());
-                }
-                {
-                    Assert.IsNull(query.Where(element => element.Id == 4).FirstOrDefault());
-                }
+                Assert.AreEqual(data[0], query.Where(element => element.Id == 1).FirstOrDefault());
+                Assert.IsNull(query.Where(element => element.Id == 4).FirstOrDefault());
                 transaction.Rollback();
             }
         }
@@ -213,9 +166,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                {
-                    Assert.AreEqual(data.Count, query.Count());
-                }
+                Assert.AreEqual(data.Count, query.Count());
                 transaction.Rollback();
             }
         }
@@ -241,8 +192,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test002>(transaction);
-                Expression<Func<Test002, bool>> func = element => element.Test004.Any(child => child.Name == "2_2");
-                this.AssertSequence(data.AsQueryable().Where(func), query.Where(func));
+                this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Any(child => child.Name == "2_2")));
                 transaction.Rollback();
             }
         }
@@ -266,9 +216,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test001>(transaction);
-                Expression<Func<Test001, bool>> func1 = element => element.Field1 == "1_1" || element.Field2 == "2_1" || element.Field3 == "3_1";
-                Expression<Func<Test001, string>> func2 = element => element.Field1;
-                this.AssertSequence(data.AsQueryable().Where(func1).OrderBy(func2), query.Where(func1).OrderBy(func2));
+                this.AssertSequence(new[] { data[0] }, query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_1" || element.Field3 == "3_1").OrderBy(element => element.Field1));
                 transaction.Rollback();
             }
         }
@@ -324,12 +272,8 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test002>(transaction);
-                {
-                    this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id));
-                }
-                {
-                    this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id && element.Test004.Any(child => child.Id == data[2].Test004.First().Id)));
-                }
+                this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id));
+                this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id && element.Test004.Any(child => child.Id == data[2].Test004.First().Id)));
                 transaction.Rollback();
             }
         }
