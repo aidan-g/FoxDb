@@ -41,10 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseQueryableProvider.cs" />
-    <Compile Include="DatabaseQueryableExpressionVisitor.cs" />
+    <Compile Include="DatabaseQueryableVisitor.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\IDatabaseQueryableProvider.cs" />
+    <Compile Include="Interfaces\IDatabaseSetEnumerableQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\DatabaseSetEnumerableQuery.cs" />
+    <Compile Include="Utility\DatabaseSetLocator.cs" />
+    <Compile Include="Utility\QueryableProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">

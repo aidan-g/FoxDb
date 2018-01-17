@@ -166,6 +166,35 @@ namespace FoxDb
         }
 
         [Test]
+        public void FirstOrDefault()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                {
+                    Assert.AreEqual(data[0], query.Where(element => element.Id == 1).FirstOrDefault());
+                }
+                {
+                    Assert.IsNull(query.Where(element => element.Id == 4).FirstOrDefault());
+                }
+                transaction.Rollback();
+            }
+        }
+
+        [Test]
         public void Count()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
@@ -270,6 +299,37 @@ namespace FoxDb
                     .OrderBy(element => element.Id)
                     .Count();
                 Assert.AreEqual(expected, actual);
+                transaction.Rollback();
+            }
+        }
+
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void IndexerBinding(RelationFlags flags)
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Test002() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                    new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test002>(transaction);
+                {
+                    this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id));
+                }
+                {
+                    this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id == data[2].Id && element.Test004.Any(child => child.Id == data[2].Test004.First().Id)));
+                }
                 transaction.Rollback();
             }
         }
