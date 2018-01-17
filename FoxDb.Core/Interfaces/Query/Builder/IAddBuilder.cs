@@ -2,13 +2,13 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IAddBuilder : IFragmentBuilder
+    public interface IAddBuilder : IFragmentContainer, IFragmentBuilder
     {
         ITableBuilder Table { get; set; }
 
         ITableBuilder SetTable(ITableConfig table);
 
-        ICollection<IExpressionBuilder> Expressions { get; }
+        IColumnBuilder GetColumn(IColumnConfig column);
 
         IColumnBuilder AddColumn(IColumnConfig column);
 

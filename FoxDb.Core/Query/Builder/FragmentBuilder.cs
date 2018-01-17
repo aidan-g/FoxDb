@@ -30,12 +30,20 @@ namespace FoxDb
 
         public abstract FragmentType FragmentType { get; }
 
+        public virtual string CommandText
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void Touch()
         {
             //Nothing to do.
         }
 
-        public T GetFragment<T>() where T : IFragmentBuilder
+        public T CreateFragment<T>() where T : IFragmentBuilder
         {
             var factory = default(Func<IFragmentBuilder>);
             if (!Factories.TryGetValue(typeof(T), out factory))
@@ -45,7 +53,7 @@ namespace FoxDb
             return (T)factory();
         }
 
-        public ITableBuilder GetTable(ITableConfig table)
+        public ITableBuilder CreateTable(ITableConfig table)
         {
             if (table == null)
             {
@@ -55,62 +63,62 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Table of type \"{0}\" is is transient and cannot be queried.", table.TableType.FullName));
             }
-            return this.GetFragment<ITableBuilder>().With(builder => builder.Table = table);
+            return this.CreateFragment<ITableBuilder>().With(builder => builder.Table = table);
         }
 
-        public IRelationBuilder GetRelation(IRelationConfig relation)
+        public IRelationBuilder CreateRelation(IRelationConfig relation)
         {
             if (relation == null)
             {
                 throw new NotImplementedException();
             }
-            return this.GetFragment<IRelationBuilder>().With(builder => builder.Relation = relation);
+            return this.CreateFragment<IRelationBuilder>().With(builder => builder.Relation = relation);
         }
 
-        public ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query)
+        public ISubQueryBuilder CreateSubQuery(IQueryGraphBuilder query)
         {
             if (query == null)
             {
                 throw new NotImplementedException();
             }
-            return this.GetFragment<ISubQueryBuilder>().With(builder => builder.Query = query);
+            return this.CreateFragment<ISubQueryBuilder>().With(builder => builder.Query = query);
         }
 
-        public IColumnBuilder GetColumn(IColumnConfig column)
+        public IColumnBuilder CreateColumn(IColumnConfig column)
         {
             if (column == null)
             {
                 throw new NotImplementedException();
             }
-            return this.GetFragment<IColumnBuilder>().With(builder => builder.Column = column);
+            return this.CreateFragment<IColumnBuilder>().With(builder => builder.Column = column);
         }
 
-        public IParameterBuilder GetParameter(string name)
+        public IParameterBuilder CreateParameter(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new NotImplementedException();
             }
-            return this.GetFragment<IParameterBuilder>().With(builder => builder.Name = name);
+            return this.CreateFragment<IParameterBuilder>().With(builder => builder.Name = name);
         }
 
-        public IFunctionBuilder GetFunction(QueryFunction function, params IExpressionBuilder[] arguments)
+        public IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
-            return this.GetFragment<IFunctionBuilder>().With(builder =>
+            return this.CreateFragment<IFunctionBuilder>().With(builder =>
             {
                 builder.Function = function;
                 builder.AddArguments(arguments);
             });
         }
 
-        public IOperatorBuilder GetOperator(QueryOperator @operator)
+        public IOperatorBuilder CreateOperator(QueryOperator @operator)
         {
-            return this.GetFragment<IOperatorBuilder>().With(builder => builder.Operator = @operator);
+            return this.CreateFragment<IOperatorBuilder>().With(builder => builder.Operator = @operator);
         }
 
-        public IConstantBuilder GetConstant(object value)
+        public IConstantBuilder CreateConstant(object value)
         {
-            return this.GetFragment<IConstantBuilder>().With(builder => builder.Value = value);
+            return this.CreateFragment<IConstantBuilder>().With(builder => builder.Value = value);
         }
     }
 }

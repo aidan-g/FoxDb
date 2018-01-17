@@ -6,23 +6,23 @@
 
         void Touch();
 
-        T GetFragment<T>() where T : IFragmentBuilder;
+        T CreateFragment<T>() where T : IFragmentBuilder;
 
-        ITableBuilder GetTable(ITableConfig table);
+        ITableBuilder CreateTable(ITableConfig table);
 
-        IRelationBuilder GetRelation(IRelationConfig relation);
+        IRelationBuilder CreateRelation(IRelationConfig relation);
 
-        ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query);
+        ISubQueryBuilder CreateSubQuery(IQueryGraphBuilder query);
 
-        IColumnBuilder GetColumn(IColumnConfig column);
+        IColumnBuilder CreateColumn(IColumnConfig column);
 
-        IParameterBuilder GetParameter(string name);
+        IParameterBuilder CreateParameter(string name);
 
-        IFunctionBuilder GetFunction(QueryFunction function, params IExpressionBuilder[] arguments);
+        IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments);
 
-        IOperatorBuilder GetOperator(QueryOperator @operator);
+        IOperatorBuilder CreateOperator(QueryOperator @operator);
 
-        IConstantBuilder GetConstant(object value);
+        IConstantBuilder CreateConstant(object value);
     }
 
     public enum FragmentType : byte

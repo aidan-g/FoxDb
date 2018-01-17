@@ -91,7 +91,7 @@ namespace FoxDb
             var fragment = this.Fragments.OfType<T>().FirstOrDefault();
             if (fragment == null)
             {
-                fragment = this.GetFragment<T>();
+                fragment = this.CreateFragment<T>();
                 this.Fragments.Add(fragment);
             }
             return fragment;

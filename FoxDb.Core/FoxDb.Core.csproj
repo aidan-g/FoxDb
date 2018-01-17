@@ -102,6 +102,7 @@
     <Compile Include="Interfaces\Query\Builder\IDeleteBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFragmentBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IFragmentContainer.cs" />
     <Compile Include="Interfaces\Query\Builder\IFragmentTarget.cs" />
     <Compile Include="Interfaces\Query\Builder\IOutputBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFunctionBuilder.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Query\Builder\ConstantBuilder.cs" />
     <Compile Include="Query\Builder\DeleteBuilder.cs" />
     <Compile Include="Query\Builder\ExpressionBuilder.cs" />
+    <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\SourceBuilder.cs" />
     <Compile Include="Query\Builder\FunctionBuilder.cs" />

@@ -1,15 +1,22 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace FoxDb
 {
     public class SQLiteUpdateWriter : SQLiteQueryWriter
     {
-        public SQLiteUpdateWriter(IDatabase database, IQueryGraphVisitor visitor, StringBuilder builder, ICollection<string> parameterNames) : base(database, visitor, builder, parameterNames)
+        public SQLiteUpdateWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
         {
 
+        }
+
+        public override FragmentType FragmentType
+        {
+            get
+            {
+                return FragmentType.Update;
+            }
         }
 
         public override void Write(IFragmentBuilder fragment)

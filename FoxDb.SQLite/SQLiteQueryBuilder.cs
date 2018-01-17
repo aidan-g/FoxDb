@@ -30,23 +30,20 @@ namespace FoxDb
 
         protected class SQLiteQueryBuilderVisitor : QueryGraphVisitor
         {
-            protected readonly IDictionary<Type, byte> FragmentPriorities = new Dictionary<Type, byte>()
+            protected override IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
             {
-                { typeof(IAddBuilder), 10 },
-                { typeof(IUpdateBuilder), 20 },
-                { typeof(IDeleteBuilder), 30 },
-                { typeof(IOutputBuilder), 40 },
-                { typeof(ISourceBuilder), 50 },
-                { typeof(IFilterBuilder), 60 },
-                { typeof(ISortBuilder), 70 }
-            };
+                var handlers = base.GetHandlers();
+                handlers[SQLiteQueryFragment.Limit] = fragment => this.VisitLimit(fragment as ILimitBuilder);
+                handlers[SQLiteQueryFragment.Offset] = fragment => this.VisitOffset(fragment as IOffsetBuilder);
+                return handlers;
+            }
 
             private SQLiteQueryBuilderVisitor()
             {
                 this.Members = new DynamicMethod(this.GetType());
-                this.Builder = new StringBuilder();
                 this.ParameterNames = new List<string>();
                 this.Targets = new Stack<IFragmentTarget>();
+                this.Fragments = new List<SQLiteQueryFragment>();
             }
 
             public SQLiteQueryBuilderVisitor(IDatabase database) : this()
@@ -56,8 +53,6 @@ namespace FoxDb
 
             protected DynamicMethod Members { get; private set; }
 
-            public StringBuilder Builder { get; private set; }
-
             public ICollection<string> ParameterNames { get; private set; }
 
             public IDatabase Database { get; private set; }
@@ -66,11 +61,26 @@ namespace FoxDb
             {
                 get
                 {
-                    return new DatabaseQuery(this.Builder.ToString(), this.ParameterNames.ToArray());
+                    return new DatabaseQuery(this.CommandText, this.ParameterNames.ToArray());
+                }
+            }
+
+            public string CommandText
+            {
+                get
+                {
+                    var builder = new StringBuilder();
+                    foreach (var fragment in this.Fragments.Prioritize())
+                    {
+                        builder.Append(fragment.CommandText);
+                    }
+                    return builder.ToString();
                 }
             }
 
             protected Stack<IFragmentTarget> Targets { get; private set; }
+
+            protected ICollection<SQLiteQueryFragment> Fragments { get; private set; }
 
             public IFragmentTarget Peek
             {
@@ -93,71 +103,73 @@ namespace FoxDb
 
             public IFragmentTarget Pop()
             {
-                return this.Targets.Pop();
-            }
-
-            protected override IEnumerable<IFragmentBuilder> GetFragments(IQueryGraph graph)
-            {
-                return base.GetFragments(graph).OrderBy(fragment =>
+                var target = this.Targets.Pop();
+                if (!string.IsNullOrEmpty(target.CommandText))
                 {
-                    var type = fragment.GetType();
-                    foreach (var @interface in type.GetInterfaces())
-                    {
-                        var priority = default(byte);
-                        if (FragmentPriorities.TryGetValue(@interface, out priority))
-                        {
-                            return priority;
-                        }
-                    }
-                    throw new NotImplementedException();
-                });
+                    this.Fragments.Add(new SQLiteQueryFragment(target));
+                }
+                return target;
             }
 
             protected override void VisitAdd(IAddBuilder expression)
             {
-                this.Push(new SQLiteInsertWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteInsertWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitUpdate(IUpdateBuilder expression)
             {
-                this.Push(new SQLiteUpdateWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteUpdateWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitDelete(IDeleteBuilder expression)
             {
-                this.Push(new SQLiteDeleteWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteDeleteWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitOutput(IOutputBuilder expression)
             {
-                this.Push(new SQLiteSelectWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteSelectWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitSource(ISourceBuilder expression)
             {
-                this.Push(new SQLiteFromWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteFromWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitFilter(IFilterBuilder expression)
             {
-                this.Push(new SQLiteWhereWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteWhereWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }
 
             protected override void VisitSort(ISortBuilder expression)
             {
-                this.Push(new SQLiteOrderByWriter(this.Database, this, this.Builder, this.ParameterNames));
+                this.Push(new SQLiteOrderByWriter(this.Database, this, this.ParameterNames));
+                this.Peek.Write(expression);
+                this.Pop();
+            }
+
+            protected virtual void VisitLimit(ILimitBuilder expression)
+            {
+                this.Push(new SQLiteLimitWriter(this.Database, this, this.ParameterNames));
+                this.Peek.Write(expression);
+                this.Pop();
+            }
+
+            protected virtual void VisitOffset(IOffsetBuilder expression)
+            {
+                this.Push(new SQLiteOffsetWriter(this.Database, this, this.ParameterNames));
                 this.Peek.Write(expression);
                 this.Pop();
             }

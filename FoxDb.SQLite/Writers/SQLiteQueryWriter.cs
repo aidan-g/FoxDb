@@ -10,6 +10,8 @@ namespace FoxDb
     {
         protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
 
+        protected StringBuilder Builder { get; private set; }
+
         protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
@@ -52,21 +54,19 @@ namespace FoxDb
         protected SQLiteQueryWriter()
         {
             this.Handlers = this.GetHandlers();
+            this.Builder = new StringBuilder();
         }
 
-        public SQLiteQueryWriter(IDatabase database, IQueryGraphVisitor visitor, StringBuilder builder, ICollection<string> parameterNames) : this()
+        public SQLiteQueryWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this()
         {
             this.Database = database;
             this.Visitor = visitor;
-            this.Builder = builder;
             this.ParameterNames = parameterNames;
         }
 
         public IDatabase Database { get; private set; }
 
         public IQueryGraphVisitor Visitor { get; private set; }
-
-        public StringBuilder Builder { get; private set; }
 
         public ICollection<string> ParameterNames { get; private set; }
 
@@ -75,6 +75,14 @@ namespace FoxDb
             get
             {
                 throw new NotImplementedException();
+            }
+        }
+
+        public override string CommandText
+        {
+            get
+            {
+                return this.Builder.ToString();
             }
         }
 
@@ -123,13 +131,13 @@ namespace FoxDb
         protected virtual void VisitRelation(IExpressionBuilder expression, ITableConfig table, IColumnConfig leftColumn, IColumnConfig rightColumn)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.JOIN);
-            this.VisitTable(expression.GetTable(table));
+            this.VisitTable(expression.CreateTable(table));
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.ON);
-            this.VisitBinary(expression.GetFragment<IBinaryExpressionBuilder>().With(criteria =>
+            this.VisitBinary(expression.CreateFragment<IBinaryExpressionBuilder>().With(criteria =>
             {
-                criteria.Left = expression.GetColumn(leftColumn);
-                criteria.Operator = expression.GetOperator(QueryOperator.Equal);
-                criteria.Right = expression.GetColumn(rightColumn);
+                criteria.Left = expression.CreateColumn(leftColumn);
+                criteria.Operator = expression.CreateOperator(QueryOperator.Equal);
+                criteria.Right = expression.CreateColumn(rightColumn);
             }));
         }
 
@@ -178,7 +186,7 @@ namespace FoxDb
         {
             if (expression.Value == null)
             {
-                this.Visit(expression.GetOperator(QueryOperator.Null));
+                this.Visit(expression.CreateOperator(QueryOperator.Null));
             }
             else
             {
@@ -205,6 +213,15 @@ namespace FoxDb
                 }
                 this.ParameterNames.Add(parameterName);
             }
+        }
+
+        protected virtual void VisitAlias(string alias)
+        {
+            if (string.IsNullOrEmpty(alias))
+            {
+                return;
+            }
+            this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.AS, SQLiteSyntax.Identifier(alias));
         }
     }
 }

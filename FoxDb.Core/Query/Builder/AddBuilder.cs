@@ -22,14 +22,19 @@ namespace FoxDb
 
         public ITableBuilder SetTable(ITableConfig table)
         {
-            return this.Table = this.GetTable(table);
+            return this.Table = this.CreateTable(table);
         }
 
         public ICollection<IExpressionBuilder> Expressions { get; }
 
+        public IColumnBuilder GetColumn(IColumnConfig column)
+        {
+            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+        }
+
         public IColumnBuilder AddColumn(IColumnConfig column)
         {
-            var builder = this.GetColumn(column);
+            var builder = this.CreateColumn(column);
             this.Expressions.Add(builder);
             return builder;
         }

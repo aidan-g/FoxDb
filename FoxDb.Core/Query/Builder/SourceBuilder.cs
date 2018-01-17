@@ -20,23 +20,38 @@ namespace FoxDb
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
+        public ITableBuilder GetTable(ITableConfig table)
+        {
+            return this.GetExpression<ITableBuilder>(builder => builder.Table == table);
+        }
+
         public ITableBuilder AddTable(ITableConfig table)
         {
-            var builder = this.GetTable(table);
+            var builder = this.CreateTable(table);
             this.Expressions.Add(builder);
             return builder;
+        }
+
+        public IRelationBuilder GetRelation(IRelationConfig relation)
+        {
+            return this.GetExpression<IRelationBuilder>(builder => builder.Relation == relation);
         }
 
         public IRelationBuilder AddRelation(IRelationConfig relation)
         {
-            var builder = this.GetRelation(relation);
+            var builder = this.CreateRelation(relation);
             this.Expressions.Add(builder);
             return builder;
         }
 
+        public ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query)
+        {
+            return this.GetExpression<ISubQueryBuilder>(builder => builder.Query == query);
+        }
+
         public ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query)
         {
-            var builder = this.GetSubQuery(query);
+            var builder = this.CreateSubQuery(query);
             this.Expressions.Add(builder);
             return builder;
         }

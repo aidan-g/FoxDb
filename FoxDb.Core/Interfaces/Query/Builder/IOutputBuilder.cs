@@ -2,9 +2,9 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IOutputBuilder : IFragmentBuilder
+    public interface IOutputBuilder : IFragmentContainer, IFragmentBuilder
     {
-        ICollection<IExpressionBuilder> Expressions { get; }
+        IColumnBuilder GetColumn(IColumnConfig column);
 
         IColumnBuilder AddColumn(IColumnConfig column);
 

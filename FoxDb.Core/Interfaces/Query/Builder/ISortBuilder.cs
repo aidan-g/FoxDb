@@ -2,10 +2,8 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface ISortBuilder : IFragmentTarget
+    public interface ISortBuilder : IFragmentContainer, IFragmentTarget
     {
-        ICollection<IExpressionBuilder> Expressions { get; }
-
         IColumnBuilder AddColumn(IColumnConfig column);
 
         ISortBuilder AddColumns(IEnumerable<IColumnConfig> columns);

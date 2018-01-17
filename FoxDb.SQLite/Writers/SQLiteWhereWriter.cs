@@ -1,15 +1,23 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace FoxDb
 {
     public class SQLiteWhereWriter : SQLiteQueryWriter
     {
-        public SQLiteWhereWriter(IDatabase database, IQueryGraphVisitor visitor, StringBuilder builder, ICollection<string> parameterNames) : base(database, visitor, builder, parameterNames)
+        public SQLiteWhereWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
         {
 
+        }
+
+        public override FragmentType FragmentType
+        {
+            get
+            {
+                return FragmentType.Filter;
+            }
         }
 
         public override void Write(IFragmentBuilder fragment)
@@ -17,8 +25,19 @@ namespace FoxDb
             if (fragment is IFilterBuilder)
             {
                 var expression = fragment as IFilterBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.WHERE);
-                this.Visit(expression.Expressions);
+                if (expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.WHERE);
+                    this.Visit(expression.Expressions);
+                }
+                if (expression.Limit != 0)
+                {
+                    this.Visitor.Visit(new LimitBuilder(expression.Limit));
+                }
+                if (expression.Offset != 0)
+                {
+                    this.Visitor.Visit(new OffsetBuilder(expression.Offset));
+                }
                 return;
             }
             throw new NotImplementedException();

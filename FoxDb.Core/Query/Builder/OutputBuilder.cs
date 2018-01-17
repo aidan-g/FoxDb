@@ -20,9 +20,14 @@ namespace FoxDb
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
+        public IColumnBuilder GetColumn(IColumnConfig column)
+        {
+            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+        }
+
         public IColumnBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.GetColumn(column);
+            var expression = this.CreateColumn(column);
             expression.Alias = column.Identifier;
             this.Expressions.Add(expression);
             return expression;
@@ -41,21 +46,21 @@ namespace FoxDb
         {
             foreach (var column in columns)
             {
-                this.Expressions.Add(this.GetParameter(Conventions.ParameterName(column)));
+                this.Expressions.Add(this.CreateParameter(Conventions.ParameterName(column)));
             }
             return this;
         }
 
         public IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
-            var builder = this.GetFunction(function, arguments);
+            var builder = this.CreateFunction(function, arguments);
             this.Expressions.Add(builder);
             return builder;
         }
 
         public IOperatorBuilder AddOperator(QueryOperator @operator)
         {
-            var builder = this.GetOperator(@operator);
+            var builder = this.CreateOperator(@operator);
             this.Expressions.Add(builder);
             return builder;
         }

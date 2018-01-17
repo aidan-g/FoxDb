@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 
 namespace FoxDb
@@ -29,10 +30,18 @@ namespace FoxDb
         {
             get
             {
+                if (!this.Contains(name))
+                {
+                    throw new InvalidOperationException(string.Format("No such parameter \"{0}\".", name));
+                }
                 return (this.Parameters[name] as IDataParameter).Value;
             }
             set
             {
+                if (!this.Contains(name))
+                {
+                    throw new InvalidOperationException(string.Format("No such parameter \"{0}\".", name));
+                }
                 (this.Parameters[name] as IDataParameter).Value = value;
             }
         }
