@@ -80,7 +80,11 @@ namespace FoxDb
         public IColumnConfig GetColumn(IColumnSelector selector)
         {
             var column = Factories.Column.Create(this, selector);
-            return this.Columns[column.ColumnName];
+            if (!this.Columns.TryGetValue(column.ColumnName, out column))
+            {
+                return default(IColumnConfig);
+            }
+            return column;
         }
 
         public IColumnConfig CreateColumn(IColumnSelector selector)
@@ -167,6 +171,16 @@ namespace FoxDb
         {
             return !(a == b);
         }
+
+        public static ITableSelector By(Type tableType, TableFlags flags)
+        {
+            return TableSelector.By(tableType, flags);
+        }
+
+        public static ITableSelector By(ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        {
+            return TableSelector.By(leftTable, rightTable, flags);
+        }
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>
@@ -179,7 +193,11 @@ namespace FoxDb
         public IRelationConfig GetRelation<TRelation>(IRelationSelector<T, TRelation> selector)
         {
             var relation = Factories.Relation.Create(this, selector);
-            return this.Relations[relation.RelationType];
+            if (!this.Relations.TryGetValue(relation.RelationType, out relation))
+            {
+                return default(IRelationConfig);
+            }
+            return relation;
         }
 
         public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T, TRelation> selector)

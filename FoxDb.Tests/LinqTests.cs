@@ -165,6 +165,32 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void Count()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                    new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                    new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                {
+                    Assert.AreEqual(data.Count, query.Count());
+                }
+                transaction.Rollback();
+            }
+        }
+
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
         public void Any(RelationFlags flags)
@@ -193,7 +219,7 @@ namespace FoxDb
         }
 
         [Test]
-        public void Composite()
+        public void Composite_A()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
@@ -214,6 +240,36 @@ namespace FoxDb
                 Expression<Func<Test001, bool>> func1 = element => element.Field1 == "1_1" || element.Field2 == "2_1" || element.Field3 == "3_1";
                 Expression<Func<Test001, string>> func2 = element => element.Field1;
                 this.AssertSequence(data.AsQueryable().Where(func1).OrderBy(func2), query.Where(func1).OrderBy(func2));
+                transaction.Rollback();
+            }
+        }
+
+        [TestCase(0, 3)]
+        [TestCase(1, 2)]
+        [TestCase(2, 1)]
+        [TestCase(3, 0)]
+        public void Composite_B(int id, int expected)
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test001>(transaction);
+                var actual = query.Where(element => element.Id > id)
+                    .OrderBy(element => element.Id)
+                    .Count();
+                Assert.AreEqual(expected, actual);
                 transaction.Rollback();
             }
         }

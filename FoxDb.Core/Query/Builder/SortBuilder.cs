@@ -9,6 +9,7 @@ namespace FoxDb
         public SortBuilder()
         {
             this.Expressions = new List<IExpressionBuilder>();
+            this.Constants = new Dictionary<string, object>();
         }
 
         public override FragmentType FragmentType
@@ -20,6 +21,8 @@ namespace FoxDb
         }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
+
+        public IDictionary<string, object> Constants { get; private set; }
 
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
@@ -42,12 +45,12 @@ namespace FoxDb
             return this;
         }
 
-        public void Write(IFragmentBuilder fragment)
+        public T Write<T>(T fragment) where T : IFragmentBuilder
         {
             if (fragment is IColumnBuilder)
             {
                 this.Expressions.Add(fragment as IColumnBuilder);
-                return;
+                return fragment;
             }
             throw new NotImplementedException();
         }

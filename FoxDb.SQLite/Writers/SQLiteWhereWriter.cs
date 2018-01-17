@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public override void Write(IFragmentBuilder fragment)
+        public override T Write<T>(T fragment)
         {
             if (fragment is IFilterBuilder)
             {
@@ -38,7 +38,7 @@ namespace FoxDb
                 {
                     this.Visitor.Visit(new OffsetBuilder(expression.Offset));
                 }
-                return;
+                return fragment;
             }
             throw new NotImplementedException();
         }
@@ -58,6 +58,13 @@ namespace FoxDb
                 }
                 this.Visit(expression);
             }
+        }
+
+        protected override void VisitBinary(IBinaryExpressionBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            base.VisitBinary(expression);
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
         }
     }
 }

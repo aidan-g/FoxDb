@@ -28,5 +28,7 @@ namespace FoxDb.Interfaces
         DatabaseParameterHandler Parameters { get; set; }
 
         IDbTransaction Transaction { get; }
+
+        void Reset();
     }
 }

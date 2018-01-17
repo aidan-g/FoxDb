@@ -19,7 +19,7 @@ namespace FoxDb
             }
         }
 
-        public override void Write(IFragmentBuilder fragment)
+        public override T Write<T>(T fragment)
         {
             if (fragment is ILimitBuilder)
             {
@@ -28,7 +28,7 @@ namespace FoxDb
                 {
                     this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.LIMIT, expression.Limit);
                 }
-                return;
+                return fragment;
             }
             throw new NotImplementedException();
         }

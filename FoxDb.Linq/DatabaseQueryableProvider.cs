@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -7,22 +8,28 @@ using System.Linq.Expressions;
 
 namespace FoxDb
 {
-    public class DatabaseQueryableProvider : IDatabaseQueryableProvider
+    public class DatabaseQueryableProvider<T> : IDatabaseQueryableProvider<T>
     {
         private DatabaseQueryableProvider()
         {
             this.Members = new DynamicMethod(this.GetType());
+            this.Provider = new EnumerableQuery<T>(Expression.Empty());
         }
 
-        public DatabaseQueryableProvider(IDatabase database, IDbTransaction transaction = null) : this()
+        public DatabaseQueryableProvider(IDatabase database, DatabaseQueryableProviderFlags flags, IDbTransaction transaction = null) : this()
         {
             this.Database = database;
+            this.Flags = flags;
             this.Transaction = transaction;
         }
 
         protected DynamicMethod Members { get; private set; }
 
+        protected IQueryProvider Provider { get; private set; }
+
         public IDatabase Database { get; private set; }
+
+        public DatabaseQueryableProviderFlags Flags { get; private set; }
 
         public IDbTransaction Transaction { get; private set; }
 
@@ -31,9 +38,9 @@ namespace FoxDb
             throw new NotImplementedException();
         }
 
-        public IQueryable<T> CreateQuery<T>(Expression expression)
+        public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return new DatabaseQueryable<T>(this, expression);
+            return new DatabaseQueryable<TElement>(this, expression);
         }
 
         public object Execute(Expression expression)
@@ -41,64 +48,119 @@ namespace FoxDb
             throw new NotImplementedException();
         }
 
-        public T Execute<T>(Expression expression)
+        public TElement Execute<TElement>(Expression expression)
         {
-            var elementType = default(Type);
-            if (this.CanCreateSet<T>(out elementType))
-            {
-                var table = this.Database.Config.Table(elementType);
-                var set = this.Set(elementType, table, expression);
-                return (T)set;
-            }
-            else
-            {
-                var table = this.Database.Config.Table(typeof(T));
-                var set = this.Set<T>(table, expression);
-                return set.FirstOrDefault();
-            }
+            this.ConfigureSet(expression);
+            return this.Provider.Execute<TElement>(expression);
         }
 
-        protected virtual bool CanCreateSet<T>(out Type elementType)
+        public IQueryable<T> AsQueryable()
         {
-            if (!typeof(T).IsGenericType)
-            {
-                elementType = null;
-                return false;
-            }
-            if (!typeof(IEnumerable<>).IsAssignableFrom(typeof(T).GetGenericTypeDefinition()))
-            {
-                elementType = null;
-                return false;
-            }
-            elementType = typeof(T).GenericTypeArguments[0];
-            return true;
+            var set = this.Database.Set<T>(this.Transaction);
+            return this.AsQueryable(Expression.Constant(new DatabaseSetQuery(set)));
         }
 
-        protected virtual IDatabaseQuerySource GetSource(Type elementType, ITableConfig table, Expression expression)
+        public IQueryable<T> AsQueryable(Expression expression)
         {
-            var source = new DatabaseQuerySource(this.Database, table, this.Transaction);
-            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, source.Fetch, elementType);
+            return new DatabaseQueryable<T>(this, expression);
+        }
+
+        protected virtual IDatabaseSet<T> ConfigureSet(Expression expression)
+        {
+            var set = DatabaseSetLocator.GetSet(expression);
+            return this.ConfigureSet(set, expression);
+        }
+
+        protected virtual IDatabaseSet<T> ConfigureSet(IDatabaseSet<T> set, Expression expression)
+        {
+            if (!this.Flags.HasFlag(DatabaseQueryableProviderFlags.PreserveSource))
+            {
+                set.Source.Reset();
+            }
+            var visitor = new DatabaseQueryableExpressionVisitor(this.Database, set.Source.Fetch, set.ElementType);
             visitor.Visit(expression);
-            if (source.Parameters != null)
+            if (set.Source.Parameters != null)
             {
-                source.Parameters = (DatabaseParameterHandler)Delegate.Combine(source.Parameters, visitor.Parameters);
+                set.Source.Parameters = (DatabaseParameterHandler)Delegate.Combine(set.Source.Parameters, visitor.Parameters);
             }
             else
             {
-                source.Parameters = visitor.Parameters;
+                set.Source.Parameters = visitor.Parameters;
             }
-            return source;
+            return set;
         }
 
-        protected virtual IDatabaseSet Set(Type elementType, ITableConfig table, Expression expression)
+        public class DatabaseQueryable<TElement> : IOrderedQueryable<TElement>
         {
-            return (IDatabaseSet)this.Members.Invoke(this, "Set", elementType, table, expression);
+            public DatabaseQueryable(IDatabaseQueryableProvider<T> provider, Expression expression)
+            {
+                this.Provider = provider;
+                this.Expression = expression;
+            }
+
+            public IQueryProvider Provider { get; private set; }
+
+            public Expression Expression { get; private set; }
+
+            public Type ElementType
+            {
+                get
+                {
+                    return typeof(TElement);
+                }
+            }
+
+            public IEnumerator<TElement> GetEnumerator()
+            {
+                return this.Provider.Execute<IEnumerable<TElement>>(this.Expression).GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
+            }
         }
 
-        protected virtual IDatabaseSet<T> Set<T>(ITableConfig table, Expression expression)
+        public class DatabaseSetQuery : EnumerableQuery<T>
         {
-            var source = this.GetSource(typeof(T), table, expression);
-            return this.Database.Query<T>(source);
+            public DatabaseSetQuery(IDatabaseSet<T> set) : base(set)
+            {
+                this.Set = set;
+            }
+
+            public IDatabaseSet<T> Set { get; private set; }
         }
+
+        public class DatabaseSetLocator : ExpressionVisitor
+        {
+            public DatabaseSetLocator(Expression expression)
+            {
+                this.Visit(expression);
+            }
+
+            public IDatabaseSet<T> Set { get; private set; }
+
+            protected override Expression VisitConstant(ConstantExpression node)
+            {
+                if (typeof(DatabaseSetQuery).IsAssignableFrom(node.Type))
+                {
+                    this.Set = (node.Value as DatabaseSetQuery).Set;
+                    return node;
+                }
+                return base.VisitConstant(node);
+            }
+
+            public static IDatabaseSet<T> GetSet(Expression expression)
+            {
+                return new DatabaseSetLocator(expression).Set;
+            }
+        }
+    }
+
+    [Flags]
+    public enum DatabaseQueryableProviderFlags : byte
+    {
+        None,
+        PreserveSource
     }
 }

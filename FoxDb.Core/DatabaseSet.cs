@@ -22,6 +22,14 @@ namespace FoxDb
             this.Source = source;
         }
 
+        public Type ElementType
+        {
+            get
+            {
+                return typeof(T);
+            }
+        }
+
         public IDatabase Database
         {
             get

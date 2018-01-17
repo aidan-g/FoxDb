@@ -23,64 +23,62 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public ITableConfig Table(Type tableType)
+        public ITableConfig GetTable(ITableSelector selector)
         {
-            var table = this.Members.Invoke(this, "Table", tableType);
-            return (ITableConfig)table;
-        }
-
-        public ITableConfig<T> Table<T>()
-        {
-            var key = new TableKey(typeof(T));
-            if (!this.Tables.ContainsKey(key))
+            var table = default(ITableConfig);
+            if (!this.Tables.TryGetValue(this.GetKey(selector), out table))
             {
-                var table = this.CreateTable<T>();
-                if (!TableValidator.Validate(table))
-                {
-                    throw new InvalidOperationException("Table configuration is not valid.");
-                }
-                this.Tables[key] = table;
-                if (table.Flags.HasFlag(TableFlags.AutoColumns))
-                {
-                    table.AutoColumns();
-                }
-                if (table.Flags.HasFlag(TableFlags.AutoRelations))
-                {
-                    table.AutoRelations();
-                }
-                return table;
+                return default(ITableConfig);
             }
-            return this.Tables[key] as ITableConfig<T>;
+            return table;
         }
 
-        protected virtual ITableConfig<T> CreateTable<T>()
+        public ITableConfig CreateTable(ITableSelector selector)
         {
-            return Factories.Table.Create<T>(this);
-        }
-
-        public ITableConfig<T1, T2> Table<T1, T2>()
-        {
-            var key = new TableKey(typeof(T1), typeof(T2));
-            if (!this.Tables.ContainsKey(key))
+            var table = Factories.Table.Create(this, selector);
+            if (!TableValidator.Validate(table))
             {
-                var table = this.CreateTable<T1, T2>();
-                this.Tables[key] = table;
-                if (table.Flags.HasFlag(TableFlags.AutoColumns))
-                {
-                    table.AutoColumns();
-                }
-                if (table.Flags.HasFlag(TableFlags.AutoRelations))
-                {
-                    table.AutoRelations();
-                }
-                return table;
+                throw new InvalidOperationException("Table configuration is not valid.");
             }
-            return this.Tables[key] as ITableConfig<T1, T2>;
+            this.Tables[this.GetKey(selector)] = table;
+            this.Configure(table);
+            return table;
         }
 
-        protected virtual ITableConfig<T1, T2> CreateTable<T1, T2>()
+        public bool TryCreateTable(ITableSelector selector, out ITableConfig table)
         {
-            return Factories.Table.Create<T1, T2>(this);
+            table = Factories.Table.Create(this, selector);
+            if (!TableValidator.Validate(table))
+            {
+                return false;
+            }
+            this.Tables[this.GetKey(selector)] = table;
+            this.Configure(table);
+            return true;
+        }
+
+        protected virtual void Configure(ITableConfig table)
+        {
+            if (table.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                table.AutoColumns();
+            }
+            if (table.Flags.HasFlag(TableFlags.AutoRelations))
+            {
+                table.AutoRelations();
+            }
+        }
+
+        protected virtual TableKey GetKey(ITableSelector selector)
+        {
+            switch (selector.Type)
+            {
+                case TableSelectorType.TableType:
+                    return new TableKey(selector.TableType);
+                case TableSelectorType.Mapping:
+                    return new TableKey(selector.LeftTable.TableType, selector.RightTable.TableType);
+            }
+            throw new NotImplementedException();
         }
 
         protected class TableKey : IEquatable<TableKey>
