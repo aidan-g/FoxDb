@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SQLiteOrderByWriter : SQLiteQueryWriter
+    public class SQLiteGroupByWriter : SQLiteQueryWriter
     {
-        public SQLiteOrderByWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteGroupByWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
         {
 
         }
@@ -15,16 +15,16 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Sort;
+                return FragmentType.Aggregate;
             }
         }
 
         public override T Write<T>(T fragment)
         {
-            if (fragment is ISortBuilder)
+            if (fragment is IAggregateBuilder)
             {
-                var expression = fragment as ISortBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.ORDER_BY);
+                var expression = fragment as IAggregateBuilder;
+                this.Builder.AppendFormat("{0} ", SQLiteSyntax.GROUP_BY);
                 this.Visit(expression.Expressions);
                 return fragment;
             }
@@ -45,29 +45,6 @@ namespace FoxDb
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
-            }
-        }
-
-        protected override void VisitColumn(IColumnBuilder expression)
-        {
-            base.VisitColumn(expression);
-            this.VisitDirection(expression.Direction);
-        }
-
-        protected virtual void VisitDirection(OrderByDirection direction)
-        {
-            switch (direction)
-            {
-                case OrderByDirection.None:
-                    break;
-                case OrderByDirection.Ascending:
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.ASC);
-                    break;
-                case OrderByDirection.Descending:
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.DESC);
-                    break;
-                default:
-                    throw new NotImplementedException();
             }
         }
     }

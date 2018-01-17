@@ -23,6 +23,7 @@ namespace FoxDb
                  { FragmentType.Output, fragment => this.VisitOutput(fragment as IOutputBuilder) },
                  { FragmentType.Source, fragment => this.VisitSource(fragment as ISourceBuilder) },
                  { FragmentType.Filter, fragment => this.VisitFilter(fragment as IFilterBuilder) },
+                 { FragmentType.Aggregate, fragment => this.VisitAggregate(fragment as IAggregateBuilder) },
                  { FragmentType.Sort, fragment => this.VisitSort(fragment as ISortBuilder) }
             };
         }
@@ -61,6 +62,8 @@ namespace FoxDb
         protected abstract void VisitSource(ISourceBuilder expression);
 
         protected abstract void VisitFilter(IFilterBuilder expression);
+
+        protected abstract void VisitAggregate(IAggregateBuilder expression);
 
         protected abstract void VisitSort(ISortBuilder expression);
     }

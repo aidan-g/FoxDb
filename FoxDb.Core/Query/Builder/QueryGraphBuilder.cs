@@ -78,6 +78,15 @@ namespace FoxDb
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public IAggregateBuilder Aggregate
+        {
+            get
+            {
+                return this.Fragment<IAggregateBuilder>();
+            }
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ISortBuilder Sort
         {
             get

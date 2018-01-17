@@ -44,6 +44,7 @@
         Output,
         Source,
         Filter,
+        Aggregate,
         Sort
     }
 }

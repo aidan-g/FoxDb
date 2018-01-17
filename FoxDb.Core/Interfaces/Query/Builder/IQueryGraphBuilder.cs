@@ -23,6 +23,9 @@ namespace FoxDb.Interfaces
         IFilterBuilder Filter { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        IAggregateBuilder Aggregate { get; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         ISortBuilder Sort { get; }
 
         T Fragment<T>() where T : IFragmentBuilder;
