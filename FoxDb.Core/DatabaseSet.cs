@@ -138,7 +138,7 @@ namespace FoxDb
 
         public T Create()
         {
-            throw new NotImplementedException();
+            return (T)this.Factory.Create();
         }
 
         public T Find(object id)
