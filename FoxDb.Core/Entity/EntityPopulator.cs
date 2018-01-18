@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    public class EntityPopulator<T> : IEntityPopulator<T>
+    public class EntityPopulator : IEntityPopulator
     {
         public static readonly IEntityPopulatorStrategy[] Strategies = new IEntityPopulatorStrategy[]
         {
@@ -20,7 +20,7 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public void Populate(T item, IDatabaseReaderRecord record)
+        public void Populate(object item, IDatabaseReaderRecord record)
         {
             foreach (var column in this.Table.Columns)
             {

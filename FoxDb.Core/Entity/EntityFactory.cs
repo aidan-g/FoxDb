@@ -3,29 +3,37 @@ using System;
 
 namespace FoxDb
 {
-    public class EntityFactory<T> : IEntityFactory<T>
+    public class EntityFactory : IEntityFactory
     {
-        public EntityFactory(IEntityInitializer<T> initializer, IEntityPopulator<T> populator)
+        public EntityFactory(ITableConfig table, IEntityInitializer initializer)
         {
+            this.Table = table;
             this.Initializer = initializer;
+        }
+
+        public EntityFactory(ITableConfig table, IEntityInitializer initializer, IEntityPopulator populator) : this(table, initializer)
+        {
             this.Populator = populator;
         }
 
-        public IEntityInitializer<T> Initializer { get; private set; }
+        public ITableConfig Table { get; private set; }
 
-        public IEntityPopulator<T> Populator { get; private set; }
+        public IEntityInitializer Initializer { get; private set; }
 
-        public T Create(IDatabaseReaderRecord record)
+        public IEntityPopulator Populator { get; private set; }
+
+        public object Create()
         {
-            var item = Activator.CreateInstance<T>();
+            var item = Activator.CreateInstance(this.Table.TableType);
             this.Initializer.Initialize(item);
-            this.Populator.Populate(item, record);
             return item;
         }
 
-        object IEntityFactory.Create(IDatabaseReaderRecord record)
+        public object Create(IDatabaseReaderRecord record)
         {
-            return this.Create(record);
+            var item = this.Create();
+            this.Populator.Populate(item, record);
+            return item;
         }
     }
 }

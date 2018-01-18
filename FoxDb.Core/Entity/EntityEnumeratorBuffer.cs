@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -8,8 +7,8 @@ namespace FoxDb
     {
         private EntityEnumeratorBuffer()
         {
-            this.Factories = new Dictionary<Type, IEntityFactory>();
-            this.Buffer = new Dictionary<Type, object>();
+            this.Factories = new Dictionary<ITableConfig, IEntityFactory>();
+            this.Buffer = new Dictionary<ITableConfig, object>();
         }
 
         public EntityEnumeratorBuffer(IDatabaseSet set) : this()
@@ -17,25 +16,29 @@ namespace FoxDb
             this.Set = set;
         }
 
-        public IDictionary<Type, IEntityFactory> Factories { get; private set; }
+        public IDictionary<ITableConfig, IEntityFactory> Factories { get; private set; }
 
-        public IDictionary<Type, object> Buffer { get; private set; }
+        public IDictionary<ITableConfig, object> Buffer { get; private set; }
 
         public IDatabaseSet Set { get; private set; }
 
         public IDatabaseReaderRecord Record { get; set; }
 
-        protected virtual IEntityFactory<T> GetFactory<T>(ITableConfig table)
+        protected virtual IEntityFactory GetFactory(ITableConfig table)
         {
-            var factory = default(IEntityFactory);
-            if (!this.Factories.TryGetValue(typeof(T), out factory))
+            if (this.Set.Table == table)
             {
-                var initializer = new EntityInitializer<T>(table, this.Set.Mapper);
-                var populator = new EntityPopulator<T>(table, this.Set.Mapper);
-                factory = new EntityFactory<T>(initializer, populator);
-                this.Factories.Add(typeof(T), factory);
+                return this.Set.Factory;
             }
-            return (IEntityFactory<T>)factory;
+            var factory = default(IEntityFactory);
+            if (!this.Factories.TryGetValue(table, out factory))
+            {
+                var initializer = new EntityInitializer(table, this.Set.Mapper);
+                var populator = new EntityPopulator(table, this.Set.Mapper);
+                factory = new EntityFactory(table, initializer, populator);
+                this.Factories.Add(table, factory);
+            }
+            return factory;
         }
 
         public void Update(IDatabaseReaderRecord record)
@@ -43,26 +46,26 @@ namespace FoxDb
             this.Record = record;
         }
 
-        public bool Exists<T>()
-        {
-            return this.Buffer.ContainsKey(typeof(T));
-        }
-
-        public T Create<T>(ITableConfig table)
-        {
-            var item = this.GetFactory<T>(table).Create(this.Record);
-            this.Buffer.Add(typeof(T), item);
-            return item;
-        }
-
-        public T Get<T>()
+        public bool Exists(ITableConfig table)
         {
             var item = default(object);
-            if (this.Buffer.TryGetValue(typeof(T), out item))
+            return this.Buffer.TryGetValue(table, out item) && item != null;
+        }
+
+        public object Create(ITableConfig table)
+        {
+            var item = this.GetFactory(table).Create(this.Record);
+            return this.Buffer[table] = item;
+        }
+
+        public object Get(ITableConfig table)
+        {
+            var item = default(object);
+            if (this.Buffer.TryGetValue(table, out item))
             {
-                return (T)item;
+                return item;
             }
-            return default(T);
+            return null;
         }
 
         protected virtual object Key(ITableConfig table)
@@ -95,9 +98,9 @@ namespace FoxDb
             return false;
         }
 
-        public bool KeyChanged<T>(ITableConfig table)
+        public bool KeyChanged(ITableConfig table)
         {
-            if (!this.Exists<T>())
+            if (!this.Exists(table))
             {
                 return false;
             }
@@ -106,7 +109,7 @@ namespace FoxDb
             {
                 return true;
             }
-            var item = this.Get<T>();
+            var item = this.Get(table);
             if (!EntityKey.KeyEquals(table, item, key))
             {
                 return true;
@@ -114,9 +117,9 @@ namespace FoxDb
             return false;
         }
 
-        public void Remove<T>()
+        public void Remove(ITableConfig table)
         {
-            this.Buffer.Remove(typeof(T));
+            this.Buffer[table] = null;
         }
     }
 }

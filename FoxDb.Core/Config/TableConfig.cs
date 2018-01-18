@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,14 +8,28 @@ namespace FoxDb
 {
     public abstract class TableConfig : ITableConfig
     {
-        protected TableConfig(IConfig config, TableFlags flags, string tableName, Type tableType)
+        private TableConfig()
+        {
+            this.Columns = new ConcurrentDictionary<string, IColumnConfig>();
+            this.Relations = new ConcurrentDictionary<Type, IRelationConfig>();
+        }
+
+        protected TableConfig(IConfig config, TableFlags flags, string tableName, Type tableType) : this()
         {
             this.Config = config;
             this.Flags = flags;
             this.TableName = tableName;
             this.TableType = tableType;
-            this.Columns = new Dictionary<string, IColumnConfig>();
-            this.Relations = new Dictionary<Type, IRelationConfig>();
+        }
+
+        protected TableConfig(TableConfig table, Type tableType)
+        {
+            this.Config = table.Config;
+            this.Flags = table.Flags;
+            this.TableName = table.TableName;
+            this.TableType = tableType;
+            this.Columns = table.Columns;
+            this.Relations = table.Relations;
         }
 
         public IConfig Config { get; private set; }
@@ -25,9 +40,9 @@ namespace FoxDb
 
         public Type TableType { get; private set; }
 
-        protected virtual IDictionary<string, IColumnConfig> Columns { get; private set; }
+        protected virtual ConcurrentDictionary<string, IColumnConfig> Columns { get; private set; }
 
-        protected virtual IDictionary<Type, IRelationConfig> Relations { get; private set; }
+        protected virtual ConcurrentDictionary<Type, IRelationConfig> Relations { get; private set; }
 
         IEnumerable<IColumnConfig> ITableConfig.Columns
         {
@@ -92,9 +107,9 @@ namespace FoxDb
             var column = Factories.Column.Create(this, selector);
             if (!ColumnValidator.Validate(column))
             {
-                throw new InvalidOperationException("Column configuration is not valid.");
+                throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
-            this.Columns[column.ColumnName] = column;
+            column = this.Columns.GetOrAdd(column.ColumnName, column);
             return column;
         }
 
@@ -105,13 +120,15 @@ namespace FoxDb
             {
                 return false;
             }
-            this.Columns[column.ColumnName] = column;
+            column = this.Columns.GetOrAdd(column.ColumnName, column);
             return true;
         }
 
         public abstract ITableConfig AutoColumns();
 
         public abstract ITableConfig AutoRelations();
+
+        public abstract ITableConfig<T> CreateProxy<T>();
 
         public override int GetHashCode()
         {
@@ -190,6 +207,11 @@ namespace FoxDb
 
         }
 
+        protected TableConfig(TableConfig table) : base(table, typeof(T))
+        {
+
+        }
+
         public IRelationConfig GetRelation<TRelation>(IRelationSelector<T, TRelation> selector)
         {
             var relation = Factories.Relation.Create(this, selector);
@@ -205,9 +227,9 @@ namespace FoxDb
             var relation = Factories.Relation.Create(this, selector);
             if (!RelationValidator.Validate(false, relation))
             {
-                throw new InvalidOperationException("Relation configuration is not valid.");
+                throw new InvalidOperationException(string.Format("Relation has invalid configuration: {0}", relation));
             }
-            this.Relations[relation.RelationType] = relation;
+            relation = this.Relations.GetOrAdd(relation.RelationType, relation);
             return relation;
         }
 
@@ -218,20 +240,22 @@ namespace FoxDb
             {
                 return false;
             }
-            this.Relations[relation.RelationType] = relation;
+            relation = this.Relations.GetOrAdd(relation.RelationType, relation);
             return true;
         }
 
         public override ITableConfig AutoColumns()
         {
             var enumerator = new ColumnEnumerator();
-            foreach (var column in enumerator.GetColumns(this))
+            var columns = enumerator.GetColumns(this).ToArray();
+            for (var a = 0; a < columns.Length; a++)
             {
+                var column = columns[a];
                 if (this.Columns.ContainsKey(column.ColumnName))
                 {
                     continue;
                 }
-                this.Columns.Add(column.ColumnName, column);
+                column = this.Columns.GetOrAdd(column.ColumnName, column);
                 if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
                 {
                     column.IsPrimaryKey = true;
@@ -243,15 +267,22 @@ namespace FoxDb
         public override ITableConfig AutoRelations()
         {
             var enumerator = new RelationEnumerator();
-            foreach (var relation in enumerator.GetRelations(this))
+            var relations = enumerator.GetRelations(this).ToArray();
+            for (var a = 0; a < relations.Length; a++)
             {
+                var relation = relations[a];
                 if (this.Relations.ContainsKey(relation.RelationType))
                 {
                     continue;
                 }
-                this.Relations.Add(relation.RelationType, relation);
+                relation = this.Relations.GetOrAdd(relation.RelationType, relation);
             }
             return this;
+        }
+
+        public override ITableConfig<TElement> CreateProxy<TElement>()
+        {
+            return new TableConfig<TElement>(this);
         }
     }
 
@@ -289,6 +320,11 @@ namespace FoxDb
         public override ITableConfig AutoRelations()
         {
             return this;
+        }
+
+        public override ITableConfig<T> CreateProxy<T>()
+        {
+            throw new NotImplementedException();
         }
 
         public ITableConfig LeftTable { get; private set; }

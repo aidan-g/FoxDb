@@ -4,18 +4,18 @@
     {
         void Update(IDatabaseReaderRecord record);
 
-        bool Exists<T>();
+        bool Exists(ITableConfig table);
 
-        T Create<T>(ITableConfig table);
+        object Create(ITableConfig table);
 
-        T Get<T>();
+        object Get(ITableConfig table);
 
         bool HasKey(ITableConfig table);
 
         bool HasKey(ITableConfig table, out object key);
 
-        bool KeyChanged<T>(ITableConfig table);
+        bool KeyChanged(ITableConfig table);
 
-        void Remove<T>();
+        void Remove(ITableConfig table);
     }
 }

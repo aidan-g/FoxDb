@@ -4,23 +4,20 @@ namespace FoxDb.Interfaces
 {
     public interface IEntityGraphSink
     {
+        ITableConfig Table { get; }
 
+        EntityGraphSinkEventHandler Handler { get; }
     }
 
-    public interface IEntityGraphSink<T>: IEntityGraphSink
-    {
-        EntityGraphSinkEventHandler<T> Handler { get; set; }
-    }
+    public delegate void EntityGraphSinkEventHandler(object sender, EntityGraphSinkEventArgs e);
 
-    public delegate void EntityGraphSinkEventHandler<T>(object sender, EntityGraphSinkEventArgs<T> e);
-
-    public class EntityGraphSinkEventArgs<T> : EventArgs
+    public class EntityGraphSinkEventArgs : EventArgs
     {
-        public EntityGraphSinkEventArgs(T item)
+        public EntityGraphSinkEventArgs(object item)
         {
             this.Item = item;
         }
 
-        public T Item { get; private set; }
+        public object Item { get; private set; }
     }
 }

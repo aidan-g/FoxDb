@@ -1,6 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace FoxDb
 {
@@ -9,7 +9,7 @@ namespace FoxDb
         private Config()
         {
             this.Members = new DynamicMethod(this.GetType());
-            this.Tables = new Dictionary<TableKey, ITableConfig>();
+            this.Tables = new ConcurrentDictionary<TableKey, ITableConfig>();
         }
 
         public Config(IDatabase database) : this()
@@ -19,7 +19,7 @@ namespace FoxDb
 
         protected DynamicMethod Members { get; private set; }
 
-        protected virtual IDictionary<TableKey, ITableConfig> Tables { get; private set; }
+        protected virtual ConcurrentDictionary<TableKey, ITableConfig> Tables { get; private set; }
 
         public IDatabase Database { get; private set; }
 
@@ -38,9 +38,9 @@ namespace FoxDb
             var table = Factories.Table.Create(this, selector);
             if (!TableValidator.Validate(table))
             {
-                throw new InvalidOperationException("Table configuration is not valid.");
+                throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", table));
             }
-            this.Tables[this.GetKey(selector)] = table;
+            table = this.Tables.GetOrAdd(this.GetKey(selector), table);
             this.Configure(table);
             return table;
         }
@@ -52,7 +52,7 @@ namespace FoxDb
             {
                 return false;
             }
-            this.Tables[this.GetKey(selector)] = table;
+            table = this.Tables.GetOrAdd(this.GetKey(selector), table);
             this.Configure(table);
             return true;
         }

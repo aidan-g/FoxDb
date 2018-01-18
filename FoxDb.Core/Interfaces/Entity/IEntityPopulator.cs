@@ -1,7 +1,11 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IEntityPopulator<T>
+    public interface IEntityPopulator
     {
-        void Populate(T item, IDatabaseReaderRecord record);
+        ITableConfig Table { get; }
+
+        IEntityMapper Mapper { get; }
+
+        void Populate(object item, IDatabaseReaderRecord record);
     }
 }

@@ -95,6 +95,19 @@ namespace FoxDb
             return !(a == b);
         }
 
+        public ITableConfig GetOppositeTable(ITableConfig relativeTable)
+        {
+            if (this.LeftTable == relativeTable)
+            {
+                return this.RightTable;
+            }
+            if (this.RightTable == relativeTable)
+            {
+                return this.LeftTable;
+            }
+            throw new InvalidOperationException(string.Format("Table does not appear to be related: {0}", relativeTable));
+        }
+
         public abstract IRelationConfig Invert();
 
         public static IRelationSelector By(PropertyInfo property, RelationFlags flags)
