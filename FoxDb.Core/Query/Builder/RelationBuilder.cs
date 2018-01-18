@@ -4,6 +4,11 @@ namespace FoxDb
 {
     public class RelationBuilder : ExpressionBuilder, IRelationBuilder
     {
+        public RelationBuilder(IQueryGraphBuilder graph) : base(graph)
+        {
+
+        }
+
         public override FragmentType FragmentType
         {
             get

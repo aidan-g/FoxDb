@@ -10,8 +10,6 @@ namespace FoxDb.Interfaces
 
         IBinaryExpressionBuilder Add();
 
-        IFilterBuilder Add(IFilterBuilder builder);
-
         IBinaryExpressionBuilder GetColumn(IColumnConfig column);
 
         IBinaryExpressionBuilder AddColumn(IColumnConfig column);

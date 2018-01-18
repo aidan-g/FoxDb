@@ -51,7 +51,7 @@ namespace FoxDb
             { QueryFunction.Exists, SQLiteSyntax.EXISTS }
         };
 
-        protected SQLiteQueryWriter()
+        protected SQLiteQueryWriter() : base(QueryGraphBuilder.Null)
         {
             this.Handlers = this.GetHandlers();
             this.Builder = new StringBuilder();
@@ -189,7 +189,10 @@ namespace FoxDb
             }
             this.Builder.AppendFormat("{0} ", function);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
-            this.Visit(expression.Expressions);
+            if (expression.Expressions.Any())
+            {
+                this.Visit(expression.Expressions);
+            }
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
         }
 

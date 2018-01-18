@@ -6,8 +6,9 @@ namespace FoxDb
 {
     public class FunctionBuilder : ExpressionBuilder, IFunctionBuilder
     {
-        public FunctionBuilder()
+        public FunctionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
         {
+            this.Parent = parent;
             this.Expressions = new List<IExpressionBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
@@ -21,6 +22,8 @@ namespace FoxDb
         }
 
         public QueryFunction Function { get; set; }
+
+        public IFragmentBuilder Parent { get; private set; }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 

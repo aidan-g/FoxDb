@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class OperatorBuilder : ExpressionBuilder, IOperatorBuilder
     {
-        public OperatorBuilder()
+        public OperatorBuilder(IQueryGraphBuilder graph) : base(graph)
         {
             this.Operator = QueryOperator.None;
         }

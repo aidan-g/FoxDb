@@ -6,8 +6,9 @@ namespace FoxDb
 {
     public class SortBuilder : FragmentBuilder, ISortBuilder
     {
-        public SortBuilder()
+        public SortBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
         {
+            this.Parent = parent;
             this.Expressions = new List<IExpressionBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
@@ -19,6 +20,8 @@ namespace FoxDb
                 return FragmentType.Sort;
             }
         }
+
+        public IFragmentBuilder Parent { get; private set; }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
@@ -49,7 +52,16 @@ namespace FoxDb
         {
             if (fragment is IExpressionBuilder)
             {
-                this.Expressions.Add(fragment as IExpressionBuilder);
+                var table = default(ITableBuilder);
+                var builder = fragment as IExpressionBuilder;
+                if (!(this.Parent is ITableBuilder) && this.GetAssociatedTable(builder, out table))
+                {
+                    table.Sort.Write(builder);
+                }
+                else
+                {
+                    this.Expressions.Add(builder);
+                }
                 return fragment;
             }
             throw new NotImplementedException();

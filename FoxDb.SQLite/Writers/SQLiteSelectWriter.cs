@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -24,8 +25,11 @@ namespace FoxDb
             if (fragment is IOutputBuilder)
             {
                 var expression = fragment as IOutputBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.SELECT);
-                this.Visit(expression.Expressions);
+                if (expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.SELECT);
+                    this.Visit(expression.Expressions);
+                }
                 return fragment;
             }
             throw new NotImplementedException();

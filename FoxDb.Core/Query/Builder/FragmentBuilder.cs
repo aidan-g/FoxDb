@@ -6,28 +6,41 @@ namespace FoxDb
 {
     public abstract class FragmentBuilder : IFragmentBuilder
     {
-        public static readonly IDictionary<Type, Func<IFragmentBuilder>> Factories = new Dictionary<Type, Func<IFragmentBuilder>>()
+        protected IDictionary<Type, Func<IFragmentBuilder>> Factories { get; private set; }
+
+        protected IDictionary<Type, Func<IFragmentBuilder>> GetFactories(IQueryGraphBuilder graph)
         {
-            //Expressions.
-            { typeof(IOutputBuilder), () => new OutputBuilder() },
-            { typeof(IAddBuilder), () => new AddBuilder() },
-            { typeof(IUpdateBuilder), () => new UpdateBuilder() },
-            { typeof(IDeleteBuilder), () => new DeleteBuilder() },
-            { typeof(ISourceBuilder), () => new SourceBuilder() },
-            { typeof(IFilterBuilder), () => new FilterBuilder() },
-            { typeof(IAggregateBuilder), () => new AggregateBuilder() },
-            { typeof(ISortBuilder), () => new SortBuilder() },
-            //Fragments.
-            { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder() },
-            { typeof(ITableBuilder), () => new TableBuilder() },
-            { typeof(IRelationBuilder), () => new RelationBuilder() },
-            { typeof(ISubQueryBuilder), () => new SubQueryBuilder() },
-            { typeof(IColumnBuilder), () => new ColumnBuilder() },
-            { typeof(IParameterBuilder), () => new ParameterBuilder() },
-            { typeof(IFunctionBuilder), () => new FunctionBuilder() },
-            { typeof(IOperatorBuilder), () => new OperatorBuilder() },
-            { typeof(IConstantBuilder), () => new ConstantBuilder() },
-        };
+            return new Dictionary<Type, Func<IFragmentBuilder>>()
+            {
+                //Expressions.
+                { typeof(IOutputBuilder), () => new OutputBuilder(this, graph) },
+                { typeof(IAddBuilder), () => new AddBuilder(this, graph) },
+                { typeof(IUpdateBuilder), () => new UpdateBuilder(graph) },
+                { typeof(IDeleteBuilder), () => new DeleteBuilder(graph) },
+                { typeof(ISourceBuilder), () => new SourceBuilder(this, graph) },
+                { typeof(IFilterBuilder), () => new FilterBuilder(this, graph) },
+                { typeof(IAggregateBuilder), () => new AggregateBuilder(this, graph) },
+                { typeof(ISortBuilder), () => new SortBuilder(this, graph) },
+                //Fragments.
+                { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder(graph) },
+                { typeof(ITableBuilder), () => new TableBuilder(graph) },
+                { typeof(IRelationBuilder), () => new RelationBuilder(graph) },
+                { typeof(ISubQueryBuilder), () => new SubQueryBuilder(graph) },
+                { typeof(IColumnBuilder), () => new ColumnBuilder(graph) },
+                { typeof(IParameterBuilder), () => new ParameterBuilder(graph) },
+                { typeof(IFunctionBuilder), () => new FunctionBuilder(this, graph) },
+                { typeof(IOperatorBuilder), () => new OperatorBuilder(graph) },
+                { typeof(IConstantBuilder), () => new ConstantBuilder(graph) },
+            };
+        }
+
+        protected FragmentBuilder(IQueryGraphBuilder graph)
+        {
+            this.Graph = graph;
+            this.Factories = this.GetFactories(graph);
+        }
+
+        public IQueryGraphBuilder Graph { get; private set; }
 
         public abstract FragmentType FragmentType { get; }
 
@@ -120,6 +133,30 @@ namespace FoxDb
         public IConstantBuilder CreateConstant(object value)
         {
             return this.CreateFragment<IConstantBuilder>().With(builder => builder.Value = value);
+        }
+
+        protected virtual bool GetAssociatedTable(IExpressionBuilder builder, out ITableBuilder table)
+        {
+            switch (builder.FragmentType)
+            {
+                case FragmentType.Column:
+                    {
+                        var expression = builder as IColumnBuilder;
+                        table = builder.Graph.Source.GetTable(expression.Column.Table);
+                        return true;
+                    }
+                case FragmentType.Binary:
+                    {
+                        var expression = builder as IBinaryExpressionBuilder;
+                        if (this.GetAssociatedTable(expression.Left, out table) || this.GetAssociatedTable(expression.Right, out table))
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+            }
+            table = default(ITableBuilder);
+            return false;
         }
     }
 }

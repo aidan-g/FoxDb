@@ -13,18 +13,25 @@ namespace FoxDb
 
         protected virtual IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
         {
-            return new Dictionary<string, MethodVisitorHandler>()
+            var handlers = new Dictionary<string, MethodVisitorHandler>()
             {
-                //Scalar methods.
-                { "First", this.VisitFirst },
-                { "FirstOrDefault", this.VisitFirst },
                 { "Count", this.VisitCount },
-                //Enumerable methods.
                 { "Any", this.VisitAny },
                 { "Where", this.VisitWhere },
                 { "OrderBy", this.VisitOrderBy },
                 { "OrderByDescending", this.VisitOrderByDescending }
             };
+            if (this.Flags.HasFlag(DatabaseQueryableProviderFlags.AllowLimit))
+            {
+                handlers.Add("First", this.VisitFirst);
+                handlers.Add("FirstOrDefault", this.VisitFirst);
+            }
+            else
+            {
+                handlers.Add("First", this.VisitWhere);
+                handlers.Add("FirstOrDefault", this.VisitWhere);
+            }
+            return handlers;
         }
 
         protected virtual IDictionary<ExpressionType, UnaryVisitorHandler> UnaryHandlers { get; private set; }
@@ -50,15 +57,16 @@ namespace FoxDb
             { ExpressionType.OrElse, QueryOperator.OrElse },
         };
 
-        private DatabaseQueryableVisitor()
+        private DatabaseQueryableVisitor(DatabaseQueryableProviderFlags flags)
         {
+            this.Flags = flags;
             this.MethodHandlers = this.GetMethodHandlers();
             this.UnaryHandlers = this.GetUnaryHandlers();
             this.Constants = new Dictionary<string, object>();
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public DatabaseQueryableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
+        public DatabaseQueryableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType, DatabaseQueryableProviderFlags flags) : this(flags)
         {
             this.Database = database;
             this.Query = query;
@@ -72,6 +80,8 @@ namespace FoxDb
         public IDatabase Database { get; private set; }
 
         public Type ElementType { get; private set; }
+
+        public DatabaseQueryableProviderFlags Flags { get; private set; }
 
         public OrderByDirection Direction { get; private set; }
 
@@ -339,15 +349,24 @@ namespace FoxDb
         protected virtual void VisitWhere(MethodCallExpression node)
         {
             this.Visit(node.Arguments[0]);
-            this.Push(this.Query.Filter);
-            try
+            switch (node.Arguments.Count)
             {
-                var lambda = this.GetLambda(node.Arguments[1]);
-                this.Visit(lambda.Body);
-            }
-            finally
-            {
-                this.Pop();
+                case 1:
+                    break;
+                case 2:
+                    this.Push(this.Query.Filter);
+                    try
+                    {
+                        var lambda = this.GetLambda(node.Arguments[1]);
+                        this.Visit(lambda.Body);
+                    }
+                    finally
+                    {
+                        this.Pop();
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -496,12 +515,10 @@ namespace FoxDb
             {
                 this.Pop();
             }
-            //if (fragment.Left == null || fragment.Operator == null || fragment.Right == null)
-            //{
-            //    throw new InvalidOperationException(string.Format("Binary expression is invalid: Left = \"{0}\" Operator = \"{1}\" Right = \"{2}\".", fragment.Left, fragment.Operator, fragment.Right));
-            //}
             if (fragment.Right == null)
             {
+                //Sometimes a binary expression evaluates to a unary expression, such as ...Any() == true.
+                //In this case we can ignore everything other than the left expression.
                 this.Peek.Write(fragment.Left);
             }
             else
@@ -641,7 +658,7 @@ namespace FoxDb
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
         {
-            public CaptureFragmentTarget()
+            public CaptureFragmentTarget() : base(QueryGraphBuilder.Null)
             {
                 this.Expressions = new List<IFragmentBuilder>();
                 this.Constants = new Dictionary<string, object>();
