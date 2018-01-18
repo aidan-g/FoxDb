@@ -78,6 +78,7 @@ namespace FoxDb
                 {
                     var set = database.Query<Transient>(database.Source(database.Config.Table<Test002>().CreateProxy<Transient>(), transaction));
                     this.AssertEnumerator_1(data, database, set, transaction);
+                    Assert.AreEqual(new Transient(), set.Create());
                 }
             }
         }
