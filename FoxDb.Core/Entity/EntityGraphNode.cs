@@ -16,7 +16,6 @@ namespace FoxDb
 
         public Type EntityType { get; private set; }
 
-
         public IEntityGraphNode Parent { get; private set; }
 
         public ITableConfig Table { get; private set; }

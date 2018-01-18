@@ -48,6 +48,30 @@ namespace FoxDb
             }
         }
 
+        public IEntityInitializer Initializer
+        {
+            get
+            {
+                return this.Source.Initializer;
+            }
+        }
+
+        public IEntityPopulator Populator
+        {
+            get
+            {
+                return this.Source.Populator;
+            }
+        }
+
+        public IEntityFactory Factory
+        {
+            get
+            {
+                return this.Source.Factory;
+            }
+        }
+
         public IDatabaseQuerySource Source { get; private set; }
 
         public DatabaseParameterHandler Parameters
@@ -112,6 +136,11 @@ namespace FoxDb
             return items;
         }
 
+        public T Create()
+        {
+            throw new NotImplementedException();
+        }
+
         public T Find(object id)
         {
             var query = default(IQueryGraphBuilder);
@@ -169,6 +198,14 @@ namespace FoxDb
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        IEntityFactory IDatabaseSet.Factory
+        {
+            get
+            {
+                return this.Factory;
+            }
         }
 
         #region ICollection<T>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
@@ -36,6 +34,8 @@ namespace FoxDb.Interfaces
         ITableConfig AutoColumns();
 
         ITableConfig AutoRelations();
+
+        ITableConfig<T> CreateProxy<T>();
     }
 
     public interface ITableConfig<T> : ITableConfig

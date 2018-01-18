@@ -9,20 +9,20 @@ namespace FoxDb
         public IEnumerable<T> AsEnumerable<T>(ITableConfig table, IDatabaseReader reader)
         {
             var mapper = new EntityMapper(table);
-            var initializer = new EntityInitializer<T>(table, mapper);
-            var populator = new EntityPopulator<T>(table, mapper);
-            var factory = new EntityFactory<T>(initializer, populator);
+            var initializer = new EntityInitializer(table, mapper);
+            var populator = new EntityPopulator(table, mapper);
+            var factory = new EntityFactory(table, initializer, populator);
             foreach (var record in reader)
             {
-                yield return factory.Create(record);
+                yield return (T)factory.Create(record);
             }
             reader.Dispose();
         }
 
         public IEnumerable<T> AsEnumerable<T>(IDatabaseSet<T> set, IDatabaseReader reader)
         {
-            var buffer = new List<T>();
-            var sink = new EntityGraphSink<T>((sender, e) => buffer.Add(e.Item));
+            var buffer = new List<object>();
+            var sink = new EntityGraphSink(set.Table, (sender, e) => buffer.Add(e.Item));
             var builder = new EntityGraphBuilder(new EntityGraphMapping(set.Table, typeof(T)));
             var graph = builder.Build(set.Table, set.Mapper);
             var visitor = new EntityEnumeratorVisitor(set, sink);
@@ -33,15 +33,15 @@ namespace FoxDb
                 {
                     foreach (var item in buffer)
                     {
-                        yield return item;
+                        yield return (T)item;
                     }
                     buffer.Clear();
                 }
             }
-            visitor.Flush<T>();
+            visitor.Flush(set.Table);
             foreach (var item in buffer)
             {
-                yield return item;
+                yield return (T)item;
             }
             reader.Dispose();
         }
@@ -67,23 +67,22 @@ namespace FoxDb
                 this.Visit(graph);
             }
 
-            public void Flush<T>()
+            public void Flush(ITableConfig table)
             {
-                this.Emit<T>();
+                this.Emit(table);
             }
 
-            protected virtual T Emit<T>()
+            protected virtual object Emit(ITableConfig table)
             {
-                var item = this.Buffer.Get<T>();
+                var item = this.Buffer.Get(table);
                 if (item != null)
                 {
-                    var sink = this.Sink as IEntityGraphSink<T>;
-                    if (sink != null)
+                    if (this.Sink.Table == table)
                     {
-                        sink.Handler(this, new EntityGraphSinkEventArgs<T>(item));
+                        this.Sink.Handler(this, new EntityGraphSinkEventArgs(item));
                     }
+                    this.Buffer.Remove(table);
                 }
-                this.Buffer.Remove<T>();
                 return item;
             }
 
@@ -91,17 +90,17 @@ namespace FoxDb
             {
                 do
                 {
-                    if (!this.Buffer.Exists<T>())
+                    if (!this.Buffer.Exists(node.Table))
                     {
                         if (this.Buffer.HasKey(node.Table))
                         {
-                            this.Buffer.Create<T>(node.Table);
+                            this.Buffer.Create(node.Table);
                         }
                         break;
                     }
-                    else if (this.Buffer.KeyChanged<T>(node.Table))
+                    else if (this.Buffer.KeyChanged(node.Table))
                     {
-                        this.Emit<T>();
+                        this.Emit(node.Table);
                     }
                     else
                     {
@@ -112,23 +111,23 @@ namespace FoxDb
 
             protected override void OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node)
             {
-                if (!this.Buffer.Exists<T>() || !this.Buffer.Exists<TRelation>())
+                if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
                 {
                     return;
                 }
-                var parent = this.Buffer.Get<T>();
-                var child = this.Buffer.Get<TRelation>();
+                var parent = (T)this.Buffer.Get(node.Parent.Table);
+                var child = (TRelation)this.Buffer.Get(node.Table);
                 node.Relation.Setter(parent, child);
             }
 
             protected override void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node)
             {
-                if (!this.Buffer.Exists<T>() || !this.Buffer.Exists<TRelation>())
+                if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
                 {
                     return;
                 }
-                var parent = this.Buffer.Get<T>();
-                var child = this.Buffer.Get<TRelation>();
+                var parent = (T)this.Buffer.Get(node.Parent.Table);
+                var child = (TRelation)this.Buffer.Get(node.Table);
                 var sequence = node.Relation.Getter(parent);
                 if (sequence == null)
                 {

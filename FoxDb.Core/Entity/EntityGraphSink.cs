@@ -2,18 +2,16 @@
 
 namespace FoxDb
 {
-    public class EntityGraphSink<T> : IEntityGraphSink<T>
+    public class EntityGraphSink : IEntityGraphSink
     {
-        public EntityGraphSink()
+        public EntityGraphSink(ITableConfig table, EntityGraphSinkEventHandler handler)
         {
-
-        }
-
-        public EntityGraphSink(EntityGraphSinkEventHandler<T> handler)
-        {
+            this.Table = table;
             this.Handler = handler;
         }
 
-        public EntityGraphSinkEventHandler<T> Handler { get; set; }
+        public ITableConfig Table { get; private set; }
+
+        public EntityGraphSinkEventHandler Handler { get; private set; }
     }
 }

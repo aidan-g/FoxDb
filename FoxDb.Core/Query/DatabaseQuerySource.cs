@@ -10,7 +10,10 @@ namespace FoxDb
         {
             this.Database = database;
             this.Table = table;
-            this.Mapper = new EntityMapper(table);
+            this.Mapper = new EntityMapper(this.Table);
+            this.Initializer = new EntityInitializer(this.Table, this.Mapper);
+            this.Populator = new EntityPopulator(this.Table, this.Mapper);
+            this.Factory = new EntityFactory(this.Table, this.Initializer, this.Populator);
             this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
             this.Transaction = transaction;
             this.Reset();
@@ -37,6 +40,12 @@ namespace FoxDb
         }
 
         public IEntityMapper Mapper { get; private set; }
+
+        public IEntityInitializer Initializer { get; private set; }
+
+        public IEntityPopulator Populator { get; private set; }
+
+        public IEntityFactory Factory { get; private set; }
 
         public IEntityRelationQueryComposer Composer { get; private set; }
 

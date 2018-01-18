@@ -15,6 +15,12 @@ namespace FoxDb.Interfaces
 
         IEntityMapper Mapper { get; }
 
+        IEntityInitializer Initializer { get; }
+
+        IEntityPopulator Populator { get; }
+
+        IEntityFactory Factory { get; }
+
         IEntityRelationQueryComposer Composer { get; }
 
         IQueryGraphBuilder Fetch { get; set; }

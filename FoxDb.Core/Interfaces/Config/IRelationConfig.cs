@@ -24,6 +24,8 @@ namespace FoxDb.Interfaces
 
         Type RelationType { get; }
 
+        ITableConfig GetOppositeTable(ITableConfig relativeTable);
+
         IRelationConfig Invert();
     }
 

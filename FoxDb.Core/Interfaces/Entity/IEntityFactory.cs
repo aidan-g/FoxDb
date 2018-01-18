@@ -2,11 +2,14 @@
 {
     public interface IEntityFactory
     {
-        object Create(IDatabaseReaderRecord record);
-    }
+        ITableConfig Table { get; }
 
-    public interface IEntityFactory<T> : IEntityFactory
-    {
-        new T Create(IDatabaseReaderRecord record);
+        IEntityInitializer Initializer { get; }
+
+        IEntityPopulator Populator { get; }
+
+        object Create();
+
+        object Create(IDatabaseReaderRecord record);
     }
 }

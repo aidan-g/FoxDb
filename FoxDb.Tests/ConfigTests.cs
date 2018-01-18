@@ -57,6 +57,18 @@ namespace FoxDb
         }
 
         [Test]
+        public void InvalidTable()
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                Assert.Throws<InvalidOperationException>(() => database.Config.Table<Mango>());
+            }
+        }
+
+        [Test]
         public void InvalidColumn()
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
@@ -160,6 +172,11 @@ namespace FoxDb
 
         [Table(Name = "Test001")]
         public class Biscuit : Test001
+        {
+
+        }
+
+        public class Mango : Test001
         {
 
         }

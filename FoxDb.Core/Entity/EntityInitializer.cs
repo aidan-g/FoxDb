@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class EntityInitializer<T> : IEntityInitializer<T>
+    public class EntityInitializer : IEntityInitializer
     {
         private EntityInitializer()
         {
@@ -22,7 +22,7 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public void Initialize(T item)
+        public void Initialize(object item)
         {
             foreach (var relation in this.Table.Relations)
             {
@@ -30,7 +30,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                this.Members.Invoke(this, "Initialize", new[] { typeof(T), relation.RelationType }, item, relation);
+                this.Members.Invoke(this, "Initialize", new[] { this.Table.TableType, relation.RelationType }, item, relation);
             }
         }
 

@@ -1,7 +1,11 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IEntityInitializer<T>
+    public interface IEntityInitializer
     {
-        void Initialize(T item);
+        ITableConfig Table { get; }
+
+        IEntityMapper Mapper { get; }
+
+        void Initialize(object item);
     }
 }
