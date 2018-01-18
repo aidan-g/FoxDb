@@ -4,6 +4,11 @@ namespace FoxDb
 {
     public class ConstantBuilder : ExpressionBuilder, IConstantBuilder
     {
+        public ConstantBuilder(IQueryGraphBuilder graph) : base(graph)
+        {
+
+        }
+
         public override FragmentType FragmentType
         {
             get

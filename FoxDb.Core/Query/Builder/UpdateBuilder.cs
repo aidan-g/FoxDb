@@ -5,7 +5,7 @@ namespace FoxDb
 {
     public class UpdateBuilder : FragmentBuilder, IUpdateBuilder
     {
-        public UpdateBuilder()
+        public UpdateBuilder(IQueryGraphBuilder graph) : base(graph)
         {
             this.Expressions = new List<IBinaryExpressionBuilder>();
         }

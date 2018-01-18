@@ -6,8 +6,9 @@ namespace FoxDb
 {
     public class AggregateBuilder : FragmentBuilder, IAggregateBuilder
     {
-        public AggregateBuilder()
+        public AggregateBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
         {
+            this.Parent = parent;
             this.Expressions = new List<IExpressionBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
@@ -19,6 +20,8 @@ namespace FoxDb
                 return FragmentType.Aggregate;
             }
         }
+
+        public IFragmentBuilder Parent { get; private set; }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 

@@ -5,8 +5,9 @@ namespace FoxDb
 {
     public class OutputBuilder : FragmentBuilder, IOutputBuilder
     {
-        public OutputBuilder()
+        public OutputBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
         {
+            this.Parent = parent;
             this.Expressions = new List<IExpressionBuilder>();
         }
 
@@ -17,6 +18,8 @@ namespace FoxDb
                 return FragmentType.Output;
             }
         }
+
+        public IFragmentBuilder Parent { get; private set; }
 
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 

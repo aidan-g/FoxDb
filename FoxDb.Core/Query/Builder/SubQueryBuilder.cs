@@ -4,6 +4,11 @@ namespace FoxDb
 {
     public class SubQueryBuilder : ExpressionBuilder, ISubQueryBuilder
     {
+        public SubQueryBuilder(IQueryGraphBuilder graph) : base(graph)
+        {
+
+        }
+
         public override FragmentType FragmentType
         {
             get

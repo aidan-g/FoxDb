@@ -255,6 +255,34 @@ namespace FoxDb
             }
         }
 
+        [TestCase(RelationFlags.OneToMany, DatabaseQueryableProviderFlags.None)]
+        [TestCase(RelationFlags.OneToMany, DatabaseQueryableProviderFlags.AllowLimit)]
+        [TestCase(RelationFlags.ManyToMany, DatabaseQueryableProviderFlags.None)]
+        [TestCase(RelationFlags.ManyToMany, DatabaseQueryableProviderFlags.AllowLimit)]
+        public void Composite_C(RelationFlags relationFlags, DatabaseQueryableProviderFlags providerFlags)
+        {
+            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var database = new Database(provider);
+            using (var transaction = database.Connection.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | relationFlags);
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
+                set.Clear();
+                data.AddRange(new[]
+                {
+                    new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Test002() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                    new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                });
+                set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test002>(providerFlags, transaction);
+                Assert.AreEqual(data[2], query.Where(element => element.Id > 1).OrderByDescending(element => element.Id).FirstOrDefault());
+                transaction.Rollback();
+            }
+        }
+
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
         public void IndexerBinding(RelationFlags flags)

@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -24,8 +25,11 @@ namespace FoxDb
             if (fragment is ISourceBuilder)
             {
                 var expression = fragment as ISourceBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.FROM);
-                this.Visit(expression.Expressions);
+                if (expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.FROM);
+                    this.Visit(expression.Expressions);
+                }
                 return fragment;
             }
             throw new NotImplementedException();
@@ -61,16 +65,21 @@ namespace FoxDb
 
         protected override void VisitTable(ITableBuilder expression)
         {
-            if (expression.Filter.Limit == 0 && expression.Filter.Offset == 0 && expression.Filter.IsEmpty())
+            if (expression.Filter.Limit == 0 && expression.Filter.Offset == 0 && expression.Filter.IsEmpty() && expression.Sort.IsEmpty())
             {
                 base.VisitTable(expression);
             }
             else
             {
+                //If the table builder is filtered or sorted we have to create a sub query encapsulating this logic.
+                //This is really only necessary if limit or offset is defined.
                 var builder = this.Database.QueryFactory.Build();
                 builder.Output.AddOperator(QueryOperator.Star);
                 builder.Source.AddTable(expression.Table);
-                builder.Filter.Add(expression.Filter);
+                builder.Filter.Limit = expression.Filter.Limit;
+                builder.Filter.Offset = expression.Filter.Offset;
+                builder.Filter.Expressions.AddRange(expression.Filter.Expressions);
+                builder.Sort.Expressions.AddRange(expression.Sort.Expressions);
                 this.VisitSubQuery(this.CreateSubQuery(builder).With(
                     query => query.Alias = expression.Table.TableName
                 ));

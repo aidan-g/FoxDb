@@ -2,6 +2,8 @@
 {
     public interface IFragmentBuilder
     {
+        IQueryGraphBuilder Graph { get; }
+
         FragmentType FragmentType { get; }
 
         void Touch();

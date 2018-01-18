@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -24,8 +25,11 @@ namespace FoxDb
             if (fragment is IAggregateBuilder)
             {
                 var expression = fragment as IAggregateBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.GROUP_BY);
-                this.Visit(expression.Expressions);
+                if (expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.GROUP_BY);
+                    this.Visit(expression.Expressions);
+                }
                 return fragment;
             }
             throw new NotImplementedException();

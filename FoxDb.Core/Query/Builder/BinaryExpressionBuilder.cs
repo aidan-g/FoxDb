@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class BinaryExpressionBuilder : ExpressionBuilder, IBinaryExpressionBuilder
     {
-        public BinaryExpressionBuilder()
+        public BinaryExpressionBuilder(IQueryGraphBuilder graph) : base(graph)
         {
             this.Constants = new Dictionary<string, object>();
         }

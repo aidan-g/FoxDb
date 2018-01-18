@@ -8,5 +8,8 @@ namespace FoxDb.Interfaces
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IFilterBuilder Filter { get; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        ISortBuilder Sort { get; }
     }
 }

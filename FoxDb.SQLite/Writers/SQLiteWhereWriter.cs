@@ -32,11 +32,11 @@ namespace FoxDb
                 }
                 if (expression.Limit != 0)
                 {
-                    this.Visitor.Visit(new LimitBuilder(expression.Limit));
+                    this.Visitor.Visit(new LimitBuilder(this.Graph, expression.Limit));
                 }
                 if (expression.Offset != 0)
                 {
-                    this.Visitor.Visit(new OffsetBuilder(expression.Offset));
+                    this.Visitor.Visit(new OffsetBuilder(this.Graph, expression.Offset));
                 }
                 return fragment;
             }

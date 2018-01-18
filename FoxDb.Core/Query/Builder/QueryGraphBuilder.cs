@@ -6,20 +6,15 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class QueryGraphBuilder : FragmentBuilder, IQueryGraphBuilder
+    public class QueryGraphBuilder : IQueryGraphBuilder
     {
         public QueryGraphBuilder()
         {
+            this.FragmentBuilder = new FragmentBuilderProxy(this);
             this.Fragments = new List<IFragmentBuilder>();
         }
 
-        public override FragmentType FragmentType
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public IFragmentBuilder FragmentBuilder { get; private set; }
 
         public ICollection<IFragmentBuilder> Fragments { get; private set; }
 
@@ -100,7 +95,7 @@ namespace FoxDb
             var fragment = this.Fragments.OfType<T>().FirstOrDefault();
             if (fragment == null)
             {
-                fragment = this.CreateFragment<T>();
+                fragment = this.FragmentBuilder.CreateFragment<T>();
                 this.Fragments.Add(fragment);
             }
             return fragment;
@@ -115,6 +110,111 @@ namespace FoxDb
         public IQueryGraphBuilder Clone()
         {
             throw new NotImplementedException();
+        }
+
+        public static IQueryGraphBuilder Null
+        {
+            get
+            {
+                return new NullQueryGraphBuilder();
+            }
+        }
+
+        private class NullQueryGraphBuilder : IQueryGraphBuilder
+        {
+            public IOutputBuilder Output
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IAddBuilder Add
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IUpdateBuilder Update
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IDeleteBuilder Delete
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public ISourceBuilder Source
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IFilterBuilder Filter
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IAggregateBuilder Aggregate
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public ISortBuilder Sort
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public IQueryGraph Build()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IQueryGraphBuilder Clone()
+            {
+                throw new NotImplementedException();
+            }
+
+            public T Fragment<T>() where T : IFragmentBuilder
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class FragmentBuilderProxy : FragmentBuilder
+        {
+            public FragmentBuilderProxy(IQueryGraphBuilder graph) : base(graph)
+            {
+            }
+
+            public override FragmentType FragmentType
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
     }
 }

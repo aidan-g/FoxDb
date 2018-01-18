@@ -6,8 +6,9 @@ namespace FoxDb
 {
     public class FilterBuilder : FragmentBuilder, IFilterBuilder
     {
-        public FilterBuilder()
+        public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
         {
+            this.Parent = parent;
             this.Expressions = new List<IExpressionBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
@@ -24,6 +25,8 @@ namespace FoxDb
 
         public int Offset { get; set; }
 
+        public IFragmentBuilder Parent { get; private set; }
+
         public ICollection<IExpressionBuilder> Expressions { get; private set; }
 
         public IDictionary<string, object> Constants { get; private set; }
@@ -33,14 +36,6 @@ namespace FoxDb
             var expression = this.CreateFragment<IBinaryExpressionBuilder>();
             this.Expressions.Add(expression);
             return expression;
-        }
-
-        public IFilterBuilder Add(IFilterBuilder builder)
-        {
-            this.Limit = builder.Limit;
-            this.Offset = builder.Offset;
-            this.Expressions.AddRange(builder.Expressions);
-            return this;
         }
 
         public IBinaryExpressionBuilder GetColumn(IColumnConfig column)
@@ -102,7 +97,16 @@ namespace FoxDb
         {
             if (fragment is IExpressionBuilder)
             {
-                this.Expressions.Add(fragment as IExpressionBuilder);
+                var table = default(ITableBuilder);
+                var builder = fragment as IExpressionBuilder;
+                if (!(this.Parent is ITableBuilder) && this.GetAssociatedTable(builder, out table))
+                {
+                    table.Filter.Write(builder);
+                }
+                else
+                {
+                    this.Expressions.Add(builder);
+                }
                 return fragment;
             }
             throw new NotImplementedException();

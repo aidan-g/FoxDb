@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class ColumnBuilder : ExpressionBuilder, IColumnBuilder
     {
-        public ColumnBuilder()
+        public ColumnBuilder(IQueryGraphBuilder graph) : base(graph)
         {
             this.Direction = OrderByDirection.None;
             this.Flags = ColumnBuilderFlags.None;

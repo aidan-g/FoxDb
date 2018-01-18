@@ -75,7 +75,7 @@ namespace FoxDb
             {
                 set.Source.Reset();
             }
-            var visitor = new DatabaseQueryableVisitor(this.Database, set.Source.Fetch, set.ElementType);
+            var visitor = new DatabaseQueryableVisitor(this.Database, set.Source.Fetch, set.ElementType, this.Flags);
             visitor.Visit(expression);
             if (set.Source.Parameters != null)
             {
@@ -93,6 +93,7 @@ namespace FoxDb
     public enum DatabaseQueryableProviderFlags : byte
     {
         None,
-        PreserveSource
+        PreserveSource,
+        AllowLimit
     }
 }
