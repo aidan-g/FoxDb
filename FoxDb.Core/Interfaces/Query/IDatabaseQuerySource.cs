@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
-
-namespace FoxDb.Interfaces
+﻿namespace FoxDb.Interfaces
 {
     public interface IDatabaseQuerySource
     {
@@ -9,31 +6,21 @@ namespace FoxDb.Interfaces
 
         ITableConfig Table { get; }
 
-        bool CanRead { get; }
+        DatabaseParameterHandler Parameters { get; set; }
 
-        bool CanWrite { get; }
+        ITransactionSource Transaction { get; }
 
         IEntityMapper Mapper { get; }
-
-        IEntityInitializer Initializer { get; }
-
-        IEntityPopulator Populator { get; }
-
-        IEntityFactory Factory { get; }
 
         IEntityRelationQueryComposer Composer { get; }
 
         IQueryGraphBuilder Fetch { get; set; }
 
-        IEnumerable<IQueryGraphBuilder> Add { get; set; }
+        IQueryGraphBuilder Add { get; set; }
 
         IQueryGraphBuilder Update { get; set; }
 
         IQueryGraphBuilder Delete { get; set; }
-
-        DatabaseParameterHandler Parameters { get; set; }
-
-        ITransactionSource Transaction { get; }
 
         void Reset();
     }

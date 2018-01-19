@@ -4,7 +4,7 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseQueryFactory
     {
-        IQueryGraphBuilder Build();
+        IQueryGraphBuilder Build(params IQueryGraphBuilder[] queries);
 
         IDatabaseQuery Create(params IQueryGraph[] graphs);
 
@@ -18,7 +18,7 @@ namespace FoxDb.Interfaces
 
         IQueryGraphBuilder Fetch(ITableConfig table);
 
-        IEnumerable<IQueryGraphBuilder> Add(ITableConfig table);
+        IQueryGraphBuilder Add(ITableConfig table);
 
         IQueryGraphBuilder Update(ITableConfig table);
 

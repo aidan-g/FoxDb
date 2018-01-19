@@ -1,29 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseSet : IEnumerable
+    public interface IDatabaseSet : IDatabaseQuerySource, IEnumerable
     {
         Type ElementType { get; }
-
-        IDatabase Database { get; }
-
-        ITableConfig Table { get; }
-
-        IEntityMapper Mapper { get; }
-
-        IEntityInitializer Initializer { get; }
-
-        IEntityPopulator Populator { get; }
-
-        IEntityFactory Factory { get; }
-
-        IDatabaseQuerySource Source { get; }
-
-        ITransactionSource Transaction { get; }
     }
 
     public interface IDatabaseSet<T> : IDatabaseSet, ICollection<T>

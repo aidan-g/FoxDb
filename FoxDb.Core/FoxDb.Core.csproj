@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\distribution\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -125,6 +125,7 @@
     <Compile Include="Interfaces\Query\Builder\IAddBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\Utility\IFastActivator.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorFactory.cs" />
@@ -177,7 +178,6 @@
     <Compile Include="Interfaces\IDatabaseParameters.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQuery.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryFactory.cs" />
-    <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\IDatabaseReader.cs" />
     <Compile Include="Interfaces\IDatabaseSet.cs" />
     <Compile Include="Interfaces\Provider\IProvider.cs" />

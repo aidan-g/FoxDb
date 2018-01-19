@@ -4,8 +4,6 @@ namespace FoxDb.Interfaces
 {
     public interface IEntityEnumerator
     {
-        IEnumerable<T> AsEnumerable<T>(ITableConfig table, IDatabaseReader reader);
-
-        IEnumerable<T> AsEnumerable<T>(IDatabaseSet<T> set, IDatabaseReader reader);
+        IEnumerable<T> AsEnumerable<T>();
     }
 }

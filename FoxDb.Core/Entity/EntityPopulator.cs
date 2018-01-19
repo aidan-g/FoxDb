@@ -10,15 +10,12 @@ namespace FoxDb
             new ColumnNameEntityPopulatorStrategy()
         };
 
-        public EntityPopulator(ITableConfig table, IEntityMapper mapper)
+        public EntityPopulator(ITableConfig table)
         {
             this.Table = table;
-            this.Mapper = mapper;
         }
 
         public ITableConfig Table { get; private set; }
-
-        public IEntityMapper Mapper { get; private set; }
 
         public void Populate(object item, IDatabaseReaderRecord record)
         {

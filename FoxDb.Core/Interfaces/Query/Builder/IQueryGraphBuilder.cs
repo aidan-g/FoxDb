@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FoxDb.Interfaces
 {
@@ -30,8 +31,13 @@ namespace FoxDb.Interfaces
 
         T Fragment<T>() where T : IFragmentBuilder;
 
-        IQueryGraph Build();
+        IEnumerable<IQueryGraph> Build();
 
         IQueryGraphBuilder Clone();
+    }
+
+    public interface IAggregateQueryGraphBuilder : IQueryGraphBuilder, IEnumerable<IQueryGraphBuilder>
+    {
+
     }
 }

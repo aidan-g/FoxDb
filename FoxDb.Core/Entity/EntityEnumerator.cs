@@ -6,27 +6,24 @@ namespace FoxDb
 {
     public class EntityEnumerator : IEntityEnumerator
     {
-        public IEnumerable<T> AsEnumerable<T>(ITableConfig table, IDatabaseReader reader)
+        public EntityEnumerator(IDatabaseSet set, IDatabaseReader reader)
         {
-            var mapper = new EntityMapper(table);
-            var initializer = new EntityInitializer(table, mapper);
-            var populator = new EntityPopulator(table, mapper);
-            var factory = new EntityFactory(table, initializer, populator);
-            foreach (var record in reader)
-            {
-                yield return (T)factory.Create(record);
-            }
-            reader.Dispose();
+            this.Set = set;
+            this.Reader = reader;
         }
 
-        public IEnumerable<T> AsEnumerable<T>(IDatabaseSet<T> set, IDatabaseReader reader)
+        public IDatabaseSet Set { get; private set; }
+
+        public IDatabaseReader Reader { get; private set; }
+
+        public IEnumerable<T> AsEnumerable<T>()
         {
             var buffer = new List<object>();
-            var sink = new EntityGraphSink(set.Table, (sender, e) => buffer.Add(e.Item));
-            var builder = new EntityGraphBuilder(new EntityGraphMapping(set.Table, typeof(T)));
-            var graph = builder.Build(set.Table, set.Mapper);
-            var visitor = new EntityEnumeratorVisitor(set, sink);
-            foreach (var record in reader)
+            var sink = new EntityGraphSink(this.Set.Table, (sender, e) => buffer.Add(e.Item));
+            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Set.Table, typeof(T)));
+            var graph = builder.Build(this.Set.Table, this.Set.Mapper);
+            var visitor = new EntityEnumeratorVisitor(this.Set, sink);
+            foreach (var record in this.Reader)
             {
                 visitor.Visit(graph, record);
                 if (buffer.Count > 0)
@@ -38,12 +35,11 @@ namespace FoxDb
                     buffer.Clear();
                 }
             }
-            visitor.Flush(set.Table);
+            visitor.Flush(this.Set.Table);
             foreach (var item in buffer)
             {
                 yield return (T)item;
             }
-            reader.Dispose();
         }
 
         private class EntityEnumeratorVisitor : EntityGraphVisitor

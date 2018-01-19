@@ -4,8 +4,6 @@
     {
         ITableConfig Table { get; }
 
-        IEntityMapper Mapper { get; }
-
         void Initialize(object item);
     }
 }

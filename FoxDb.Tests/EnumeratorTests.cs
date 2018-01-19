@@ -1,8 +1,6 @@
-﻿using FoxDb.Interfaces;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -28,31 +26,8 @@ namespace FoxDb
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
                 set.AddOrUpdate(data);
-                this.AssertEnumerator_1(data, database, set, transaction);
-                this.AssertEnumerator_2(data, database, set, transaction);
-                this.AssertEnumerator_3(data, database, set, transaction);
+                this.AssertSequence(data, set);
             }
-        }
-
-        protected virtual void AssertEnumerator_1<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
-        {
-            using (var reader = database.ExecuteReader(set.Source.Fetch, null, transaction))
-            {
-                var enumerator = new EntityEnumerator();
-                this.AssertSequence(expected, enumerator.AsEnumerable<T>(set, reader));
-            }
-        }
-
-        protected virtual void AssertEnumerator_2<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
-        {
-            var query = database.QueryFactory.Create(set.Source.Fetch);
-            this.AssertSequence(expected, database.ExecuteEnumerator<T>(set.Table, query, null, transaction));
-        }
-
-        protected virtual void AssertEnumerator_3<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
-        {
-            var query = database.QueryFactory.Create(set.Source.Fetch);
-            Assert.AreEqual(expected.First(), database.ExecuteComplex<T>(set.Table, query, null, transaction));
         }
 
         [Test]
@@ -75,8 +50,8 @@ namespace FoxDb
                     set.AddOrUpdate(data);
                 }
                 {
-                    var set = database.Query<Transient>(database.Source(database.Config.Table<Test002>().CreateProxy<Transient>(), transaction));
-                    this.AssertEnumerator_1(data, database, set, transaction);
+                    var set = database.Set<Transient>(database.Source(database.Config.Table<Test002>().CreateProxy<Transient>(), transaction));
+                    this.AssertSequence(data, set);
                     Assert.AreEqual(new Transient(), set.Create());
                 }
             }

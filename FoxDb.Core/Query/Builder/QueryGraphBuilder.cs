@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -102,9 +103,12 @@ namespace FoxDb
         }
 
 
-        public IQueryGraph Build()
+        public IEnumerable<IQueryGraph> Build()
         {
-            return new QueryGraph(this.Fragments);
+            return new[]
+            {
+                new QueryGraph(this.Fragments)
+            };
         }
 
         public IQueryGraphBuilder Clone()
@@ -186,7 +190,7 @@ namespace FoxDb
                 }
             }
 
-            public IQueryGraph Build()
+            public IEnumerable<IQueryGraph> Build()
             {
                 throw new NotImplementedException();
             }
@@ -216,5 +220,109 @@ namespace FoxDb
                 }
             }
         }
+    }
+
+    public class AggregateQueryGraphBuilder : IAggregateQueryGraphBuilder
+    {
+        public AggregateQueryGraphBuilder(params IQueryGraphBuilder[] queries)
+        {
+            this.Queries = queries;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public IEnumerable<IQueryGraphBuilder> Queries { get; private set; }
+
+        public IEnumerable<IQueryGraph> Build()
+        {
+            return this.SelectMany(query => query.Build());
+        }
+
+        public IEnumerator<IQueryGraphBuilder> GetEnumerator()
+        {
+            return this.Queries.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        #region IQueryGraphBuilder
+
+        IOutputBuilder IQueryGraphBuilder.Output
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IAddBuilder IQueryGraphBuilder.Add
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IUpdateBuilder IQueryGraphBuilder.Update
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IDeleteBuilder IQueryGraphBuilder.Delete
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        ISourceBuilder IQueryGraphBuilder.Source
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IFilterBuilder IQueryGraphBuilder.Filter
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IAggregateBuilder IQueryGraphBuilder.Aggregate
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        ISortBuilder IQueryGraphBuilder.Sort
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IQueryGraphBuilder IQueryGraphBuilder.Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        T IQueryGraphBuilder.Fragment<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

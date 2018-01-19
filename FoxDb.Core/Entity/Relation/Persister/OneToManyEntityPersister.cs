@@ -52,24 +52,24 @@ namespace FoxDb
 
             public virtual void Update()
             {
-                var table = this.Set.Database.Config.Table<TRelation>();
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
-                {
-                    Fetch = this.Set.Database.FetchByRelation(this.Relation)
-                });
+                var set = this.Set.Database.Set<TRelation>(
+                    this.Set.Database.Source<TRelation>(this.Set.Transaction).With(
+                        source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
+                    )
+                );
                 var children = this.Relation.Getter(this.Item);
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
+                        set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                         if (child != null)
                         {
                             set.AddOrUpdate(child);
                         }
                     }
                 }
-                set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation);
+                set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation);
                 if (children == null)
                 {
                     set.Clear();
@@ -78,7 +78,7 @@ namespace FoxDb
                 {
                     if (!children.Contains(child))
                     {
-                        set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
+                        set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                         set.Delete(child);
                     }
                 }
@@ -86,12 +86,11 @@ namespace FoxDb
 
             public virtual void Delete()
             {
-                var table = this.Set.Database.Config.Table<TRelation>();
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
-                {
-                    Fetch = this.Set.Database.FetchByRelation(this.Relation),
-                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation),
-                });
+                var set = this.Set.Database.Set<TRelation>(
+                    this.Set.Database.Source<TRelation>(GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation), this.Set.Transaction).With(
+                        source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
+                    )
+                );
                 set.Clear();
             }
         }
