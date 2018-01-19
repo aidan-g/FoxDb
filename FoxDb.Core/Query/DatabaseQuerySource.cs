@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class DatabaseQuerySource : IDatabaseQuerySource
     {
-        public DatabaseQuerySource(IDatabase database, ITableConfig table, IDbTransaction transaction = null)
+        public DatabaseQuerySource(IDatabase database, ITableConfig table, ITransactionSource transaction = null)
         {
             this.Database = database;
             this.Table = table;
@@ -59,7 +59,7 @@ namespace FoxDb
 
         public DatabaseParameterHandler Parameters { get; set; }
 
-        public IDbTransaction Transaction { get; private set; }
+        public ITransactionSource Transaction { get; private set; }
 
         public void Reset()
         {

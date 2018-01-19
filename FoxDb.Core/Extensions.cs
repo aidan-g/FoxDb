@@ -8,26 +8,26 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, out IDatabaseParameters parameters, IDbTransaction transaction = null)
+        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, out IDatabaseParameters parameters, ITransactionSource transaction = null)
         {
             var command = connection.CreateCommand();
             command.CommandText = query.CommandText;
             parameters = command.CreateParameters(query);
             if (transaction != null)
             {
-                command.Transaction = transaction;
+                transaction.Bind(command);
             }
             return command;
         }
 
-        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, DatabaseParameterHandler parameters, IDbTransaction transaction = null)
+        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             var command = connection.CreateCommand();
             command.CommandText = query.CommandText;
             command.CreateParameters(query, parameters);
             if (transaction != null)
             {
-                command.Transaction = transaction;
+                transaction.Bind(command);
             }
             return command;
         }

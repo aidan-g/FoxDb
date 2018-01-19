@@ -82,7 +82,7 @@ namespace FoxDb
             }
         }
 
-        public IDbTransaction Transaction
+        public ITransactionSource Transaction
         {
             get
             {

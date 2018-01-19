@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System.Data;
 using System.Linq;
 
 namespace FoxDb
@@ -13,12 +12,12 @@ namespace FoxDb
 
         public static DatabaseQueryableProviderFlags Default { get; set; }
 
-        public static IQueryable<T> AsQueryable<T>(this IDatabase database, IDbTransaction transaction = null)
+        public static IQueryable<T> AsQueryable<T>(this IDatabase database, ITransactionSource transaction = null)
         {
             return database.AsQueryable<T>(Default, transaction);
         }
 
-        public static IQueryable<T> AsQueryable<T>(this IDatabase database, DatabaseQueryableProviderFlags flags, IDbTransaction transaction = null)
+        public static IQueryable<T> AsQueryable<T>(this IDatabase database, DatabaseQueryableProviderFlags flags, ITransactionSource transaction = null)
         {
             var provider = new DatabaseQueryableProvider<T>(database, flags, transaction);
             return provider.AsQueryable();

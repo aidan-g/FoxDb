@@ -12,7 +12,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Grapefruit>(transaction);
@@ -37,7 +37,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Grapefruit>().Relation(item => item.Pineapples, Defaults.Relation.Flags | flags);
