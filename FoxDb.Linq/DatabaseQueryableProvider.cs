@@ -72,17 +72,17 @@ namespace FoxDb
         {
             if (!this.Flags.HasFlag(DatabaseQueryableProviderFlags.PreserveSource))
             {
-                set.Source.Reset();
+                set.Reset();
             }
-            var visitor = new DatabaseQueryableVisitor(this.Database, set.Source.Fetch, set.ElementType, this.Flags);
+            var visitor = new DatabaseQueryableVisitor(this.Database, set.Fetch, set.ElementType, this.Flags);
             visitor.Visit(expression);
-            if (set.Source.Parameters != null)
+            if (set.Parameters != null)
             {
-                set.Source.Parameters = (DatabaseParameterHandler)Delegate.Combine(set.Source.Parameters, visitor.Parameters);
+                set.Parameters = (DatabaseParameterHandler)Delegate.Combine(set.Parameters, visitor.Parameters);
             }
             else
             {
-                set.Source.Parameters = visitor.Parameters;
+                set.Parameters = visitor.Parameters;
             }
             return set;
         }

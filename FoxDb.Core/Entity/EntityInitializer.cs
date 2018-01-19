@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -10,26 +9,19 @@ namespace FoxDb
             this.Members = new DynamicMethod(this.GetType());
         }
 
-        public EntityInitializer(ITableConfig table, IEntityMapper mapper) : this()
+        public EntityInitializer(ITableConfig table) : this()
         {
             this.Table = table;
-            this.Mapper = mapper;
         }
 
         protected DynamicMethod Members { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
-        public IEntityMapper Mapper { get; private set; }
-
         public void Initialize(object item)
         {
             foreach (var relation in this.Table.Relations)
             {
-                if (!this.Mapper.Relations.Contains(relation))
-                {
-                    continue;
-                }
                 this.Members.Invoke(this, "Initialize", new[] { this.Table.TableType, relation.RelationType }, item, relation);
             }
         }

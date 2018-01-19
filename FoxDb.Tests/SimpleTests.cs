@@ -46,19 +46,28 @@ namespace FoxDb
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
+                var data = new List<Test001>();
                 set.Clear();
-                var data = new Test001() { Field1 = "1", Field2 = "2", Field3 = "3" };
-                var id = set.AddOrUpdate(data).Id;
-                Assert.AreNotEqual(0, data.Id);
+                data.AddRange(new[]
                 {
-                    var retrieved = set.Find(id);
-                    Assert.AreEqual(data, retrieved);
-                }
-                set.Delete(data);
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+                });
+                set.AddOrUpdate(data);
+                foreach (var element in data)
                 {
-                    var retrieved = set.Find(id);
-                    Assert.IsNull(retrieved);
+                    {
+                        var retrieved = set.Find(element.Id);
+                        Assert.AreEqual(element, retrieved);
+                    }
+                    set.Delete(element);
+                    {
+                        var retrieved = set.Find(element.Id);
+                        Assert.IsNull(retrieved);
+                    }
                 }
+                Assert.AreEqual(0, set.Count);
                 transaction.Rollback();
             }
         }

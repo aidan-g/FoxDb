@@ -30,7 +30,7 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                set.Source.Fetch.Filter.AddFunction(set.Source.Fetch.Filter.CreateFunction(QueryFunction.Exists).With(function =>
+                set.Fetch.Filter.AddFunction(set.Fetch.Filter.CreateFunction(QueryFunction.Exists).With(function =>
                 {
                     var query = database.QueryFactory.Build();
                     query.Output.AddColumns(database.Config.Table<Test004>().Columns);
@@ -51,7 +51,7 @@ namespace FoxDb
                     function.Function = QueryFunction.Exists;
                     function.AddArgument(function.CreateSubQuery(query));
                 }));
-                set.Source.Parameters = parameters => parameters["Name"] = "2_2";
+                set.Parameters = parameters => parameters["Name"] = "2_2";
                 this.AssertSequence(data.Skip(1).Take(1), set);
                 transaction.Rollback();
             }
@@ -77,7 +77,7 @@ namespace FoxDb
                     new Test002() { Name = "3" }
                 });
                 set.AddOrUpdate(data);
-                set.Source.Fetch.Filter.Add().With(builder =>
+                set.Fetch.Filter.Add().With(builder =>
                 {
                     builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
                     builder.Operator = builder.CreateOperator(@operator);
@@ -108,7 +108,7 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                set.Source.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
+                set.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
                 {
                     filter.Limit = 1;
                     filter.Add().With(binary =>
@@ -120,7 +120,7 @@ namespace FoxDb
                 });
                 for (var a = 0; a < data.Count; a++)
                 {
-                    set.Source.Parameters = parameters => parameters["Id"] = a;
+                    set.Parameters = parameters => parameters["Id"] = a;
                     this.AssertSequence(new[] { data.Where(element => element.Id > a).First() }, set);
                 }
                 transaction.Rollback();
@@ -149,7 +149,7 @@ namespace FoxDb
                 set.AddOrUpdate(data);
                 for (var a = 0; a < data.Count; a++)
                 {
-                    set.Source.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
+                    set.Fetch.Source.GetTable(set.Table).Filter.With(filter =>
                     {
                         filter.Limit = 1;
                         filter.Offset = a;

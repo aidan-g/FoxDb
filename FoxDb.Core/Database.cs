@@ -1,7 +1,5 @@
 ﻿using FoxDb.Interfaces;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -15,6 +13,8 @@ namespace FoxDb
         public Database(IProvider provider) : this()
         {
             this.Provider = provider;
+            this.Schema = provider.CreateSchema(this);
+            this.QueryFactory = provider.CreateQueryFactory(this);
         }
 
         public IConfig Config { get; private set; }
@@ -41,42 +41,13 @@ namespace FoxDb
             }
         }
 
-        private IDatabaseSchema _Schema { get; set; }
+        public IDatabaseSchema Schema { get; private set; }
 
-        public IDatabaseSchema Schema
+        public IDatabaseQueryFactory QueryFactory { get; private set; }
+
+        public IDatabaseQuerySource Source(ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            get
-            {
-                if (this._Schema == null)
-                {
-                    this._Schema = this.Provider.CreateSchema(this);
-                }
-                return this._Schema;
-            }
-        }
-
-        private IDatabaseQueryFactory _QueryFactory { get; set; }
-
-        public IDatabaseQueryFactory QueryFactory
-        {
-            get
-            {
-                if (this._QueryFactory == null)
-                {
-                    this._QueryFactory = this.Provider.CreateQueryFactory(this);
-                }
-                return this._QueryFactory;
-            }
-        }
-
-        public IDatabaseQuerySource Source<T>(ITransactionSource transaction = null)
-        {
-            return this.Source(this.Config.Table<T>(), transaction);
-        }
-
-        public IDatabaseQuerySource Source(ITableConfig table, ITransactionSource transaction = null)
-        {
-            return new DatabaseQuerySource(this, table, transaction);
+            return new DatabaseQuerySource(this, table, parameters, transaction);
         }
 
         public ITransactionSource BeginTransaction()
@@ -89,36 +60,20 @@ namespace FoxDb
             return new TransactionSource(this, isolationLevel);
         }
 
-        public IDatabaseSet<T> Set<T>(ITransactionSource transaction = null)
+        public IDatabaseSet<T> Set<T>(IDatabaseQuerySource source)
         {
-            var table = this.Config.Table<T>();
-            return this.Query<T>(new DatabaseQuerySource(this, table, transaction));
+            return new DatabaseSet<T>(source);
         }
 
-        public IDatabaseSet<T> Query<T>(IDatabaseQuerySource source)
-        {
-            var table = source.Table;
-            if (table == null)
-            {
-                table = this.Config.Table<T>();
-            }
-            return new DatabaseSet<T>(table, source);
-        }
-
-        public void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
+        public int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
-                command.ExecuteNonQuery();
+                return command.ExecuteNonQuery();
             }
         }
 
-        public void Execute(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            this.Execute(this.QueryFactory.Create(query), parameters, transaction);
-        }
-
-        public T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
+        public T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
@@ -126,67 +81,10 @@ namespace FoxDb
             }
         }
 
-        public T ExecuteScalar<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteScalar<T>(this.QueryFactory.Create(query), parameters, transaction);
-        }
-
-        public T ExecuteComplex<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteComplex<T>(this.Config.Table<T>(), query, parameters, transaction);
-        }
-
-        public T ExecuteComplex<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteEnumerator<T>(table, query, parameters, transaction).FirstOrDefault();
-        }
-
-        public T ExecuteComplex<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteComplex<T>(this.Config.Table<T>(), query, parameters, transaction);
-        }
-
-        public T ExecuteComplex<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteComplex<T>(table, this.QueryFactory.Create(query), parameters, transaction);
-        }
-
-        public IEnumerable<T> ExecuteEnumerator<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteEnumerator<T>(this.Config.Table<T>(), query, parameters, transaction);
-        }
-
-        public IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            using (var reader = this.ExecuteReader(query, parameters, transaction))
-            {
-                var enumerator = new EntityEnumerator();
-                foreach (var item in enumerator.AsEnumerable<T>(table, reader))
-                {
-                    yield return item;
-                }
-            }
-        }
-
-        public IEnumerable<T> ExecuteEnumerator<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteEnumerator<T>(this.Config.Table<T>(), query, parameters, transaction);
-        }
-
-        public IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteEnumerator<T>(table, this.QueryFactory.Create(query), parameters, transaction);
-        }
-
-        public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
+        public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             var command = this.Connection.CreateCommand(query, parameters, transaction);
-            return new DatabaseReader(command.ExecuteReader());
-        }
-
-        public IDatabaseReader ExecuteReader(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null)
-        {
-            return this.ExecuteReader(this.QueryFactory.Create(query), parameters, transaction);
+            return new DatabaseReader(command);
         }
     }
 }

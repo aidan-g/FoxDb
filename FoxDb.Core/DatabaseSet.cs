@@ -2,23 +2,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 
 namespace FoxDb
 {
     public class DatabaseSet<T> : IDatabaseSet<T>
     {
-        public DatabaseSet(ITableConfig table, IDatabaseQuerySource source)
+        public DatabaseSet(IDatabaseQuerySource source)
         {
-            if (table == null)
-            {
-                throw new ArgumentNullException("table");
-            }
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            this.Table = table;
             this.Source = source;
         }
 
@@ -30,65 +21,7 @@ namespace FoxDb
             }
         }
 
-        public IDatabase Database
-        {
-            get
-            {
-                return this.Source.Database;
-            }
-        }
-
-        public ITableConfig Table { get; private set; }
-
-        public IEntityMapper Mapper
-        {
-            get
-            {
-                return this.Source.Mapper;
-            }
-        }
-
-        public IEntityInitializer Initializer
-        {
-            get
-            {
-                return this.Source.Initializer;
-            }
-        }
-
-        public IEntityPopulator Populator
-        {
-            get
-            {
-                return this.Source.Populator;
-            }
-        }
-
-        public IEntityFactory Factory
-        {
-            get
-            {
-                return this.Source.Factory;
-            }
-        }
-
         public IDatabaseQuerySource Source { get; private set; }
-
-        public DatabaseParameterHandler Parameters
-        {
-            get
-            {
-                return this.Source.Parameters;
-            }
-        }
-
-        public ITransactionSource Transaction
-        {
-            get
-            {
-                return this.Source.Transaction;
-            }
-        }
 
         public int Count
         {
@@ -138,32 +71,18 @@ namespace FoxDb
 
         public T Create()
         {
-            return (T)this.Factory.Create();
+            var initializer = new EntityInitializer(this.Table);
+            var factory = new EntityFactory(this.Table, initializer);
+            return (T)factory.Create();
         }
 
         public T Find(object id)
         {
-            var query = default(IQueryGraphBuilder);
-            if (this.Source.Composer != null)
+            return this.Database.Set<T>(this.Table).With(set =>
             {
-                query = this.Source.Composer.Query;
-            }
-            else if (this.Source.Fetch != null)
-            {
-                query = this.Source.Fetch.Clone();
-            }
-            else
-            {
-                query = this.Database.QueryFactory.Fetch(this.Table);
-            }
-            query.Filter.AddColumns(this.Table.PrimaryKeys);
-            var parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
-            var sequence = this.GetEnumerator(query, parameters);
-            if (sequence.MoveNext())
-            {
-                return sequence.Current;
-            }
-            return default(T);
+                set.Fetch = this.Source.Composer.Query.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+                set.Parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
+            }).FirstOrDefault();
         }
 
         public void CopyTo(T[] target, int index)
@@ -176,21 +95,12 @@ namespace FoxDb
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (!this.Source.CanRead)
+            using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
-                throw new InvalidOperationException(string.Format("Query source cannot be read."));
-            }
-            return this.GetEnumerator(this.Source.Fetch, this.Parameters);
-        }
-
-        protected virtual IEnumerator<T> GetEnumerator(IQueryGraphBuilder query, DatabaseParameterHandler parameters)
-        {
-            using (var reader = this.Database.ExecuteReader(query, parameters, this.Transaction))
-            {
-                var enumerator = new EntityEnumerator();
-                foreach (var item in enumerator.AsEnumerable<T>(this, reader))
+                var enumerable = new EntityEnumerator(this, reader);
+                foreach (var element in enumerable.AsEnumerable<T>())
                 {
-                    yield return item;
+                    yield return element;
                 }
             }
         }
@@ -200,13 +110,114 @@ namespace FoxDb
             return this.GetEnumerator();
         }
 
-        IEntityFactory IDatabaseSet.Factory
+        #region IDatabaseQuerySource
+
+        public IDatabase Database
         {
             get
             {
-                return this.Factory;
+                return this.Source.Database;
             }
         }
+
+        public ITableConfig Table
+        {
+            get
+            {
+                return this.Source.Table;
+            }
+        }
+
+        public DatabaseParameterHandler Parameters
+        {
+            get
+            {
+                return this.Source.Parameters;
+            }
+            set
+            {
+                this.Source.Parameters = value;
+            }
+        }
+
+        public ITransactionSource Transaction
+        {
+            get
+            {
+                return this.Source.Transaction;
+            }
+        }
+
+        public IEntityMapper Mapper
+        {
+            get
+            {
+                return this.Source.Mapper;
+            }
+        }
+
+        public IEntityRelationQueryComposer Composer
+        {
+            get
+            {
+                return this.Source.Composer;
+            }
+        }
+
+        IQueryGraphBuilder IDatabaseQuerySource.Fetch
+        {
+            get
+            {
+                return this.Source.Fetch;
+            }
+            set
+            {
+                this.Source.Fetch = value;
+            }
+        }
+
+        IQueryGraphBuilder IDatabaseQuerySource.Add
+        {
+            get
+            {
+                return this.Source.Add;
+            }
+            set
+            {
+                this.Source.Add = value;
+            }
+        }
+
+        IQueryGraphBuilder IDatabaseQuerySource.Update
+        {
+            get
+            {
+                return this.Source.Update;
+            }
+            set
+            {
+                this.Source.Update = value;
+            }
+        }
+
+        IQueryGraphBuilder IDatabaseQuerySource.Delete
+        {
+            get
+            {
+                return this.Source.Delete;
+            }
+            set
+            {
+                this.Source.Delete = value;
+            }
+        }
+
+        void IDatabaseQuerySource.Reset()
+        {
+            this.Source.Reset();
+        }
+
+        #endregion
 
         #region ICollection<T>
 

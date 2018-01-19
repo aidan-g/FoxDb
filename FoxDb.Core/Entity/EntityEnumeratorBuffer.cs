@@ -26,15 +26,11 @@ namespace FoxDb
 
         protected virtual IEntityFactory GetFactory(ITableConfig table)
         {
-            if (this.Set.Table == table)
-            {
-                return this.Set.Factory;
-            }
             var factory = default(IEntityFactory);
             if (!this.Factories.TryGetValue(table, out factory))
             {
-                var initializer = new EntityInitializer(table, this.Set.Mapper);
-                var populator = new EntityPopulator(table, this.Set.Mapper);
+                var initializer = new EntityInitializer(table);
+                var populator = new EntityPopulator(table);
                 factory = new EntityFactory(table, initializer, populator);
                 this.Factories.Add(table, factory);
             }

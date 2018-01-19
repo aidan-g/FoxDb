@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -52,17 +51,17 @@ namespace FoxDb
 
             public virtual void Update()
             {
-                var table = this.Set.Database.Config.Table<TRelation>();
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
-                {
-                    Fetch = this.Set.Database.FetchByRelation(this.Relation)
-                });
+                var set = this.Set.Database.Set<TRelation>(
+                    this.Set.Database.Source<TRelation>(this.Set.Transaction).With(
+                        source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
+                    )
+                );
                 var children = this.Relation.Getter(this.Item);
                 if (children != null)
                 {
                     foreach (var child in children)
                     {
-                        var hasKey = EntityKey.HasKey(table, child);
+                        var hasKey = EntityKey.HasKey(set.Table, child);
                         set.AddOrUpdate(child);
                         if (!hasKey)
                         {
@@ -70,7 +69,7 @@ namespace FoxDb
                         }
                     }
                 }
-                set.Source.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation);
+                set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation);
                 if (children == null)
                 {
                     set.Clear();
@@ -86,12 +85,11 @@ namespace FoxDb
 
             public virtual void Delete()
             {
-                var table = this.Set.Database.Config.Table<TRelation>();
-                var set = this.Set.Database.Query<TRelation>(new DatabaseQuerySource(this.Set.Database, table, this.Set.Transaction)
-                {
-                    Fetch = this.Set.Database.FetchByRelation(this.Relation),
-                    Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation)
-                });
+                var set = this.Set.Database.Set<TRelation>(
+                    this.Set.Database.Source<TRelation>(GetParameters<T, TRelation>(this.Set.Database, this.Item, default(TRelation), this.Relation), this.Set.Transaction).With(
+                        source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
+                    )
+                );
                 foreach (var child in set)
                 {
                     this.DeleteRelation(child);
@@ -102,10 +100,9 @@ namespace FoxDb
             protected virtual void AddRelation(TRelation child)
             {
                 var table = this.Set.Database.Config.Table<T, TRelation>();
-                var builders = this.Set.Database.QueryFactory.Add(table);
-                var queries = this.Set.Database.QueryFactory.Create(builders.ToArray());
+                var query = this.Set.Database.QueryFactory.Add(table);
                 var parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
-                this.Set.Database.Execute(queries, parameters, this.Set.Transaction);
+                this.Set.Database.Execute(query, parameters, this.Set.Transaction);
             }
 
             protected virtual void DeleteRelation(TRelation child)

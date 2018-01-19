@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 
 namespace FoxDb.Interfaces
 {
@@ -19,41 +18,15 @@ namespace FoxDb.Interfaces
 
         IDatabaseQueryFactory QueryFactory { get; }
 
-        IDatabaseQuerySource Source<T>(ITransactionSource transaction = null);
+        IDatabaseQuerySource Source(ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
-        IDatabaseQuerySource Source(ITableConfig table, ITransactionSource transaction = null);
+        IDatabaseSet<T> Set<T>(IDatabaseQuerySource source);
 
-        IDatabaseSet<T> Set<T>(ITransactionSource transaction = null);
+        int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
-        IDatabaseSet<T> Query<T>(IDatabaseQuerySource source);
+        T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
-        void Execute(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        void Execute(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteScalar<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteComplex<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteComplex<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteComplex<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        T ExecuteComplex<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IEnumerable<T> ExecuteEnumerator<T>(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IEnumerable<T> ExecuteEnumerator<T>(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
-
-        IDatabaseReader ExecuteReader(IQueryGraphBuilder query, DatabaseParameterHandler parameters = null, ITransactionSource transaction = null);
+        IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
     }
 
     public delegate void DatabaseParameterHandler(IDatabaseParameters parameters);

@@ -14,9 +14,16 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public IQueryGraphBuilder Build()
+        public IQueryGraphBuilder Build(params IQueryGraphBuilder[] queries)
         {
-            return new QueryGraphBuilder();
+            if (queries.Any())
+            {
+                return new AggregateQueryGraphBuilder(queries);
+            }
+            else
+            {
+                return new QueryGraphBuilder();
+            }
         }
 
         public IDatabaseQuery Create(params IQueryGraph[] graphs)
@@ -43,7 +50,7 @@ namespace FoxDb
 
         public IDatabaseQuery Create(params IQueryGraphBuilder[] builders)
         {
-            var graphs = builders.Select(builder => builder.Build());
+            var graphs = builders.SelectMany(builder => builder.Build());
             return this.Create(graphs.ToArray());
         }
 
@@ -66,9 +73,9 @@ namespace FoxDb
             return builder;
         }
 
-        public IEnumerable<IQueryGraphBuilder> Add(ITableConfig table)
+        public IQueryGraphBuilder Add(ITableConfig table)
         {
-            var graphs = new List<IQueryGraphBuilder>();
+            var queries = new List<IQueryGraphBuilder>();
             {
                 var builder = this.Build();
                 var columns = table.Columns.Except(table.PrimaryKeys);
@@ -78,14 +85,14 @@ namespace FoxDb
                     builder.Add.AddColumns(columns);
                     builder.Output.AddParameters(columns);
                 }
-                graphs.Add(builder);
+                queries.Add(builder);
             }
             {
                 var builder = this.Build();
                 builder.Output.AddFunction(QueryFunction.Identity);
-                graphs.Add(builder);
+                queries.Add(builder);
             }
-            return graphs;
+            return this.Build(queries.ToArray());
         }
 
         public IQueryGraphBuilder Update(ITableConfig table)

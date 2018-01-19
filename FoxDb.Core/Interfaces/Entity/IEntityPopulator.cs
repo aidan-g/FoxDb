@@ -4,8 +4,6 @@
     {
         ITableConfig Table { get; }
 
-        IEntityMapper Mapper { get; }
-
         void Populate(object item, IDatabaseReaderRecord record);
     }
 }
