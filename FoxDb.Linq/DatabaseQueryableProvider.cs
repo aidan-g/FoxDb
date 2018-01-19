@@ -1,6 +1,5 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -14,7 +13,7 @@ namespace FoxDb
             this.Provider = new EnumerableQuery<T>(Expression.Empty());
         }
 
-        public DatabaseQueryableProvider(IDatabase database, DatabaseQueryableProviderFlags flags, IDbTransaction transaction = null) : this()
+        public DatabaseQueryableProvider(IDatabase database, DatabaseQueryableProviderFlags flags, ITransactionSource transaction = null) : this()
         {
             this.Database = database;
             this.Flags = flags;
@@ -29,7 +28,7 @@ namespace FoxDb
 
         public DatabaseQueryableProviderFlags Flags { get; private set; }
 
-        public IDbTransaction Transaction { get; private set; }
+        public ITransactionSource Transaction { get; private set; }
 
         public IQueryable CreateQuery(Expression expression)
         {

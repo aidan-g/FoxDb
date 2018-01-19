@@ -1,7 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 
@@ -15,7 +14,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -35,7 +34,7 @@ namespace FoxDb
             }
         }
 
-        protected virtual void AssertEnumerator_1<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
+        protected virtual void AssertEnumerator_1<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
         {
             using (var reader = database.ExecuteReader(set.Source.Fetch, null, transaction))
             {
@@ -44,13 +43,13 @@ namespace FoxDb
             }
         }
 
-        protected virtual void AssertEnumerator_2<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
+        protected virtual void AssertEnumerator_2<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
         {
             var query = database.QueryFactory.Create(set.Source.Fetch);
             this.AssertSequence(expected, database.ExecuteEnumerator<T>(set.Table, query, null, transaction));
         }
 
-        protected virtual void AssertEnumerator_3<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, IDbTransaction transaction)
+        protected virtual void AssertEnumerator_3<T>(IEnumerable<T> expected, IDatabase database, IDatabaseSet<T> set, ITransactionSource transaction)
         {
             var query = database.QueryFactory.Create(set.Source.Fetch);
             Assert.AreEqual(expected.First(), database.ExecuteComplex<T>(set.Table, query, null, transaction));
@@ -61,7 +60,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var data = new List<Transient>();

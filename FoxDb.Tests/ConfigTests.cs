@@ -15,7 +15,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<GrapeFruit>(transaction);
@@ -31,7 +31,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Orange>(transaction);
@@ -48,7 +48,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var table = database.Config.Table<Cheese>();
@@ -61,7 +61,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 Assert.Throws<InvalidOperationException>(() => database.Config.Table<Mango>());
@@ -73,7 +73,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var table = database.Config.Table<Rabbit>();
@@ -86,7 +86,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var table = database.Config.Table<Rabbit>();
@@ -99,7 +99,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var table = database.Config.Table<Toast>();
@@ -112,7 +112,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Cloud>(transaction);

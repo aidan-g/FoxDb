@@ -23,7 +23,7 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuerySource Source { get; }
 
-        IDbTransaction Transaction { get; }
+        ITransactionSource Transaction { get; }
     }
 
     public interface IDatabaseSet<T> : IDatabaseSet, ICollection<T>

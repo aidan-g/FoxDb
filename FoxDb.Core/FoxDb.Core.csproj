@@ -99,6 +99,7 @@
     <Compile Include="Interfaces\Entity\IEntityPopulatorStrategy.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
+    <Compile Include="Interfaces\ITransactionSource.cs" />
     <Compile Include="Interfaces\Query\Builder\IAggregateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IBinaryExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IColumnBuilder.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PropertyAccessorFactory.cs" />
+    <Compile Include="Utility\TransactionSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

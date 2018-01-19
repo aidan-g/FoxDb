@@ -1,28 +1,26 @@
-﻿using System.Data;
+﻿using FoxDb.Interfaces;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using FoxDb.Interfaces;
 
 namespace FoxDb
 {
     public class SQLiteProvider : IProvider
     {
-        public SQLiteProvider(string fileName)
+        public SQLiteProvider(string fileName) : this(new SQLiteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
         {
-            this.FileName = fileName;
+
+        }
+
+        public SQLiteProvider(SQLiteConnectionStringBuilder builder)
+        {
+            this.FileName = builder.DataSource;
+            this.ConnectionString = builder.ToString();
         }
 
         public string FileName { get; private set; }
 
-        public string ConnectionString
-        {
-            get
-            {
-                var builder = new SQLiteConnectionStringBuilder();
-                builder.DataSource = this.FileName;
-                return builder.ToString();
-            }
-        }
+        public string ConnectionString { get; private set; }
 
         public IDbConnection CreateConnection(IDatabase database)
         {

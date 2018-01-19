@@ -33,7 +33,7 @@ namespace FoxDb.Interfaces
 
         DatabaseParameterHandler Parameters { get; set; }
 
-        IDbTransaction Transaction { get; }
+        ITransactionSource Transaction { get; }
 
         void Reset();
     }

@@ -21,7 +21,7 @@ namespace FoxDb
             };
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -50,7 +50,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -76,7 +76,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -102,7 +102,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -128,7 +128,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -154,7 +154,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -181,7 +181,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
@@ -206,7 +206,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -233,7 +233,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Test001>(transaction);
@@ -263,7 +263,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | relationFlags);
@@ -289,7 +289,7 @@ namespace FoxDb
         {
             var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
             var database = new Database(provider);
-            using (var transaction = database.Connection.BeginTransaction())
+            using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
