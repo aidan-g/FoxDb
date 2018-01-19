@@ -24,7 +24,7 @@ namespace FoxDb
 
         public object Create()
         {
-            var item = Activator.CreateInstance(this.Table.TableType);
+            var item = FastActivator.Instance.Activate(this.Table.TableType);
             this.Initializer.Initialize(item);
             return item;
         }

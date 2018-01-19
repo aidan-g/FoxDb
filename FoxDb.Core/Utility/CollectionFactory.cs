@@ -14,7 +14,7 @@ namespace FoxDb
             }
             if (typeof(ICollection<T>).IsAssignableFrom(type))
             {
-                return (ICollection<T>)Activator.CreateInstance(type);
+                return (ICollection<T>)FastActivator.Instance.Activate(type);
             }
             throw new NotImplementedException();
         }

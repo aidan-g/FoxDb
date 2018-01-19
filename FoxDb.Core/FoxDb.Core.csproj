@@ -125,6 +125,7 @@
     <Compile Include="Interfaces\Query\Builder\IAddBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
+    <Compile Include="Interfaces\Utility\IFastActivator.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorFactory.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorStrategy.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\Factories.cs" />
     <Compile Include="Utility\CollectionFactory.cs" />
+    <Compile Include="Utility\FastActivator.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
     <Compile Include="Utility\Pluralization.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />

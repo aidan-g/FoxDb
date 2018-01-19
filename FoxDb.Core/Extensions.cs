@@ -52,7 +52,7 @@ namespace FoxDb
         {
             if (type.IsValueType)
             {
-                return Activator.CreateInstance(type);
+                return FastActivator.Instance.Activate(type);
             }
             return null;
         }
