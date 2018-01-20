@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
@@ -25,6 +27,9 @@ namespace FoxDb.Interfaces
         int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
         T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
+
+        [Obsolete]
+        IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
         IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
     }

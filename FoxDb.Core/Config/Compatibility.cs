@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -109,6 +110,49 @@ namespace FoxDb
                 column = table.CreateColumn(selector);
             }
             return column;
+        }
+
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), database.QueryFactory.Create(query.Build()), parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), query, parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, ITableConfig table, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(table, query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(table, database.QueryFactory.Create(query.Build()), parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, ITableConfig table, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteEnumerator<T>(table, query, null, transaction);
         }
     }
 }

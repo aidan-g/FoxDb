@@ -29,7 +29,14 @@ namespace FoxDb
 
         ~Disposable()
         {
-            this.Dispose(true);
+            try
+            {
+                this.Dispose(true);
+            }
+            catch
+            {
+                //Won't raise exception on GC thread.
+            }
         }
     }
 }
