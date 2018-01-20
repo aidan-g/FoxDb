@@ -42,6 +42,10 @@ namespace FoxDb
                 {
                     throw new InvalidOperationException(string.Format("No such parameter \"{0}\".", name));
                 }
+                if (value == null || DBNull.Value.Equals(value))
+                {
+                    value = DBNull.Value;
+                }
                 (this.Parameters[name] as IDataParameter).Value = value;
             }
         }

@@ -1,18 +1,24 @@
 ﻿using FoxDb.Interfaces;
+using Microsoft.Data.Sqlite;
+using SQLitePCL;
 using System.Data;
-using System.Data.SQLite;
 using System.IO;
 
 namespace FoxDb
 {
     public class SQLiteProvider : IProvider
     {
-        public SQLiteProvider(string fileName) : this(new SQLiteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
+        static SQLiteProvider()
+        {
+            Batteries_V2.Init();
+        }
+
+        public SQLiteProvider(string fileName) : this(new SqliteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
         {
 
         }
 
-        public SQLiteProvider(SQLiteConnectionStringBuilder builder)
+        public SQLiteProvider(SqliteConnectionStringBuilder builder)
         {
             this.FileName = builder.DataSource;
             this.ConnectionString = builder.ToString();
@@ -26,9 +32,9 @@ namespace FoxDb
         {
             if (!File.Exists(this.FileName))
             {
-                SQLiteConnection.CreateFile(this.FileName);
+                //SQLiteConnection.CreateFile(this.FileName);
             }
-            return new SQLiteConnection(this.ConnectionString);
+            return new SqliteConnection(this.ConnectionString);
         }
 
         public IDatabaseSchema CreateSchema(IDatabase database)

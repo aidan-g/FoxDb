@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
@@ -25,7 +26,8 @@ namespace FoxDb
                     {
                         if (parameters.Contains(column.ColumnName) && column.Getter != null)
                         {
-                            parameters[column.ColumnName] = column.Getter(this.Item);
+                            var value = column.Getter(this.Item);
+                            parameters[column.ColumnName] = value;
                         }
                     }
                 });
