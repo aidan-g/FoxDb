@@ -10,18 +10,18 @@ namespace FoxDb
         public DatabaseReader(IDbCommand command)
         {
             this.Command = command;
+            this.Reader = command.ExecuteReader();
         }
 
         public IDbCommand Command { get; private set; }
 
+        public IDataReader Reader { get; private set; }
+
         public IEnumerator<IDatabaseReaderRecord> GetEnumerator()
         {
-            using (var reader = this.Command.ExecuteReader())
+            while (this.Reader.Read())
             {
-                while (reader.Read())
-                {
-                    yield return new DatabaseReaderRecord(reader);
-                }
+                yield return new DatabaseReaderRecord(this.Reader);
             }
         }
 
@@ -32,6 +32,7 @@ namespace FoxDb
 
         protected override void OnDisposing()
         {
+            this.Reader.Dispose();
             this.Command.Dispose();
             base.OnDisposing();
         }

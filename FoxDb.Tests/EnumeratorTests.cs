@@ -27,6 +27,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
+                this.AssertSequence(data, database.ExecuteEnumerator<Test001>(set.Fetch, transaction));
             }
         }
 

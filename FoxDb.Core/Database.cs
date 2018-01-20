@@ -1,4 +1,6 @@
 ﻿using FoxDb.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace FoxDb
@@ -78,6 +80,19 @@ namespace FoxDb
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
                 return Converter.ChangeType<T>(command.ExecuteScalar());
+            }
+        }
+
+        [Obsolete]
+        public IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            using (var reader = this.ExecuteReader(query, parameters, transaction))
+            {
+                var enumerable = new EntityEnumerator(table, reader);
+                foreach (var element in enumerable.AsEnumerable<T>())
+                {
+                    yield return element;
+                }
             }
         }
 

@@ -65,6 +65,7 @@
     <Compile Include="Config\TableValidator.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
+    <Compile Include="Entity\EntityCompoundEnumerator.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />
     <Compile Include="Entity\EntityEnumeratorBuffer.cs" />
     <Compile Include="Entity\EntityGraph.cs" />
