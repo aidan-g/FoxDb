@@ -26,6 +26,7 @@ namespace FoxDb
             var handlers = new List<DatabaseParameterHandler>();
             if (item != null)
             {
+                //handlers.Add(new PrimaryKeysParameterHandlerStrategy<T>(database, item).Handler);
                 handlers.Add(new ForeignKeysParameterHandlerStrategy<T, TRelation>(database, item, child, relation).Handler);
             }
             if (child != null)

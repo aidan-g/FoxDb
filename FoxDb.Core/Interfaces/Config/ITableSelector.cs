@@ -4,6 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface ITableSelector
     {
+        string Identifier { get; }
+
         Type TableType { get; }
 
         ITableConfig LeftTable { get; }

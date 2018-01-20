@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class ConstantBuilder : ExpressionBuilder, IConstantBuilder
     {
-        public ConstantBuilder(IQueryGraphBuilder graph) : base(graph)
+        public ConstantBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public object Value { get; set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Value);
+            }
+        }
     }
 }

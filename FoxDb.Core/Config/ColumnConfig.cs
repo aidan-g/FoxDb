@@ -6,10 +6,11 @@ namespace FoxDb
 {
     public class ColumnConfig : IColumnConfig
     {
-        public ColumnConfig(IConfig config, ColumnFlags flags, ITableConfig table, string columnName, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
+        public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
         {
             this.Config = config;
             this.Flags = flags;
+            this.Identifier = identifier;
             this.Table = table;
             this.ColumnName = columnName;
             this.Property = property;
@@ -21,15 +22,9 @@ namespace FoxDb
 
         public ColumnFlags Flags { get; private set; }
 
-        public ITableConfig Table { get; private set; }
+        public string Identifier { get; private set; }
 
-        public string Identifier
-        {
-            get
-            {
-                return string.Format("{0}_{1}", this.Table.TableName, this.ColumnName);
-            }
-        }
+        public ITableConfig Table { get; private set; }
 
         public string ColumnName { get; set; }
 
@@ -42,6 +37,11 @@ namespace FoxDb
         public Func<object, object> Getter { get; set; }
 
         public Action<object, object> Setter { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0}.{1}", this.Table, this.ColumnName);
+        }
 
         public override int GetHashCode()
         {
@@ -73,7 +73,11 @@ namespace FoxDb
             {
                 return false;
             }
-            if (this.Table != other.Table)
+            if ((TableConfig)this.Table != (TableConfig)other.Table)
+            {
+                return false;
+            }
+            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -81,7 +85,11 @@ namespace FoxDb
             {
                 return false;
             }
-            if (this.Property != other.Property)
+            if (this.Flags != other.Flags)
+            {
+                return false;
+            }
+            if (this.Property != null && other.Property != null && this.Property != other.Property)
             {
                 return false;
             }
@@ -112,12 +120,22 @@ namespace FoxDb
 
         public static IColumnSelector By(string columnName, ColumnFlags flags)
         {
-            return ColumnSelector.By(columnName, flags);
+            return By(string.Empty, columnName, flags);
+        }
+
+        public static IColumnSelector By(string identifier, string columnName, ColumnFlags flags)
+        {
+            return ColumnSelector.By(identifier, columnName, flags);
         }
 
         public static IColumnSelector By(PropertyInfo property, ColumnFlags flags)
         {
-            return ColumnSelector.By(property, flags);
+            return By(string.Empty, property, flags);
+        }
+
+        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags flags)
+        {
+            return ColumnSelector.By(identifier, property, flags);
         }
     }
 }

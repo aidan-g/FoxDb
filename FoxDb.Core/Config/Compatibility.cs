@@ -122,7 +122,7 @@ namespace FoxDb
         [Obsolete]
         public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), database.QueryFactory.Create(query.Build()), parameters, transaction);
+            return database.ExecuteEnumerator<T>(database.Config.Table<T>(), query.Build(), parameters, transaction);
         }
 
         [Obsolete]
@@ -146,7 +146,7 @@ namespace FoxDb
         [Obsolete]
         public static IEnumerable<T> ExecuteEnumerator<T>(this IDatabase database, ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return database.ExecuteEnumerator<T>(table, database.QueryFactory.Create(query.Build()), parameters, transaction);
+            return database.ExecuteEnumerator<T>(table, query.Build(), parameters, transaction);
         }
 
         [Obsolete]

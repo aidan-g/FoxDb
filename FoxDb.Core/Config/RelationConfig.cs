@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -7,23 +8,26 @@ namespace FoxDb
 {
     public abstract class RelationConfig : IRelationConfig
     {
-        protected RelationConfig(IConfig config, RelationFlags flags, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property)
+        private RelationConfig(IConfig config)
         {
             this.Config = config;
+            this.Expression = this.CreateConstraint();
+        }
+
+        protected RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable) : this(config)
+        {
             this.Flags = flags;
+            this.Identifier = identifier;
             this.LeftTable = leftTable;
             this.MappingTable = mappingTable;
             this.RightTable = rightTable;
-            this.Property = property;
-            if (flags.HasFlag(RelationFlags.AutoColumns))
-            {
-                this.AutoColumns();
-            }
         }
 
         public IConfig Config { get; private set; }
 
         public RelationFlags Flags { get; private set; }
+
+        public string Identifier { get; private set; }
 
         public ITableConfig LeftTable { get; private set; }
 
@@ -31,22 +35,73 @@ namespace FoxDb
 
         public ITableConfig RightTable { get; private set; }
 
-        public PropertyInfo Property { get; private set; }
-
-        public IColumnConfig LeftColumn { get; set; }
-
-        public IColumnConfig RightColumn { get; set; }
+        public IBinaryExpressionBuilder Expression { get; set; }
 
         public abstract Type RelationType { get; }
 
-        public abstract IRelationConfig AutoColumns();
+        public abstract IRelationConfig AutoExpression();
+
+        public abstract IRelationConfig Invert();
+
+        public virtual IBinaryExpressionBuilder CreateConstraint()
+        {
+            return this.CreateConstraint(null, null);
+        }
+
+        public virtual IBinaryExpressionBuilder CreateConstraint(IColumnConfig leftColumn, IColumnConfig rightColumn)
+        {
+            return this.Fragment<IBinaryExpressionBuilder>().With(builder =>
+            {
+                if (leftColumn != null)
+                {
+                    builder.Left = builder.CreateColumn(leftColumn);
+                }
+                builder.Operator = builder.CreateOperator(QueryOperator.Equal);
+                if (rightColumn != null)
+                {
+                    builder.Right = builder.CreateColumn(rightColumn);
+                }
+            });
+        }
+
+        protected virtual T Fragment<T>() where T : IFragmentBuilder
+        {
+            if (this.Expression != null)
+            {
+                return this.Expression.Fragment<T>();
+            }
+            else
+            {
+                return FragmentBuilder.Proxy.CreateRelation(this).Fragment<T>();
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", string.Join("->", new[] { this.LeftTable, this.MappingTable, this.RightTable }.Where(table => table != null)), this.Expression.DebugView);
+        }
 
         public override int GetHashCode()
         {
             var hashCode = 0;
             unchecked
             {
-                hashCode += this.Property.GetHashCode();
+                if (!string.IsNullOrEmpty(this.Identifier))
+                {
+                    hashCode += this.Identifier.GetHashCode();
+                }
+                if (this.LeftTable != null)
+                {
+                    hashCode += this.LeftTable.GetHashCode();
+                }
+                if (this.MappingTable != null)
+                {
+                    hashCode += this.MappingTable.GetHashCode();
+                }
+                if (this.RightTable != null)
+                {
+                    hashCode += this.RightTable.GetHashCode();
+                }
             }
             return hashCode;
         }
@@ -66,7 +121,23 @@ namespace FoxDb
             {
                 return false;
             }
-            if (this.Property != other.Property)
+            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            if ((TableConfig)this.LeftTable != (TableConfig)other.LeftTable)
+            {
+                return false;
+            }
+            if ((TableConfig)this.MappingTable != (TableConfig)other.MappingTable)
+            {
+                return false;
+            }
+            if ((TableConfig)this.RightTable != (TableConfig)other.RightTable)
+            {
+                return false;
+            }
+            if (this.Flags != other.Flags)
             {
                 return false;
             }
@@ -108,30 +179,42 @@ namespace FoxDb
             throw new InvalidOperationException(string.Format("Table does not appear to be related: {0}", relativeTable));
         }
 
-        public abstract IRelationConfig Invert();
-
         public static IRelationSelector By(PropertyInfo property, RelationFlags flags)
         {
-            return RelationSelector.By(property, flags);
+            return By(string.Empty, property, flags);
+        }
+
+        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags flags)
+        {
+            return RelationSelector.By(identifier, property, flags);
         }
 
         public static IRelationSelector By(Expression expression, RelationFlags flags)
         {
-            return RelationSelector.By(expression, flags);
+            return By(string.Empty, expression, flags);
+        }
+
+        public static IRelationSelector By(string identifier, Expression expression, RelationFlags flags)
+        {
+            return RelationSelector.By(identifier, expression, flags);
         }
 
         public static IRelationSelector<T, TRelation> By<T, TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
         {
-            return RelationSelector<T, TRelation>.By(expression, flags);
+            return By(string.Empty, expression, flags);
+        }
+
+        public static IRelationSelector<T, TRelation> By<T, TRelation>(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        {
+            return RelationSelector<T, TRelation>.By(identifier, expression, flags);
         }
     }
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
     {
-        public RelationConfig(IConfig config, RelationFlags flags, ITableConfig parent, ITableConfig table, PropertyInfo property, Func<T, TRelation> getter, Action<T, TRelation> setter) : base(config, flags, parent, null, table, property)
+        public RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig parent, ITableConfig table, IPropertyAccessor<T, TRelation> accessor) : base(config, flags, identifier, parent, null, table)
         {
-            this.Getter = getter;
-            this.Setter = setter;
+            this.Accessor = accessor;
         }
 
         public override Type RelationType
@@ -142,31 +225,39 @@ namespace FoxDb
             }
         }
 
-        public override IRelationConfig AutoColumns()
+        public IPropertyAccessor<T, TRelation> Accessor { get; private set; }
+
+        public override IRelationConfig AutoExpression()
         {
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
-                this.LeftColumn = this.LeftTable.PrimaryKey;
+                this.Expression.Left = this.Expression.CreateColumn(this.LeftTable.PrimaryKey);
             }
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
                 if (this.RightTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
                 {
-                    this.RightColumn = column;
-                    this.RightColumn.IsForeignKey = true;
+                    this.Expression.Right = this.Expression.CreateColumn(column);
+                    column.IsForeignKey = true;
                 }
             }
             return this;
         }
 
-        public Func<T, TRelation> Getter { get; private set; }
-
-        public Action<T, TRelation> Setter { get; private set; }
-
         public override IRelationConfig Invert()
         {
             throw new NotImplementedException();
+        }
+
+        public static IRelationSelector<T, TRelation> By(Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        {
+            return By(string.Empty, expression, flags);
+        }
+
+        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        {
+            return RelationSelector<T, TRelation>.By(identifier, expression, flags);
         }
     }
 }

@@ -11,13 +11,14 @@ namespace FoxDb
         private TableConfig()
         {
             this.Columns = new ConcurrentDictionary<string, IColumnConfig>();
-            this.Relations = new ConcurrentDictionary<Type, IRelationConfig>();
+            this.Relations = new ConcurrentDictionary<string, IRelationConfig>();
         }
 
-        protected TableConfig(IConfig config, TableFlags flags, string tableName, Type tableType) : this()
+        protected TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, Type tableType) : this()
         {
             this.Config = config;
             this.Flags = flags;
+            this.Identifier = identifier;
             this.TableName = tableName;
             this.TableType = tableType;
         }
@@ -26,6 +27,7 @@ namespace FoxDb
         {
             this.Config = table.Config;
             this.Flags = table.Flags;
+            this.Identifier = table.Identifier;
             this.TableName = table.TableName;
             this.TableType = tableType;
             this.Columns = table.Columns;
@@ -36,13 +38,15 @@ namespace FoxDb
 
         public TableFlags Flags { get; private set; }
 
+        public string Identifier { get; private set; }
+
         public string TableName { get; set; }
 
         public Type TableType { get; private set; }
 
         protected virtual ConcurrentDictionary<string, IColumnConfig> Columns { get; private set; }
 
-        protected virtual ConcurrentDictionary<Type, IRelationConfig> Relations { get; private set; }
+        protected virtual ConcurrentDictionary<string, IRelationConfig> Relations { get; private set; }
 
         IEnumerable<IColumnConfig> ITableConfig.Columns
         {
@@ -94,12 +98,13 @@ namespace FoxDb
 
         public IColumnConfig GetColumn(IColumnSelector selector)
         {
+            var existing = default(IColumnConfig);
             var column = Factories.Column.Create(this, selector);
-            if (!this.Columns.TryGetValue(column.ColumnName, out column))
+            if (!this.Columns.TryGetValue(column.Identifier, out existing) || !column.Equals(existing))
             {
                 return default(IColumnConfig);
             }
-            return column;
+            return existing;
         }
 
         public IColumnConfig CreateColumn(IColumnSelector selector)
@@ -109,7 +114,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
-            column = this.Columns.GetOrAdd(column.ColumnName, column);
+            column = this.Columns.AddOrUpdate(column.Identifier, column);
             return column;
         }
 
@@ -120,7 +125,7 @@ namespace FoxDb
             {
                 return false;
             }
-            column = this.Columns.GetOrAdd(column.ColumnName, column);
+            column = this.Columns.AddOrUpdate(column.Identifier, column);
             return true;
         }
 
@@ -129,6 +134,11 @@ namespace FoxDb
         public abstract ITableConfig AutoRelations();
 
         public abstract ITableConfig<T> CreateProxy<T>();
+
+        public override string ToString()
+        {
+            return string.Format("{0}", this.TableName);
+        }
 
         public override int GetHashCode()
         {
@@ -156,11 +166,15 @@ namespace FoxDb
             {
                 return false;
             }
+            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
             if (!string.Equals(this.TableName, other.TableName, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
-            if (this.TableType != other.TableType)
+            if (this.Flags != other.Flags)
             {
                 return false;
             }
@@ -191,18 +205,28 @@ namespace FoxDb
 
         public static ITableSelector By(Type tableType, TableFlags flags)
         {
-            return TableSelector.By(tableType, flags);
+            return By(string.Empty, tableType, flags);
+        }
+
+        public static ITableSelector By(string identifier, Type tableType, TableFlags flags)
+        {
+            return TableSelector.By(identifier, tableType, flags);
         }
 
         public static ITableSelector By(ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
         {
-            return TableSelector.By(leftTable, rightTable, flags);
+            return By(string.Empty, leftTable, rightTable, flags);
+        }
+
+        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        {
+            return TableSelector.By(identifier, leftTable, rightTable, flags);
         }
     }
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>
     {
-        public TableConfig(IConfig config, TableFlags flags, string name) : base(config, flags, name, typeof(T))
+        public TableConfig(IConfig config, TableFlags flags, string identifier, string name) : base(config, flags, identifier, name, typeof(T))
         {
 
         }
@@ -214,12 +238,13 @@ namespace FoxDb
 
         public IRelationConfig GetRelation<TRelation>(IRelationSelector<T, TRelation> selector)
         {
+            var existing = default(IRelationConfig);
             var relation = Factories.Relation.Create(this, selector);
-            if (!this.Relations.TryGetValue(relation.RelationType, out relation))
+            if (!this.Relations.TryGetValue(relation.Identifier, out existing) || !relation.Equals(existing))
             {
                 return default(IRelationConfig);
             }
-            return relation;
+            return existing;
         }
 
         public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T, TRelation> selector)
@@ -229,7 +254,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Relation has invalid configuration: {0}", relation));
             }
-            relation = this.Relations.GetOrAdd(relation.RelationType, relation);
+            relation = this.Relations.AddOrUpdate(relation.Identifier, relation);
             return relation;
         }
 
@@ -240,7 +265,7 @@ namespace FoxDb
             {
                 return false;
             }
-            relation = this.Relations.GetOrAdd(relation.RelationType, relation);
+            relation = this.Relations.AddOrUpdate(relation.Identifier, relation);
             return true;
         }
 
@@ -251,11 +276,11 @@ namespace FoxDb
             for (var a = 0; a < columns.Length; a++)
             {
                 var column = columns[a];
-                if (this.Columns.ContainsKey(column.ColumnName))
+                if (this.Columns.ContainsKey(column.Identifier))
                 {
                     continue;
                 }
-                column = this.Columns.GetOrAdd(column.ColumnName, column);
+                column = this.Columns.GetOrAdd(column.Identifier, column);
                 if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
                 {
                     column.IsPrimaryKey = true;
@@ -271,11 +296,11 @@ namespace FoxDb
             for (var a = 0; a < relations.Length; a++)
             {
                 var relation = relations[a];
-                if (this.Relations.ContainsKey(relation.RelationType))
+                if (this.Relations.ContainsKey(relation.Identifier))
                 {
                     continue;
                 }
-                relation = this.Relations.GetOrAdd(relation.RelationType, relation);
+                relation = this.Relations.GetOrAdd(relation.Identifier, relation);
             }
             return this;
         }
@@ -284,11 +309,57 @@ namespace FoxDb
         {
             return new TableConfig<TElement>(this);
         }
+
+        public override int GetHashCode()
+        {
+            var hashCode = base.GetHashCode();
+            unchecked
+            {
+
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ITableConfig<T>)
+            {
+                return this.Equals(obj as ITableConfig<T>);
+            }
+            return base.Equals(obj);
+        }
+
+        public bool Equals(ITableConfig<T> other)
+        {
+            return base.Equals(other);
+        }
+
+        public static bool operator ==(TableConfig<T> a, TableConfig<T> b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(TableConfig<T> a, TableConfig<T> b)
+        {
+            return !(a == b);
+        }
     }
 
     public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2>
     {
-        public TableConfig(IConfig config, TableFlags flags, string tableName, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, flags, tableName, typeof(T2))
+        public TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, flags, identifier, tableName, typeof(T2))
         {
             this.LeftTable = leftTable;
             this.RightTable = rightTable;
@@ -334,5 +405,58 @@ namespace FoxDb
         public IColumnConfig LeftForeignKey { get; set; }
 
         public IColumnConfig RightForeignKey { get; set; }
+
+        public override int GetHashCode()
+        {
+            var hashCode = base.GetHashCode();
+            unchecked
+            {
+                if (this.LeftTable != null)
+                {
+                    hashCode += this.LeftTable.GetHashCode();
+                }
+                if (this.RightTable != null)
+                {
+                    hashCode += this.RightTable.GetHashCode();
+                }
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ITableConfig)
+            {
+                return this.Equals(obj as ITableConfig);
+            }
+            return base.Equals(obj);
+        }
+
+        public bool Equals(ITableConfig<T1, T2> other)
+        {
+            return base.Equals(other);
+        }
+
+        public static bool operator ==(TableConfig<T1, T2> a, TableConfig<T1, T2> b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(TableConfig<T1, T2> a, TableConfig<T1, T2> b)
+        {
+            return !(a == b);
+        }
     }
 }

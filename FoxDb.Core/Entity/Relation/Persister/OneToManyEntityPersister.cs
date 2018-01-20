@@ -57,7 +57,7 @@ namespace FoxDb
                         source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
                     )
                 );
-                var children = this.Relation.Getter(this.Item);
+                var children = this.Relation.Accessor.Get(this.Item);
                 if (children != null)
                 {
                     foreach (var child in children)
@@ -74,12 +74,15 @@ namespace FoxDb
                 {
                     set.Clear();
                 }
-                foreach (var child in set)
+                else
                 {
-                    if (!children.Contains(child))
+                    foreach (var child in set)
                     {
-                        set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
-                        set.Delete(child);
+                        if (!children.Contains(child))
+                        {
+                            set.Parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
+                            set.Remove(child);
+                        }
                     }
                 }
             }

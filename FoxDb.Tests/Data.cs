@@ -35,6 +35,10 @@ namespace FoxDb
 
         public long Id { get; set; }
 
+        public long Test003_Id { get; set; }
+
+        public long Test004_Id { get; set; }
+
         public string Name { get; set; }
 
         public Test003 Test003 { get; set; }

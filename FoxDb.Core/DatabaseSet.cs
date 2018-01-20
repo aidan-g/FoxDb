@@ -50,16 +50,16 @@ namespace FoxDb
 
         public void Clear()
         {
-            this.Delete(this);
+            this.Remove(this);
         }
 
-        public T Delete(T item)
+        public T Remove(T item)
         {
-            this.Delete(new[] { item });
+            this.Remove(new[] { item });
             return item;
         }
 
-        public IEnumerable<T> Delete(IEnumerable<T> items)
+        public IEnumerable<T> Remove(IEnumerable<T> items)
         {
             var persister = new EntityPersister<T>(this);
             foreach (var item in items)
@@ -85,6 +85,11 @@ namespace FoxDb
             }).FirstOrDefault();
         }
 
+        public bool Contains(T item)
+        {
+            return this.Find(EntityKey.GetKey(this.Table, item)) != null;
+        }
+
         public void CopyTo(T[] target, int index)
         {
             foreach (var element in this)
@@ -97,7 +102,7 @@ namespace FoxDb
         {
             using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
-                var enumerable = new EntityCompoundEnumerator(this, reader);
+                var enumerable = new EntityCompoundEnumerator(this.Table, this.Mapper, reader);
                 foreach (var element in enumerable.AsEnumerable<T>())
                 {
                     yield return element;
@@ -229,23 +234,23 @@ namespace FoxDb
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
         void ICollection<T>.Add(T item)
         {
-            throw new NotImplementedException();
-        }
-
-        bool ICollection<T>.Contains(T item)
-        {
-            throw new NotImplementedException();
+            item = this.AddOrUpdate(item);
         }
 
         bool ICollection<T>.Remove(T item)
         {
-            throw new NotImplementedException();
+            if (!this.Contains(item))
+            {
+                return false;
+            }
+            item = this.Remove(item);
+            return true;
         }
 
         #endregion

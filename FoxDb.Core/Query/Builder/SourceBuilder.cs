@@ -1,14 +1,14 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class SourceBuilder : FragmentBuilder, ISourceBuilder
     {
-        public SourceBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
+        public SourceBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Parent = parent;
-            this.Expressions = new List<IExpressionBuilder>();
+            this.Expressions = new List<IFragmentBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -19,9 +19,32 @@ namespace FoxDb
             }
         }
 
-        public IFragmentBuilder Parent { get; private set; }
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
-        public ICollection<IExpressionBuilder> Expressions { get; private set; }
+
+        public IEnumerable<ITableBuilder> Tables
+        {
+            get
+            {
+                return this.Expressions.OfType<ITableBuilder>();
+            }
+        }
+
+        public IEnumerable<IRelationBuilder> Relations
+        {
+            get
+            {
+                return this.Expressions.OfType<IRelationBuilder>();
+            }
+        }
+
+        public IEnumerable<ISubQueryBuilder> SubQueries
+        {
+            get
+            {
+                return this.Expressions.OfType<ISubQueryBuilder>();
+            }
+        }
 
         public ITableBuilder GetTable(ITableConfig table)
         {
@@ -57,6 +80,14 @@ namespace FoxDb
             var builder = this.CreateSubQuery(query);
             this.Expressions.Add(builder);
             return builder;
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+            }
         }
     }
 }

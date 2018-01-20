@@ -56,7 +56,7 @@ namespace FoxDb
                         source => source.Fetch = this.Set.Database.FetchByRelation(this.Relation)
                     )
                 );
-                var children = this.Relation.Getter(this.Item);
+                var children = this.Relation.Accessor.Get(this.Item);
                 if (children != null)
                 {
                     foreach (var child in children)
@@ -74,11 +74,14 @@ namespace FoxDb
                 {
                     set.Clear();
                 }
-                foreach (var child in set)
+                else
                 {
-                    if (!children.Contains(child))
+                    foreach (var child in set)
                     {
-                        this.DeleteRelation(child);
+                        if (!children.Contains(child))
+                        {
+                            this.DeleteRelation(child);
+                        }
                     }
                 }
             }
@@ -107,8 +110,8 @@ namespace FoxDb
 
             protected virtual void DeleteRelation(TRelation child)
             {
-                var table = this.Set.Database.Config.Table<T, TRelation>();
-                var query = this.Set.Database.QueryFactory.Delete(table, table.ForeignKeys);
+                var columns = this.Relation.Expression.GetColumnMap();
+                var query = this.Set.Database.QueryFactory.Delete(this.Relation.MappingTable, columns[this.Relation.MappingTable]);
                 var parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                 this.Set.Database.Execute(query, parameters, this.Set.Transaction);
             }

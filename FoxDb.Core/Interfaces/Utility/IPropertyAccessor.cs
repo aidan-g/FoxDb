@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
-    public interface IPropertyAccessor<T, TValue>
+    public interface IPropertyAccessor<in T, TValue>
     {
         PropertyInfo Property { get; }
 

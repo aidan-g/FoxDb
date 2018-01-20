@@ -315,25 +315,27 @@ namespace FoxDb
         protected virtual void VisitAny(MethodCallExpression node)
         {
             var relation = this.Capture<IRelationBuilder>(node.Arguments[0]).Relation;
+            var columns = relation.Expression.GetColumnMap();
             this.Query.Filter.AddFunction(this.Query.Filter.CreateFunction(QueryFunction.Exists).With(function =>
             {
-                var query = this.Database.QueryFactory.Build();
-                query.Output.AddOperator(QueryOperator.Star);
-                query.Source.AddTable(relation.RightTable);
+                var builder = this.Database.QueryFactory.Build();
+                builder.Output.AddOperator(QueryOperator.Star);
+                builder.Source.AddTable(relation.RightTable);
                 switch (relation.Flags.GetMultiplicity())
                 {
+                    case RelationFlags.OneToOne:
                     case RelationFlags.OneToMany:
-                        query.Filter.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
+                        builder.Filter.AddColumn(columns[relation.RightTable].First(), relation.LeftTable.PrimaryKey);
                         break;
                     case RelationFlags.ManyToMany:
-                        query.Source.AddRelation(relation.Invert());
-                        query.Filter.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
+                        builder.Source.AddRelation(relation.Invert());
+                        builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.LeftTable.PrimaryKey);
                         break;
                     default:
                         throw new NotImplementedException();
                 }
-                function.AddArgument(function.CreateSubQuery(query));
-                this.Push(query.Filter);
+                function.AddArgument(function.CreateSubQuery(builder));
+                this.Push(builder.Filter);
             }));
             try
             {
@@ -504,7 +506,7 @@ namespace FoxDb
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            var fragment = this.Push(this.Peek.CreateFragment<IBinaryExpressionBuilder>());
+            var fragment = this.Push(this.Peek.Fragment<IBinaryExpressionBuilder>());
             try
             {
                 this.Visit(node.Left);
@@ -658,7 +660,7 @@ namespace FoxDb
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
         {
-            public CaptureFragmentTarget() : base(QueryGraphBuilder.Null)
+            public CaptureFragmentTarget() : base(FragmentBuilder.Proxy, QueryGraphBuilder.Null)
             {
                 this.Expressions = new List<IFragmentBuilder>();
                 this.Constants = new Dictionary<string, object>();
@@ -680,6 +682,14 @@ namespace FoxDb
             {
                 this.Expressions.Add(fragment);
                 return fragment;
+            }
+
+            public override string DebugView
+            {
+                get
+                {
+                    return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+                }
             }
         }
 

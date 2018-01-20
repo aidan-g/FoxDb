@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class DeleteBuilder : FragmentBuilder, IDeleteBuilder
     {
-        public DeleteBuilder(IQueryGraphBuilder graph) : base(graph)
+        public DeleteBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }
@@ -14,6 +14,14 @@ namespace FoxDb
             get
             {
                 return FragmentType.Delete;
+            }
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
             }
         }
     }

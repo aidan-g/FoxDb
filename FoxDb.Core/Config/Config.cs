@@ -9,7 +9,7 @@ namespace FoxDb
         private Config()
         {
             this.Members = new DynamicMethod(this.GetType());
-            this.Tables = new ConcurrentDictionary<TableKey, ITableConfig>();
+            this.Tables = new ConcurrentDictionary<string, ITableConfig>();
         }
 
         public Config(IDatabase database) : this()
@@ -19,18 +19,19 @@ namespace FoxDb
 
         protected DynamicMethod Members { get; private set; }
 
-        protected virtual ConcurrentDictionary<TableKey, ITableConfig> Tables { get; private set; }
+        protected virtual ConcurrentDictionary<string, ITableConfig> Tables { get; private set; }
 
         public IDatabase Database { get; private set; }
 
         public ITableConfig GetTable(ITableSelector selector)
         {
-            var table = default(ITableConfig);
-            if (!this.Tables.TryGetValue(this.GetKey(selector), out table))
+            var existing = default(ITableConfig);
+            var table = Factories.Table.Create(this, selector);
+            if (!this.Tables.TryGetValue(table.Identifier, out existing) || !table.Equals(existing))
             {
                 return default(ITableConfig);
             }
-            return table;
+            return existing;
         }
 
         public ITableConfig CreateTable(ITableSelector selector)
@@ -40,7 +41,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", table));
             }
-            table = this.Tables.GetOrAdd(this.GetKey(selector), table);
+            table = this.Tables.AddOrUpdate(table.Identifier, table);
             this.Configure(table);
             return table;
         }
@@ -52,7 +53,7 @@ namespace FoxDb
             {
                 return false;
             }
-            table = this.Tables.GetOrAdd(this.GetKey(selector), table);
+            table = this.Tables.AddOrUpdate(table.Identifier, table);
             this.Configure(table);
             return true;
         }
@@ -66,70 +67,6 @@ namespace FoxDb
             if (table.Flags.HasFlag(TableFlags.AutoRelations))
             {
                 table.AutoRelations();
-            }
-        }
-
-        protected virtual TableKey GetKey(ITableSelector selector)
-        {
-            switch (selector.Type)
-            {
-                case TableSelectorType.TableType:
-                    return new TableKey(selector.TableType);
-                case TableSelectorType.Mapping:
-                    return new TableKey(selector.LeftTable.TableType, selector.RightTable.TableType);
-            }
-            throw new NotImplementedException();
-        }
-
-        protected class TableKey : IEquatable<TableKey>
-        {
-            public TableKey(params Type[] types)
-            {
-                this.Types = types;
-            }
-
-            public Type[] Types { get; private set; }
-
-            public override int GetHashCode()
-            {
-                var hashCode = 0;
-                unchecked
-                {
-                    foreach (var type in this.Types)
-                    {
-                        hashCode += type.GetHashCode();
-                    }
-                }
-                return hashCode;
-            }
-
-            public override bool Equals(object other)
-            {
-                if (other is TableKey)
-                {
-                    return this.Equals(other as TableKey);
-                }
-                return base.Equals(other);
-            }
-
-            public bool Equals(TableKey other)
-            {
-                if (other == null)
-                {
-                    return false;
-                }
-                else if (this.Types.Length != other.Types.Length)
-                {
-                    return false;
-                }
-                for (var a = 0; a < this.Types.Length; a++)
-                {
-                    if (this.Types[a] != other.Types[a])
-                    {
-                        return false;
-                    }
-                }
-                return true;
             }
         }
     }

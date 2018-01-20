@@ -6,23 +6,26 @@ namespace FoxDb
 {
     public class EntityCompoundEnumerator : IEntityEnumerator
     {
-        public EntityCompoundEnumerator(IDatabaseSet set, IDatabaseReader reader)
+        public EntityCompoundEnumerator(ITableConfig table, IEntityMapper mapper, IDatabaseReader reader)
         {
-            this.Set = set;
+            this.Table = table;
+            this.Mapper = mapper;
             this.Reader = reader;
         }
 
-        public IDatabaseSet Set { get; private set; }
+        public ITableConfig Table { get; private set; }
+
+        public IEntityMapper Mapper { get; private set; }
 
         public IDatabaseReader Reader { get; private set; }
 
         public IEnumerable<T> AsEnumerable<T>()
         {
             var buffer = new List<object>();
-            var sink = new EntityGraphSink(this.Set.Table, (sender, e) => buffer.Add(e.Item));
-            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Set.Table, typeof(T)));
-            var graph = builder.Build(this.Set.Table, this.Set.Mapper);
-            var visitor = new EntityEnumeratorVisitor(this.Set, sink);
+            var sink = new EntityGraphSink(this.Table, (sender, e) => buffer.Add(e.Item));
+            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, typeof(T)));
+            var graph = builder.Build(this.Table, this.Mapper);
+            var visitor = new EntityEnumeratorVisitor(sink);
             foreach (var record in this.Reader)
             {
                 visitor.Visit(graph, record);
@@ -35,7 +38,7 @@ namespace FoxDb
                     buffer.Clear();
                 }
             }
-            visitor.Flush(this.Set.Table);
+            visitor.Flush(this.Table);
             foreach (var item in buffer)
             {
                 yield return (T)item;
@@ -44,18 +47,19 @@ namespace FoxDb
 
         private class EntityEnumeratorVisitor : EntityGraphVisitor
         {
-            public EntityEnumeratorVisitor(IDatabaseSet set, IEntityGraphSink sink)
+            private EntityEnumeratorVisitor()
             {
-                this.Set = set;
-                this.Sink = sink;
-                this.Buffer = new EntityEnumeratorBuffer(this.Set);
+                this.Buffer = new EntityEnumeratorBuffer();
             }
 
-            public IDatabaseSet Set { get; private set; }
-
-            public IEntityGraphSink Sink { get; private set; }
+            public EntityEnumeratorVisitor(IEntityGraphSink sink) : this()
+            {
+                this.Sink = sink;
+            }
 
             public IEntityEnumeratorBuffer Buffer { get; private set; }
+
+            public IEntityGraphSink Sink { get; private set; }
 
             public void Visit(IEntityGraph graph, IDatabaseReaderRecord record)
             {
@@ -113,7 +117,7 @@ namespace FoxDb
                 }
                 var parent = (T)this.Buffer.Get(node.Parent.Table);
                 var child = (TRelation)this.Buffer.Get(node.Table);
-                node.Relation.Setter(parent, child);
+                node.Relation.Accessor.Set(parent, child);
             }
 
             protected override void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node)
@@ -124,7 +128,7 @@ namespace FoxDb
                 }
                 var parent = (T)this.Buffer.Get(node.Parent.Table);
                 var child = (TRelation)this.Buffer.Get(node.Table);
-                var sequence = node.Relation.Getter(parent);
+                var sequence = node.Relation.Accessor.Get(parent);
                 if (sequence == null)
                 {
                     throw new NotImplementedException();

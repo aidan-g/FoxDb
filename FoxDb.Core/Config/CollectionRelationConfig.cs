@@ -1,16 +1,15 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq.Expressions;
 
 namespace FoxDb
 {
     public abstract class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
     {
-        public CollectionRelationConfig(IConfig config, RelationFlags flags, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, flags, leftTable, mappingTable, rightTable, property)
+        public CollectionRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor) : base(config, flags, identifier, leftTable, mappingTable, rightTable)
         {
-            this.Getter = getter;
-            this.Setter = setter;
+            this.Accessor = accessor;
         }
 
         public override Type RelationType
@@ -21,8 +20,21 @@ namespace FoxDb
             }
         }
 
-        public Func<T, ICollection<TRelation>> Getter { get; private set; }
+        public IPropertyAccessor<T, ICollection<TRelation>> Accessor { get; private set; }
 
-        public Action<T, ICollection<TRelation>> Setter { get; private set; }
+        public override IRelationConfig Invert()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static IRelationSelector<T, ICollection<TRelation>> By(Expression<Func<T, ICollection<TRelation>>> expression, RelationFlags flags)
+        {
+            return By(string.Empty, expression, flags);
+        }
+
+        public static IRelationSelector<T, ICollection<TRelation>> By(string identifier, Expression<Func<T, ICollection<TRelation>>> expression, RelationFlags flags)
+        {
+            return RelationSelector<T, ICollection<TRelation>>.By(identifier, expression, flags);
+        }
     }
 }

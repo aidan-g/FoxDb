@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -56,6 +57,11 @@ namespace FoxDb
         public static RelationFlags SetMultiplicity(this RelationFlags flags, RelationFlags multiplicity)
         {
             return (flags & ~(RelationFlags.OneToOne | RelationFlags.OneToMany | RelationFlags.ManyToMany)) | multiplicity;
+        }
+
+        public static TValue AddOrUpdate<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            return dictionary.AddOrUpdate(key, value, (_key, _value) => value);
         }
     }
 }

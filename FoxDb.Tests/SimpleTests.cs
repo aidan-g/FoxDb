@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
-using System.IO;
 
 namespace FoxDb
 {
@@ -10,7 +9,7 @@ namespace FoxDb
         [Test]
         public void CanAddUpdateDelete()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -30,7 +29,7 @@ namespace FoxDb
                 data[1].Field1 = "updated";
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
-                set.Delete(data[1]);
+                set.Remove(data[1]);
                 data.RemoveAt(1);
                 this.AssertSequence(data, set);
                 transaction.Rollback();
@@ -40,7 +39,7 @@ namespace FoxDb
         [Test]
         public void CanFind()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -61,7 +60,7 @@ namespace FoxDb
                         var retrieved = set.Find(element.Id);
                         Assert.AreEqual(element, retrieved);
                     }
-                    set.Delete(element);
+                    set.Remove(element);
                     {
                         var retrieved = set.Find(element.Id);
                         Assert.IsNull(retrieved);
@@ -75,7 +74,7 @@ namespace FoxDb
         [Test]
         public void CanCount()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {

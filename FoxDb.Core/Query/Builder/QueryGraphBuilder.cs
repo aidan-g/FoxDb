@@ -9,15 +9,19 @@ namespace FoxDb
 {
     public class QueryGraphBuilder : IQueryGraphBuilder
     {
-        public QueryGraphBuilder()
+        private QueryGraphBuilder()
         {
-            this.FragmentBuilder = new FragmentBuilderProxy(this);
             this.Fragments = new List<IFragmentBuilder>();
         }
 
-        public IFragmentBuilder FragmentBuilder { get; private set; }
+        public QueryGraphBuilder(IDatabase database) : this()
+        {
+            this.Database = database;
+        }
 
         public ICollection<IFragmentBuilder> Fragments { get; private set; }
+
+        public IDatabase Database { get; private set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOutputBuilder Output
@@ -96,19 +100,19 @@ namespace FoxDb
             var fragment = this.Fragments.OfType<T>().FirstOrDefault();
             if (fragment == null)
             {
-                fragment = this.FragmentBuilder.CreateFragment<T>();
+                fragment = FragmentBuilder.GetProxy(this).Fragment<T>();
                 this.Fragments.Add(fragment);
             }
             return fragment;
         }
 
 
-        public IEnumerable<IQueryGraph> Build()
+        public IDatabaseQuery Build()
         {
-            return new[]
+            return this.Database.QueryFactory.Create(new[]
             {
                 new QueryGraph(this.Fragments)
-            };
+            });
         }
 
         public IQueryGraphBuilder Clone()
@@ -190,7 +194,7 @@ namespace FoxDb
                 }
             }
 
-            public IEnumerable<IQueryGraph> Build()
+            public IDatabaseQuery Build()
             {
                 throw new NotImplementedException();
             }
@@ -205,36 +209,28 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
         }
-
-        private class FragmentBuilderProxy : FragmentBuilder
-        {
-            public FragmentBuilderProxy(IQueryGraphBuilder graph) : base(graph)
-            {
-            }
-
-            public override FragmentType FragmentType
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
     }
 
     public class AggregateQueryGraphBuilder : IAggregateQueryGraphBuilder
     {
-        public AggregateQueryGraphBuilder(params IQueryGraphBuilder[] queries)
+        private AggregateQueryGraphBuilder(IDatabase database)
+        {
+            this.Database = database;
+        }
+
+        public AggregateQueryGraphBuilder(IDatabase database, params IQueryGraphBuilder[] queries) : this(database)
         {
             this.Queries = queries;
         }
 
+        public IDatabase Database { get; private set; }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IEnumerable<IQueryGraphBuilder> Queries { get; private set; }
 
-        public IEnumerable<IQueryGraph> Build()
+        public IDatabaseQuery Build()
         {
-            return this.SelectMany(query => query.Build());
+            return this.Database.QueryFactory.Combine(this.Select(query => query.Build()).ToArray());
         }
 
         public IEnumerator<IQueryGraphBuilder> GetEnumerator()
@@ -311,11 +307,6 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-        }
-
-        IQueryGraphBuilder IQueryGraphBuilder.Clone()
-        {
-            throw new NotImplementedException();
         }
 
         T IQueryGraphBuilder.Fragment<T>()

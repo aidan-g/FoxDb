@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace FoxDb
@@ -58,36 +59,24 @@ namespace FoxDb
                         continue;
                     }
                 }
-                var valid =
-                    Validate(strict, relation.LeftColumn) &&
-                    (relation.MappingTable == null || Validate(strict, relation.MappingTable.LeftForeignKey, relation.MappingTable.RightForeignKey)) &&
-                    Validate(strict, relation.RightColumn);
-                if (!valid)
+                if (string.IsNullOrEmpty(relation.Identifier))
                 {
                     return false;
                 }
-            }
-            return true;
-        }
-
-        private static bool Validate(bool strict, params IColumnConfig[] columns)
-        {
-            foreach (var column in columns)
-            {
-                if (column == null)
+                var columns = relation.Expression
+                    .Flatten<IColumnBuilder>()
+                    .ToArray();
+                if (strict && columns.Length < 2)
                 {
-                    if (strict)
+                    //We need at least a left and right column for the relation to be valid.
+                    return false;
+                }
+                foreach (var column in columns)
+                {
+                    if (!ColumnValidator.Validate(column.Column))
                     {
                         return false;
                     }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                if (!ColumnValidator.Validate(column))
-                {
-                    return false;
                 }
             }
             return true;

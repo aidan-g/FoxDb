@@ -70,14 +70,20 @@ namespace FoxDb
 
         protected static IEnumerable<IEntityGraphNode> GetChildren(EntityGraphBuilder builder, IEntityGraphNode parent, IEntityMapper mapper)
         {
+            var children = new List<IEntityGraphNode>();
             foreach (var relation in parent.Table.Relations)
             {
                 if (!mapper.Relations.Contains(relation))
                 {
                     continue;
                 }
-                yield return builder.CreateNode(parent, relation, mapper);
+                if (children.Any(child => child.Relation.RightTable == relation.RightTable))
+                {
+                    continue;
+                }
+                children.Add(builder.CreateNode(parent, relation, mapper));
             }
+            return children;
         }
     }
 }

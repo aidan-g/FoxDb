@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SQLiteWhereWriter : SQLiteQueryWriter
     {
-        public SQLiteWhereWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteWhereWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
         {
 
         }
@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public override T Write<T>(T fragment)
+        protected override T OnWrite<T>(T fragment)
         {
             if (fragment is IFilterBuilder)
             {
@@ -32,18 +32,18 @@ namespace FoxDb
                 }
                 if (expression.Limit != 0)
                 {
-                    this.Visitor.Visit(new LimitBuilder(this.Graph, expression.Limit));
+                    this.Visitor.Visit(this, new LimitBuilder(this, this.Graph, expression.Limit));
                 }
                 if (expression.Offset != 0)
                 {
-                    this.Visitor.Visit(new OffsetBuilder(this.Graph, expression.Offset));
+                    this.Visitor.Visit(this, new OffsetBuilder(this, this.Graph, expression.Offset));
                 }
                 return fragment;
             }
             throw new NotImplementedException();
         }
 
-        protected override void Visit(IEnumerable<IExpressionBuilder> expressions)
+        protected override void Visit(IEnumerable<IFragmentBuilder> expressions)
         {
             var first = true;
             foreach (var expression in expressions)
@@ -65,6 +65,14 @@ namespace FoxDb
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
             base.VisitBinary(expression);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
+            }
         }
     }
 }

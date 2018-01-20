@@ -33,7 +33,7 @@ namespace FoxDb
         {
             static Relation()
             {
-                Flags = RelationFlags.AutoColumns | RelationFlags.EagerFetch;
+                Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch;
             }
 
             public static RelationFlags Flags { get; set; }
@@ -52,7 +52,8 @@ namespace FoxDb
     [Flags]
     public enum ColumnFlags : byte
     {
-        None = 0
+        None = 0,
+        ReadOnly = 1
     }
 
     [Flags]
@@ -64,7 +65,7 @@ namespace FoxDb
         OneToMany = 2,
         ManyToMany = 4,
         //Behaviour.
-        AutoColumns = 8,
-        EagerFetch = 16
+        AutoExpression = 32,
+        EagerFetch = 64,
     }
 }

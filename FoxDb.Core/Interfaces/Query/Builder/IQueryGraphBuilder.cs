@@ -31,9 +31,7 @@ namespace FoxDb.Interfaces
 
         T Fragment<T>() where T : IFragmentBuilder;
 
-        IEnumerable<IQueryGraph> Build();
-
-        IQueryGraphBuilder Clone();
+        IDatabaseQuery Build();
     }
 
     public interface IAggregateQueryGraphBuilder : IQueryGraphBuilder, IEnumerable<IQueryGraphBuilder>

@@ -9,6 +9,8 @@
 
 CREATE TABLE [Test002](
     [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test002] PRIMARY KEY NOT NULL,
+	[Test003_Id] INTEGER NULL,
+	[Test004_Id] INTEGER NULL,
     [Name] text NOT NULL
 );
 

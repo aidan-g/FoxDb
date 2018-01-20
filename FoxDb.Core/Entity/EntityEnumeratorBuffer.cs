@@ -5,22 +5,15 @@ namespace FoxDb
 {
     public class EntityEnumeratorBuffer : IEntityEnumeratorBuffer
     {
-        private EntityEnumeratorBuffer()
+        public EntityEnumeratorBuffer()
         {
             this.Factories = new Dictionary<ITableConfig, IEntityFactory>();
             this.Buffer = new Dictionary<ITableConfig, object>();
         }
 
-        public EntityEnumeratorBuffer(IDatabaseSet set) : this()
-        {
-            this.Set = set;
-        }
-
         public IDictionary<ITableConfig, IEntityFactory> Factories { get; private set; }
 
         public IDictionary<ITableConfig, object> Buffer { get; private set; }
-
-        public IDatabaseSet Set { get; private set; }
 
         public IDatabaseReaderRecord Record { get; set; }
 

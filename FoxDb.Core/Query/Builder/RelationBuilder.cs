@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class RelationBuilder : ExpressionBuilder, IRelationBuilder
     {
-        public RelationBuilder(IQueryGraphBuilder graph) : base(graph)
+        public RelationBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public IRelationConfig Relation { get; set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Relation);
+            }
+        }
     }
 }

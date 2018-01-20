@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
 {
     public interface IRelationSelector
     {
+        string Identifier { get; }
+
         PropertyInfo Property { get; }
 
         Expression Expression { get; }

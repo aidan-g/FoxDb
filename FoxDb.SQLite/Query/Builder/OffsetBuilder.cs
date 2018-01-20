@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class OffsetBuilder : FragmentBuilder, IOffsetBuilder
     {
-        public OffsetBuilder(IQueryGraphBuilder graph, int offset) : base(graph)
+        public OffsetBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph, int offset) : base(parent, graph)
         {
             this.Offset = offset;
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public int Offset { get; private set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Offset);
+            }
+        }
     }
 }

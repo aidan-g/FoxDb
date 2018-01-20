@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SQLiteFromWriter : SQLiteQueryWriter
     {
-        public SQLiteFromWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteFromWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
         {
 
         }
@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public override T Write<T>(T fragment)
+        protected override T OnWrite<T>(T fragment)
         {
             if (fragment is ISourceBuilder)
             {
@@ -28,18 +28,33 @@ namespace FoxDb
                 if (expression.Expressions.Any())
                 {
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.FROM);
-                    this.Visit(expression.Expressions);
+                    var writer = this.Push(new SQLiteJoinWriter(this, this.Database, this.Visitor, this.ParameterNames));
+                    try
+                    {
+                        this.Visit(expression.Expressions);
+                    }
+                    finally
+                    {
+                        this.Pop();
+                    }
+                    this.Visit(writer);
                 }
                 return fragment;
             }
             throw new NotImplementedException();
         }
 
-        protected override void Visit(IEnumerable<IExpressionBuilder> expressions)
+        protected override void Visit(IEnumerable<IFragmentBuilder> expressions)
         {
             var first = true;
+            var relations = new List<IRelationBuilder>();
             foreach (var expression in expressions)
             {
+                if (expression is IRelationBuilder)
+                {
+                    relations.Add(expression as IRelationBuilder);
+                    continue;
+                }
                 if (first)
                 {
                     first = false;
@@ -50,16 +65,16 @@ namespace FoxDb
                     {
                         this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
                     }
-                    else if (expression is IRelationBuilder)
-                    {
-                        //Nothing to do.
-                    }
                     else
                     {
                         throw new NotImplementedException();
                     }
                 }
                 this.Visit(expression);
+            }
+            foreach (var relation in relations)
+            {
+                this.VisitRelation(relation);
             }
         }
 
@@ -86,12 +101,60 @@ namespace FoxDb
             }
         }
 
+        protected virtual void VisitRelation(IRelationBuilder expression)
+        {
+            this.GetContext<SQLiteJoinWriter>().Write(expression);
+        }
+
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
             base.VisitSubQuery(expression);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
             this.VisitAlias(expression.Alias);
+        }
+
+        protected override void VisitBinary(IBinaryExpressionBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            base.VisitBinary(expression);
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+        }
+
+        protected virtual void Visit(SQLiteJoinWriter writer)
+        {
+            var tables = new List<ITableConfig>();
+            tables.AddRange(this.GetContext<ISourceBuilder>().Tables.Select(builder => builder.Table));
+            foreach (var key in writer.Keys.Prioritize(this))
+            {
+                var expression = writer.GetExpression(key);
+                foreach (var table in key)
+                {
+                    if (tables.Contains(table))
+                    {
+                        var other = key.Except(new[] { table }).Single();
+                        this.Visit(other, expression);
+                        tables.Add(other);
+                        break;
+                    }
+                }
+            }
+        }
+
+        protected virtual void Visit(ITableConfig table, IBinaryExpressionBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.JOIN);
+            this.VisitTable(this.CreateTable(table));
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.ON);
+            this.Visit(expression);
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
+            }
         }
     }
 }

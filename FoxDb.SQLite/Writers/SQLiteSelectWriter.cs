@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SQLiteSelectWriter : SQLiteQueryWriter
     {
-        public SQLiteSelectWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteSelectWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
         {
 
         }
@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public override T Write<T>(T fragment)
+        protected override T OnWrite<T>(T fragment)
         {
             if (fragment is IOutputBuilder)
             {
@@ -35,7 +35,7 @@ namespace FoxDb
             throw new NotImplementedException();
         }
 
-        protected override void Visit(IEnumerable<IExpressionBuilder> expressions)
+        protected override void Visit(IEnumerable<IFragmentBuilder> expressions)
         {
             var first = true;
             foreach (var expression in expressions)
@@ -76,6 +76,14 @@ namespace FoxDb
             base.VisitSubQuery(expression);
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
             this.VisitAlias(expression.Alias);
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
+            }
         }
     }
 }

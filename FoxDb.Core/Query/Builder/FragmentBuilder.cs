@@ -8,37 +8,40 @@ namespace FoxDb
     {
         protected IDictionary<Type, Func<IFragmentBuilder>> Factories { get; private set; }
 
-        protected IDictionary<Type, Func<IFragmentBuilder>> GetFactories(IQueryGraphBuilder graph)
+        protected virtual IDictionary<Type, Func<IFragmentBuilder>> GetFactories(IQueryGraphBuilder graph)
         {
             return new Dictionary<Type, Func<IFragmentBuilder>>()
             {
                 //Expressions.
                 { typeof(IOutputBuilder), () => new OutputBuilder(this, graph) },
                 { typeof(IAddBuilder), () => new AddBuilder(this, graph) },
-                { typeof(IUpdateBuilder), () => new UpdateBuilder(graph) },
-                { typeof(IDeleteBuilder), () => new DeleteBuilder(graph) },
+                { typeof(IUpdateBuilder), () => new UpdateBuilder(this, graph) },
+                { typeof(IDeleteBuilder), () => new DeleteBuilder(this, graph) },
                 { typeof(ISourceBuilder), () => new SourceBuilder(this, graph) },
                 { typeof(IFilterBuilder), () => new FilterBuilder(this, graph) },
                 { typeof(IAggregateBuilder), () => new AggregateBuilder(this, graph) },
                 { typeof(ISortBuilder), () => new SortBuilder(this, graph) },
                 //Fragments.
-                { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder(graph) },
-                { typeof(ITableBuilder), () => new TableBuilder(graph) },
-                { typeof(IRelationBuilder), () => new RelationBuilder(graph) },
-                { typeof(ISubQueryBuilder), () => new SubQueryBuilder(graph) },
-                { typeof(IColumnBuilder), () => new ColumnBuilder(graph) },
-                { typeof(IParameterBuilder), () => new ParameterBuilder(graph) },
+                { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder(this, graph) },
+                { typeof(ITableBuilder), () => new TableBuilder(this, graph) },
+                { typeof(IRelationBuilder), () => new RelationBuilder(this, graph) },
+                { typeof(ISubQueryBuilder), () => new SubQueryBuilder(this, graph) },
+                { typeof(IColumnBuilder), () => new ColumnBuilder(this, graph) },
+                { typeof(IParameterBuilder), () => new ParameterBuilder(this, graph) },
                 { typeof(IFunctionBuilder), () => new FunctionBuilder(this, graph) },
-                { typeof(IOperatorBuilder), () => new OperatorBuilder(graph) },
-                { typeof(IConstantBuilder), () => new ConstantBuilder(graph) },
+                { typeof(IOperatorBuilder), () => new OperatorBuilder(this, graph) },
+                { typeof(IConstantBuilder), () => new ConstantBuilder(this, graph) },
             };
         }
 
-        protected FragmentBuilder(IQueryGraphBuilder graph)
+        protected FragmentBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
         {
+            this.Parent = parent;
             this.Graph = graph;
             this.Factories = this.GetFactories(graph);
         }
+
+        public IFragmentBuilder Parent { get; private set; }
 
         public IQueryGraphBuilder Graph { get; private set; }
 
@@ -57,7 +60,26 @@ namespace FoxDb
             //Nothing to do.
         }
 
-        public T CreateFragment<T>() where T : IFragmentBuilder
+        public T Ancestor<T>() where T : IFragmentBuilder
+        {
+            var stack = new Stack<IFragmentBuilder>();
+            stack.Push(this);
+            while (stack.Count > 0)
+            {
+                var expression = stack.Pop();
+                if (expression is T)
+                {
+                    return (T)expression;
+                }
+                if (expression.Parent != null)
+                {
+                    stack.Push(expression.Parent);
+                }
+            }
+            return default(T);
+        }
+
+        public T Fragment<T>() where T : IFragmentBuilder
         {
             var factory = default(Func<IFragmentBuilder>);
             if (!Factories.TryGetValue(typeof(T), out factory))
@@ -77,7 +99,7 @@ namespace FoxDb
             {
                 throw new InvalidOperationException(string.Format("Table is transient and cannot be queried: ", table));
             }
-            return this.CreateFragment<ITableBuilder>().With(builder => builder.Table = table);
+            return this.Fragment<ITableBuilder>().With(builder => builder.Table = table);
         }
 
         public IRelationBuilder CreateRelation(IRelationConfig relation)
@@ -86,7 +108,7 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            return this.CreateFragment<IRelationBuilder>().With(builder => builder.Relation = relation);
+            return this.Fragment<IRelationBuilder>().With(builder => builder.Relation = relation);
         }
 
         public ISubQueryBuilder CreateSubQuery(IQueryGraphBuilder query)
@@ -95,7 +117,7 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            return this.CreateFragment<ISubQueryBuilder>().With(builder => builder.Query = query);
+            return this.Fragment<ISubQueryBuilder>().With(builder => builder.Query = query);
         }
 
         public IColumnBuilder CreateColumn(IColumnConfig column)
@@ -104,7 +126,7 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            return this.CreateFragment<IColumnBuilder>().With(builder => builder.Column = column);
+            return this.Fragment<IColumnBuilder>().With(builder => builder.Column = column);
         }
 
         public IParameterBuilder CreateParameter(string name)
@@ -113,12 +135,12 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            return this.CreateFragment<IParameterBuilder>().With(builder => builder.Name = name);
+            return this.Fragment<IParameterBuilder>().With(builder => builder.Name = name);
         }
 
         public IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
-            return this.CreateFragment<IFunctionBuilder>().With(builder =>
+            return this.Fragment<IFunctionBuilder>().With(builder =>
             {
                 builder.Function = function;
                 builder.AddArguments(arguments);
@@ -127,36 +149,118 @@ namespace FoxDb
 
         public IOperatorBuilder CreateOperator(QueryOperator @operator)
         {
-            return this.CreateFragment<IOperatorBuilder>().With(builder => builder.Operator = @operator);
+            return this.Fragment<IOperatorBuilder>().With(builder => builder.Operator = @operator);
         }
 
         public IConstantBuilder CreateConstant(object value)
         {
-            return this.CreateFragment<IConstantBuilder>().With(builder => builder.Value = value);
+            return this.Fragment<IConstantBuilder>().With(builder => builder.Value = value);
         }
 
-        protected virtual bool GetAssociatedTable(IExpressionBuilder builder, out ITableBuilder table)
+        public virtual IFragmentBuilder Clone()
         {
-            switch (builder.FragmentType)
+            throw new NotImplementedException();
+        }
+
+        public abstract string DebugView { get; }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 0;
+            unchecked
             {
-                case FragmentType.Column:
-                    {
-                        var expression = builder as IColumnBuilder;
-                        table = builder.Graph.Source.GetTable(expression.Column.Table);
-                        return true;
-                    }
-                case FragmentType.Binary:
-                    {
-                        var expression = builder as IBinaryExpressionBuilder;
-                        if (this.GetAssociatedTable(expression.Left, out table) || this.GetAssociatedTable(expression.Right, out table))
-                        {
-                            return true;
-                        }
-                    }
-                    break;
+                hashCode += this.FragmentType.GetHashCode();
             }
-            table = default(ITableBuilder);
-            return false;
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IFragmentBuilder)
+            {
+                return this.Equals(obj as IFragmentBuilder);
+            }
+            return base.Equals(obj);
+        }
+
+        public virtual bool Equals(IFragmentBuilder other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            if (this.FragmentType != other.FragmentType)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static IFragmentBuilder Proxy
+        {
+            get
+            {
+                return new FragmentBuilderProxy();
+            }
+        }
+
+        public static IFragmentBuilder GetProxy(IQueryGraphBuilder graph)
+        {
+            return new FragmentBuilderProxy(graph);
+        }
+
+        public static bool operator ==(FragmentBuilder a, FragmentBuilder b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(FragmentBuilder a, FragmentBuilder b)
+        {
+            return !(a == b);
+        }
+
+        protected class FragmentBuilderProxy : FragmentBuilder
+        {
+            public FragmentBuilderProxy() : this(QueryGraphBuilder.Null)
+            {
+
+            }
+
+            public FragmentBuilderProxy(IQueryGraphBuilder graph) : this(null, graph)
+            {
+            }
+
+            public FragmentBuilderProxy(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+            {
+            }
+
+            public override FragmentType FragmentType
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            public override string DebugView
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
     }
 }

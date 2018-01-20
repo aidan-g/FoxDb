@@ -6,9 +6,18 @@ namespace FoxDb
 {
     public class PrimaryKeysParameterHandlerStrategy<T> : IParameterHandlerStrategy
     {
-        public PrimaryKeysParameterHandlerStrategy(IDatabase database, params object[] keys)
+        private PrimaryKeysParameterHandlerStrategy(IDatabase database)
         {
             this.Database = database;
+        }
+
+        public PrimaryKeysParameterHandlerStrategy(IDatabase database, T item) : this(database)
+        {
+            this.Keys = database.Config.Table<T>().PrimaryKeys.Select(key => key.Getter(item)).ToArray();
+        }
+
+        public PrimaryKeysParameterHandlerStrategy(IDatabase database, params object[] keys) : this(database)
+        {
             this.Keys = keys;
         }
 

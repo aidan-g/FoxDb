@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class SubQueryBuilder : ExpressionBuilder, ISubQueryBuilder
     {
-        public SubQueryBuilder(IQueryGraphBuilder graph) : base(graph)
+        public SubQueryBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public IQueryGraphBuilder Query { get; set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Query);
+            }
+        }
     }
 }

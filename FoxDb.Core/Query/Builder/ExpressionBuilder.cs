@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public abstract class ExpressionBuilder : FragmentBuilder, IExpressionBuilder
     {
-        protected ExpressionBuilder(IQueryGraphBuilder graph) : base(graph)
+        protected ExpressionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }

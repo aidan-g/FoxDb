@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
-using System.IO;
 
 namespace FoxDb
 {
@@ -10,7 +9,7 @@ namespace FoxDb
         [Test]
         public void NullableColumns()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -38,7 +37,7 @@ namespace FoxDb
         [Test]
         public void Int32Columns()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -65,7 +64,7 @@ namespace FoxDb
         [Test]
         public void EnumColumns()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {

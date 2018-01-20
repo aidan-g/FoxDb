@@ -16,6 +16,7 @@ namespace FoxDb
         {
             get
             {
+                var relations = new List<IRelationConfig>();
                 var queue = new Queue<ITableConfig>();
                 queue.Enqueue(this.Table);
                 while (queue.Count > 0)
@@ -28,9 +29,10 @@ namespace FoxDb
                             continue;
                         }
                         queue.Enqueue(relation.RightTable);
-                        yield return relation;
+                        relations.Add(relation);
                     }
                 }
+                return relations;
             }
         }
 
@@ -38,11 +40,19 @@ namespace FoxDb
         {
             get
             {
-                yield return this.Table;
+                var tables = new List<ITableConfig>()
+                {
+                    this.Table
+                };
                 foreach (var relation in this.Relations)
                 {
-                    yield return relation.RightTable;
+                    if (tables.Contains(relation.RightTable))
+                    {
+                        continue;
+                    }
+                    tables.Add(relation.RightTable);
                 }
+                return tables;
             }
         }
     }

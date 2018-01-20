@@ -4,6 +4,6 @@
     {
         void Visit(IQueryGraph graph);
 
-        void Visit(IFragmentBuilder fragment);
+        void Visit(IFragmentBuilder parent, IFragmentBuilder fragment);
     }
 }

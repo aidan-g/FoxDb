@@ -5,10 +5,10 @@ namespace FoxDb
 {
     public class TableBuilder : ExpressionBuilder, ITableBuilder
     {
-        public TableBuilder(IQueryGraphBuilder graph) : base(graph)
+        public TableBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Filter = this.CreateFragment<IFilterBuilder>();
-            this.Sort = this.CreateFragment<ISortBuilder>();
+            this.Filter = this.Fragment<IFilterBuilder>();
+            this.Sort = this.Fragment<ISortBuilder>();
         }
 
         public override FragmentType FragmentType
@@ -26,5 +26,27 @@ namespace FoxDb
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ISortBuilder Sort { get; private set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Table);
+            }
+        }
+
+        public override bool Equals(IFragmentBuilder obj)
+        {
+            var other = obj as ITableBuilder;
+            if (other == null || !base.Equals(obj))
+            {
+                return false;
+            }
+            if ((TableConfig)this.Table != (TableConfig)other.Table)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public class RelationAttribute : Attribute
     {
         public RelationAttribute()
@@ -14,6 +14,14 @@ namespace FoxDb
         {
             this.Flags |= flags;
         }
+
+        public string Name { get; set; }
+
+        public string Identifier { get; set; }
+
+        public string LeftColumn { get; set; }
+
+        public string RightColumn { get; set; }
 
         public RelationFlags Flags { get; set; }
     }

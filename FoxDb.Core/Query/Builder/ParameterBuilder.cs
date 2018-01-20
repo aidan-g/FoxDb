@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class ParameterBuilder : ExpressionBuilder, IParameterBuilder
     {
-        public ParameterBuilder(IQueryGraphBuilder graph) : base(graph)
+        public ParameterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
 
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public string Name { get; set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Name);
+            }
+        }
     }
 }

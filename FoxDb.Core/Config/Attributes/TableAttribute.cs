@@ -17,6 +17,8 @@ namespace FoxDb
 
         public string Name { get; set; }
 
+        public string Identifier { get; set; }
+
         public TableFlags Flags { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace FoxDb.Interfaces
 {
@@ -10,36 +9,36 @@ namespace FoxDb.Interfaces
 
         RelationFlags Flags { get; }
 
+        string Identifier { get; }
+
         ITableConfig LeftTable { get; }
 
         IMappingTableConfig MappingTable { get; }
 
         ITableConfig RightTable { get; }
 
-        PropertyInfo Property { get; }
-
-        IColumnConfig LeftColumn { get; }
-
-        IColumnConfig RightColumn { get; }
+        IBinaryExpressionBuilder Expression { get; set; }
 
         Type RelationType { get; }
 
-        ITableConfig GetOppositeTable(ITableConfig relativeTable);
+        IRelationConfig AutoExpression();
 
         IRelationConfig Invert();
+
+        ITableConfig GetOppositeTable(ITableConfig relativeTable);
+
+        IBinaryExpressionBuilder CreateConstraint();
+
+        IBinaryExpressionBuilder CreateConstraint(IColumnConfig leftColumn, IColumnConfig rightColumn);
     }
 
     public interface IRelationConfig<in T, TRelation> : IRelationConfig
     {
-        Func<T, TRelation> Getter { get; }
-
-        Action<T, TRelation> Setter { get; }
+        IPropertyAccessor<T, TRelation> Accessor { get; }
     }
 
     public interface ICollectionRelationConfig<in T, TRelation> : IRelationConfig
     {
-        Func<T, ICollection<TRelation>> Getter { get; }
-
-        Action<T, ICollection<TRelation>> Setter { get; }
+        IPropertyAccessor<T, ICollection<TRelation>> Accessor { get; }
     }
 }

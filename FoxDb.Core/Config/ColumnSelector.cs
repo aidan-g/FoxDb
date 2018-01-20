@@ -6,6 +6,8 @@ namespace FoxDb
 {
     public class ColumnSelector : IColumnSelector
     {
+        public string Identifier { get; private set; }
+
         public string ColumnName { get; private set; }
 
         public PropertyInfo Property { get; private set; }
@@ -16,30 +18,33 @@ namespace FoxDb
 
         public ColumnSelectorType Type { get; private set; }
 
-        public static IColumnSelector By(string columnName, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, string columnName, ColumnFlags flags)
         {
             return new ColumnSelector()
             {
+                Identifier = identifier,
                 ColumnName = columnName,
                 Flags = flags,
                 Type = ColumnSelectorType.ColumnName
             };
         }
 
-        public static IColumnSelector By(PropertyInfo property, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags flags)
         {
             return new ColumnSelector()
             {
+                Identifier = identifier,
                 Property = property,
                 Flags = flags,
                 Type = ColumnSelectorType.Property
             };
         }
 
-        public static IColumnSelector By(Expression expression, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, Expression expression, ColumnFlags flags)
         {
             return new ColumnSelector()
             {
+                Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
                 Type = ColumnSelectorType.Expression

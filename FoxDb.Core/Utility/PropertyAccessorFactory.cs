@@ -37,6 +37,15 @@ namespace FoxDb
             return new PropertyAccessor<T, TValue>(property, get, set);
         }
 
+        public IPropertyAccessor<T, TValue> Null<T, TValue>()
+        {
+            return new PropertyAccessor<T, TValue>(
+                null,
+                element => { throw new NotImplementedException(); },
+                (element, value) => { throw new NotImplementedException(); }
+            );
+        }
+
         private class PropertyAccessor<T, TValue> : IPropertyAccessor<T, TValue>
         {
             public PropertyAccessor(PropertyInfo property, Func<T, TValue> get, Action<T, TValue> set)

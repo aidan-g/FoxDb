@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
 {
     public interface IColumnSelector
     {
+        string Identifier { get; }
+
         string ColumnName { get; }
 
         PropertyInfo Property { get; }

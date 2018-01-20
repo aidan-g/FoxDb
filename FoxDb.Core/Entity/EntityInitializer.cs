@@ -33,7 +33,7 @@ namespace FoxDb
 
         protected virtual void Initialize<TEntity, TRelation>(TEntity item, ICollectionRelationConfig<TEntity, TRelation> relation)
         {
-            relation.Setter(item, Factories.Collection.Create<TRelation>(relation.Property.PropertyType));
+            relation.Accessor.Set(item, Factories.Collection.Create<TRelation>(relation.Accessor.Property.PropertyType));
         }
     }
 }

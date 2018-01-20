@@ -6,9 +6,38 @@ using System.Text;
 
 namespace FoxDb
 {
-    public abstract class SQLiteQueryWriter : FragmentBuilder, IFragmentTarget
+    public abstract class SQLiteQueryWriter : FragmentBuilder, ISQLiteQueryWriter
     {
         protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
+
+        protected Stack<IFragmentBuilder> Context { get; private set; }
+
+        public IFragmentBuilder Peek
+        {
+            get
+            {
+                return this.Context.Peek();
+            }
+        }
+
+        public T Push<T>(T builder) where T : IFragmentBuilder
+        {
+            this.Context.Push(builder);
+            return builder;
+        }
+
+        public IFragmentBuilder Pop()
+        {
+            return this.Context.Pop();
+        }
+
+        IReadOnlyCollection<IFragmentBuilder> ISQLiteQueryWriter.Context
+        {
+            get
+            {
+                return this.Context;
+            }
+        }
 
         protected StringBuilder Builder { get; private set; }
 
@@ -16,19 +45,18 @@ namespace FoxDb
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
-                { FragmentType.Binary, fragment => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
-                { FragmentType.Table, fragment => this.VisitTable(fragment as ITableBuilder) },
-                { FragmentType.Relation, fragment => this.VisitRelation(fragment as IRelationBuilder) },
-                { FragmentType.Column, fragment => this.VisitColumn(fragment as IColumnBuilder) },
-                { FragmentType.Parameter, fragment => this.VisitParameter(fragment as IParameterBuilder) },
-                { FragmentType.Function, fragment => this.VisitFunction(fragment as IFunctionBuilder) },
-                { FragmentType.Operator, fragment => this.VisitOperator(fragment as IOperatorBuilder) },
-                { FragmentType.Constant, fragment => this.VisitConstant(fragment as IConstantBuilder) },
-                { FragmentType.SubQuery, fragment => this.VisitSubQuery(fragment as ISubQueryBuilder) }
+                { FragmentType.Binary, (parent, fragment) => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
+                { FragmentType.Table, (parent, fragment) => this.VisitTable(fragment as ITableBuilder) },
+                { FragmentType.Column, (parent, fragment) => this.VisitColumn(fragment as IColumnBuilder) },
+                { FragmentType.Parameter, (parent, fragment) => this.VisitParameter(fragment as IParameterBuilder) },
+                { FragmentType.Function, (parent, fragment) => this.VisitFunction(fragment as IFunctionBuilder) },
+                { FragmentType.Operator, (parent, fragment) => this.VisitOperator(fragment as IOperatorBuilder) },
+                { FragmentType.Constant, (parent, fragment) => this.VisitConstant(fragment as IConstantBuilder) },
+                { FragmentType.SubQuery, (parent, fragment) => this.VisitSubQuery(fragment as ISubQueryBuilder) }
             };
         }
 
-        protected readonly IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
+        protected static IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
         {
             { QueryOperator.Equal, SQLiteSyntax.EQUAL },
             { QueryOperator.NotEqual, SQLiteSyntax.NOT_EQUAL },
@@ -44,20 +72,28 @@ namespace FoxDb
             { QueryOperator.Star, SQLiteSyntax.STAR }
         };
 
-        protected readonly IDictionary<QueryFunction, string> Functions = new Dictionary<QueryFunction, string>()
+        protected static IDictionary<QueryFunction, string> Functions = new Dictionary<QueryFunction, string>()
         {
             { QueryFunction.Identity, SQLiteSyntax.IDENTITY },
             { QueryFunction.Count, SQLiteSyntax.COUNT },
             { QueryFunction.Exists, SQLiteSyntax.EXISTS }
         };
 
-        protected SQLiteQueryWriter() : base(QueryGraphBuilder.Null)
+        protected SQLiteQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
             this.Handlers = this.GetHandlers();
+            if (parent is ISQLiteQueryWriter)
+            {
+                this.Context = new Stack<IFragmentBuilder>((parent as ISQLiteQueryWriter).Context);
+            }
+            else
+            {
+                this.Context = new Stack<IFragmentBuilder>();
+            }
             this.Builder = new StringBuilder();
         }
 
-        public SQLiteQueryWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this()
+        public SQLiteQueryWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, QueryGraphBuilder.Null)
         {
             this.Database = database;
             this.Visitor = visitor;
@@ -94,19 +130,45 @@ namespace FoxDb
             }
         }
 
-        public abstract T Write<T>(T fragment) where T : IFragmentBuilder;
+        public T GetContext<T>() where T : IFragmentBuilder
+        {
+            return this.Context.OfType<T>().FirstOrDefault();
+        }
 
-        protected virtual void Visit(IExpressionBuilder expression)
+        public T Write<T>(T fragment) where T : IFragmentBuilder
+        {
+            this.Context.Push(fragment);
+            try
+            {
+                return this.OnWrite(fragment);
+            }
+            finally
+            {
+                this.Context.Pop();
+            }
+        }
+
+        protected abstract T OnWrite<T>(T fragment) where T : IFragmentBuilder;
+
+        protected virtual void Visit(IFragmentBuilder expression)
         {
             var handler = default(QueryGraphVisitorHandler);
             if (!this.Handlers.TryGetValue(expression.FragmentType, out handler))
             {
                 throw new NotImplementedException();
             }
-            handler(expression);
+            this.Context.Push(expression);
+            try
+            {
+                handler(this, expression);
+            }
+            finally
+            {
+                this.Context.Pop();
+            }
         }
 
-        protected virtual void Visit(IEnumerable<IExpressionBuilder> expressions)
+        protected virtual void Visit(IEnumerable<IFragmentBuilder> expressions)
         {
             foreach (var expression in expressions)
             {
@@ -117,36 +179,6 @@ namespace FoxDb
         protected virtual void VisitTable(ITableBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Table.TableName));
-        }
-
-        protected virtual void VisitRelation(IRelationBuilder expression)
-        {
-            switch (expression.Relation.Flags.GetMultiplicity())
-            {
-                case RelationFlags.OneToOne:
-                case RelationFlags.OneToMany:
-                    this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.LeftColumn, expression.Relation.RightColumn);
-                    break;
-                case RelationFlags.ManyToMany:
-                    this.VisitRelation(expression, expression.Relation.MappingTable, expression.Relation.LeftColumn, expression.Relation.LeftTable.PrimaryKey);
-                    this.VisitRelation(expression, expression.Relation.RightTable, expression.Relation.RightColumn, expression.Relation.RightTable.PrimaryKey);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        protected virtual void VisitRelation(IExpressionBuilder expression, ITableConfig table, IColumnConfig leftColumn, IColumnConfig rightColumn)
-        {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.JOIN);
-            this.VisitTable(expression.CreateTable(table));
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.ON);
-            this.VisitBinary(expression.CreateFragment<IBinaryExpressionBuilder>().With(criteria =>
-            {
-                criteria.Left = expression.CreateColumn(leftColumn);
-                criteria.Operator = expression.CreateOperator(QueryOperator.Equal);
-                criteria.Right = expression.CreateColumn(rightColumn);
-            }));
         }
 
         protected virtual void VisitBinary(IBinaryExpressionBuilder expression)
@@ -227,7 +259,7 @@ namespace FoxDb
 
         protected virtual void VisitSubQuery(ISubQueryBuilder expression)
         {
-            var query = this.Database.QueryFactory.Create(expression.Query);
+            var query = expression.Query.Build();
             this.Builder.AppendFormat("{0} ", query.CommandText);
             foreach (var parameterName in query.ParameterNames)
             {

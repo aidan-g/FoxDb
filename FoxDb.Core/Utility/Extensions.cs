@@ -37,7 +37,7 @@ namespace FoxDb
             {
                 return property;
             }
-            return type.GetProperty(property.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) ?? type.GetProperty(property.Name);
+            return PropertyResolutionStrategy.GetProperty(type, property.Name);
         }
     }
 }

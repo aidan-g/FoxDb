@@ -6,9 +6,11 @@ namespace FoxDb
 {
     public class SQLiteQueryFragment
     {
-        public const FragmentType Limit = (FragmentType)100;
+        public const FragmentType Join = (FragmentType)100;
 
-        public const FragmentType Offset = (FragmentType)101;
+        public const FragmentType Limit = (FragmentType)101;
+
+        public const FragmentType Offset = (FragmentType)102;
 
         protected static IDictionary<FragmentType, byte> Priorities = new Dictionary<FragmentType, byte>()
         {
@@ -17,11 +19,12 @@ namespace FoxDb
             { FragmentType.Delete, 30 },
             { FragmentType.Output, 40 },
             { FragmentType.Source, 50 },
-            { FragmentType.Filter, 60 },
-            { FragmentType.Aggregate, 70 },
-            { FragmentType.Sort, 80 },
-            { Limit, 90 },
-            { Offset, 100 }
+            { Join, 60 },
+            { FragmentType.Filter, 70 },
+            { FragmentType.Aggregate, 80 },
+            { FragmentType.Sort, 90 },
+            { Limit, 100 },
+            { Offset, 110 }
         };
 
         public SQLiteQueryFragment(IFragmentTarget target) : this(target.CommandText, GetPriority(target))

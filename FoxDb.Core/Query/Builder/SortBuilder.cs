@@ -1,15 +1,14 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class SortBuilder : FragmentBuilder, ISortBuilder
     {
-        public SortBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
+        public SortBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Parent = parent;
-            this.Expressions = new List<IExpressionBuilder>();
+            this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
 
@@ -21,9 +20,7 @@ namespace FoxDb
             }
         }
 
-        public IFragmentBuilder Parent { get; private set; }
-
-        public ICollection<IExpressionBuilder> Expressions { get; private set; }
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
         public IDictionary<string, object> Constants { get; private set; }
 
@@ -50,21 +47,24 @@ namespace FoxDb
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            if (fragment is IExpressionBuilder)
+            var table = default(ITableBuilder);
+            if (!(this.Parent is ITableBuilder) && fragment.GetSourceTable(out table))
             {
-                var table = default(ITableBuilder);
-                var builder = fragment as IExpressionBuilder;
-                if (!(this.Parent is ITableBuilder) && this.GetAssociatedTable(builder, out table))
-                {
-                    table.Sort.Write(builder);
-                }
-                else
-                {
-                    this.Expressions.Add(builder);
-                }
-                return fragment;
+                table.Sort.Write(fragment);
             }
-            throw new NotImplementedException();
+            else
+            {
+                this.Expressions.Add(fragment);
+            }
+            return fragment;
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+            }
         }
     }
 }

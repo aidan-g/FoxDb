@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -65,7 +66,8 @@ namespace FoxDb
                 {
                     case RelationFlags.OneToOne:
                     case RelationFlags.OneToMany:
-                        return Conventions.ParameterName(this.Relation.RightTable.ForeignKey);
+                        var columns = this.Relation.Expression.GetColumnMap();
+                        return Conventions.ParameterName(columns[this.Relation.RightTable].First(column => column.IsForeignKey));
                     case RelationFlags.ManyToMany:
                         return Conventions.ParameterName(this.Relation.MappingTable.LeftForeignKey);
                     default:

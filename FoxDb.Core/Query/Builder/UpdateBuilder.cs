@@ -1,11 +1,12 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class UpdateBuilder : FragmentBuilder, IUpdateBuilder
     {
-        public UpdateBuilder(IQueryGraphBuilder graph) : base(graph)
+        public UpdateBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
             this.Expressions = new List<IBinaryExpressionBuilder>();
         }
@@ -29,7 +30,7 @@ namespace FoxDb
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            var expression = this.Fragment<IBinaryExpressionBuilder>();
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
             expression.Right = this.CreateParameter(Conventions.ParameterName(column));
@@ -44,6 +45,14 @@ namespace FoxDb
                 this.AddColumn(column);
             }
             return this;
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+            }
         }
     }
 }

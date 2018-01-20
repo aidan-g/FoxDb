@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace FoxDb
@@ -14,7 +13,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Exists(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -32,24 +31,26 @@ namespace FoxDb
                 set.AddOrUpdate(data);
                 set.Fetch.Filter.AddFunction(set.Fetch.Filter.CreateFunction(QueryFunction.Exists).With(function =>
                 {
-                    var query = database.QueryFactory.Build();
-                    query.Output.AddColumns(database.Config.Table<Test004>().Columns);
-                    query.Source.AddTable(database.Config.Table<Test004>());
+                    var builder = database.QueryFactory.Build();
+                    var columns = relation.Expression.GetColumnMap();
+                    builder.Output.AddColumns(database.Config.Table<Test004>().Columns);
+                    builder.Source.AddTable(database.Config.Table<Test004>());
                     switch (relation.Flags.GetMultiplicity())
                     {
+                        case RelationFlags.OneToOne:
                         case RelationFlags.OneToMany:
-                            query.Filter.AddColumn(relation.RightTable.ForeignKey, relation.LeftTable.PrimaryKey);
+                            builder.Filter.AddColumn(columns[relation.RightTable].First(), relation.LeftTable.PrimaryKey);
                             break;
                         case RelationFlags.ManyToMany:
-                            query.Source.AddRelation(relation.Invert());
-                            query.Filter.AddColumn(relation.LeftColumn, relation.LeftTable.PrimaryKey);
+                            builder.Source.AddRelation(relation.Invert());
+                            builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.MappingTable.LeftForeignKey);
                             break;
                         default:
                             throw new NotImplementedException();
                     }
-                    query.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
+                    builder.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
                     function.Function = QueryFunction.Exists;
-                    function.AddArgument(function.CreateSubQuery(query));
+                    function.AddArgument(function.CreateSubQuery(builder));
                 }));
                 set.Parameters = parameters => parameters["Name"] = "2_2";
                 this.AssertSequence(data.Skip(1).Take(1), set);
@@ -62,7 +63,7 @@ namespace FoxDb
         [TestCase(QueryOperator.Less, 3, 2)]
         public void Where(QueryOperator @operator, object value, int count)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -92,7 +93,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Limit(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -131,7 +132,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Offset(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {

@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace FoxDb
 {
@@ -19,7 +16,7 @@ namespace FoxDb
                 B = "1_2",
                 C = "1_2"
             };
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -48,7 +45,7 @@ namespace FoxDb
         [Test]
         public void OrderBy()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -74,7 +71,7 @@ namespace FoxDb
         [Test]
         public void OrderByDescending()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -100,7 +97,7 @@ namespace FoxDb
         [Test]
         public void First()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -126,7 +123,7 @@ namespace FoxDb
         [Test]
         public void FirstOrDefault()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -152,7 +149,7 @@ namespace FoxDb
         [Test]
         public void Count()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -179,7 +176,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Any(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -204,7 +201,7 @@ namespace FoxDb
         [Test]
         public void Composite_A()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -231,7 +228,7 @@ namespace FoxDb
         [TestCase(3, 0)]
         public void Composite_B(int id, int expected)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -261,7 +258,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany, DatabaseQueryableProviderFlags.AllowLimit)]
         public void Composite_C(RelationFlags relationFlags, DatabaseQueryableProviderFlags providerFlags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -287,7 +284,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void IndexerBinding(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {

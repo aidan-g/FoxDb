@@ -1,15 +1,14 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class FilterBuilder : FragmentBuilder, IFilterBuilder
     {
-        public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
+        public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Parent = parent;
-            this.Expressions = new List<IExpressionBuilder>();
+            this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
 
@@ -25,15 +24,13 @@ namespace FoxDb
 
         public int Offset { get; set; }
 
-        public IFragmentBuilder Parent { get; private set; }
-
-        public ICollection<IExpressionBuilder> Expressions { get; private set; }
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
         public IDictionary<string, object> Constants { get; private set; }
 
         public IBinaryExpressionBuilder Add()
         {
-            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            var expression = this.Fragment<IBinaryExpressionBuilder>();
             this.Expressions.Add(expression);
             return expression;
         }
@@ -47,7 +44,7 @@ namespace FoxDb
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
-            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            var expression = this.Fragment<IBinaryExpressionBuilder>();
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
             expression.Right = this.CreateParameter(Conventions.ParameterName(column));
@@ -66,7 +63,7 @@ namespace FoxDb
 
         public IBinaryExpressionBuilder AddColumn(IColumnConfig leftColumn, IColumnConfig rightColumn)
         {
-            var expression = this.CreateFragment<IBinaryExpressionBuilder>();
+            var expression = this.Fragment<IBinaryExpressionBuilder>();
             expression.Left = this.CreateColumn(leftColumn);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
             expression.Right = this.CreateColumn(rightColumn);
@@ -95,21 +92,24 @@ namespace FoxDb
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            if (fragment is IExpressionBuilder)
+            var table = default(ITableBuilder);
+            if (!(this.Parent is ITableBuilder) && fragment.GetSourceTable(out table))
             {
-                var table = default(ITableBuilder);
-                var builder = fragment as IExpressionBuilder;
-                if (!(this.Parent is ITableBuilder) && this.GetAssociatedTable(builder, out table))
-                {
-                    table.Filter.Write(builder);
-                }
-                else
-                {
-                    this.Expressions.Add(builder);
-                }
-                return fragment;
+                table.Filter.Write(fragment);
             }
-            throw new NotImplementedException();
+            else
+            {
+                this.Expressions.Add(fragment);
+            }
+            return fragment;
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+            }
         }
     }
 }

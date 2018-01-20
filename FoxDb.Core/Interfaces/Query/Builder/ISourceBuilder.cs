@@ -1,7 +1,15 @@
-﻿namespace FoxDb.Interfaces
+﻿using System.Collections.Generic;
+
+namespace FoxDb.Interfaces
 {
     public interface ISourceBuilder : IFragmentContainer, IFragmentBuilder
     {
+        IEnumerable<ITableBuilder> Tables { get; }
+
+        IEnumerable<IRelationBuilder> Relations { get; }
+
+        IEnumerable<ISubQueryBuilder> SubQueries { get; }
+
         ITableBuilder GetTable(ITableConfig table);
 
         ITableBuilder AddTable(ITableConfig table);

@@ -1,15 +1,15 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class FunctionBuilder : ExpressionBuilder, IFunctionBuilder
     {
-        public FunctionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(graph)
+        public FunctionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Parent = parent;
-            this.Expressions = new List<IExpressionBuilder>();
+            this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>();
         }
 
@@ -23,9 +23,7 @@ namespace FoxDb
 
         public QueryFunction Function { get; set; }
 
-        public IFragmentBuilder Parent { get; private set; }
-
-        public ICollection<IExpressionBuilder> Expressions { get; private set; }
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
         public IDictionary<string, object> Constants { get; private set; }
 
@@ -46,12 +44,19 @@ namespace FoxDb
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            if (fragment is IExpressionBuilder)
+            this.Expressions.Add(fragment);
+            return fragment;
+        }
+
+        public override string DebugView
+        {
+            get
             {
-                this.Expressions.Add(fragment as IExpressionBuilder);
-                return fragment;
+                return string.Format("{{{0}({1})}}",
+                    Enum.GetName(typeof(QueryFunction), this.Function),
+                    string.Join(", ", this.Expressions.Select(expression => expression.DebugView))
+                );
             }
-            throw new NotImplementedException();
         }
     }
 }

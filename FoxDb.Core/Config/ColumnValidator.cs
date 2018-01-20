@@ -28,11 +28,7 @@ namespace FoxDb
 
         public static bool Validate(IColumnConfig column)
         {
-            if (!column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
-            {
-                return false;
-            }
-            return true;
+            return !string.IsNullOrEmpty(column.Identifier) && column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName);
         }
 
         public static bool IsIgnored(PropertyInfo property)

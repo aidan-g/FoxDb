@@ -49,15 +49,18 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\Query\Builder\IOffsetBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ILimitBuilder.cs" />
+    <Compile Include="Interfaces\Query\Writers\ISQLiteQueryWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\Builder\OffsetBuilder.cs" />
     <Compile Include="Query\Builder\LimitBuilder.cs" />
     <Compile Include="SQLiteProvider.cs" />
     <Compile Include="SQLiteQueryBuilder.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
+    <Compile Include="Writers\Extensions.cs" />
     <Compile Include="Writers\SQLiteDeleteWriter.cs" />
     <Compile Include="Writers\SQLiteFromWriter.cs" />
     <Compile Include="Writers\SQLiteInsertWriter.cs" />
+    <Compile Include="Writers\SQLiteJoinWriter.cs" />
     <Compile Include="Writers\SQLiteOffsetWriter.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />
     <Compile Include="Writers\SQLiteGroupByWriter.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Writers\SQLiteSelectWriter.cs" />
     <Compile Include="Writers\SQLiteUpdateWriter.cs" />
     <Compile Include="Writers\SQLiteWhereWriter.cs" />
+    <Compile Include="SQLiteQueryBuilderVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

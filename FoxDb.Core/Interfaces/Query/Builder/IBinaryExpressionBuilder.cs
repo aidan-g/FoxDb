@@ -1,11 +1,17 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IBinaryExpressionBuilder : IExpressionBuilder, IFragmentTarget
+    public interface IBinaryExpressionBuilder : IFragmentContainer, IFragmentTarget, IExpressionBuilder
     {
-        IExpressionBuilder Left { get; set; }
+        bool IsLeaf { get; }
+
+        IFragmentBuilder Left { get; set; }
 
         IOperatorBuilder Operator { get; set; }
 
-        IExpressionBuilder Right { get; set; }
+        IFragmentBuilder Right { get; set; }
+
+        T SetLeft<T>(T expression) where T : IFragmentBuilder;
+
+        T SetRight<T>(T expression) where T : IFragmentBuilder;
     }
 }

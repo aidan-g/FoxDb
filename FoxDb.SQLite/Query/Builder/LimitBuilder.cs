@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class LimitBuilder : FragmentBuilder, ILimitBuilder
     {
-        public LimitBuilder(IQueryGraphBuilder graph, int limit) : base(graph)
+        public LimitBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph, int limit) : base(parent, graph)
         {
             this.Limit = limit;
         }
@@ -18,5 +18,13 @@ namespace FoxDb
         }
 
         public int Limit { get; private set; }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", this.Limit);
+            }
+        }
     }
 }

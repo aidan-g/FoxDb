@@ -19,8 +19,6 @@ namespace FoxDb.Interfaces
 
         IEnumerable<T> AddOrUpdate(IEnumerable<T> items);
 
-        T Delete(T item);
-
-        IEnumerable<T> Delete(IEnumerable<T> items);
+        IEnumerable<T> Remove(IEnumerable<T> items);
     }
 }

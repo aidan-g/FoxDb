@@ -9,7 +9,7 @@ namespace FoxDb
     {
         public void CanReuseTransaction()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             try
             {
@@ -42,7 +42,7 @@ namespace FoxDb
             }
             finally
             {
-                File.Delete(Path.Combine(CurrentDirectory, "test.db"));
+                File.Delete(FileName);
             }
         }
     }

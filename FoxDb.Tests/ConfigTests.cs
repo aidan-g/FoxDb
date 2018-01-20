@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 namespace FoxDb
@@ -13,7 +12,7 @@ namespace FoxDb
         [Test]
         public void TableName()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -29,14 +28,14 @@ namespace FoxDb
         [Test]
         public void ColumnName()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
                 database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
                 var set = database.Set<Orange>(transaction);
                 set.Clear();
-                var data = new Orange() { Field1 = "1", Field2 = "2", Field4 = "3" };
+                var data = new Orange() { Field1 = "1", Field2 = "2", Field3 = "3", Field4 = "3" };
                 var id = set.AddOrUpdate(data).Id;
                 Assert.AreEqual(data, set.Find(id));
                 Assert.AreEqual(data.Field4, set.Find(id).Field4);
@@ -46,7 +45,7 @@ namespace FoxDb
         [Test]
         public void IgnoreColumn()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -59,7 +58,7 @@ namespace FoxDb
         [Test]
         public void InvalidTable()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -71,7 +70,7 @@ namespace FoxDb
         [Test]
         public void InvalidColumn()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -84,7 +83,7 @@ namespace FoxDb
         [Test]
         public void InvalidRelation()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -97,7 +96,7 @@ namespace FoxDb
         [Test]
         public void SetRelationFlags()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -110,7 +109,7 @@ namespace FoxDb
         [Test]
         public void ObservableCollection()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -133,7 +132,7 @@ namespace FoxDb
                 data[1].Test004.RemoveRange(data[1].Test004);
                 set.AddOrUpdate(data);
                 this.AssertSequence(data, set);
-                set.Delete(data[1]);
+                set.Remove(data[1]);
                 data.RemoveAt(1);
                 this.AssertSequence(data, set);
                 transaction.Rollback();

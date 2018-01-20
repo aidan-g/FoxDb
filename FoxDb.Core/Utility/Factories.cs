@@ -11,5 +11,12 @@ namespace FoxDb
         public static IRelationFactory Relation = new RelationFactory();
 
         public static ICollectionFactory Collection = new CollectionFactory();
+
+        public static class PropertyAccessor
+        {
+            public static IPropertyAccessorFactory Column = new PropertyAccessorFactory(true);
+
+            public static IPropertyAccessorFactory Relation = new PropertyAccessorFactory(false);
+        }
     }
 }

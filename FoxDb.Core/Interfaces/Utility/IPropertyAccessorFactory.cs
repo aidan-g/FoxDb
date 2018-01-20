@@ -10,5 +10,7 @@ namespace FoxDb.Interfaces
         IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression);
 
         IPropertyAccessor<T, TValue> Create<T, TValue>(PropertyInfo property);
+
+        IPropertyAccessor<T, TValue> Null<T, TValue>();
     }
 }

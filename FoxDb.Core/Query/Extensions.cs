@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -47,7 +48,7 @@ namespace FoxDb
 
         public static int Execute(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return database.Execute(database.QueryFactory.Create(query.Build()), parameters, transaction);
+            return database.Execute(query.Build(), parameters, transaction);
         }
 
         public static int Execute(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
@@ -62,7 +63,7 @@ namespace FoxDb
 
         public static T ExecuteScalar<T>(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return database.ExecuteScalar<T>(database.QueryFactory.Create(query.Build()), parameters, transaction);
+            return database.ExecuteScalar<T>(query.Build(), parameters, transaction);
         }
 
         public static T ExecuteScalar<T>(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
@@ -77,7 +78,7 @@ namespace FoxDb
 
         public static IDatabaseReader ExecuteReader(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return database.ExecuteReader(database.QueryFactory.Create(query.Build()), parameters, transaction);
+            return database.ExecuteReader(query.Build(), parameters, transaction);
         }
 
         public static IDatabaseReader ExecuteReader(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
@@ -88,13 +89,14 @@ namespace FoxDb
         public static IQueryGraphBuilder FetchByRelation(this IDatabase database, IRelationConfig relation)
         {
             var builder = database.QueryFactory.Build();
+            var columns = relation.Expression.GetColumnMap();
             builder.Output.AddColumns(relation.RightTable.Columns);
             builder.Source.AddTable(relation.RightTable);
             switch (relation.Flags.GetMultiplicity())
             {
                 case RelationFlags.OneToOne:
                 case RelationFlags.OneToMany:
-                    builder.Filter.AddColumn(relation.RightColumn);
+                    builder.Filter.AddColumn(columns[relation.RightTable].First(column => column.IsForeignKey));
                     break;
                 case RelationFlags.ManyToMany:
                     builder.Source.AddRelation(relation.Invert());
@@ -103,7 +105,6 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
-
             builder.Sort.AddColumns(relation.RightTable.PrimaryKeys);
             return builder;
         }

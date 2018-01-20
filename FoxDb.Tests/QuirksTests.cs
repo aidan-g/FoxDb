@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
-using System.IO;
 
 namespace FoxDb
 {
@@ -10,7 +9,7 @@ namespace FoxDb
         [Test]
         public void OneToOneRelationWithInt32Key()
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {
@@ -35,7 +34,7 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void NToManyRelationWithInt32Key(RelationFlags flags)
         {
-            var provider = new SQLiteProvider(Path.Combine(CurrentDirectory, "test.db"));
+            var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
             using (var transaction = database.BeginTransaction())
             {

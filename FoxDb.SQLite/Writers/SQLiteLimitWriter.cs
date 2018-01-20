@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class SQLiteLimitWriter : SQLiteQueryWriter
     {
-        public SQLiteLimitWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteLimitWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
         {
 
         }
@@ -19,7 +19,7 @@ namespace FoxDb
             }
         }
 
-        public override T Write<T>(T fragment)
+        protected override T OnWrite<T>(T fragment)
         {
             if (fragment is ILimitBuilder)
             {
@@ -31,6 +31,14 @@ namespace FoxDb
                 return fragment;
             }
             throw new NotImplementedException();
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
+            }
         }
     }
 }

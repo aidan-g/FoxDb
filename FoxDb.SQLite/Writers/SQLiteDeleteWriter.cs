@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class SQLiteDeleteWriter : SQLiteQueryWriter
     {
-        public SQLiteDeleteWriter(IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(database, visitor, parameterNames)
+        public SQLiteDeleteWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
         {
 
         }
@@ -19,7 +19,7 @@ namespace FoxDb
             }
         }
 
-        public override T Write<T>(T fragment)
+        protected override T OnWrite<T>(T fragment)
         {
             if (fragment is IDeleteBuilder)
             {
@@ -28,6 +28,14 @@ namespace FoxDb
                 return fragment;
             }
             throw new NotImplementedException();
+        }
+
+        public override string DebugView
+        {
+            get
+            {
+                return string.Format("{{}}");
+            }
         }
     }
 }

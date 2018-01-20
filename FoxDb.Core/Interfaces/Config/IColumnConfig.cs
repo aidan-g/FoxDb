@@ -9,9 +9,9 @@ namespace FoxDb.Interfaces
 
         ColumnFlags Flags { get; }
 
-        ITableConfig Table { get; }
-
         string Identifier { get; }
+
+        ITableConfig Table { get; }
 
         string ColumnName { get; set; }
 

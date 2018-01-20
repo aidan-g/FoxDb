@@ -5,6 +5,8 @@ namespace FoxDb
 {
     public class TableSelector : ITableSelector
     {
+        public string Identifier { get; private set; }
+
         public Type TableType { get; private set; }
 
         public ITableConfig LeftTable { get; private set; }
@@ -15,20 +17,22 @@ namespace FoxDb
 
         public TableSelectorType Type { get; private set; }
 
-        public static ITableSelector By(Type tableType, TableFlags flags)
+        public static ITableSelector By(string identifier, Type tableType, TableFlags flags)
         {
             return new TableSelector()
             {
+                Identifier = identifier,
                 TableType = tableType,
                 Flags = flags,
                 Type = TableSelectorType.TableType
             };
         }
 
-        public static ITableSelector By(ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
         {
             return new TableSelector()
             {
+                Identifier = identifier,
                 LeftTable = leftTable,
                 RightTable = rightTable,
                 Flags = flags,

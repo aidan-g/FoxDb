@@ -1,35 +1,39 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace FoxDb
 {
     public class ManyToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public ManyToManyRelationConfig(IConfig config, RelationFlags flags, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, PropertyInfo property, Func<T, ICollection<TRelation>> getter, Action<T, ICollection<TRelation>> setter) : base(config, flags, leftTable, mappingTable, rightTable, property, getter, setter)
+        public ManyToManyRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor) : base(config, flags, identifier, leftTable, mappingTable, rightTable, accessor)
         {
 
         }
 
-        public override IRelationConfig AutoColumns()
+        public override IRelationConfig AutoExpression()
         {
-            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
-            {
-                var column = default(IColumnConfig);
-                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
-                {
-                    this.LeftColumn = column;
-                    this.LeftColumn.IsForeignKey = true;
-                }
-            }
+            var left = this.Expression.SetLeft(this.CreateConstraint());
+            var right = this.Expression.SetRight(this.CreateConstraint());
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
+                left.Left = this.Expression.CreateColumn(this.LeftTable.PrimaryKey);
+                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                {
+                    left.Right = this.Expression.CreateColumn(column);
+                    column.IsForeignKey = true;
+                }
+            }
+            this.Expression.Operator = this.Expression.CreateOperator(QueryOperator.AndAlso);
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            {
+                var column = default(IColumnConfig);
+                right.Left = this.Expression.CreateColumn(this.RightTable.PrimaryKey);
                 if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), Defaults.Column.Flags), out column))
                 {
-                    this.RightColumn = column;
-                    this.RightColumn.IsForeignKey = true;
+                    right.Right = this.Expression.CreateColumn(column);
+                    column.IsForeignKey = true;
                 }
             }
             return this;
@@ -37,11 +41,14 @@ namespace FoxDb
 
         public override IRelationConfig Invert()
         {
-            var flags = this.Flags.SetMultiplicity(RelationFlags.OneToMany) ^ RelationFlags.AutoColumns;
-            return new OneToManyRelationConfig<T, TRelation>(this.Config, flags, this.LeftTable, this.MappingTable, this.Property, this.Getter, this.Setter)
+            var flags = this.Flags.SetMultiplicity(RelationFlags.OneToMany) ^ RelationFlags.AutoExpression;
+            var columns = this.Expression.GetColumnMap();
+            return new OneToManyRelationConfig<TRelation, T>(this.Config, flags, Unique.New, this.RightTable, this.MappingTable, Factories.PropertyAccessor.Relation.Null<TRelation, ICollection<T>>())
             {
-                LeftColumn = this.RightColumn,
-                RightColumn = this.RightTable.PrimaryKey
+                Expression = this.CreateConstraint(
+                    columns[this.RightTable].First(),
+                    this.MappingTable.RightForeignKey
+                )
             };
         }
     }

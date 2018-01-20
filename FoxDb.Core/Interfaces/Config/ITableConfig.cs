@@ -9,6 +9,8 @@ namespace FoxDb.Interfaces
 
         TableFlags Flags { get; }
 
+        string Identifier { get; }
+
         string TableName { get; set; }
 
         Type TableType { get; }
@@ -17,9 +19,9 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> PrimaryKeys { get; }
 
-        IColumnConfig ForeignKey { get; }
+        //IColumnConfig ForeignKey { get; }
 
-        IEnumerable<IColumnConfig> ForeignKeys { get; }
+        //IEnumerable<IColumnConfig> ForeignKeys { get; }
 
         IColumnConfig GetColumn(IColumnSelector selector);
 
@@ -58,7 +60,7 @@ namespace FoxDb.Interfaces
         IColumnConfig RightForeignKey { get; set; }
     }
 
-    public interface ITableConfig<T1, T2> : IMappingTableConfig
+    public interface ITableConfig<T1, T2> : IMappingTableConfig, IEquatable<ITableConfig<T1, T2>>
     {
 
     }

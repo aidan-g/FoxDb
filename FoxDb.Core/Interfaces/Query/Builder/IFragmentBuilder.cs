@@ -1,14 +1,20 @@
-﻿namespace FoxDb.Interfaces
+﻿using System;
+
+namespace FoxDb.Interfaces
 {
-    public interface IFragmentBuilder
+    public interface IFragmentBuilder : IEquatable<IFragmentBuilder>, ICloneable<IFragmentBuilder>
     {
+        IFragmentBuilder Parent { get; }
+
         IQueryGraphBuilder Graph { get; }
 
         FragmentType FragmentType { get; }
 
         void Touch();
 
-        T CreateFragment<T>() where T : IFragmentBuilder;
+        T Ancestor<T>() where T : IFragmentBuilder;
+
+        T Fragment<T>() where T : IFragmentBuilder;
 
         ITableBuilder CreateTable(ITableConfig table);
 
@@ -25,6 +31,8 @@
         IOperatorBuilder CreateOperator(QueryOperator @operator);
 
         IConstantBuilder CreateConstant(object value);
+
+        string DebugView { get; }
     }
 
     public enum FragmentType : byte

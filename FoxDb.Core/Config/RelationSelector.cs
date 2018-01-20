@@ -7,6 +7,8 @@ namespace FoxDb
 {
     public class RelationSelector : IRelationSelector
     {
+        public string Identifier { get; protected set; }
+
         public PropertyInfo Property { get; protected set; }
 
         public Expression Expression { get; protected set; }
@@ -15,20 +17,22 @@ namespace FoxDb
 
         public RelationSelectorType Type { get; protected set; }
 
-        public static IRelationSelector By(PropertyInfo property, RelationFlags flags)
+        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags flags)
         {
             return new RelationSelector()
             {
+                Identifier = identifier,
                 Property = property,
                 Flags = flags,
                 Type = RelationSelectorType.Property
             };
         }
 
-        public static IRelationSelector By(Expression expression, RelationFlags flags)
+        public static IRelationSelector By(string identifier, Expression expression, RelationFlags flags)
         {
             return new RelationSelector()
             {
+                Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
                 Type = RelationSelectorType.Expression
@@ -50,10 +54,11 @@ namespace FoxDb
             }
         }
 
-        public static IRelationSelector<T, TRelation> By(Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
         {
             return new RelationSelector<T, TRelation>()
             {
+                Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
                 Type = RelationSelectorType.Expression
