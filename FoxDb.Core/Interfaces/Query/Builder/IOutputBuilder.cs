@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IOutputBuilder : IFragmentContainer, IFragmentBuilder
+    public interface IOutputBuilder : IFragmentContainer, IFragmentTarget
     {
         IColumnBuilder GetColumn(IColumnConfig column);
 

@@ -9,9 +9,38 @@ namespace FoxDb
     [TestFixture]
     public class QueryTests : TestBase
     {
+        [Test]
+        public void Exists()
+        {
+            var provider = new SQLiteProvider(FileName);
+            var database = new Database(provider);
+            using (var transaction = database.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                var set = database.Set<Test001>(transaction);
+                var query = database.QueryFactory.Build().With(query1 =>
+                {
+                    query1.Output.AddFunction(QueryFunction.Exists, query1.Output.CreateSubQuery(database.QueryFactory.Build().With(query2 =>
+                    {
+                        query2.Output.AddOperator(QueryOperator.Star);
+                        query2.Source.AddTable(database.Config.Table<Test001>());
+                    })));
+                });
+                Assert.AreEqual(false, database.ExecuteScalar<bool>(query.Build(), transaction));
+                set.AddOrUpdate(new[]
+                {
+                    new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                    new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                    new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+                });
+                Assert.AreEqual(true, database.ExecuteScalar<bool>(query.Build(), transaction));
+                transaction.Rollback();
+            }
+        }
+
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
-        public void Exists(RelationFlags flags)
+        public void ExistsNToMany(RelationFlags flags)
         {
             var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
@@ -49,7 +78,6 @@ namespace FoxDb
                             throw new NotImplementedException();
                     }
                     builder.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
-                    function.Function = QueryFunction.Exists;
                     function.AddArgument(function.CreateSubQuery(builder));
                 }));
                 set.Parameters = parameters => parameters["Name"] = "2_2";

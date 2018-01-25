@@ -9,7 +9,12 @@ namespace FoxDb
     {
         public TableConfigContainer(IEnumerable<ITableConfig> tables)
         {
-            this.Tables = tables;
+            this.Tables = tables.Where(table => table != null).ToArray();
+        }
+
+        public TableConfigContainer(params ITableConfig[] tables) : this(tables.AsEnumerable())
+        {
+
         }
 
         public IEnumerable<ITableConfig> Tables { get; private set; }
@@ -57,7 +62,7 @@ namespace FoxDb
             {
                 return false;
             }
-            return this.Intersect(other).Count() == this.Count();
+            return this.Contains(other);
         }
 
         public static bool operator ==(TableConfigContainer a, TableConfigContainer b)

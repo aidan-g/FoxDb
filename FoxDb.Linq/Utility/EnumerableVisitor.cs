@@ -7,66 +7,61 @@ using System.Reflection;
 
 namespace FoxDb
 {
-    public class DatabaseQueryableVisitor : ExpressionVisitor
+    public class EnumerableVisitor : ExpressionVisitor
     {
-        protected virtual IDictionary<string, MethodVisitorHandler> MethodHandlers { get; private set; }
+        public static readonly IDictionary<string, MethodVisitorHandler> MethodHandlers = GetMethodHandlers();
 
-        protected virtual IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
+        public static readonly IDictionary<ExpressionType, UnaryVisitorHandler> UnaryHandlers = GetUnaryHandlers();
+
+        public static readonly IDictionary<ExpressionType, QueryOperator> Operators = GetOperators();
+
+        protected static IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
         {
             var handlers = new Dictionary<string, MethodVisitorHandler>()
             {
-                { "Count", this.VisitCount },
-                { "Any", this.VisitAny },
-                { "Where", this.VisitWhere },
-                { "OrderBy", this.VisitOrderBy },
-                { "OrderByDescending", this.VisitOrderByDescending }
+                { "Count", (visitor, node) => visitor.VisitCount(node) },
+                { "Any", (visitor, node) => visitor.VisitAny(node) },
+                { "First", (visitor, node) => visitor.VisitFirst(node) },
+                { "FirstOrDefault", (visitor, node) => visitor.VisitFirst(node) },
+                { "Select", (visitor, node) => visitor.VisitSelect(node) },
+                { "Where", (visitor, node) => visitor.VisitWhere(node) },
+                { "OrderBy", (visitor, node) => visitor.VisitOrderBy(node) },
+                { "OrderByDescending", (visitor, node) => visitor.VisitOrderByDescending(node) }
             };
-            if (this.Flags.HasFlag(DatabaseQueryableProviderFlags.AllowLimit))
-            {
-                handlers.Add("First", this.VisitFirst);
-                handlers.Add("FirstOrDefault", this.VisitFirst);
-            }
-            else
-            {
-                handlers.Add("First", this.VisitWhere);
-                handlers.Add("FirstOrDefault", this.VisitWhere);
-            }
             return handlers;
         }
 
-        protected virtual IDictionary<ExpressionType, UnaryVisitorHandler> UnaryHandlers { get; private set; }
-
-        protected virtual IDictionary<ExpressionType, UnaryVisitorHandler> GetUnaryHandlers()
+        protected static IDictionary<ExpressionType, UnaryVisitorHandler> GetUnaryHandlers()
         {
             return new Dictionary<ExpressionType, UnaryVisitorHandler>()
             {
-                { ExpressionType.Convert, this.VisitConvert },
-                { ExpressionType.Quote, this.VisitQuote }
+                { ExpressionType.Convert, (visitor, node) => visitor.VisitConvert(node) },
+                { ExpressionType.Quote, (visitor, node) => visitor.VisitQuote(node) }
             };
         }
 
-        protected readonly IDictionary<ExpressionType, QueryOperator> Operators = new Dictionary<ExpressionType, QueryOperator>()
+        protected static IDictionary<ExpressionType, QueryOperator> GetOperators()
         {
-            { ExpressionType.Equal, QueryOperator.Equal },
-            { ExpressionType.NotEqual, QueryOperator.NotEqual },
-            { ExpressionType.LessThan, QueryOperator.Less },
-            { ExpressionType.GreaterThan, QueryOperator.Greater },
-            { ExpressionType.And, QueryOperator.And },
-            { ExpressionType.AndAlso, QueryOperator.AndAlso },
-            { ExpressionType.Or, QueryOperator.Or },
-            { ExpressionType.OrElse, QueryOperator.OrElse },
-        };
+            return new Dictionary<ExpressionType, QueryOperator>()
+            {
+                { ExpressionType.Equal, QueryOperator.Equal },
+                { ExpressionType.NotEqual, QueryOperator.NotEqual },
+                { ExpressionType.LessThan, QueryOperator.Less },
+                { ExpressionType.GreaterThan, QueryOperator.Greater },
+                { ExpressionType.And, QueryOperator.And },
+                { ExpressionType.AndAlso, QueryOperator.AndAlso },
+                { ExpressionType.Or, QueryOperator.Or },
+                { ExpressionType.OrElse, QueryOperator.OrElse },
+            };
+        }
 
-        private DatabaseQueryableVisitor(DatabaseQueryableProviderFlags flags)
+        private EnumerableVisitor()
         {
-            this.Flags = flags;
-            this.MethodHandlers = this.GetMethodHandlers();
-            this.UnaryHandlers = this.GetUnaryHandlers();
             this.Constants = new Dictionary<string, object>();
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public DatabaseQueryableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType, DatabaseQueryableProviderFlags flags) : this(flags)
+        public EnumerableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
         {
             this.Database = database;
             this.Query = query;
@@ -80,8 +75,6 @@ namespace FoxDb
         public IDatabase Database { get; private set; }
 
         public Type ElementType { get; private set; }
-
-        public DatabaseQueryableProviderFlags Flags { get; private set; }
 
         public OrderByDirection Direction { get; private set; }
 
@@ -240,12 +233,12 @@ namespace FoxDb
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var handler = default(MethodVisitorHandler);
-            if (!this.MethodHandlers.TryGetValue(node.Method.Name, out handler))
+            if (!MethodHandlers.TryGetValue(node.Method.Name, out handler))
             {
                 this.VisitUnsupportedMethodCall(node);
                 return node;
             }
-            handler(node);
+            handler(this, node);
             return node;
         }
 
@@ -329,7 +322,7 @@ namespace FoxDb
                         break;
                     case RelationFlags.ManyToMany:
                         builder.Source.AddRelation(relation.Invert());
-                        builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.LeftTable.PrimaryKey);
+                        builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.MappingTable.LeftForeignKey);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -337,6 +330,22 @@ namespace FoxDb
                 function.AddArgument(function.CreateSubQuery(builder));
                 this.Push(builder.Filter);
             }));
+            try
+            {
+                var lambda = this.GetLambda(node.Arguments[1]);
+                this.Visit(lambda.Body);
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void VisitSelect(MethodCallExpression node)
+        {
+            this.Query.Output.Expressions.Clear();
+            this.Visit(node.Arguments[0]);
+            this.Push(this.Query.Output);
             try
             {
                 var lambda = this.GetLambda(node.Arguments[1]);
@@ -409,7 +418,7 @@ namespace FoxDb
         protected virtual IOperatorBuilder VisitOperator(ExpressionType nodeType)
         {
             var @operator = default(QueryOperator);
-            if (!this.Operators.TryGetValue(nodeType, out @operator))
+            if (!Operators.TryGetValue(nodeType, out @operator))
             {
                 throw new NotImplementedException();
             }
@@ -480,11 +489,11 @@ namespace FoxDb
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var handler = default(UnaryVisitorHandler);
-            if (!this.UnaryHandlers.TryGetValue(node.NodeType, out handler))
+            if (!UnaryHandlers.TryGetValue(node.NodeType, out handler))
             {
                 throw new NotImplementedException();
             }
-            handler(node);
+            handler(this, node);
             return node;
         }
 
@@ -693,8 +702,8 @@ namespace FoxDb
             }
         }
 
-        public delegate void MethodVisitorHandler(MethodCallExpression node);
+        public delegate void MethodVisitorHandler(EnumerableVisitor visitor, MethodCallExpression node);
 
-        public delegate void UnaryVisitorHandler(UnaryExpression node);
+        public delegate void UnaryVisitorHandler(EnumerableVisitor visitor, UnaryExpression node);
     }
 }

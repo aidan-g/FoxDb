@@ -72,10 +72,17 @@ namespace FoxDb
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
-            base.VisitSubQuery(expression);
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
-            this.VisitAlias(expression.Alias);
+            if (this.GetRenderContext().HasFlag(RenderHints.FunctionArgument))
+            {
+                base.VisitSubQuery(expression);
+            }
+            else
+            {
+                this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                base.VisitSubQuery(expression);
+                this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                this.VisitAlias(expression.Alias);
+            }
         }
 
         public override string DebugView

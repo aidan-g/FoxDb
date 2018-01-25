@@ -10,34 +10,84 @@ namespace FoxDb
     {
         protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
 
-        protected Stack<IFragmentBuilder> Context { get; private set; }
+        protected Stack<IFragmentBuilder> FragmentContext { get; private set; }
 
-        public IFragmentBuilder Peek
+        protected Stack<RenderHints> RenderContext { get; private set; }
+
+        #region ISQLiteQueryWriter
+
+        IReadOnlyCollection<IFragmentBuilder> ISQLiteQueryWriter.FragmentContext
         {
             get
             {
-                return this.Context.Peek();
+                return this.FragmentContext;
             }
         }
 
-        public T Push<T>(T builder) where T : IFragmentBuilder
+        public T GetFragmentContext<T>() where T : IFragmentBuilder
         {
-            this.Context.Push(builder);
-            return builder;
+            return this.FragmentContext.OfType<T>().FirstOrDefault();
         }
 
-        public IFragmentBuilder Pop()
+        public IFragmentBuilder GetFragmentContext()
         {
-            return this.Context.Pop();
+            if (this.FragmentContext.Count == 0)
+            {
+                return default(IFragmentBuilder);
+            }
+            return this.FragmentContext.Peek();
         }
 
-        IReadOnlyCollection<IFragmentBuilder> ISQLiteQueryWriter.Context
+        public T AddFragmentContext<T>(T context) where T : IFragmentBuilder
+        {
+            this.FragmentContext.Push(context);
+            return context;
+        }
+
+        public T RemoveFragmentContext<T>() where T : IFragmentBuilder
+        {
+            var context = this.FragmentContext.Peek();
+            if (!(context is T))
+            {
+                return default(T);
+            }
+            return (T)this.FragmentContext.Pop();
+        }
+
+        public IFragmentBuilder RemoveFragmentContext()
+        {
+            return this.FragmentContext.Pop();
+        }
+
+        IReadOnlyCollection<RenderHints> ISQLiteQueryWriter.RenderContext
         {
             get
             {
-                return this.Context;
+                return this.RenderContext;
             }
         }
+
+        public RenderHints GetRenderContext()
+        {
+            if (this.RenderContext.Count == 0)
+            {
+                return RenderHints.None;
+            }
+            return this.RenderContext.Peek();
+        }
+
+        public RenderHints AddRenderContext(RenderHints context)
+        {
+            this.RenderContext.Push(context);
+            return context;
+        }
+
+        public RenderHints RemoveRenderContext()
+        {
+            return this.RenderContext.Pop();
+        }
+
+        #endregion
 
         protected StringBuilder Builder { get; private set; }
 
@@ -84,11 +134,13 @@ namespace FoxDb
             this.Handlers = this.GetHandlers();
             if (parent is ISQLiteQueryWriter)
             {
-                this.Context = new Stack<IFragmentBuilder>((parent as ISQLiteQueryWriter).Context);
+                this.FragmentContext = new Stack<IFragmentBuilder>((parent as ISQLiteQueryWriter).FragmentContext);
+                this.RenderContext = new Stack<RenderHints>((parent as ISQLiteQueryWriter).RenderContext);
             }
             else
             {
-                this.Context = new Stack<IFragmentBuilder>();
+                this.FragmentContext = new Stack<IFragmentBuilder>();
+                this.RenderContext = new Stack<RenderHints>();
             }
             this.Builder = new StringBuilder();
         }
@@ -130,21 +182,16 @@ namespace FoxDb
             }
         }
 
-        public T GetContext<T>() where T : IFragmentBuilder
-        {
-            return this.Context.OfType<T>().FirstOrDefault();
-        }
-
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            this.Context.Push(fragment);
+            this.AddFragmentContext(fragment);
             try
             {
                 return this.OnWrite(fragment);
             }
             finally
             {
-                this.Context.Pop();
+                this.RemoveFragmentContext();
             }
         }
 
@@ -157,14 +204,14 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-            this.Context.Push(expression);
+            this.AddFragmentContext(expression);
             try
             {
                 handler(this, expression);
             }
             finally
             {
-                this.Context.Pop();
+                this.RemoveFragmentContext();
             }
         }
 
@@ -223,7 +270,15 @@ namespace FoxDb
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
             if (expression.Expressions.Any())
             {
-                this.Visit(expression.Expressions);
+                this.AddRenderContext(RenderHints.FunctionArgument);
+                try
+                {
+                    this.Visit(expression.Expressions);
+                }
+                finally
+                {
+                    this.RemoveRenderContext();
+                }
             }
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
         }
@@ -279,5 +334,12 @@ namespace FoxDb
             }
             this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.AS, SQLiteSyntax.Identifier(alias));
         }
+    }
+
+    [Flags]
+    public enum RenderHints : byte
+    {
+        None = 0,
+        FunctionArgument = 1
     }
 }

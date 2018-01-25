@@ -56,7 +56,6 @@
     <Compile Include="SQLiteProvider.cs" />
     <Compile Include="SQLiteQueryBuilder.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
-    <Compile Include="Writers\Extensions.cs" />
     <Compile Include="Writers\SQLiteDeleteWriter.cs" />
     <Compile Include="Writers\SQLiteFromWriter.cs" />
     <Compile Include="Writers\SQLiteInsertWriter.cs" />

@@ -28,14 +28,14 @@ namespace FoxDb
                 if (expression.Expressions.Any())
                 {
                     this.Builder.AppendFormat("{0} ", SQLiteSyntax.FROM);
-                    var writer = this.Push(new SQLiteJoinWriter(this, this.Database, this.Visitor, this.ParameterNames));
+                    var writer = this.AddFragmentContext(new SQLiteJoinWriter(this, this.Database, this.Visitor, this.ParameterNames));
                     try
                     {
                         this.Visit(expression.Expressions);
                     }
                     finally
                     {
-                        this.Pop();
+                        this.RemoveFragmentContext();
                     }
                     this.Visit(writer);
                 }
@@ -103,7 +103,7 @@ namespace FoxDb
 
         protected virtual void VisitRelation(IRelationBuilder expression)
         {
-            this.GetContext<SQLiteJoinWriter>().Write(expression);
+            this.GetFragmentContext<SQLiteJoinWriter>().Write(expression);
         }
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)
@@ -123,9 +123,15 @@ namespace FoxDb
 
         protected virtual void Visit(SQLiteJoinWriter writer)
         {
-            var tables = new List<ITableConfig>();
-            tables.AddRange(this.GetContext<ISourceBuilder>().Tables.Select(builder => builder.Table));
-            foreach (var key in writer.Keys.Prioritize(this))
+            if (!writer.Keys.Any())
+            {
+                //Nothing to do.
+                return;
+            }
+            var tables = new List<ITableConfig>(
+                this.GetFragmentContext<ISourceBuilder>().Tables.Select(builder => builder.Table)
+            );
+            foreach (var key in this.GetKeysByDependency(writer))
             {
                 var expression = writer.GetExpression(key);
                 foreach (var table in key)
@@ -147,6 +153,62 @@ namespace FoxDb
             this.VisitTable(this.CreateTable(table));
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.ON);
             this.Visit(expression);
+        }
+
+        /// <summary>
+        /// Return the keys in the writer ordered by their dependency on each other.
+        /// A join cannot reference a table which is included later in the query.
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <returns></returns>
+        protected virtual IEnumerable<ITableConfigContainer> GetKeysByDependency(SQLiteJoinWriter writer)
+        {
+            //It doesn't look like it, but this is really hard.
+            var result = new List<ITableConfigContainer>();
+            var remaining = writer.Keys.ToList();
+            var source = writer.GetFragmentContext<ISourceBuilder>();
+            var tables = source.Tables.Select(table => table.Table);
+            //First things first, we add all "simple" joins which are already satisfied by tables included in the query source.
+            foreach (var key in remaining.ToArray())
+            {
+                if (tables.Contains(key))
+                {
+                    result.Add(key);
+                    remaining.Remove(key);
+                }
+            }
+            //While we have unresolved keys;
+            while (remaining.Count > 0)
+            {
+                var success = false;
+                //Buffer the sequence because we modify it.
+                foreach (var key in remaining.ToArray())
+                {
+                    var relation = writer.GetRelation(key);
+                    //Available tables are;
+                    var available = tables //Tables from the query source.
+                        .Concat(result.SelectMany<ITableConfigContainer, ITableConfig>()) //Already resolved keys.
+                        .Concat(relation.MappingTable, relation.RightTable) //The mapping and right tables of the associated relation.
+                        .Distinct(); //Normalize.
+                    if (available.Contains(key))
+                    {
+                        //Looks like this join is satisfied, stage and remove from the queue.
+                        result.Add(key);
+                        remaining.Remove(key);
+                        success = true;
+                    }
+                }
+                //We could not detect which join comes next :(
+                if (!success)
+                {
+                    //Just add the remaining joins and hope for the best.
+                    //This is totally wrong.
+                    result.AddRange(remaining);
+                    remaining.Clear();
+                    break;
+                }
+            }
+            return result;
         }
 
         public override string DebugView

@@ -59,15 +59,18 @@ namespace FoxDb
 
         protected virtual object Key(ITableConfig table)
         {
-            if (table.PrimaryKey == null)
+            if (table.PrimaryKey != null)
             {
-                return null;
+                if (this.Record.Contains(table.PrimaryKey.Identifier))
+                {
+                    return this.Record[table.PrimaryKey.Identifier];
+                }
+                if (this.Record.Contains(table.PrimaryKey.ColumnName))
+                {
+                    return this.Record[table.PrimaryKey.ColumnName];
+                }
             }
-            if (!this.Record.Contains(table.PrimaryKey.Identifier))
-            {
-                return null;
-            }
-            return this.Record[table.PrimaryKey.Identifier];
+            return null;
         }
 
         public bool HasKey(ITableConfig table)

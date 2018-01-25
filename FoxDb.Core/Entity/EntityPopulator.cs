@@ -4,12 +4,6 @@ namespace FoxDb
 {
     public class EntityPopulator : IEntityPopulator
     {
-        public static readonly IEntityPopulatorStrategy[] Strategies = new IEntityPopulatorStrategy[]
-        {
-            new IdentifierEntityPopulatorStrategy(),
-            new ColumnNameEntityPopulatorStrategy()
-        };
-
         public EntityPopulator(ITableConfig table)
         {
             this.Table = table;
@@ -21,50 +15,23 @@ namespace FoxDb
         {
             foreach (var column in this.Table.Columns)
             {
-                foreach (var strategy in Strategies)
-                {
-                    if (strategy.Populate(item, column, record))
-                    {
-                        break;
-                    }
-                }
+                this.Populate(item, column, record);
             }
         }
 
-        protected abstract class EntityPopulatorStrategy : IEntityPopulatorStrategy
+        public bool Populate(object item, IColumnConfig column, IDatabaseReaderRecord record)
         {
-            public bool Populate(object item, IColumnConfig column, IDatabaseReaderRecord record)
+            if (column.Setter == null)
             {
-                if (column.Setter == null)
-                {
-                    return false;
-                }
-                var value = default(object);
-                if (!this.TryGetValue(column, record, out value))
-                {
-                    return false;
-                }
-                column.Setter(item, value);
-                return true;
+                return false;
             }
-
-            protected abstract bool TryGetValue(IColumnConfig column, IDatabaseReaderRecord record, out object value);
-        }
-
-        protected class IdentifierEntityPopulatorStrategy : EntityPopulatorStrategy
-        {
-            protected override bool TryGetValue(IColumnConfig column, IDatabaseReaderRecord record, out object value)
+            var value = default(object);
+            if (!record.TryGetValue(column.Identifier, out value) && !record.TryGetValue(column.ColumnName, out value))
             {
-                return record.TryGetValue(column.Identifier, out value);
+                return false;
             }
-        }
-
-        protected class ColumnNameEntityPopulatorStrategy : EntityPopulatorStrategy
-        {
-            protected override bool TryGetValue(IColumnConfig column, IDatabaseReaderRecord record, out object value)
-            {
-                return record.TryGetValue(column.ColumnName, out value);
-            }
+            column.Setter(item, value);
+            return true;
         }
     }
 }
