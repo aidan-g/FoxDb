@@ -47,9 +47,9 @@ namespace FoxDb
 
         public IDatabaseQueryFactory QueryFactory { get; private set; }
 
-        public IDatabaseQuerySource Source(ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        public IDatabaseQuerySource Source(IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            return new DatabaseQuerySource(this, table, parameters, transaction);
+            return new DatabaseQuerySource(this, composer, parameters, transaction);
         }
 
         public ITransactionSource BeginTransaction()

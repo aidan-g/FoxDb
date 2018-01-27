@@ -4,34 +4,22 @@ namespace FoxDb
 {
     public class DatabaseQuerySource : IDatabaseQuerySource
     {
-        public DatabaseQuerySource(IDatabase database, ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        public DatabaseQuerySource(IDatabase database, IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             this.Database = database;
-            this.Table = table;
+            this.Composer = composer;
             this.Parameters = parameters;
             this.Transaction = transaction;
-            this.Mapper = new EntityMapper(this.Table);
-            this.Composer = new EntityRelationQueryComposer(this.Database, this.Mapper);
             this.Reset();
         }
 
         public IDatabase Database { get; private set; }
 
-        public ITableConfig Table { get; private set; }
+        public IDatabaseQueryComposer Composer { get; private set; }
 
         public DatabaseParameterHandler Parameters { get; set; }
 
         public ITransactionSource Transaction { get; private set; }
-
-        public IEntityMapper Mapper { get; private set; }
-
-        public IEntityInitializer Initializer { get; private set; }
-
-        public IEntityPopulator Populator { get; private set; }
-
-        public IEntityFactory Factory { get; private set; }
-
-        public IEntityRelationQueryComposer Composer { get; private set; }
 
         public IQueryGraphBuilder Fetch { get; set; }
 
@@ -43,13 +31,15 @@ namespace FoxDb
 
         public void Reset()
         {
-            if (this.Composer != null)
-            {
-                this.Fetch = this.Composer.Query;
-            }
-            this.Add = this.Database.QueryFactory.Add(this.Table);
-            this.Update = this.Database.QueryFactory.Update(this.Table);
-            this.Delete = this.Database.QueryFactory.Delete(this.Table);
+            this.Fetch = this.Composer.Fetch;
+            this.Add = this.Composer.Add;
+            this.Update = this.Composer.Update;
+            this.Delete = this.Composer.Delete;
+        }
+
+        public IDatabaseQuerySource Clone()
+        {
+            return new DatabaseQuerySource(this.Database, this.Composer, this.Parameters, this.Transaction);
         }
     }
 }

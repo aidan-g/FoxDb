@@ -1,18 +1,14 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IDatabaseQuerySource
+    public interface IDatabaseQuerySource : ICloneable<IDatabaseQuerySource>
     {
         IDatabase Database { get; }
 
-        ITableConfig Table { get; }
+        IDatabaseQueryComposer Composer { get; }
 
         DatabaseParameterHandler Parameters { get; set; }
 
         ITransactionSource Transaction { get; }
-
-        IEntityMapper Mapper { get; }
-
-        IEntityRelationQueryComposer Composer { get; }
 
         IQueryGraphBuilder Fetch { get; set; }
 

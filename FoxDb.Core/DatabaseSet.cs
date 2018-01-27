@@ -80,7 +80,7 @@ namespace FoxDb
         {
             return this.Database.Set<T>(this.Table).With(set =>
             {
-                set.Fetch = this.Source.Composer.Query.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+                set.Fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
                 set.Parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, new[] { id }).Handler;
             }).FirstOrDefault();
         }
@@ -102,7 +102,8 @@ namespace FoxDb
         {
             using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
-                var enumerable = new EntityCompoundEnumerator(this.Table, this.Mapper, reader);
+                var mapper = new EntityMapper(this.Table);
+                var enumerable = new EntityCompoundEnumerator(this.Table, mapper, reader);
                 foreach (var element in enumerable.AsEnumerable<T>())
                 {
                     yield return element;
@@ -129,7 +130,7 @@ namespace FoxDb
         {
             get
             {
-                return this.Source.Table;
+                return this.Source.Composer.Table;
             }
         }
 
@@ -153,15 +154,7 @@ namespace FoxDb
             }
         }
 
-        public IEntityMapper Mapper
-        {
-            get
-            {
-                return this.Source.Mapper;
-            }
-        }
-
-        public IEntityRelationQueryComposer Composer
+        IDatabaseQueryComposer IDatabaseQuerySource.Composer
         {
             get
             {
@@ -189,7 +182,7 @@ namespace FoxDb
             }
             set
             {
-                this.Source.Add = value;
+                throw new NotImplementedException();
             }
         }
 
@@ -201,7 +194,7 @@ namespace FoxDb
             }
             set
             {
-                this.Source.Update = value;
+                throw new NotImplementedException();
             }
         }
 
@@ -213,13 +206,18 @@ namespace FoxDb
             }
             set
             {
-                this.Source.Delete = value;
+                throw new NotImplementedException();
             }
         }
 
         void IDatabaseQuerySource.Reset()
         {
             this.Source.Reset();
+        }
+
+        IDatabaseQuerySource ICloneable<IDatabaseQuerySource>.Clone()
+        {
+            return this.Source.Clone();
         }
 
         #endregion

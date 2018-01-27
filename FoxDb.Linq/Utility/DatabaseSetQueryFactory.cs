@@ -16,16 +16,16 @@ namespace FoxDb
 
     public class DatabaseSetQueryFactory<T> : DatabaseSetQueryFactory, IDatabaseSetQueryFactory<T>
     {
-        public DatabaseSetQueryFactory(IDatabase database, ITransactionSource transaction)
+        public DatabaseSetQueryFactory(IDatabase database, IDatabaseQuerySource source)
         {
             this.Database = database;
-            this.Transaction = transaction;
+            this.Source = source;
             this.Expression = Expression.Constant(this);
         }
 
         public IDatabase Database { get; private set; }
 
-        public ITransactionSource Transaction { get; private set; }
+        public IDatabaseQuerySource Source { get; private set; }
 
         public override Type ElementType
         {
@@ -62,7 +62,7 @@ namespace FoxDb
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            var set = this.Database.Set<T>(this.Transaction);
+            var set = this.Database.Set<T>(this.Source.Clone());
             return new DatabaseSetQuery<TElement>(set, expression);
         }
 
@@ -73,7 +73,7 @@ namespace FoxDb
 
         public TResult Execute<TResult>(Expression expression)
         {
-            var set = this.Database.Set<T>(this.Transaction);
+            var set = this.Database.Set<T>(this.Source.Clone());
             return new DatabaseSetQuery<T>(set).Execute<TResult>(expression);
         }
     }

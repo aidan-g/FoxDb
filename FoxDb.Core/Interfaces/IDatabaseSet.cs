@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseSet : IDatabaseQuerySource, IEnumerable
     {
+        ITableConfig Table { get; }
+
         Type ElementType { get; }
     }
 

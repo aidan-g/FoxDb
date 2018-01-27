@@ -95,7 +95,7 @@
     <Compile Include="Interfaces\Entity\IEntityGraphVisitor.cs" />
     <Compile Include="Interfaces\Entity\IEntityInitializer.cs" />
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
-    <Compile Include="Interfaces\Entity\Relation\IEntityRelationQueryComposer.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Interfaces\ITransactionSource.cs" />
     <Compile Include="Interfaces\Query\Builder\IAggregateBuilder.cs" />
@@ -154,7 +154,9 @@
     <Compile Include="Query\Builder\AddBuilder.cs" />
     <Compile Include="Query\Builder\UpdateBuilder.cs" />
     <Compile Include="Query\Builder\FilterBuilder.cs" />
+    <Compile Include="Query\Compatibility.cs" />
     <Compile Include="Query\DatabaseQuery.cs" />
+    <Compile Include="Query\DatabaseQueryComposer.cs" />
     <Compile Include="Query\DatabaseQuerySource.cs" />
     <Compile Include="DatabaseReader.cs" />
     <Compile Include="DatabaseSet.cs" />
@@ -212,6 +214,8 @@
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Interfaces\Entity\Relation\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

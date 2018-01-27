@@ -2,29 +2,20 @@
 
 namespace FoxDb
 {
-    public class EntityRelationQueryComposer : IEntityRelationQueryComposer
+    public class EntityRelationQueryComposer : DatabaseQueryComposer
     {
-        private EntityRelationQueryComposer()
+        public EntityRelationQueryComposer(IDatabase database, ITableConfig table) : base(database, table)
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Mapper = new EntityMapper(this.Table);
         }
-
-        public EntityRelationQueryComposer(IDatabase database, IEntityMapper mapper) : this()
-        {
-            this.Database = database;
-            this.Mapper = mapper;
-        }
-
-        protected DynamicMethod Members { get; private set; }
-
-        public IDatabase Database { get; private set; }
 
         public IEntityMapper Mapper { get; private set; }
 
-        public IQueryGraphBuilder Query
+        public override IQueryGraphBuilder Fetch
         {
             get
             {
+
                 var builder = this.Database.QueryFactory.Build();
                 foreach (var table in this.Mapper.Tables)
                 {
