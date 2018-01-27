@@ -10,7 +10,7 @@ namespace FoxDb
     {
         public BinaryExpressionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Constants = new Dictionary<string, object>();
+            this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
 
         public override FragmentType FragmentType

@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace FoxDb
         public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
-            this.Constants = new Dictionary<string, object>();
+            this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
 
         public override FragmentType FragmentType

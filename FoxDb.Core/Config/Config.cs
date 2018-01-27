@@ -9,7 +9,7 @@ namespace FoxDb
         private Config()
         {
             this.Members = new DynamicMethod(this.GetType());
-            this.Tables = new ConcurrentDictionary<string, ITableConfig>();
+            this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
         public Config(IDatabase database) : this()

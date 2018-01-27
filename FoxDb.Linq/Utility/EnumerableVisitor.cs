@@ -17,7 +17,7 @@ namespace FoxDb
 
         protected static IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
         {
-            var handlers = new Dictionary<string, MethodVisitorHandler>()
+            var handlers = new Dictionary<string, MethodVisitorHandler>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Count", (visitor, node) => visitor.VisitCount(node) },
                 { "Any", (visitor, node) => visitor.VisitAny(node) },
@@ -57,7 +57,7 @@ namespace FoxDb
 
         private EnumerableVisitor()
         {
-            this.Constants = new Dictionary<string, object>();
+            this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Targets = new Stack<IFragmentTarget>();
         }
 
@@ -672,7 +672,7 @@ namespace FoxDb
             public CaptureFragmentTarget() : base(FragmentBuilder.Proxy, QueryGraphBuilder.Null)
             {
                 this.Expressions = new List<IFragmentBuilder>();
-                this.Constants = new Dictionary<string, object>();
+                this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
 
             public override FragmentType FragmentType

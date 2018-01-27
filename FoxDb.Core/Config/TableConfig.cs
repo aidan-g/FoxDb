@@ -10,8 +10,8 @@ namespace FoxDb
     {
         private TableConfig()
         {
-            this.Columns = new ConcurrentDictionary<string, IColumnConfig>();
-            this.Relations = new ConcurrentDictionary<string, IRelationConfig>();
+            this.Columns = new ConcurrentDictionary<string, IColumnConfig>(StringComparer.OrdinalIgnoreCase);
+            this.Relations = new ConcurrentDictionary<string, IRelationConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
         protected TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, Type tableType) : this()

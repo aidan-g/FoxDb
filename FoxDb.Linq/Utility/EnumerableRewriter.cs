@@ -25,7 +25,7 @@ namespace FoxDb
 
         protected static IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
         {
-            var handlers = new Dictionary<string, MethodVisitorHandler>()
+            var handlers = new Dictionary<string, MethodVisitorHandler>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Count", (visitor, node) => visitor.VisitCount(node) },
                 { "Any", (visitor, node) => visitor.VisitAny(node) },
