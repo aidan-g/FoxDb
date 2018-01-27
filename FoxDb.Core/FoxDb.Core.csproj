@@ -121,6 +121,7 @@
     <Compile Include="Interfaces\Query\Builder\ISubQueryBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ITableBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IAddBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IUnaryExpressionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\AggregateBuilder.cs" />
+    <Compile Include="Query\Builder\UnaryExpressionBuilder.cs" />
     <Compile Include="Query\Builder\QueryGraph.cs" />
     <Compile Include="Query\Builder\SourceBuilder.cs" />
     <Compile Include="Query\Builder\FunctionBuilder.cs" />

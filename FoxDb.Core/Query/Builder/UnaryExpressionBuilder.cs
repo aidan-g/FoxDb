@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class BinaryExpressionBuilder : ExpressionBuilder, IBinaryExpressionBuilder
+    public class UnaryExpressionBuilder : ExpressionBuilder, IUnaryExpressionBuilder
     {
-        public BinaryExpressionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public UnaryExpressionBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
@@ -17,7 +17,7 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Binary;
+                return FragmentType.Unary;
             }
         }
 
@@ -27,9 +27,8 @@ namespace FoxDb
             {
                 return new ReadOnlyCollection<IFragmentBuilder>(new IFragmentBuilder[]
                 {
-                    this.Left,
                     this.Operator,
-                    this.Right
+                    this.Expression
                 }.ToList());
             }
         }
@@ -40,36 +39,17 @@ namespace FoxDb
         {
             get
             {
-                return !(this.Left is IFragmentContainer) && !(this.Right is IFragmentContainer);
+                return !(this.Expression is IFragmentContainer);
             }
         }
-
-        public IFragmentBuilder Left { get; set; }
 
         public IOperatorBuilder Operator { get; set; }
 
-        public IFragmentBuilder Right { get; set; }
-
-        public T SetLeft<T>(T expression) where T : IFragmentBuilder
-        {
-            this.Left = expression;
-            return expression;
-        }
-
-        public T SetRight<T>(T expression) where T : IFragmentBuilder
-        {
-            this.Right = expression;
-            return expression;
-        }
+        public IFragmentBuilder Expression { get; set; }
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            if (this.Left == null)
-            {
-                this.Left = fragment;
-                return fragment;
-            }
-            else if (this.Operator == null)
+            if (this.Operator == null)
             {
                 if (fragment is IOperatorBuilder)
                 {
@@ -77,9 +57,9 @@ namespace FoxDb
                     return fragment;
                 }
             }
-            else if (this.Right == null)
+            else if (this.Expression == null)
             {
-                this.Right = fragment;
+                this.Expression = fragment;
                 return fragment;
             }
             throw new NotImplementedException();
@@ -87,11 +67,10 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Fragment<IBinaryExpressionBuilder>().With(builder =>
+            return this.Fragment<IUnaryExpressionBuilder>().With(builder =>
             {
-                builder.Left = this.Left;
                 builder.Operator = this.Operator;
-                builder.Right = this.Right;
+                builder.Expression = this.Expression;
             });
         }
 
@@ -105,12 +84,12 @@ namespace FoxDb
 
         public override bool Equals(IFragmentBuilder obj)
         {
-            var other = obj as IBinaryExpressionBuilder;
+            var other = obj as IUnaryExpressionBuilder;
             if (other == null || !base.Equals(obj))
             {
                 return false;
             }
-            if (this.Left != other.Left || this.Operator != other.Operator || this.Right != other.Right)
+            if (this.Operator != other.Operator || this.Expressions != other.Expressions)
             {
                 return false;
             }

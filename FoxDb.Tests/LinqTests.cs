@@ -173,6 +173,7 @@ namespace FoxDb
             }
         }
 
+        [Test]
         public void Any()
         {
             var provider = new SQLiteProvider(FileName);
@@ -197,9 +198,11 @@ namespace FoxDb
             }
         }
 
-        [TestCase(RelationFlags.OneToMany)]
-        [TestCase(RelationFlags.ManyToMany)]
-        public void Any(RelationFlags flags)
+        [TestCase(RelationFlags.OneToMany, false)]
+        [TestCase(RelationFlags.OneToMany, true)]
+        [TestCase(RelationFlags.ManyToMany, false)]
+        [TestCase(RelationFlags.ManyToMany, true)]
+        public void Any(RelationFlags flags, bool invert)
         {
             var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
@@ -218,7 +221,14 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 var query = database.AsQueryable<Test002>(transaction);
-                this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Any(child => child.Name == "2_2")));
+                if (invert)
+                {
+                    this.AssertSequence(new[] { data[0], data[2] }, query.Where(element => !element.Test004.Any(child => child.Name == "2_2")));
+                }
+                else
+                {
+                    this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Any(child => child.Name == "2_2")));
+                }
                 transaction.Rollback();
             }
         }

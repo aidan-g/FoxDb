@@ -60,6 +60,13 @@ namespace FoxDb
             }
         }
 
+        protected override void VisitUnary(IUnaryExpressionBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            base.VisitUnary(expression);
+            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+        }
+
         protected override void VisitBinary(IBinaryExpressionBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);

@@ -10,8 +10,9 @@ namespace FoxDb
     [TestFixture]
     public class QueryTests : TestBase
     {
-        [Test]
-        public void Exists()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Exists(bool invert)
         {
             var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
@@ -21,27 +22,41 @@ namespace FoxDb
                 var set = database.Set<Test001>(transaction);
                 var query = database.QueryFactory.Build().With(query1 =>
                 {
-                    query1.Output.AddFunction(QueryFunction.Exists, query1.Output.CreateSubQuery(database.QueryFactory.Build().With(query2 =>
+                    var function = query1.Output.CreateFunction(QueryFunction.Exists, query1.Output.CreateSubQuery(database.QueryFactory.Build().With(query2 =>
                     {
                         query2.Output.AddOperator(QueryOperator.Star);
                         query2.Source.AddTable(database.Config.Table<Test001>());
                     })));
+                    if (invert)
+                    {
+                        query1.Output.Expressions.Add(query1.Output.Fragment<IUnaryExpressionBuilder>().With(unary =>
+                        {
+                            unary.Operator = unary.CreateOperator(QueryOperator.Not);
+                            unary.Expression = function;
+                        }));
+                    }
+                    else
+                    {
+                        query1.Output.Expressions.Add(function);
+                    }
                 });
-                Assert.AreEqual(false, database.ExecuteScalar<bool>(query.Build(), transaction));
+                Assert.AreEqual(invert, database.ExecuteScalar<bool>(query.Build(), transaction));
                 set.AddOrUpdate(new[]
                 {
                     new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
                     new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
                     new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
                 });
-                Assert.AreEqual(true, database.ExecuteScalar<bool>(query.Build(), transaction));
+                Assert.AreEqual(!invert, database.ExecuteScalar<bool>(query.Build(), transaction));
                 transaction.Rollback();
             }
         }
 
-        [TestCase(RelationFlags.OneToMany)]
-        [TestCase(RelationFlags.ManyToMany)]
-        public void ExistsNToMany(RelationFlags flags)
+        [TestCase(RelationFlags.OneToMany, false)]
+        [TestCase(RelationFlags.OneToMany, true)]
+        [TestCase(RelationFlags.ManyToMany, false)]
+        [TestCase(RelationFlags.ManyToMany, true)]
+        public void ExistsNToMany(RelationFlags flags, bool invert)
         {
             var provider = new SQLiteProvider(FileName);
             var database = new Database(provider);
@@ -59,9 +74,8 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
-                set.Fetch.Filter.AddFunction(set.Fetch.Filter.CreateFunction(QueryFunction.Exists).With(function =>
+                var function = set.Fetch.Filter.CreateFunction(QueryFunction.Exists, set.Fetch.Filter.CreateSubQuery(database.QueryFactory.Build().With(builder =>
                 {
-                    var builder = database.QueryFactory.Build();
                     var columns = relation.Expression.GetColumnMap();
                     builder.Output.AddColumns(database.Config.Table<Test004>().Columns);
                     builder.Source.AddTable(database.Config.Table<Test004>());
@@ -79,10 +93,28 @@ namespace FoxDb
                             throw new NotImplementedException();
                     }
                     builder.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
-                    function.AddArgument(function.CreateSubQuery(builder));
-                }));
+                })));
+                if (invert)
+                {
+                    set.Fetch.Filter.Expressions.Add(set.Fetch.Filter.Fragment<IUnaryExpressionBuilder>().With(unary =>
+                    {
+                        unary.Operator = unary.CreateOperator(QueryOperator.Not);
+                        unary.Expression = function;
+                    }));
+                }
+                else
+                {
+                    set.Fetch.Filter.Expressions.Add(function);
+                }
                 set.Parameters = parameters => parameters["Name"] = "2_2";
-                this.AssertSequence(data.Skip(1).Take(1), set);
+                if (invert)
+                {
+                    this.AssertSequence(new[] { data[0], data[2] }, set);
+                }
+                else
+                {
+                    this.AssertSequence(new[] { data[1] }, set);
+                }
                 transaction.Rollback();
             }
         }

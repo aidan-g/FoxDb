@@ -1,6 +1,6 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IColumnBuilder : IFragmentContainer, IExpressionBuilder
+    public interface IColumnBuilder : IExpressionBuilder
     {
         IColumnConfig Column { get; set; }
 

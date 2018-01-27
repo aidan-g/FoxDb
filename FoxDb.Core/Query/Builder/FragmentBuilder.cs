@@ -22,6 +22,7 @@ namespace FoxDb
                 { typeof(IAggregateBuilder), () => new AggregateBuilder(this, graph) },
                 { typeof(ISortBuilder), () => new SortBuilder(this, graph) },
                 //Fragments.
+                { typeof(IUnaryExpressionBuilder), () => new UnaryExpressionBuilder(this, this.Graph) },
                 { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder(this, graph) },
                 { typeof(ITableBuilder), () => new TableBuilder(this, graph) },
                 { typeof(IRelationBuilder), () => new RelationBuilder(this, graph) },

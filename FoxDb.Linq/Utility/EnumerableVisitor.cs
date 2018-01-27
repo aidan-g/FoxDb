@@ -44,6 +44,7 @@ namespace FoxDb
         {
             return new Dictionary<ExpressionType, QueryOperator>()
             {
+                { ExpressionType.Not,  QueryOperator.Not },
                 { ExpressionType.Equal, QueryOperator.Equal },
                 { ExpressionType.NotEqual, QueryOperator.NotEqual },
                 { ExpressionType.LessThan, QueryOperator.Less },
@@ -105,16 +106,32 @@ namespace FoxDb
             }
         }
 
+        public bool TryPeek()
+        {
+            var target = default(IFragmentTarget);
+            return this.TryPeek(out target);
+        }
+
+        public bool TryPeek(out IFragmentTarget target)
+        {
+            if (this.Targets.Count == 0)
+            {
+                target = default(IFragmentTarget);
+                return false;
+            }
+            target = this.Targets.Peek();
+            return true;
+        }
+
         public IFragmentTarget Peek
         {
             get
             {
-                var target = this.Targets.Peek();
-                if (target == null)
+                if (this.Targets.Count == 0)
                 {
                     throw new InvalidOperationException("No target to write fragment to.");
                 }
-                return target;
+                return this.Targets.Peek();
             }
         }
 
@@ -149,22 +166,6 @@ namespace FoxDb
                 }
                 this.Constants[key] = target.Constants[key];
             }
-        }
-
-        protected virtual LambdaExpression GetLambda(Expression node)
-        {
-            while (node != null && !(node is LambdaExpression))
-            {
-                if (node is UnaryExpression)
-                {
-                    node = (node as UnaryExpression).Operand;
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            return node as LambdaExpression;
         }
 
         protected virtual bool TryGetTable(MemberInfo member, out ITableConfig result)
@@ -283,33 +284,33 @@ namespace FoxDb
 
         protected virtual void VisitCount(MethodCallExpression node)
         {
-            if (typeof(IQueryable).IsAssignableFrom(node.Arguments[0].Type))
-            {
-                //Count is not implemented here, LINQ will use the .Count property of IDatabaseSet.
-                this.Push(this.Query.Filter);
-                try
-                {
-                    foreach (var argument in node.Arguments)
-                    {
-                        this.Visit(argument);
-                    }
-                }
-                finally
-                {
-                    this.Pop();
-                }
-            }
-            else
-            {
-                this.VisitUnsupportedMethodCall(node);
-            }
+            //Count is not implemented here, LINQ will use the .Count property of IDatabaseSet.
+            //We just need to process the predicate (if one was supplied).
+            this.VisitWhere(node);
         }
 
         protected virtual void VisitAny(MethodCallExpression node)
         {
-            var relation = this.Capture<IRelationBuilder>(node.Arguments[0]).Relation;
+            var relation = default(IRelationBuilder);
+            if (this.TryCapture<IRelationBuilder>(node.Arguments[0], out relation))
+            {
+                this.VisitAny(node, relation.Relation);
+            }
+            else
+            {
+                this.VisitWhere(node);
+            }
+        }
+
+        protected virtual void VisitAny(MethodCallExpression node, IRelationConfig relation)
+        {
+            var target = default(IFragmentTarget);
             var columns = relation.Expression.GetColumnMap();
-            this.Query.Filter.AddFunction(this.Query.Filter.CreateFunction(QueryFunction.Exists).With(function =>
+            if (!this.TryPeek(out target))
+            {
+                target = this.Query.Filter;
+            }
+            target.Write(this.Query.Filter.CreateFunction(QueryFunction.Exists).With(function =>
             {
                 var builder = this.Database.QueryFactory.Build();
                 builder.Output.AddOperator(QueryOperator.Star);
@@ -332,8 +333,10 @@ namespace FoxDb
             }));
             try
             {
-                var lambda = this.GetLambda(node.Arguments[1]);
-                this.Visit(lambda.Body);
+                for (var a = 1; a < node.Arguments.Count; a++)
+                {
+                    this.Visit(node.Arguments[a]);
+                }
             }
             finally
             {
@@ -348,8 +351,10 @@ namespace FoxDb
             this.Push(this.Query.Output);
             try
             {
-                var lambda = this.GetLambda(node.Arguments[1]);
-                this.Visit(lambda.Body);
+                for (var a = 1; a < node.Arguments.Count; a++)
+                {
+                    this.Visit(node.Arguments[a]);
+                }
             }
             finally
             {
@@ -365,15 +370,25 @@ namespace FoxDb
                 case 1:
                     break;
                 case 2:
-                    this.Push(this.Query.Filter);
+                    var pop = false;
+                    if (!this.TryPeek())
+                    {
+                        this.Push(this.Query.Filter);
+                        pop = true;
+                    }
                     try
                     {
-                        var lambda = this.GetLambda(node.Arguments[1]);
-                        this.Visit(lambda.Body);
+                        for (var a = 1; a < node.Arguments.Count; a++)
+                        {
+                            this.Visit(node.Arguments[a]);
+                        }
                     }
                     finally
                     {
-                        this.Pop();
+                        if (pop)
+                        {
+                            this.Pop();
+                        }
                     }
                     break;
                 default:
@@ -389,8 +404,10 @@ namespace FoxDb
             this.Push(this.Query.Sort);
             try
             {
-                var lambda = this.GetLambda(node.Arguments[1]);
-                this.Visit(lambda.Body);
+                for (var a = 1; a < node.Arguments.Count; a++)
+                {
+                    this.Visit(node.Arguments[a]);
+                }
             }
             finally
             {
@@ -406,8 +423,10 @@ namespace FoxDb
             this.Push(this.Query.Sort);
             try
             {
-                var lambda = this.GetLambda(node.Arguments[1]);
-                this.Visit(lambda.Body);
+                for (var a = 1; a < node.Arguments.Count; a++)
+                {
+                    this.Visit(node.Arguments[a]);
+                }
             }
             finally
             {
@@ -491,10 +510,26 @@ namespace FoxDb
             var handler = default(UnaryVisitorHandler);
             if (!UnaryHandlers.TryGetValue(node.NodeType, out handler))
             {
-                throw new NotImplementedException();
+                this.VisitUnsupportedUnary(node);
+                return node;
             }
             handler(this, node);
             return node;
+        }
+
+        protected virtual void VisitUnsupportedUnary(UnaryExpression node)
+        {
+            var fragment = this.Push(this.Peek.Fragment<IUnaryExpressionBuilder>());
+            try
+            {
+                this.VisitOperator(node.NodeType);
+                this.Visit(node.Operand);
+            }
+            finally
+            {
+                this.Pop();
+            }
+            this.Peek.Write(fragment);
         }
 
         protected virtual void VisitConvert(UnaryExpression node)
@@ -635,16 +670,39 @@ namespace FoxDb
 
         protected virtual T Capture<T>(Expression node) where T : IFragmentBuilder
         {
-            var constants = default(IDictionary<string, object>);
-            var expression = this.Capture<T>(node, out constants);
-            if (constants.Any())
+            var expression = default(T);
+            if (!this.TryCapture<T>(node, out expression))
             {
-                throw new InvalidOperationException("Capture resulted in unhandled constants.");
+                throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
             }
             return expression;
         }
 
         protected virtual T Capture<T>(Expression node, out IDictionary<string, object> constants) where T : IFragmentBuilder
+        {
+            var expression = default(T);
+            if (!this.TryCapture<T>(node, out expression, out constants))
+            {
+                throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
+            }
+            return expression;
+        }
+
+        protected virtual bool TryCapture<T>(Expression node, out T result) where T : IFragmentBuilder
+        {
+            var constants = default(IDictionary<string, object>);
+            if (!this.TryCapture<T>(node, out result, out constants))
+            {
+                return false;
+            }
+            if (constants.Any())
+            {
+                throw new InvalidOperationException("Capture resulted in unhandled constants.");
+            }
+            return true;
+        }
+
+        protected virtual bool TryCapture<T>(Expression node, out T result, out IDictionary<string, object> constants) where T : IFragmentBuilder
         {
             var capture = new CaptureFragmentTarget();
             this.Push(capture);
@@ -660,11 +718,14 @@ namespace FoxDb
             {
                 if (expression is T)
                 {
+                    result = (T)expression;
                     constants = capture.Constants;
-                    return (T)expression;
+                    return true;
                 }
             }
-            throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
+            result = default(T);
+            constants = default(IDictionary<string, object>);
+            return false;
         }
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget

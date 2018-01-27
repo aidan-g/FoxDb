@@ -95,6 +95,7 @@ namespace FoxDb
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
+                { FragmentType.Unary, (parent, fragment) => this.VisitUnary(fragment as IUnaryExpressionBuilder) },
                 { FragmentType.Binary, (parent, fragment) => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
                 { FragmentType.Table, (parent, fragment) => this.VisitTable(fragment as ITableBuilder) },
                 { FragmentType.Column, (parent, fragment) => this.VisitColumn(fragment as IColumnBuilder) },
@@ -108,6 +109,7 @@ namespace FoxDb
 
         protected static IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
         {
+            { QueryOperator.Not, SQLiteSyntax.NOT },
             { QueryOperator.Equal, SQLiteSyntax.EQUAL },
             { QueryOperator.NotEqual, SQLiteSyntax.NOT_EQUAL },
             { QueryOperator.Greater, SQLiteSyntax.GREATER },
@@ -226,6 +228,12 @@ namespace FoxDb
         protected virtual void VisitTable(ITableBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Table.TableName));
+        }
+
+        protected virtual void VisitUnary(IUnaryExpressionBuilder expression)
+        {
+            this.Visit(expression.Operator);
+            this.Visit(expression.Expression);
         }
 
         protected virtual void VisitBinary(IBinaryExpressionBuilder expression)

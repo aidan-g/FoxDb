@@ -62,6 +62,8 @@ namespace FoxDb
 
         public const string PARAMETER = "@";
 
+        public const string NOT = "NOT";
+
         public const string EQUAL = "=";
 
         public const string NOT_EQUAL = "<>";

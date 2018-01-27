@@ -1,6 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace FoxDb
 {
@@ -17,19 +15,6 @@ namespace FoxDb
             get
             {
                 return FragmentType.Column;
-            }
-        }
-
-        public ICollection<IFragmentBuilder> Expressions
-        {
-            get
-            {
-                var expressions = new List<IFragmentBuilder>();
-                if (this.Column != null)
-                {
-                    expressions.Add(this.CreateTable(this.Column.Table));
-                }
-                return new ReadOnlyCollection<IFragmentBuilder>(expressions);
             }
         }
 

@@ -8,6 +8,7 @@
     public enum QueryOperator : byte
     {
         None,
+        Not,
         Equal,
         NotEqual,
         Greater,

@@ -99,7 +99,7 @@ namespace FoxDb
 
         protected virtual Expression VisitAny(MethodCallExpression node)
         {
-            return this.Visit(node.Arguments[0]);
+            return this.VisitEnumerableMethodCall(node.Object, node.Method, node.Arguments[0]);
         }
 
         protected virtual Expression VisitWhere(MethodCallExpression node)
