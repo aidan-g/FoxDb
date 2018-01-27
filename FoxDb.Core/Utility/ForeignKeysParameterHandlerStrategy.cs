@@ -4,21 +4,18 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class ForeignKeysParameterHandlerStrategy<T, TRelation> : IParameterHandlerStrategy
+    public class ForeignKeysParameterHandlerStrategy : IParameterHandlerStrategy
     {
-        public ForeignKeysParameterHandlerStrategy(IDatabase database, T parent, TRelation child, IRelationConfig relation)
+        public ForeignKeysParameterHandlerStrategy(object parent, object child, IRelationConfig relation)
         {
-            this.Database = database;
             this.Parent = parent;
             this.Child = child;
             this.Relation = relation;
         }
 
-        public IDatabase Database { get; private set; }
+        public object Parent { get; private set; }
 
-        public T Parent { get; private set; }
-
-        public TRelation Child { get; private set; }
+        public object Child { get; private set; }
 
         public IRelationConfig Relation { get; private set; }
 

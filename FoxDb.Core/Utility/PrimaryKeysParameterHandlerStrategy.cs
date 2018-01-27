@@ -4,24 +4,24 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class PrimaryKeysParameterHandlerStrategy<T> : IParameterHandlerStrategy
+    public class PrimaryKeysParameterHandlerStrategy : IParameterHandlerStrategy
     {
-        private PrimaryKeysParameterHandlerStrategy(IDatabase database)
+        private PrimaryKeysParameterHandlerStrategy(ITableConfig table)
         {
-            this.Database = database;
+            this.Table = table;
         }
 
-        public PrimaryKeysParameterHandlerStrategy(IDatabase database, T item) : this(database)
+        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object item) : this(table)
         {
-            this.Keys = database.Config.Table<T>().PrimaryKeys.Select(key => key.Getter(item)).ToArray();
+            this.Keys = this.Table.PrimaryKeys.Select(key => key.Getter(item)).ToArray();
         }
 
-        public PrimaryKeysParameterHandlerStrategy(IDatabase database, params object[] keys) : this(database)
+        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object[] keys) : this(table)
         {
             this.Keys = keys;
         }
 
-        public IDatabase Database { get; private set; }
+        public ITableConfig Table { get; private set; }
 
         public object[] Keys { get; private set; }
 
@@ -29,10 +29,9 @@ namespace FoxDb
         {
             get
             {
-                var table = this.Database.Config.Table<T>();
                 return new DatabaseParameterHandler(parameters =>
                 {
-                    var keys = table.PrimaryKeys.ToArray();
+                    var keys = this.Table.PrimaryKeys.ToArray();
                     if (keys.Length != this.Keys.Length)
                     {
                         throw new InvalidOperationException(string.Format("Expected {0} keys but {1} were provided.", keys.Length, this.Keys.Length));

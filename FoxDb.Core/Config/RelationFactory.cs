@@ -80,13 +80,13 @@ namespace FoxDb
             if (!string.IsNullOrEmpty(attribute.LeftColumn))
             {
                 relation.Expression.Left = relation.Expression.CreateColumn(
-                    relation.LeftTable.Column(attribute.LeftColumn).With(column => column.IsForeignKey = true)
+                    relation.LeftTable.CreateColumn(ColumnConfig.By(attribute.LeftColumn, Defaults.Column.Flags)).With(column => column.IsForeignKey = true)
                 );
             }
             if (!string.IsNullOrEmpty(attribute.RightColumn))
             {
                 relation.Expression.Right = relation.Expression.CreateColumn(
-                    relation.RightTable.Column(attribute.RightColumn).With(column => column.IsForeignKey = true)
+                    relation.RightTable.CreateColumn(ColumnConfig.By(attribute.RightColumn, Defaults.Column.Flags)).With(column => column.IsForeignKey = true)
                 );
             }
             return relation;
@@ -95,19 +95,47 @@ namespace FoxDb
         public IRelationConfig<T, TRelation> CreateOneToOne<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
             var accessor = Factories.PropertyAccessor.Relation.Create<T, TRelation>(property);
-            return new RelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.OneToOne), attribute.Identifier, table, table.Config.Table<TRelation>(), accessor);
+            return new RelationConfig<T, TRelation>(
+                table.Config,
+                attribute.Flags.EnsureMultiplicity(RelationFlags.OneToOne),
+                attribute.Identifier,
+                table,
+#pragma warning disable 612, 618
+                table.Config.Table<TRelation>(),
+#pragma warning restore 612, 618
+                accessor
+            );
         }
 
         public ICollectionRelationConfig<T, TRelation> CreateOneToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
             var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property);
-            return new OneToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany), attribute.Identifier, table, table.Config.Table<TRelation>(), accessor);
+            return new OneToManyRelationConfig<T, TRelation>(
+                table.Config,
+                attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany),
+                attribute.Identifier,
+                table,
+#pragma warning disable 612, 618
+                table.Config.Table<TRelation>(),
+#pragma warning restore 612, 618
+                accessor
+            );
         }
 
         public ICollectionRelationConfig<T, TRelation> CreateManyToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
             var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property);
-            return new ManyToManyRelationConfig<T, TRelation>(table.Config, attribute.Flags.EnsureMultiplicity(RelationFlags.ManyToMany), attribute.Identifier, table, table.Config.Table<T, TRelation>(), table.Config.Table<TRelation>(), accessor);
+            return new ManyToManyRelationConfig<T, TRelation>(
+                table.Config,
+                attribute.Flags.EnsureMultiplicity(RelationFlags.ManyToMany),
+                attribute.Identifier,
+                table,
+#pragma warning disable 612, 618
+                table.Config.Table<T, TRelation>(),
+                table.Config.Table<TRelation>(),
+#pragma warning restore 612, 618
+                accessor
+            );
         }
 
         protected virtual void Configure(IRelationConfig relation)

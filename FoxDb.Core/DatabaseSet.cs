@@ -81,7 +81,7 @@ namespace FoxDb
             return this.Database.Set<T>(this.Table).With(set =>
             {
                 set.Fetch = this.Source.Composer.Query.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
-                set.Parameters = new PrimaryKeysParameterHandlerStrategy<T>(this.Database, id).Handler;
+                set.Parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, new[] { id }).Handler;
             }).FirstOrDefault();
         }
 

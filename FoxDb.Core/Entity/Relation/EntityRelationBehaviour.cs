@@ -26,12 +26,11 @@ namespace FoxDb
             var handlers = new List<DatabaseParameterHandler>();
             if (item != null)
             {
-                //handlers.Add(new PrimaryKeysParameterHandlerStrategy<T>(database, item).Handler);
-                handlers.Add(new ForeignKeysParameterHandlerStrategy<T, TRelation>(database, item, child, relation).Handler);
+                handlers.Add(new ForeignKeysParameterHandlerStrategy(item, child, relation).Handler);
             }
             if (child != null)
             {
-                handlers.Add(new ParameterHandlerStrategy<TRelation>(database, child).Handler);
+                handlers.Add(new ParameterHandlerStrategy(relation.RightTable, child).Handler);
             }
             return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
         }

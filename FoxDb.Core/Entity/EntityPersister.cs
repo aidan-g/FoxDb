@@ -39,7 +39,7 @@ namespace FoxDb
             {
                 return this.Set.Parameters;
             }
-            return new ParameterHandlerStrategy<T>(this.Set.Database, item).Handler;
+            return new ParameterHandlerStrategy(this.Set.Table, item).Handler;
         }
     }
 }

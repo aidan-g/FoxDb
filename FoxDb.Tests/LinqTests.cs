@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿#pragma warning disable 612, 618 
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 

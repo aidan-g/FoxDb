@@ -13,7 +13,9 @@ namespace FoxDb
 
         public static IDatabaseQuerySource Source<T>(this IDatabase database, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
+#pragma warning disable 612, 618
             return database.Source(database.Config.Table<T>(), parameters, transaction);
+#pragma warning restore 612, 618
         }
 
         public static IDatabaseQuerySource Source(this IDatabase database, ITableConfig table, ITransactionSource transaction = null)
@@ -28,7 +30,9 @@ namespace FoxDb
 
         public static IDatabaseSet<T> Set<T>(this IDatabase database, ITransactionSource transaction = null)
         {
+#pragma warning disable 612, 618
             return database.Set<T>(database.Config.Table<T>(), null, transaction);
+#pragma warning restore 612, 618
         }
 
         public static IDatabaseSet<T> Set<T>(this IDatabase database, ITableConfig table, ITransactionSource transaction = null)

@@ -102,8 +102,7 @@ namespace FoxDb
 
             protected virtual void AddRelation(TRelation child)
             {
-                var table = this.Set.Database.Config.Table<T, TRelation>();
-                var query = this.Set.Database.QueryFactory.Add(table);
+                var query = this.Set.Database.QueryFactory.Add(this.Relation.MappingTable);
                 var parameters = GetParameters<T, TRelation>(this.Set.Database, this.Item, child, this.Relation);
                 this.Set.Database.Execute(query, parameters, this.Set.Transaction);
             }

@@ -2,26 +2,25 @@
 
 namespace FoxDb
 {
-    public class ParameterHandlerStrategy<T> : IParameterHandlerStrategy
+    public class ParameterHandlerStrategy : IParameterHandlerStrategy
     {
-        public ParameterHandlerStrategy(IDatabase database, T item)
+        public ParameterHandlerStrategy(ITableConfig table, object item)
         {
-            this.Database = database;
+            this.Table = table;
             this.Item = item;
         }
 
-        public IDatabase Database { get; private set; }
+        public ITableConfig Table { get; private set; }
 
-        public T Item { get; private set; }
+        public object Item { get; private set; }
 
         public DatabaseParameterHandler Handler
         {
             get
             {
-                var table = this.Database.Config.Table<T>();
                 return new DatabaseParameterHandler(parameters =>
                 {
-                    foreach (var column in table.Columns)
+                    foreach (var column in this.Table.Columns)
                     {
                         if (parameters.Contains(column.ColumnName) && column.Getter != null)
                         {
