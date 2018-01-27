@@ -32,13 +32,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Entity.Design" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\Attributes\ColumnAttribute.cs" />
@@ -192,6 +187,10 @@
     <Compile Include="Config\RelationConfig.cs" />
     <Compile Include="Config\TableConfig.cs" />
     <Compile Include="Query\Extensions.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\BidirectionalDictionary.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
     <Compile Include="Utility\Behaviour.cs" />
     <Compile Include="Utility\Behaviours.cs" />
     <Compile Include="Utility\Conventions.cs" />
@@ -203,7 +202,7 @@
     <Compile Include="Utility\FastActivator.cs" />
     <Compile Include="Utility\Identifier.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
-    <Compile Include="Utility\Pluralization.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\EnglishPluralizationService.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
@@ -211,5 +210,6 @@
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

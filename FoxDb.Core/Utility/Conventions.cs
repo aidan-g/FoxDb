@@ -1,11 +1,15 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Data.Entity.Design.PluralizationServices;
+using System.Globalization;
 using System.Reflection;
 
 namespace FoxDb
 {
     public static class Conventions
     {
+        public static PluralizationService Pluralization = PluralizationService.CreateService(CultureInfo.CurrentCulture);
+
         public static Func<Type, string> TableName = type => Pluralization.Pluralize(type.Name);
 
         public static Func<ITableConfig, ITableConfig, string> RelationTableName = (table1, table2) => string.Format("{0}_{1}", Pluralization.Singularize(table1.TableName), Pluralization.Singularize(table2.TableName));
