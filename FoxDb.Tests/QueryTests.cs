@@ -78,20 +78,9 @@ namespace FoxDb
                 {
                     var columns = relation.Expression.GetColumnMap();
                     builder.Output.AddColumns(database.Config.Table<Test004>().Columns);
+                    builder.Source.AddTable(database.Config.Table<Test002>().Extern());
                     builder.Source.AddTable(database.Config.Table<Test004>());
-                    switch (relation.Flags.GetMultiplicity())
-                    {
-                        case RelationFlags.OneToOne:
-                        case RelationFlags.OneToMany:
-                            builder.Filter.AddColumn(columns[relation.RightTable].First(), relation.LeftTable.PrimaryKey);
-                            break;
-                        case RelationFlags.ManyToMany:
-                            builder.Source.AddRelation(relation.Invert());
-                            builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.MappingTable.LeftForeignKey);
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
+                    builder.RelationManager.AddRelation(relation);
                     builder.Filter.AddColumn(database.Config.Table<Test004>().Column("Name"));
                 })));
                 if (invert)

@@ -14,19 +14,21 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public IQueryGraphBuilder Build(params IQueryGraphBuilder[] queries)
+        public IQueryGraphBuilder Build()
         {
-            if (queries.Any())
-            {
-                return new AggregateQueryGraphBuilder(this.Database, queries);
-            }
-            else
-            {
-                return new QueryGraphBuilder(this.Database);
-            }
+            return new QueryGraphBuilder(this.Database);
         }
 
-        public IDatabaseQuery Create(params IQueryGraph[] graphs)
+        public IDatabaseQuery Create(IQueryGraphBuilder graph)
+        {
+            if (graph is AggregateQueryGraphBuilder)
+            {
+                return this.Create((graph as AggregateQueryGraphBuilder).Queries);
+            }
+            return new SQLiteQueryBuilder(this.Database, graph).Query;
+        }
+
+        protected virtual IDatabaseQuery Create(IEnumerable<IQueryGraphBuilder> graphs)
         {
             var builder = new StringBuilder();
             var parameterNames = new List<string>();
@@ -36,21 +38,11 @@ namespace FoxDb
                 {
                     builder.Append(SQLiteSyntax.STATEMENT);
                 }
-                var query = new SQLiteQueryBuilder(this.Database, graph).Query;
+                var query = this.Create(graph);
                 builder.Append(query.CommandText);
                 parameterNames.AddRange(query.ParameterNames.Except(parameterNames));
             }
             return new DatabaseQuery(builder.ToString(), parameterNames.ToArray());
-        }
-
-        public IDatabaseQuery Create(IEnumerable<IQueryGraph> graphs)
-        {
-            return this.Create(graphs.ToArray());
-        }
-
-        public IDatabaseQuery Create(IEnumerable<IQueryGraphBuilder> builders)
-        {
-            return this.Create(builders.ToArray());
         }
 
         public IDatabaseQuery Create(string commandText, params string[] parameterNames)
@@ -58,7 +50,12 @@ namespace FoxDb
             return new DatabaseQuery(commandText, parameterNames);
         }
 
-        public IDatabaseQuery Combine(params IDatabaseQuery[] queries)
+        public IQueryGraphBuilder Combine(IEnumerable<IQueryGraphBuilder> graphs)
+        {
+            return new AggregateQueryGraphBuilder(this.Database, graphs);
+        }
+
+        public IDatabaseQuery Combine(IEnumerable<IDatabaseQuery> queries)
         {
             var builder = new StringBuilder();
             var parameterNames = new List<string>();
@@ -102,7 +99,7 @@ namespace FoxDb
                 builder.Output.AddFunction(QueryFunction.Identity);
                 queries.Add(builder);
             }
-            return this.Build(queries.ToArray());
+            return this.Combine(queries);
         }
 
         public IQueryGraphBuilder Update(ITableConfig table)

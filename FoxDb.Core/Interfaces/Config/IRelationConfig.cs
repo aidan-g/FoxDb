@@ -23,8 +23,6 @@ namespace FoxDb.Interfaces
 
         IRelationConfig AutoExpression();
 
-        IRelationConfig Invert();
-
         ITableConfig GetOppositeTable(ITableConfig relativeTable);
 
         IBinaryExpressionBuilder CreateConstraint();

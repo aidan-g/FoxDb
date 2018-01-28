@@ -87,11 +87,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Fragment<IBinaryExpressionBuilder>().With(builder =>
+            return this.Parent.Fragment<IBinaryExpressionBuilder>().With(builder =>
             {
-                builder.Left = this.Left;
-                builder.Operator = this.Operator;
-                builder.Right = this.Right;
+                builder.Left = this.Left.Clone();
+                builder.Operator = (IOperatorBuilder)this.Operator.Clone();
+                builder.Right = this.Right.Clone();
             });
         }
 
@@ -99,7 +99,7 @@ namespace FoxDb
         {
             get
             {
-                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression != null ? expression.DebugView : "{}")));
             }
         }
 

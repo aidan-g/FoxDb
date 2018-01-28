@@ -2,8 +2,8 @@
 {
     public interface IQueryGraphVisitor
     {
-        void Visit(IQueryGraph graph);
+        void Visit(IQueryGraphBuilder graph);
 
-        void Visit(IFragmentBuilder parent, IFragmentBuilder fragment);
+        void Visit(IFragmentBuilder parent, IQueryGraphBuilder graph, IFragmentBuilder fragment);
     }
 }

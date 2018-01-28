@@ -1,6 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -9,22 +7,11 @@ namespace FoxDb
         public static IQueryGraphBuilder FetchByRelation(this IDatabase database, IRelationConfig relation)
         {
             var builder = database.QueryFactory.Build();
-            var columns = relation.Expression.GetColumnMap();
             builder.Output.AddColumns(relation.RightTable.Columns);
             builder.Source.AddTable(relation.RightTable);
-            switch (relation.Flags.GetMultiplicity())
-            {
-                case RelationFlags.OneToOne:
-                case RelationFlags.OneToMany:
-                    builder.Filter.AddColumn(columns[relation.RightTable].First(column => column.IsForeignKey));
-                    break;
-                case RelationFlags.ManyToMany:
-                    builder.Source.AddRelation(relation.Invert());
-                    builder.Filter.AddColumn(relation.MappingTable.LeftForeignKey);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+            builder.RelationManager.AddRelation(relation);
+            //TODO: Assuming the relation is using the primary key?
+            builder.Filter.AddColumn(relation.LeftTable.PrimaryKey);
             builder.Sort.AddColumns(relation.RightTable.PrimaryKeys);
             return builder;
         }

@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class SQLiteLimitWriter : SQLiteQueryWriter
     {
-        public SQLiteLimitWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
+        public SQLiteLimitWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -30,6 +30,11 @@ namespace FoxDb
                 }
                 return fragment;
             }
+            throw new NotImplementedException();
+        }
+
+        public override IFragmentBuilder Clone()
+        {
             throw new NotImplementedException();
         }
 

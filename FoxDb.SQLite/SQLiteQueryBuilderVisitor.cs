@@ -11,8 +11,8 @@ namespace FoxDb
         protected override IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             var handlers = base.GetHandlers();
-            handlers[SQLiteQueryFragment.Limit] = (parent, fragment) => this.VisitLimit(parent, fragment as ILimitBuilder);
-            handlers[SQLiteQueryFragment.Offset] = (parent, fragment) => this.VisitOffset(parent, fragment as IOffsetBuilder);
+            handlers[SQLiteQueryFragment.Limit] = (parent, graph, fragment) => this.VisitLimit(parent, graph, fragment as ILimitBuilder);
+            handlers[SQLiteQueryFragment.Offset] = (parent, graph, fragment) => this.VisitOffset(parent, graph, fragment as IOffsetBuilder);
             return handlers;
         }
 
@@ -89,72 +89,72 @@ namespace FoxDb
             return target;
         }
 
-        protected override void VisitAdd(IFragmentBuilder parent, IAddBuilder expression)
+        protected override void VisitAdd(IFragmentBuilder parent, IQueryGraphBuilder graph, IAddBuilder expression)
         {
-            this.Push(new SQLiteInsertWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteInsertWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitUpdate(IFragmentBuilder parent, IUpdateBuilder expression)
+        protected override void VisitUpdate(IFragmentBuilder parent, IQueryGraphBuilder graph, IUpdateBuilder expression)
         {
-            this.Push(new SQLiteUpdateWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteUpdateWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitDelete(IFragmentBuilder parent, IDeleteBuilder expression)
+        protected override void VisitDelete(IFragmentBuilder parent, IQueryGraphBuilder graph, IDeleteBuilder expression)
         {
-            this.Push(new SQLiteDeleteWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteDeleteWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitOutput(IFragmentBuilder parent, IOutputBuilder expression)
+        protected override void VisitOutput(IFragmentBuilder parent, IQueryGraphBuilder graph, IOutputBuilder expression)
         {
-            this.Push(new SQLiteSelectWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteSelectWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitSource(IFragmentBuilder parent, ISourceBuilder expression)
+        protected override void VisitSource(IFragmentBuilder parent, IQueryGraphBuilder graph, ISourceBuilder expression)
         {
-            this.Push(new SQLiteFromWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteFromWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitFilter(IFragmentBuilder parent, IFilterBuilder expression)
+        protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
-            this.Push(new SQLiteWhereWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteWhereWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitAggregate(IFragmentBuilder parent, IAggregateBuilder expression)
+        protected override void VisitAggregate(IFragmentBuilder parent, IQueryGraphBuilder graph, IAggregateBuilder expression)
         {
-            this.Push(new SQLiteGroupByWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteGroupByWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected override void VisitSort(IFragmentBuilder parent, ISortBuilder expression)
+        protected override void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression)
         {
-            this.Push(new SQLiteOrderByWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteOrderByWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected virtual void VisitLimit(IFragmentBuilder parent, ILimitBuilder expression)
+        protected virtual void VisitLimit(IFragmentBuilder parent, IQueryGraphBuilder graph, ILimitBuilder expression)
         {
-            this.Push(new SQLiteLimitWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteLimitWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }
 
-        protected virtual void VisitOffset(IFragmentBuilder parent, IOffsetBuilder expression)
+        protected virtual void VisitOffset(IFragmentBuilder parent, IQueryGraphBuilder graph, IOffsetBuilder expression)
         {
-            this.Push(new SQLiteOffsetWriter(parent, this.Database, this, this.ParameterNames));
+            this.Push(new SQLiteOffsetWriter(parent, graph, this.Database, this, this.ParameterNames));
             this.Peek.Write(expression);
             this.Pop();
         }

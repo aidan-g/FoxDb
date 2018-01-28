@@ -47,6 +47,17 @@ namespace FoxDb
             return this;
         }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IUpdateBuilder>().With(builder =>
+            {
+                foreach (var expression in this.Expressions)
+                {
+                    builder.Expressions.Add((IBinaryExpressionBuilder)expression.Clone());
+                }
+            });
+        }
+
         public override string DebugView
         {
             get

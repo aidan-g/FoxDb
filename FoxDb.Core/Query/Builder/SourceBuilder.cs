@@ -21,20 +21,11 @@ namespace FoxDb
 
         public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
-
         public IEnumerable<ITableBuilder> Tables
         {
             get
             {
                 return this.Expressions.OfType<ITableBuilder>();
-            }
-        }
-
-        public IEnumerable<IRelationBuilder> Relations
-        {
-            get
-            {
-                return this.Expressions.OfType<IRelationBuilder>();
             }
         }
 
@@ -58,18 +49,6 @@ namespace FoxDb
             return builder;
         }
 
-        public IRelationBuilder GetRelation(IRelationConfig relation)
-        {
-            return this.GetExpression<IRelationBuilder>(builder => builder.Relation == relation);
-        }
-
-        public IRelationBuilder AddRelation(IRelationConfig relation)
-        {
-            var builder = this.CreateRelation(relation);
-            this.Expressions.Add(builder);
-            return builder;
-        }
-
         public ISubQueryBuilder GetSubQuery(IQueryGraphBuilder query)
         {
             return this.GetExpression<ISubQueryBuilder>(builder => builder.Query == query);
@@ -80,6 +59,17 @@ namespace FoxDb
             var builder = this.CreateSubQuery(query);
             this.Expressions.Add(builder);
             return builder;
+        }
+
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<ISourceBuilder>().With(builder =>
+            {
+                foreach (var expression in this.Expressions)
+                {
+                    builder.Expressions.Add(expression.Clone());
+                }
+            });
         }
 
         public override string DebugView

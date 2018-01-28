@@ -6,7 +6,7 @@ namespace FoxDb
 {
     public class SQLiteOffsetWriter : SQLiteQueryWriter
     {
-        public SQLiteOffsetWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
+        public SQLiteOffsetWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -30,6 +30,11 @@ namespace FoxDb
                 }
                 return fragment;
             }
+            throw new NotImplementedException();
+        }
+
+        public override IFragmentBuilder Clone()
+        {
             throw new NotImplementedException();
         }
 

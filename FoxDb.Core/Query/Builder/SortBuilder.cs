@@ -48,8 +48,8 @@ namespace FoxDb
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
-            var table = default(ITableBuilder);
-            if (!(this.Parent is ITableBuilder) && fragment.GetSourceTable(out table))
+            var table = this.Parent as ITableBuilder;
+            if (table == null && fragment.GetSourceTable(out table))
             {
                 table.Sort.Write(fragment);
             }
@@ -58,6 +58,17 @@ namespace FoxDb
                 this.Expressions.Add(fragment);
             }
             return fragment;
+        }
+
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<ISortBuilder>().With(builder =>
+            {
+                foreach (var expression in this.Expressions)
+                {
+                    builder.Expressions.Add(expression.Clone());
+                }
+            });
         }
 
         public override string DebugView

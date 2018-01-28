@@ -19,6 +19,11 @@ namespace FoxDb
 
         public string Name { get; set; }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IParameterBuilder>().With(builder => builder.Name = this.Name);
+        }
+
         public override string DebugView
         {
             get

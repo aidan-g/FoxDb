@@ -78,9 +78,19 @@ namespace FoxDb
             return count == sequence2.Count();
         }
 
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> sequence1, IEnumerable<IEnumerable<T>> sequence2)
+        {
+            return sequence1.Concat(sequence2.SelectMany<IEnumerable<T>, T>());
+        }
+
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> sequence1, params T[] sequence2)
         {
             return sequence1.Concat(sequence2.AsEnumerable());
+        }
+
+        public static IEnumerable<T> Except<T>(this IEnumerable<T> sequence1, params T[] sequence2)
+        {
+            return sequence1.Except(sequence2.AsEnumerable());
         }
     }
 }

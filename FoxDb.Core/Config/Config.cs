@@ -37,7 +37,7 @@ namespace FoxDb
         public ITableConfig CreateTable(ITableSelector selector)
         {
             var table = Factories.Table.Create(this, selector);
-            if (!TableValidator.Validate(table))
+            if (selector.Flags.HasFlag(TableFlags.ValidateSchema) && !TableValidator.Validate(table))
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", table));
             }
@@ -49,7 +49,7 @@ namespace FoxDb
         public bool TryCreateTable(ITableSelector selector, out ITableConfig table)
         {
             table = Factories.Table.Create(this, selector);
-            if (!TableValidator.Validate(table))
+            if (selector.Flags.HasFlag(TableFlags.ValidateSchema) && !TableValidator.Validate(table))
             {
                 return false;
             }

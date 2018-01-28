@@ -55,7 +55,6 @@
     <Compile Include="Writers\SQLiteDeleteWriter.cs" />
     <Compile Include="Writers\SQLiteFromWriter.cs" />
     <Compile Include="Writers\SQLiteInsertWriter.cs" />
-    <Compile Include="Writers\SQLiteJoinWriter.cs" />
     <Compile Include="Writers\SQLiteOffsetWriter.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />
     <Compile Include="Writers\SQLiteGroupByWriter.cs" />

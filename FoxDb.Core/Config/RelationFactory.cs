@@ -46,8 +46,9 @@ namespace FoxDb
         public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, string identifier, PropertyInfo property, RelationFlags flags)
         {
             var elementType = default(Type);
-            var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute(flags)
+            var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
+                Flags = flags,
                 Identifier = identifier
             };
             var relation = default(IRelationConfig);

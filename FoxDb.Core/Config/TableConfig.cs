@@ -110,7 +110,7 @@ namespace FoxDb
         public IColumnConfig CreateColumn(IColumnSelector selector)
         {
             var column = Factories.Column.Create(this, selector);
-            if (!ColumnValidator.Validate(column))
+            if (selector.Flags.HasFlag(ColumnFlags.ValidateSchema) && !ColumnValidator.Validate(column))
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
@@ -121,7 +121,7 @@ namespace FoxDb
         public bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column)
         {
             column = Factories.Column.Create(this, selector);
-            if (!ColumnValidator.Validate(column))
+            if (selector.Flags.HasFlag(ColumnFlags.ValidateSchema) && !ColumnValidator.Validate(column))
             {
                 return false;
             }
@@ -132,6 +132,8 @@ namespace FoxDb
         public abstract ITableConfig AutoColumns();
 
         public abstract ITableConfig AutoRelations();
+
+        public abstract ITableConfig Extern();
 
         public abstract ITableConfig<T> CreateProxy<T>();
 
@@ -146,7 +148,6 @@ namespace FoxDb
             unchecked
             {
                 hashCode += this.TableName.GetHashCode();
-                hashCode += this.TableType.GetHashCode();
             }
             return hashCode;
         }
@@ -166,15 +167,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
             if (!string.Equals(this.TableName, other.TableName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            if (this.Flags != other.Flags)
             {
                 return false;
             }
@@ -305,6 +298,11 @@ namespace FoxDb
             return this;
         }
 
+        public override ITableConfig Extern()
+        {
+            return new TableConfig<T>(this.Config, this.Flags | TableFlags.Extern, Unique.New, this.TableName);
+        }
+
         public override ITableConfig<TElement> CreateProxy<TElement>()
         {
             return new TableConfig<TElement>(this);
@@ -315,7 +313,18 @@ namespace FoxDb
             var hashCode = base.GetHashCode();
             unchecked
             {
-
+                if (!string.IsNullOrEmpty(this.Identifier))
+                {
+                    hashCode += this.Identifier.GetHashCode();
+                }
+                if (!string.IsNullOrEmpty(this.TableName))
+                {
+                    hashCode += this.TableName.GetHashCode();
+                }
+                if (this.TableType != null)
+                {
+                    hashCode += this.TableType.GetHashCode();
+                }
             }
             return hashCode;
         }
@@ -391,6 +400,11 @@ namespace FoxDb
         public override ITableConfig AutoRelations()
         {
             return this;
+        }
+
+        public override ITableConfig Extern()
+        {
+            throw new NotImplementedException();
         }
 
         public override ITableConfig<T> CreateProxy<T>()

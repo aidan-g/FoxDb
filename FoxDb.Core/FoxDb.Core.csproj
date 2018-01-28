@@ -74,7 +74,9 @@
     <Compile Include="Entity\EntityInitializer.cs" />
     <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityMapper.cs" />
+    <Compile Include="Entity\Relation\EntityRelationCalculator.cs" />
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
+    <Compile Include="Entity\Relation\Extensions.cs" />
     <Compile Include="Interfaces\Config\IColumnEnumerator.cs" />
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
     <Compile Include="Interfaces\Config\IColumnSelector.cs" />
@@ -95,6 +97,9 @@
     <Compile Include="Interfaces\Entity\IEntityGraphVisitor.cs" />
     <Compile Include="Interfaces\Entity\IEntityInitializer.cs" />
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
+    <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
+    <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
+    <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Interfaces\ITransactionSource.cs" />
@@ -110,13 +115,12 @@
     <Compile Include="Interfaces\Query\Builder\IOutputBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFunctionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IOperatorBuilder.cs" />
-    <Compile Include="Interfaces\Query\Builder\IQueryGraph.cs" />
     <Compile Include="Interfaces\Query\Builder\ISortBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IParameterBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IQueryBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IQueryGraphBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IQueryGraphVisitor.cs" />
-    <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IRelationManager.cs" />
     <Compile Include="Interfaces\Query\Builder\ISourceBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ISubQueryBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ITableBuilder.cs" />
@@ -138,8 +142,8 @@
     <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\AggregateBuilder.cs" />
+    <Compile Include="Query\Builder\RelationBuilder.cs" />
     <Compile Include="Query\Builder\UnaryExpressionBuilder.cs" />
-    <Compile Include="Query\Builder\QueryGraph.cs" />
     <Compile Include="Query\Builder\SourceBuilder.cs" />
     <Compile Include="Query\Builder\FunctionBuilder.cs" />
     <Compile Include="Query\Builder\OperatorBuilder.cs" />
@@ -147,7 +151,7 @@
     <Compile Include="Query\Builder\ParameterBuilder.cs" />
     <Compile Include="Query\Builder\QueryGraphBuilder.cs" />
     <Compile Include="Query\Builder\QueryGraphVisitor.cs" />
-    <Compile Include="Query\Builder\RelationBuilder.cs" />
+    <Compile Include="Query\Builder\RelationManager.cs" />
     <Compile Include="Query\Builder\OutputBuilder.cs" />
     <Compile Include="Query\Builder\SubQueryBuilder.cs" />
     <Compile Include="Query\Builder\TableBuilder.cs" />
@@ -214,8 +218,6 @@
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\Entity\Relation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

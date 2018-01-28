@@ -29,8 +29,9 @@ namespace FoxDb
 
         public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ColumnFlags flags)
         {
-            var attribute = new ColumnAttribute(flags)
+            var attribute = new ColumnAttribute()
             {
+                Flags = flags,
                 Name = columnName,
                 Identifier = identifier
             };

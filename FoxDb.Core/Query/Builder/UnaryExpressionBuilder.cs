@@ -67,10 +67,10 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Fragment<IUnaryExpressionBuilder>().With(builder =>
+            return this.Parent.Fragment<IUnaryExpressionBuilder>().With(builder =>
             {
-                builder.Operator = this.Operator;
-                builder.Expression = this.Expression;
+                builder.Operator = (IOperatorBuilder)this.Operator.Clone();
+                builder.Expression = this.Expression.Clone();
             });
         }
 

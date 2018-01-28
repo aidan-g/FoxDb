@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class SQLiteQueryBuilder : IQueryBuilder
     {
-        public SQLiteQueryBuilder(IDatabase database, IQueryGraph graph)
+        public SQLiteQueryBuilder(IDatabase database, IQueryGraphBuilder graph)
         {
             this.Database = database;
             this.Graph = graph;
@@ -12,7 +12,7 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
-        public IQueryGraph Graph { get; private set; }
+        public IQueryGraphBuilder Graph { get; private set; }
 
         public IDatabaseQuery Query
         {

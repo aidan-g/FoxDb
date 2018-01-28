@@ -15,7 +15,6 @@ namespace FoxDb
         {
             get
             {
-
                 var builder = this.Database.QueryFactory.Build();
                 foreach (var table in this.Mapper.Tables)
                 {
@@ -24,7 +23,7 @@ namespace FoxDb
                 builder.Source.AddTable(this.Mapper.Table);
                 foreach (var relation in this.Mapper.Relations)
                 {
-                    builder.Source.AddRelation(relation);
+                    builder.RelationManager.AddRelation(relation);
                 }
                 builder.Sort.AddColumn(this.Mapper.Table.PrimaryKey);
                 foreach (var relation in this.Mapper.Relations)

@@ -9,59 +9,46 @@ namespace FoxDb
     {
         public static bool GetSourceTable(this IFragmentBuilder builder, out ITableBuilder table)
         {
-            switch (builder.FragmentType)
+            var column = builder as IColumnBuilder;
+            var container = builder as IFragmentContainer;
+            if (column != null)
             {
-                case FragmentType.Column:
-                    {
-                        var expression = builder as IColumnBuilder;
-                        table = builder.Graph.Source.GetTable(expression.Column.Table);
-                        return true;
-                    }
-                case FragmentType.Binary:
-                    {
-                        var expression = builder as IBinaryExpressionBuilder;
-                        if (expression.Left.GetSourceTable(out table) || expression.Right.GetSourceTable(out table))
-                        {
-                            return true;
-                        }
-                    }
-                    break;
+                table = builder.Graph.Source.GetTable(column.Column.Table);
             }
-            table = default(ITableBuilder);
-            return false;
-        }
-
-        public static bool GetTables(this IFragmentBuilder builder, out IEnumerable<ITableConfig> tables)
-        {
-            var result = new List<ITableConfig>();
-            builder.GetTables(result);
-            if (result.Count == 0)
+            else if (container != null)
             {
-                tables = default(IEnumerable<ITableConfig>);
+                table = container.GetTables().Select(builder.Graph.Source.GetTable).FirstOrDefault();
+            }
+            else
+            {
+                table = default(ITableBuilder);
                 return false;
             }
-            tables = result;
-            return true;
+            return table != null;
         }
 
-        public static void GetTables(this IFragmentBuilder builder, IList<ITableConfig> tables)
+        public static IEnumerable<ITableConfig> GetTables(this IFragmentContainer container)
         {
-            switch (builder.FragmentType)
-            {
-                case FragmentType.Column:
-                    {
-                        var expression = builder as IColumnBuilder;
-                        tables.Add(expression.Column.Table);
-                        break;
-                    }
-                case FragmentType.Binary:
-                    {
-                        var expression = builder as IBinaryExpressionBuilder;
-                        expression.Left.GetTables(tables);
-                        expression.Right.GetTables(tables);
-                        break;
-                    }
-            }
+            return container
+                .Flatten<IColumnBuilder>()
+                .Select(expression => expression.Column.Table)
+                .Distinct();
+        }
+
+        public static IEnumerable<IColumnConfig> GetColumns(this IFragmentContainer container)
+        {
+            return container
+                .Flatten<IColumnBuilder>()
+                .Select(expression => expression.Column)
+                .Distinct();
+        }
+
+        public static IDictionary<ITableConfig, IList<IColumnConfig>> GetColumnMap(this IFragmentContainer container)
+        {
+            return container
+                .Flatten<IColumnBuilder>()
+                .GroupBy(expression => expression.Column.Table)
+                .ToDictionary(group => group.Key, group => (IList<IColumnConfig>)group.Select(expression => expression.Column).ToList());
         }
 
         public static bool IsEmpty(this IFragmentContainer container)
@@ -99,14 +86,6 @@ namespace FoxDb
                 }
             }
             return result;
-        }
-
-        public static IDictionary<ITableConfig, IEnumerable<IColumnConfig>> GetColumnMap(this IFragmentContainer container)
-        {
-            return container
-                .Flatten<IColumnBuilder>()
-                .GroupBy(expression => expression.Column.Table)
-                .ToDictionary(group => group.Key, group => group.Select(expression => expression.Column));
         }
     }
 }

@@ -38,18 +38,5 @@ namespace FoxDb
             }
             return this;
         }
-
-        public override IRelationConfig Invert()
-        {
-            var flags = this.Flags.SetMultiplicity(RelationFlags.OneToMany) ^ RelationFlags.AutoExpression;
-            var columns = this.Expression.GetColumnMap();
-            return new OneToManyRelationConfig<TRelation, T>(this.Config, flags, Unique.New, this.RightTable, this.MappingTable, Factories.PropertyAccessor.Relation.Null<TRelation, ICollection<T>>())
-            {
-                Expression = this.CreateConstraint(
-                    columns[this.RightTable].First(),
-                    this.MappingTable.RightForeignKey
-                )
-            };
-        }
     }
 }

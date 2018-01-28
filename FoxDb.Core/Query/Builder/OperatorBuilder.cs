@@ -20,6 +20,11 @@ namespace FoxDb
 
         public QueryOperator Operator { get; set; }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IOperatorBuilder>().With(builder => builder.Operator = this.Operator);
+        }
+
         public override string DebugView
         {
             get

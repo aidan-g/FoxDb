@@ -11,6 +11,7 @@ namespace FoxDb
         private RelationConfig(IConfig config)
         {
             this.Config = config;
+            this.Builder = FragmentBuilder.GetProxy(null);
             this.Expression = this.CreateConstraint();
         }
 
@@ -24,6 +25,8 @@ namespace FoxDb
         }
 
         public IConfig Config { get; private set; }
+
+        public IFragmentBuilder Builder { get; private set; }
 
         public RelationFlags Flags { get; private set; }
 
@@ -40,8 +43,6 @@ namespace FoxDb
         public abstract Type RelationType { get; }
 
         public abstract IRelationConfig AutoExpression();
-
-        public abstract IRelationConfig Invert();
 
         public virtual IBinaryExpressionBuilder CreateConstraint()
         {
@@ -72,13 +73,13 @@ namespace FoxDb
             }
             else
             {
-                return FragmentBuilder.Proxy.CreateRelation(this).Fragment<T>();
+                return this.Builder.Fragment<T>();
             }
         }
 
         public override string ToString()
         {
-            return string.Format("{0} ({1})", string.Join("->", new[] { this.LeftTable, this.MappingTable, this.RightTable }.Where(table => table != null)), this.Expression.DebugView);
+            return string.Format("{0} ({1})", string.Join("->", new[] { this.LeftTable, this.MappingTable, this.RightTable }.Where(table => table != null)), this.Expression != null ? this.Expression.DebugView : "{}");
         }
 
         public override int GetHashCode()
@@ -243,11 +244,6 @@ namespace FoxDb
                 }
             }
             return this;
-        }
-
-        public override IRelationConfig Invert()
-        {
-            throw new NotImplementedException();
         }
 
         public static IRelationSelector<T, TRelation> By(Expression<Func<T, TRelation>> expression, RelationFlags flags)

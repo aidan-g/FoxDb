@@ -13,7 +13,7 @@ namespace FoxDb
         {
             static Table()
             {
-                Flags = TableFlags.AutoColumns | TableFlags.AutoRelations;
+                Flags = TableFlags.ValidateSchema | TableFlags.AutoColumns | TableFlags.AutoRelations;
             }
 
             public static TableFlags Flags { get; set; }
@@ -23,7 +23,7 @@ namespace FoxDb
         {
             static Column()
             {
-                Flags = ColumnFlags.None;
+                Flags = ColumnFlags.ValidateSchema;
             }
 
             public static ColumnFlags Flags { get; set; }
@@ -38,22 +38,34 @@ namespace FoxDb
 
             public static RelationFlags Flags { get; set; }
         }
+
+        public static class Persistence
+        {
+            static Persistence()
+            {
+                Flags = PersistenceFlags.CascadeAdd | PersistenceFlags.CascadeUpdate | PersistenceFlags.CascadeDelete;
+            }
+
+            public static PersistenceFlags Flags { get; set; }
+        }
     }
 
     [Flags]
     public enum TableFlags : byte
     {
         None = 0,
-        AutoColumns = 1,
-        AutoRelations = 2,
-        Transient = 4
+        ValidateSchema = 1,
+        AutoColumns = 2,
+        AutoRelations = 4,
+        Transient = 8,
+        Extern = 16
     }
 
     [Flags]
     public enum ColumnFlags : byte
     {
         None = 0,
-        ReadOnly = 1
+        ValidateSchema = 1
     }
 
     [Flags]
@@ -67,5 +79,14 @@ namespace FoxDb
         //Behaviour.
         AutoExpression = 32,
         EagerFetch = 64,
+    }
+
+    [Flags]
+    public enum PersistenceFlags
+    {
+        None,
+        CascadeAdd,
+        CascadeUpdate,
+        CascadeDelete
     }
 }

@@ -22,10 +22,26 @@ namespace FoxDb
         public ITableConfig Table { get; set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public IFilterBuilder Filter { get; private set; }
+        public IFilterBuilder Filter { get; set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        public ISortBuilder Sort { get; private set; }
+        public ISortBuilder Sort { get; set; }
+
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<ITableBuilder>().With(builder =>
+            {
+                builder.Table = this.Table;
+                if (this.Filter != null)
+                {
+                    builder.Filter = (IFilterBuilder)this.Filter.Clone();
+                }
+                if (this.Sort != null)
+                {
+                    builder.Sort = (ISortBuilder)this.Sort.Clone();
+                }
+            });
+        }
 
         public override string DebugView
         {

@@ -292,7 +292,7 @@ namespace FoxDb
         protected virtual void VisitAny(MethodCallExpression node)
         {
             var relation = default(IRelationBuilder);
-            if (this.TryCapture<IRelationBuilder>(node.Arguments[0], out relation))
+            if (this.TryCapture<IRelationBuilder>(null, node.Arguments[0], out relation))
             {
                 this.VisitAny(node, relation.Relation);
             }
@@ -310,24 +310,13 @@ namespace FoxDb
             {
                 target = this.Query.Filter;
             }
-            target.Write(this.Query.Filter.CreateFunction(QueryFunction.Exists).With(function =>
+            target.Write(target.CreateFunction(QueryFunction.Exists).With(function =>
             {
                 var builder = this.Database.QueryFactory.Build();
                 builder.Output.AddOperator(QueryOperator.Star);
+                builder.Source.AddTable(relation.LeftTable.Extern());
                 builder.Source.AddTable(relation.RightTable);
-                switch (relation.Flags.GetMultiplicity())
-                {
-                    case RelationFlags.OneToOne:
-                    case RelationFlags.OneToMany:
-                        builder.Filter.AddColumn(columns[relation.RightTable].First(), relation.LeftTable.PrimaryKey);
-                        break;
-                    case RelationFlags.ManyToMany:
-                        builder.Source.AddRelation(relation.Invert());
-                        builder.Filter.AddColumn(relation.LeftTable.PrimaryKey, relation.MappingTable.LeftForeignKey);
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
+                builder.RelationManager.AddRelation(relation);
                 function.AddArgument(function.CreateSubQuery(builder));
                 this.Push(builder.Filter);
             }));
@@ -607,7 +596,7 @@ namespace FoxDb
         protected virtual bool TryUnwrapConstant(MemberInfo member, Expression node)
         {
             var constants = default(IDictionary<string, object>);
-            this.Capture<IParameterBuilder>(node, out constants);
+            this.Capture<IParameterBuilder>(null, node, out constants);
             foreach (var key in constants.Keys)
             {
                 var value = constants[key];
@@ -668,30 +657,30 @@ namespace FoxDb
             return string.Format("parameter{0}", count);
         }
 
-        protected virtual T Capture<T>(Expression node) where T : IFragmentBuilder
+        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node) where T : IFragmentBuilder
         {
             var expression = default(T);
-            if (!this.TryCapture<T>(node, out expression))
+            if (!this.TryCapture<T>(parent, node, out expression))
             {
                 throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
             }
             return expression;
         }
 
-        protected virtual T Capture<T>(Expression node, out IDictionary<string, object> constants) where T : IFragmentBuilder
+        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node, out IDictionary<string, object> constants) where T : IFragmentBuilder
         {
             var expression = default(T);
-            if (!this.TryCapture<T>(node, out expression, out constants))
+            if (!this.TryCapture<T>(parent, node, out expression, out constants))
             {
                 throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
             }
             return expression;
         }
 
-        protected virtual bool TryCapture<T>(Expression node, out T result) where T : IFragmentBuilder
+        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result) where T : IFragmentBuilder
         {
             var constants = default(IDictionary<string, object>);
-            if (!this.TryCapture<T>(node, out result, out constants))
+            if (!this.TryCapture<T>(parent, node, out result, out constants))
             {
                 return false;
             }
@@ -702,9 +691,9 @@ namespace FoxDb
             return true;
         }
 
-        protected virtual bool TryCapture<T>(Expression node, out T result, out IDictionary<string, object> constants) where T : IFragmentBuilder
+        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result, out IDictionary<string, object> constants) where T : IFragmentBuilder
         {
-            var capture = new CaptureFragmentTarget();
+            var capture = new CaptureFragmentTarget(parent, this.Query);
             this.Push(capture);
             try
             {
@@ -730,7 +719,7 @@ namespace FoxDb
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
         {
-            public CaptureFragmentTarget() : base(FragmentBuilder.Proxy, QueryGraphBuilder.Null)
+            public CaptureFragmentTarget(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
             {
                 this.Expressions = new List<IFragmentBuilder>();
                 this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -752,6 +741,11 @@ namespace FoxDb
             {
                 this.Expressions.Add(fragment);
                 return fragment;
+            }
+
+            public override IFragmentBuilder Clone()
+            {
+                throw new NotImplementedException();
             }
 
             public override string DebugView

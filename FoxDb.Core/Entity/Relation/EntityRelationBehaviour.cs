@@ -8,24 +8,25 @@ namespace FoxDb
     {
         public abstract RelationFlags Flags { get; }
 
-        public override void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item)
+        public override void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, PersistenceFlags flags)
         {
             foreach (var relation in set.Table.Relations)
             {
                 if (relation.Flags.HasFlag(this.Flags))
                 {
-                    this.Members.Invoke(this, "Invoke", new[] { typeof(T), relation.RelationType }, behaviourType, set, item, relation);
+                    this.Members.Invoke(this, "Invoke", new[] { typeof(T), relation.RelationType }, behaviourType, set, item, relation, flags);
                 }
             }
         }
 
-        protected abstract void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation);
+        protected abstract void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation, PersistenceFlags flags);
 
         public static DatabaseParameterHandler GetParameters<T, TRelation>(IDatabase database, T item, TRelation child, IRelationConfig relation)
         {
             var handlers = new List<DatabaseParameterHandler>();
             if (item != null)
             {
+                handlers.Add(new PrimaryKeysParameterHandlerStrategy(relation.LeftTable, item).Handler);
                 handlers.Add(new ForeignKeysParameterHandlerStrategy(item, child, relation).Handler);
             }
             if (child != null)

@@ -95,15 +95,15 @@ namespace FoxDb
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
-                { FragmentType.Unary, (parent, fragment) => this.VisitUnary(fragment as IUnaryExpressionBuilder) },
-                { FragmentType.Binary, (parent, fragment) => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
-                { FragmentType.Table, (parent, fragment) => this.VisitTable(fragment as ITableBuilder) },
-                { FragmentType.Column, (parent, fragment) => this.VisitColumn(fragment as IColumnBuilder) },
-                { FragmentType.Parameter, (parent, fragment) => this.VisitParameter(fragment as IParameterBuilder) },
-                { FragmentType.Function, (parent, fragment) => this.VisitFunction(fragment as IFunctionBuilder) },
-                { FragmentType.Operator, (parent, fragment) => this.VisitOperator(fragment as IOperatorBuilder) },
-                { FragmentType.Constant, (parent, fragment) => this.VisitConstant(fragment as IConstantBuilder) },
-                { FragmentType.SubQuery, (parent, fragment) => this.VisitSubQuery(fragment as ISubQueryBuilder) }
+                { FragmentType.Unary, (parent, graph, fragment) => this.VisitUnary(fragment as IUnaryExpressionBuilder) },
+                { FragmentType.Binary, (parent, graph,fragment) => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
+                { FragmentType.Table, (parent, graph,fragment) => this.VisitTable(fragment as ITableBuilder) },
+                { FragmentType.Column, (parent, graph,fragment) => this.VisitColumn(fragment as IColumnBuilder) },
+                { FragmentType.Parameter, (parent, graph,fragment) => this.VisitParameter(fragment as IParameterBuilder) },
+                { FragmentType.Function, (parent, graph,fragment) => this.VisitFunction(fragment as IFunctionBuilder) },
+                { FragmentType.Operator, (parent, graph,fragment) => this.VisitOperator(fragment as IOperatorBuilder) },
+                { FragmentType.Constant, (parent, graph,fragment) => this.VisitConstant(fragment as IConstantBuilder) },
+                { FragmentType.SubQuery, (parent, graph,fragment) => this.VisitSubQuery(fragment as ISubQueryBuilder) }
             };
         }
 
@@ -147,7 +147,7 @@ namespace FoxDb
             this.Builder = new StringBuilder();
         }
 
-        public SQLiteQueryWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, QueryGraphBuilder.Null)
+        protected SQLiteQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, graph)
         {
             this.Database = database;
             this.Visitor = visitor;
@@ -209,7 +209,7 @@ namespace FoxDb
             this.AddFragmentContext(expression);
             try
             {
-                handler(this, expression);
+                handler(this, this.Graph, expression);
             }
             finally
             {

@@ -19,10 +19,6 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> PrimaryKeys { get; }
 
-        //IColumnConfig ForeignKey { get; }
-
-        //IEnumerable<IColumnConfig> ForeignKeys { get; }
-
         IColumnConfig GetColumn(IColumnSelector selector);
 
         IColumnConfig CreateColumn(IColumnSelector selector);
@@ -36,6 +32,8 @@ namespace FoxDb.Interfaces
         ITableConfig AutoColumns();
 
         ITableConfig AutoRelations();
+
+        ITableConfig Extern();
 
         ITableConfig<T> CreateProxy<T>();
     }

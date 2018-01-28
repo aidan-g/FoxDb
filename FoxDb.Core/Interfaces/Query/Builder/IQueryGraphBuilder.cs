@@ -3,8 +3,10 @@ using System.Diagnostics;
 
 namespace FoxDb.Interfaces
 {
-    public interface IQueryGraphBuilder
+    public interface IQueryGraphBuilder : ICloneable<IQueryGraphBuilder>
     {
+        IRelationManager RelationManager { get; }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IOutputBuilder Output { get; }
 
@@ -29,9 +31,15 @@ namespace FoxDb.Interfaces
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         ISortBuilder Sort { get; }
 
+        IEnumerable<IFragmentBuilder> Fragments { get; }
+
+        T Fragment<T>(T fragment) where T : IFragmentBuilder;
+
         T Fragment<T>() where T : IFragmentBuilder;
 
         IDatabaseQuery Build();
+
+        string DebugView { get; }
     }
 
     public interface IAggregateQueryGraphBuilder : IQueryGraphBuilder, IEnumerable<IQueryGraphBuilder>

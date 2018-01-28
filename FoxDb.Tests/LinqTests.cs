@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 612, 618 
+using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -220,6 +221,54 @@ namespace FoxDb
                     new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
                 });
                 set.AddOrUpdate(data);
+                var query = database.AsQueryable<Test002>(transaction);
+                if (invert)
+                {
+                    this.AssertSequence(new[] { data[0], data[2] }, query.Where(element => !element.Test004.Any(child => child.Name == "2_2")));
+                }
+                else
+                {
+                    this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Any(child => child.Name == "2_2")));
+                }
+                transaction.Rollback();
+            }
+        }
+
+        [TestCase(RelationFlags.OneToMany, false)]
+        [TestCase(RelationFlags.OneToMany, true)]
+        [TestCase(RelationFlags.ManyToMany, false)]
+        [TestCase(RelationFlags.ManyToMany, true)]
+        public void AnyCompoundRelation(RelationFlags flags, bool invert)
+        {
+            var provider = new SQLiteProvider(FileName);
+            var database = new Database(provider);
+            using (var transaction = database.BeginTransaction())
+            {
+                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
+                database.Config.Table<Test002>().With(table =>
+                {
+                    table.Relation(item => item.Test004, Defaults.Relation.Flags | flags).With(relation =>
+                    {
+                        relation.Expression.Left = relation.Expression.Clone();
+                        relation.Expression.Operator = relation.Expression.CreateOperator(QueryOperator.OrElse);
+                        relation.Expression.Right = relation.CreateConstraint(relation.LeftTable.Column("Test004_Id"), relation.RightTable.PrimaryKey);
+                    });
+                });
+                var set = database.Set<Test002>(transaction);
+                var data = new List<Test002>();
+                {
+                    var child = database.Set<Test004>().AddOrUpdate(new Test004() { Name = "2_2" });
+                    data.AddRange(new[]
+                    {
+                        new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                        new Test002() { Name = "2_1" },
+                        new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                    });
+                    set.AddOrUpdate(data);
+                    data[1].Test004_Id = child.Id;
+                    new EntityPersister<Test002>(set).AddOrUpdate(data[1], PersistenceFlags.None);
+                    data[1].Test004.Add(child);
+                }
                 var query = database.AsQueryable<Test002>(transaction);
                 if (invert)
                 {

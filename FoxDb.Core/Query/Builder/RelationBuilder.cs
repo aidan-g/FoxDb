@@ -19,6 +19,11 @@ namespace FoxDb
 
         public IRelationConfig Relation { get; set; }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IRelationBuilder>().With(builder => builder.Relation = this.Relation);
+        }
+
         public override string DebugView
         {
             get

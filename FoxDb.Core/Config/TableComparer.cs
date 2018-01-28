@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -43,6 +44,16 @@ namespace FoxDb
 
         public static IEqualityComparer<ITableConfig> TableConfig = new TableComparer();
 
+        public static Func<ITableConfig, bool> Equals(ITableConfig table)
+        {
+            return other => TableConfig.Equals(table, other);
+        }
+
         public static IEqualityComparer<ITableBuilder> TableBuilder = new TableComparer();
+
+        public static Func<ITableBuilder, bool> Equals(ITableBuilder table)
+        {
+            return other => TableBuilder.Equals(table, other);
+        }
     }
 }

@@ -12,6 +12,8 @@ namespace FoxDb
         private QueryGraphBuilder()
         {
             this.Fragments = new List<IFragmentBuilder>();
+            this.RelationManager = new RelationManager(this);
+            this.Filter.Touch(); //TODO: Relation manager requires filtering.
         }
 
         public QueryGraphBuilder(IDatabase database) : this()
@@ -21,7 +23,17 @@ namespace FoxDb
 
         public ICollection<IFragmentBuilder> Fragments { get; private set; }
 
+        IEnumerable<IFragmentBuilder> IQueryGraphBuilder.Fragments
+        {
+            get
+            {
+                return this.Fragments;
+            }
+        }
+
         public IDatabase Database { get; private set; }
+
+        public IRelationManager RelationManager { get; private set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOutputBuilder Output
@@ -95,118 +107,42 @@ namespace FoxDb
             }
         }
 
+        public virtual T Fragment<T>(T fragment) where T : IFragmentBuilder
+        {
+            this.Fragments.Add(fragment);
+            return fragment;
+        }
+
         public virtual T Fragment<T>() where T : IFragmentBuilder
         {
             var fragment = this.Fragments.OfType<T>().FirstOrDefault();
             if (fragment == null)
             {
-                fragment = FragmentBuilder.GetProxy(this).Fragment<T>();
-                this.Fragments.Add(fragment);
+                return this.Fragment(FragmentBuilder.GetProxy(this).Fragment<T>());
             }
             return fragment;
         }
 
-
         public IDatabaseQuery Build()
         {
-            return this.Database.QueryFactory.Create(new[]
-            {
-                new QueryGraph(this.Fragments)
-            });
+            return this.Database.QueryFactory.Create(this);
         }
 
         public IQueryGraphBuilder Clone()
         {
-            throw new NotImplementedException();
+            var builder = this.Database.QueryFactory.Build();
+            foreach (var fragment in this.Fragments)
+            {
+                builder.Fragment(fragment.Clone());
+            }
+            return builder;
         }
 
-        public static IQueryGraphBuilder Null
+        public string DebugView
         {
             get
             {
-                return new NullQueryGraphBuilder();
-            }
-        }
-
-        private class NullQueryGraphBuilder : IQueryGraphBuilder
-        {
-            public IOutputBuilder Output
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IAddBuilder Add
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IUpdateBuilder Update
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IDeleteBuilder Delete
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public ISourceBuilder Source
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IFilterBuilder Filter
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IAggregateBuilder Aggregate
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public ISortBuilder Sort
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
-            }
-
-            public IDatabaseQuery Build()
-            {
-                throw new NotImplementedException();
-            }
-
-            public IQueryGraphBuilder Clone()
-            {
-                throw new NotImplementedException();
-            }
-
-            public T Fragment<T>() where T : IFragmentBuilder
-            {
-                throw new NotImplementedException();
+                return string.Format("{{{0}}}", string.Join(", ", this.Fragments.Select(expression => expression.DebugView)));
             }
         }
     }
@@ -218,7 +154,7 @@ namespace FoxDb
             this.Database = database;
         }
 
-        public AggregateQueryGraphBuilder(IDatabase database, params IQueryGraphBuilder[] queries) : this(database)
+        public AggregateQueryGraphBuilder(IDatabase database, IEnumerable<IQueryGraphBuilder> queries) : this(database)
         {
             this.Queries = queries;
         }
@@ -233,6 +169,11 @@ namespace FoxDb
             return this.Database.QueryFactory.Combine(this.Select(query => query.Build()).ToArray());
         }
 
+        public IQueryGraphBuilder Clone()
+        {
+            return new AggregateQueryGraphBuilder(this.Database, this.Queries.Select(query => query.Clone()).ToArray());
+        }
+
         public IEnumerator<IQueryGraphBuilder> GetEnumerator()
         {
             return this.Queries.GetEnumerator();
@@ -244,6 +185,14 @@ namespace FoxDb
         }
 
         #region IQueryGraphBuilder
+
+        IRelationManager IQueryGraphBuilder.RelationManager
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         IOutputBuilder IQueryGraphBuilder.Output
         {
@@ -309,9 +258,31 @@ namespace FoxDb
             }
         }
 
+
+        IEnumerable<IFragmentBuilder> IQueryGraphBuilder.Fragments
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         T IQueryGraphBuilder.Fragment<T>()
         {
             throw new NotImplementedException();
+        }
+
+        T IQueryGraphBuilder.Fragment<T>(T fragment)
+        {
+            throw new NotImplementedException();
+        }
+
+        string IQueryGraphBuilder.DebugView
+        {
+            get
+            {
+                return string.Format("{{{0}}}", string.Join(", ", this.Queries.Select(expression => expression.DebugView)));
+            }
         }
 
         #endregion

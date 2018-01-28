@@ -1,12 +1,13 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public class SQLiteUpdateWriter : SQLiteQueryWriter
     {
-        public SQLiteUpdateWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
+        public SQLiteUpdateWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -24,10 +25,13 @@ namespace FoxDb
             if (fragment is IUpdateBuilder)
             {
                 var expression = fragment as IUpdateBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.UPDATE);
-                this.VisitTable(expression.Table);
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.SET);
-                this.Visit(expression.Expressions);
+                if (expression.Table != null && expression.Expressions.Any())
+                {
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.UPDATE);
+                    this.VisitTable(expression.Table);
+                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.SET);
+                    this.Visit(expression.Expressions);
+                }
                 return fragment;
             }
             throw new NotImplementedException();
@@ -53,6 +57,11 @@ namespace FoxDb
         protected override void VisitColumn(IColumnBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.ColumnName));
+        }
+
+        public override IFragmentBuilder Clone()
+        {
+            throw new NotImplementedException();
         }
 
         public override string DebugView

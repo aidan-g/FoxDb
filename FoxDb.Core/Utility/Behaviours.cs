@@ -17,13 +17,13 @@ namespace FoxDb
 
         public static IEnumerable<IBehaviour> Registered { get; set; }
 
-        public static void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item)
+        public static void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, PersistenceFlags flags)
         {
             foreach (var behaviour in Registered)
             {
                 if (behaviour.BehaviourType.HasFlag(behaviourType))
                 {
-                    behaviour.Invoke<T>(behaviourType, set, item);
+                    behaviour.Invoke<T>(behaviourType, set, item, flags);
                 }
             }
         }

@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SQLiteOrderByWriter : SQLiteQueryWriter
     {
-        public SQLiteOrderByWriter(IFragmentBuilder parent, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, database, visitor, parameterNames)
+        public SQLiteOrderByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -73,6 +73,11 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public override IFragmentBuilder Clone()
+        {
+            throw new NotImplementedException();
         }
 
         public override string DebugView

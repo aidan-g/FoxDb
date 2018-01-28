@@ -29,6 +29,7 @@ namespace FoxDb
         {
             var attribute = tableType.GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
             {
+                Flags = flags,
                 Name = Conventions.TableName(tableType),
                 Identifier = identifier
             };

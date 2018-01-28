@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
@@ -18,6 +19,11 @@ namespace FoxDb
         }
 
         public int Offset { get; private set; }
+
+        public override IFragmentBuilder Clone()
+        {
+            throw new NotImplementedException();
+        }
 
         public override string DebugView
         {

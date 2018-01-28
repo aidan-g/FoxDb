@@ -71,6 +71,11 @@ namespace FoxDb
             return value;
         }
 
+        public static T With<T>(this T value, Func<T, T> func)
+        {
+            return func(value);
+        }
+
         public static bool IsScalar(this Type type)
         {
             return type.IsPrimitive || type.IsValueType || typeof(string).IsAssignableFrom(type);

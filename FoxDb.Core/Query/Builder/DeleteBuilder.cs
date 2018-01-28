@@ -17,6 +17,11 @@ namespace FoxDb
             }
         }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IDeleteBuilder>();
+        }
+
         public override string DebugView
         {
             get

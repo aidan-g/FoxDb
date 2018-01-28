@@ -6,7 +6,7 @@ namespace FoxDb.Interfaces
     {
         BehaviourType BehaviourType { get; }
 
-        void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item);
+        void Invoke<T>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, PersistenceFlags flags);
     }
 
     [Flags]

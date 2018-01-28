@@ -26,6 +26,11 @@ namespace FoxDb
 
         public ColumnBuilderFlags Flags { get; set; }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IColumnBuilder>().With(builder => builder.Column = this.Column);
+        }
+
         public override string DebugView
         {
             get

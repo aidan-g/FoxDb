@@ -19,6 +19,11 @@ namespace FoxDb
 
         public object Value { get; set; }
 
+        public override IFragmentBuilder Clone()
+        {
+            return this.Parent.Fragment<IConstantBuilder>().With(builder => builder.Value = this.Value);
+        }
+
         public override string DebugView
         {
             get

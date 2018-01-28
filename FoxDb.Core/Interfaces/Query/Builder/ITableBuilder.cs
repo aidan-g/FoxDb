@@ -7,9 +7,9 @@ namespace FoxDb.Interfaces
         ITableConfig Table { get; set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IFilterBuilder Filter { get; }
+        IFilterBuilder Filter { get; set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ISortBuilder Sort { get; }
+        ISortBuilder Sort { get; set; }
     }
 }

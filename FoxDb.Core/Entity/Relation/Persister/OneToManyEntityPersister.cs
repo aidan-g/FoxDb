@@ -20,16 +20,23 @@ namespace FoxDb
             }
         }
 
-        protected override void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation)
+        protected override void Invoke<T, TRelation>(BehaviourType behaviourType, IDatabaseSet<T> set, T item, IRelationConfig relation, PersistenceFlags flags)
         {
             var wrapper = new Wrapper<T, TRelation>(set, item, relation as ICollectionRelationConfig<T, TRelation>);
             switch (behaviourType)
             {
                 case BehaviourType.Updating:
-                    wrapper.Update();
+                    //TODO: We don't differentiate between add and update.
+                    if (flags.HasFlag(PersistenceFlags.CascadeAdd) || flags.HasFlag(PersistenceFlags.CascadeUpdate))
+                    {
+                        wrapper.Update();
+                    }
                     break;
                 case BehaviourType.Deleting:
-                    wrapper.Delete();
+                    if (flags.HasFlag(PersistenceFlags.CascadeDelete))
+                    {
+                        wrapper.Delete();
+                    }
                     break;
             }
         }

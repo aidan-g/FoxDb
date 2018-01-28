@@ -77,19 +77,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
             if (!string.Equals(this.ColumnName, other.ColumnName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            if (this.Flags != other.Flags)
-            {
-                return false;
-            }
-            if (this.Property != null && other.Property != null && this.Property != other.Property)
             {
                 return false;
             }

@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface IFragmentContainer
+    public interface IFragmentContainer : IFragmentBuilder
     {
         ICollection<IFragmentBuilder> Expressions { get; }
     }

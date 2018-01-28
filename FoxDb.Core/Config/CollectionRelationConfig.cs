@@ -22,11 +22,6 @@ namespace FoxDb
 
         public IPropertyAccessor<T, ICollection<TRelation>> Accessor { get; private set; }
 
-        public override IRelationConfig Invert()
-        {
-            throw new NotImplementedException();
-        }
-
         public static IRelationSelector<T, ICollection<TRelation>> By(Expression<Func<T, ICollection<TRelation>>> expression, RelationFlags flags)
         {
             return By(string.Empty, expression, flags);

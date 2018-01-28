@@ -1,9 +1,11 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FoxDb
 {
+    [DebuggerDisplay("{DebugView}")]
     public abstract class FragmentBuilder : IFragmentBuilder
     {
         protected IDictionary<Type, Func<IFragmentBuilder>> Factories { get; private set; }
@@ -158,10 +160,7 @@ namespace FoxDb
             return this.Fragment<IConstantBuilder>().With(builder => builder.Value = value);
         }
 
-        public virtual IFragmentBuilder Clone()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract IFragmentBuilder Clone();
 
         public abstract string DebugView { get; }
 
@@ -197,14 +196,6 @@ namespace FoxDb
             return true;
         }
 
-        public static IFragmentBuilder Proxy
-        {
-            get
-            {
-                return new FragmentBuilderProxy();
-            }
-        }
-
         public static IFragmentBuilder GetProxy(IQueryGraphBuilder graph)
         {
             return new FragmentBuilderProxy(graph);
@@ -234,11 +225,6 @@ namespace FoxDb
 
         protected class FragmentBuilderProxy : FragmentBuilder
         {
-            public FragmentBuilderProxy() : this(QueryGraphBuilder.Null)
-            {
-
-            }
-
             public FragmentBuilderProxy(IQueryGraphBuilder graph) : this(null, graph)
             {
             }
@@ -253,6 +239,11 @@ namespace FoxDb
                 {
                     throw new NotImplementedException();
                 }
+            }
+
+            public override IFragmentBuilder Clone()
+            {
+                throw new NotImplementedException();
             }
 
             public override string DebugView
