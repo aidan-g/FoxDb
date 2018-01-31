@@ -40,7 +40,8 @@ namespace FoxDb
 
         public IEnumerable<T> AddOrUpdate(IEnumerable<T> items)
         {
-            var persister = new EntityPersister<T>(this);
+            var mapper = new EntityMapper(this.Table);
+            var persister = new EntityCompoundPersister(this.Database, this.Table, mapper, this.Transaction);
             foreach (var item in items)
             {
                 persister.AddOrUpdate(item);
@@ -61,7 +62,8 @@ namespace FoxDb
 
         public IEnumerable<T> Remove(IEnumerable<T> items)
         {
-            var persister = new EntityPersister<T>(this);
+            var mapper = new EntityMapper(this.Table);
+            var persister = new EntityCompoundPersister(this.Database, this.Table, mapper, this.Transaction);
             foreach (var item in items)
             {
                 persister.Delete(item);

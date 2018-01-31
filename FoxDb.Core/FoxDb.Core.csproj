@@ -70,10 +70,10 @@
     <Compile Include="Entity\EntityGraphNode.cs" />
     <Compile Include="Entity\EntityGraphSink.cs" />
     <Compile Include="Entity\EntityGraphMapping.cs" />
-    <Compile Include="Entity\EntityGraphVisitor.cs" />
     <Compile Include="Entity\EntityInitializer.cs" />
     <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityMapper.cs" />
+    <Compile Include="Entity\EntityPersister.cs" />
     <Compile Include="Entity\Relation\EntityRelationCalculator.cs" />
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
     <Compile Include="Entity\Relation\Extensions.cs" />
@@ -166,13 +166,9 @@
     <Compile Include="DatabaseSet.cs" />
     <Compile Include="Disposable.cs" />
     <Compile Include="Entity\EntityFactory.cs" />
-    <Compile Include="Entity\EntityPersister.cs" />
+    <Compile Include="Entity\EntityCompoundPersister.cs" />
     <Compile Include="Entity\EntityPopulator.cs" />
     <Compile Include="Entity\EntityPropertyEnumerator.cs" />
-    <Compile Include="Entity\Relation\EntityRelationBehaviour.cs" />
-    <Compile Include="Entity\Relation\Persister\ManyToManyEntityPersister.cs" />
-    <Compile Include="Entity\Relation\Persister\OneToManyEntityPersister.cs" />
-    <Compile Include="Entity\Relation\Persister\OneToOneEntityPersister.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\Config\IColumnConfig.cs" />
     <Compile Include="Interfaces\Config\IConfig.cs" />
@@ -199,8 +195,6 @@
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
-    <Compile Include="Utility\Behaviour.cs" />
-    <Compile Include="Utility\Behaviours.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />

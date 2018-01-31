@@ -43,7 +43,7 @@ namespace FoxDb
         {
             static Persistence()
             {
-                Flags = PersistenceFlags.CascadeAdd | PersistenceFlags.CascadeUpdate | PersistenceFlags.CascadeDelete;
+                Flags = PersistenceFlags.Cascade;
             }
 
             public static PersistenceFlags Flags { get; set; }
@@ -84,9 +84,9 @@ namespace FoxDb
     [Flags]
     public enum PersistenceFlags
     {
-        None,
-        CascadeAdd,
-        CascadeUpdate,
-        CascadeDelete
+        None = 0,
+        AddOrUpdate = 1,
+        Delete = 2,
+        Cascade = 4
     }
 }

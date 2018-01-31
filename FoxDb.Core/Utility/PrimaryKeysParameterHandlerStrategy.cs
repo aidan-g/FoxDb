@@ -38,9 +38,10 @@ namespace FoxDb
                     }
                     for (var a = 0; a < keys.Length; a++)
                     {
-                        if (parameters.Contains(keys[a].ColumnName))
+                        var columnName = keys[a].ColumnName;
+                        if (parameters.Contains(columnName))
                         {
-                            parameters[keys[a].ColumnName] = this.Keys[a];
+                            parameters[columnName] = this.Keys[a];
                         }
                     }
                 });

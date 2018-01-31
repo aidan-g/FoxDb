@@ -33,9 +33,10 @@ namespace FoxDb
             {
                 return parameters =>
                 {
-                    if (this.Parent != null && !string.IsNullOrEmpty(this.LeftParameter) && parameters.Contains(this.LeftParameter))
+                    var parameter = this.LeftParameter;
+                    if (this.Parent != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
                     {
-                        parameters[this.LeftParameter] = this.Relation.LeftTable.PrimaryKey.Getter(this.Parent);
+                        parameters[parameter] = this.Relation.LeftTable.PrimaryKey.Getter(this.Parent);
                     }
                 };
             }
@@ -47,9 +48,10 @@ namespace FoxDb
             {
                 return parameters =>
                 {
-                    if (this.Child != null && !string.IsNullOrEmpty(this.RightParameter) && parameters.Contains(this.RightParameter))
+                    var parameter = this.RightParameter;
+                    if (this.Child != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
                     {
-                        parameters[this.RightParameter] = this.Relation.RightTable.PrimaryKey.Getter(this.Child);
+                        parameters[parameter] = this.Relation.RightTable.PrimaryKey.Getter(this.Child);
                     }
                 };
             }

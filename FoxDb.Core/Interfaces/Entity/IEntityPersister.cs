@@ -1,13 +1,13 @@
 ﻿namespace FoxDb.Interfaces
 {
-    public interface IEntityPersister<T>
+    public interface IEntityPersister
     {
-        void AddOrUpdate(T item);
+        void AddOrUpdate(object item);
 
-        void AddOrUpdate(T item, PersistenceFlags flags);
+        void AddOrUpdate(object item, PersistenceFlags flags);
 
-        void Delete(T item);
+        void Delete(object item);
 
-        void Delete(T item, PersistenceFlags flags);
+        void Delete(object item, PersistenceFlags flags);
     }
 }

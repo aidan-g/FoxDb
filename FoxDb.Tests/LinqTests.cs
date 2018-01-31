@@ -266,7 +266,7 @@ namespace FoxDb
                     });
                     set.AddOrUpdate(data);
                     data[1].Test004_Id = child.Id;
-                    new EntityPersister<Test002>(set).AddOrUpdate(data[1], PersistenceFlags.None);
+                    new EntityPersister(database, set.Table, transaction).AddOrUpdate(data[1], PersistenceFlags.None);
                     data[1].Test004.Add(child);
                 }
                 var query = database.AsQueryable<Test002>(transaction);

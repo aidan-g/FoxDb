@@ -45,10 +45,11 @@ namespace FoxDb
             }
         }
 
-        private class EntityEnumeratorVisitor : EntityGraphVisitor
+        private class EntityEnumeratorVisitor
         {
             private EntityEnumeratorVisitor()
             {
+                this.Members = new DynamicMethod(this.GetType());
                 this.Buffer = new EntityEnumeratorBuffer();
             }
 
@@ -57,6 +58,8 @@ namespace FoxDb
                 this.Sink = sink;
             }
 
+            protected DynamicMethod Members { get; private set; }
+
             public IEntityEnumeratorBuffer Buffer { get; private set; }
 
             public IEntityGraphSink Sink { get; private set; }
@@ -64,7 +67,23 @@ namespace FoxDb
             public void Visit(IEntityGraph graph, IDatabaseReaderRecord record)
             {
                 this.Buffer.Update(record);
-                this.Visit(graph);
+                this.Visit(graph.Root);
+            }
+
+            protected virtual void Visit(IEntityGraphNode node)
+            {
+                if (node.Table != null)
+                {
+                    this.Members.Invoke(this, "OnVisit", node.EntityType, node);
+                    if (node.Relation != null)
+                    {
+                        this.Members.Invoke(this, "OnVisit", new[] { node.Parent.EntityType, node.Relation.RelationType }, node);
+                    }
+                }
+                foreach (var child in node.Children)
+                {
+                    this.Visit(child);
+                }
             }
 
             public void Flush(ITableConfig table)
@@ -86,7 +105,7 @@ namespace FoxDb
                 return item;
             }
 
-            protected override void OnVisit<T>(IEntityGraphNode<T> node)
+            protected virtual void OnVisit<T>(IEntityGraphNode<T> node)
             {
                 do
                 {
@@ -109,7 +128,7 @@ namespace FoxDb
                 } while (true);
             }
 
-            protected override void OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node)
+            protected virtual void OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node)
             {
                 if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
                 {
@@ -120,7 +139,7 @@ namespace FoxDb
                 node.Relation.Accessor.Set(parent, child);
             }
 
-            protected override void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node)
+            protected virtual void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node)
             {
                 if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
                 {

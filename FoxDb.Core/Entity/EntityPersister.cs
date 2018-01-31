@@ -1,55 +1,72 @@
 ﻿using FoxDb.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class EntityPersister<T> : IEntityPersister<T>
+    public class EntityPersister : IEntityPersister
     {
-        public EntityPersister(IDatabaseSet<T> set)
+        public EntityPersister(IDatabase database, ITableConfig table, ITransactionSource transaction = null) : this(database, table, null, transaction)
         {
-            this.Set = set;
+
         }
 
-        public IDatabaseSet<T> Set { get; private set; }
+        public EntityPersister(IDatabase database, ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            this.Database = database;
+            this.Table = table;
+            this.Parameters = parameters;
+            this.Transaction = transaction;
+        }
 
-        public void AddOrUpdate(T item)
+        public IDatabase Database { get; private set; }
+
+        public DatabaseParameterHandler Parameters { get; private set; }
+
+        public ITableConfig Table { get; private set; }
+
+        public ITransactionSource Transaction { get; private set; }
+
+        public void AddOrUpdate(object item)
         {
             this.AddOrUpdate(item, Defaults.Persistence.Flags);
         }
 
-        public void AddOrUpdate(T item, PersistenceFlags flags)
+        public void AddOrUpdate(object item, PersistenceFlags flags)
         {
-            if (EntityKey.HasKey(this.Set.Table, item))
+            if (EntityKey.HasKey(this.Table, item))
             {
-                this.Set.Database.Execute(this.Set.Update, this.GetParameters(item), this.Set.Transaction);
+                var update = this.Database.QueryFactory.Update(this.Table).Build();
+                this.Database.Execute(update, this.GetParameters(item), this.Transaction);
             }
             else
             {
-                var add = ((IDatabaseQuerySource)this.Set).Add;
-                var key = this.Set.Database.ExecuteScalar<object>(add.Build(), this.GetParameters(item), this.Set.Transaction);
-                EntityKey.SetKey(this.Set.Table, item, key);
+                var add = this.Database.QueryFactory.Add(this.Table).Build();
+                var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
+                EntityKey.SetKey(this.Table, item, key);
             }
-            Behaviours.Invoke<T>(BehaviourType.Updating, this.Set, item, flags);
         }
 
-        public void Delete(T item)
+        public void Delete(object item)
         {
             this.Delete(item, Defaults.Persistence.Flags);
         }
 
-        public void Delete(T item, PersistenceFlags flags)
+        public void Delete(object item, PersistenceFlags flags)
         {
-            var delete = ((IDatabaseQuerySource)this.Set).Delete;
-            this.Set.Database.Execute(delete, this.GetParameters(item), this.Set.Transaction);
-            Behaviours.Invoke<T>(BehaviourType.Deleting, this.Set, item, flags);
+            var delete = this.Database.QueryFactory.Delete(this.Table).Build();
+            this.Database.Execute(delete, this.GetParameters(item), this.Transaction);
         }
 
-        protected virtual DatabaseParameterHandler GetParameters(T item)
+        protected virtual DatabaseParameterHandler GetParameters(object item)
         {
-            if (this.Set.Parameters != null)
+            var handlers = new List<DatabaseParameterHandler>();
+            if (this.Parameters != null)
             {
-                return this.Set.Parameters;
+                handlers.Add(this.Parameters);
             }
-            return new ParameterHandlerStrategy(this.Set.Table, item).Handler;
+            handlers.Add(new ParameterHandlerStrategy(this.Table, item).Handler);
+            return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
         }
     }
 }
