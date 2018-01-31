@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SQLiteInsertWriter : SQLiteQueryWriter
+    public class SqlInsertWriter : SqlQueryWriter
     {
-        public SQLiteInsertWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlInsertWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -25,17 +25,17 @@ namespace FoxDb
             if (fragment is IAddBuilder)
             {
                 var expression = fragment as IAddBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.INSERT);
+                this.Builder.AppendFormat("{0} ", SqlSyntax.INSERT);
                 this.Visit(expression.Table);
                 if (!expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.DEFAULT, SQLiteSyntax.VALUES);
+                    this.Builder.AppendFormat("{0} {1} ", SqlSyntax.DEFAULT, SqlSyntax.VALUES);
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
                     this.Visit(expression.Expressions);
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
                 }
                 return fragment;
             }
@@ -53,7 +53,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -61,7 +61,7 @@ namespace FoxDb
 
         protected override void VisitColumn(IColumnBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.ColumnName));
+            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.ColumnName));
         }
 
         public override IFragmentBuilder Clone()

@@ -2,26 +2,15 @@
 
 namespace FoxDb
 {
-    public class SQLiteQueryBuilder : IQueryBuilder
+    public class SQLiteQueryBuilder : SqlQueryBuilder
     {
-        public SQLiteQueryBuilder(IDatabase database, IQueryGraphBuilder graph)
+        public SQLiteQueryBuilder(IDatabase database, IQueryGraphBuilder graph) : base(database, graph)
         {
-            this.Database = database;
-            this.Graph = graph;
         }
 
-        public IDatabase Database { get; private set; }
-
-        public IQueryGraphBuilder Graph { get; private set; }
-
-        public IDatabaseQuery Query
+        public override IQueryGraphVisitor CreateVisitor(IDatabase database)
         {
-            get
-            {
-                var visitor = new SQLiteQueryBuilderVisitor(this.Database);
-                visitor.Visit(this.Graph);
-                return visitor.Query;
-            }
+            return new SQLiteQueryBuilderVisitor(database);
         }
     }
 }

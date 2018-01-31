@@ -6,25 +6,20 @@ namespace FoxDb
 {
     public abstract class QueryGraphVisitor : IQueryGraphVisitor
     {
-        public QueryGraphVisitor()
-        {
-            this.Handlers = this.GetHandlers();
-        }
+        protected static readonly IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers = GetHandlers();
 
-        protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
-
-        protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
+        protected static IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
-                 { FragmentType.Add, (parent, graph, fragment) => this.VisitAdd(parent, graph, fragment as IAddBuilder) },
-                 { FragmentType.Update, (parent, graph, fragment) => this.VisitUpdate(parent, graph, fragment as IUpdateBuilder) },
-                 { FragmentType.Delete, (parent, graph, fragment) => this.VisitDelete(parent, graph,fragment as IDeleteBuilder) },
-                 { FragmentType.Output, (parent, graph, fragment) => this.VisitOutput(parent, graph, fragment as IOutputBuilder) },
-                 { FragmentType.Source, (parent, graph, fragment) => this.VisitSource(parent, graph, fragment as ISourceBuilder) },
-                 { FragmentType.Filter, (parent, graph, fragment) => this.VisitFilter(parent, graph, fragment as IFilterBuilder) },
-                 { FragmentType.Aggregate, (parent, graph, fragment) => this.VisitAggregate(parent, graph, fragment as IAggregateBuilder) },
-                 { FragmentType.Sort, (parent, graph, fragment) => this.VisitSort(parent, graph, fragment as ISortBuilder) }
+                 { FragmentType.Add, (visitor, parent, graph, fragment) => visitor.VisitAdd(parent, graph, fragment as IAddBuilder) },
+                 { FragmentType.Update, (visitor, parent, graph, fragment) => visitor.VisitUpdate(parent, graph, fragment as IUpdateBuilder) },
+                 { FragmentType.Delete, (visitor, parent, graph, fragment) => visitor.VisitDelete(parent, graph,fragment as IDeleteBuilder) },
+                 { FragmentType.Output, (visitor, parent, graph, fragment) => visitor.VisitOutput(parent, graph, fragment as IOutputBuilder) },
+                 { FragmentType.Source, (visitor, parent, graph, fragment) => visitor.VisitSource(parent, graph, fragment as ISourceBuilder) },
+                 { FragmentType.Filter, (visitor, parent, graph, fragment) => visitor.VisitFilter(parent, graph, fragment as IFilterBuilder) },
+                 { FragmentType.Aggregate, (visitor, parent, graph, fragment) => visitor.VisitAggregate(parent, graph, fragment as IAggregateBuilder) },
+                 { FragmentType.Sort, (visitor, parent, graph, fragment) => visitor.VisitSort(parent, graph, fragment as ISortBuilder) }
             };
         }
 
@@ -39,11 +34,11 @@ namespace FoxDb
         public virtual void Visit(IFragmentBuilder parent, IQueryGraphBuilder graph, IFragmentBuilder fragment)
         {
             var handler = default(QueryGraphVisitorHandler);
-            if (!this.Handlers.TryGetValue(fragment.FragmentType, out handler))
+            if (!Handlers.TryGetValue(fragment.FragmentType, out handler))
             {
                 throw new NotImplementedException();
             }
-            handler(parent, graph, fragment);
+            handler(this, parent, graph, fragment);
         }
 
         protected abstract void VisitAdd(IFragmentBuilder parent, IQueryGraphBuilder graph, IAddBuilder expression);
@@ -61,7 +56,9 @@ namespace FoxDb
         protected abstract void VisitAggregate(IFragmentBuilder parent, IQueryGraphBuilder graph, IAggregateBuilder expression);
 
         protected abstract void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression);
+
+        public abstract IDatabaseQuery Query { get; }
     }
 
-    public delegate void QueryGraphVisitorHandler(IFragmentBuilder parent, IQueryGraphBuilder graph, IFragmentBuilder fragment);
+    public delegate void QueryGraphVisitorHandler(QueryGraphVisitor visitor, IFragmentBuilder parent, IQueryGraphBuilder graph, IFragmentBuilder fragment);
 }

@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SQLiteUpdateWriter : SQLiteQueryWriter
+    public class SqlGroupByWriter : SqlQueryWriter
     {
-        public SQLiteUpdateWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlGroupByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -16,20 +16,18 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Update;
+                return FragmentType.Aggregate;
             }
         }
 
         protected override T OnWrite<T>(T fragment)
         {
-            if (fragment is IUpdateBuilder)
+            if (fragment is IAggregateBuilder)
             {
-                var expression = fragment as IUpdateBuilder;
-                if (expression.Table != null && expression.Expressions.Any())
+                var expression = fragment as IAggregateBuilder;
+                if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.UPDATE);
-                    this.VisitTable(expression.Table);
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.SET);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.GROUP_BY);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -48,15 +46,10 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
-        }
-
-        protected override void VisitColumn(IColumnBuilder expression)
-        {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.ColumnName));
         }
 
         public override IFragmentBuilder Clone()

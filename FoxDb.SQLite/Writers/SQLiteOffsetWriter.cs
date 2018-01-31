@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SQLiteOffsetWriter : SQLiteQueryWriter
+    public class SQLiteOffsetWriter : SqlQueryWriter
     {
         public SQLiteOffsetWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
@@ -26,7 +26,7 @@ namespace FoxDb
                 var expression = fragment as IOffsetBuilder;
                 if (expression.Offset != 0)
                 {
-                    this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.OFFSET, expression.Offset);
+                    this.Builder.AppendFormat("{0} {1} ", SqlSyntax.OFFSET, expression.Offset);
                 }
                 return fragment;
             }

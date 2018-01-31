@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SQLiteFromWriter : SQLiteQueryWriter
+    public class SqlFromWriter : SqlQueryWriter
     {
-        public SQLiteFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as ISourceBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.FROM);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.FROM);
                     this.Visit(expression.Expressions);
                     this.Visit(this.Graph.RelationManager.CalculatedRelations);
                 }
@@ -56,7 +56,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -103,31 +103,31 @@ namespace FoxDb
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
             base.VisitSubQuery(expression);
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
             this.VisitAlias(expression.Alias);
         }
 
         protected override void VisitUnary(IUnaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
             base.VisitUnary(expression);
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
         }
 
         protected override void VisitBinary(IBinaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
             base.VisitBinary(expression);
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
         }
 
         protected virtual void Visit(ITableConfig table, IBinaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.JOIN);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.JOIN);
             this.VisitTable(this.CreateTable(table));
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.ON);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.ON);
             this.Visit(expression);
         }
 

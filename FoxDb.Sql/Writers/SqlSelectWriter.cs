@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SQLiteSelectWriter : SQLiteQueryWriter
+    public class SqlSelectWriter : SqlQueryWriter
     {
-        public SQLiteSelectWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlSelectWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as IOutputBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.SELECT);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.SELECT);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -46,7 +46,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -78,9 +78,9 @@ namespace FoxDb
             }
             else
             {
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
                 base.VisitSubQuery(expression);
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
                 this.VisitAlias(expression.Alias);
             }
         }

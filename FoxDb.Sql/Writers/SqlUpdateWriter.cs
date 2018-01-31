@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SQLiteOrderByWriter : SQLiteQueryWriter
+    public class SqlUpdateWriter : SqlQueryWriter
     {
-        public SQLiteOrderByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlUpdateWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -16,18 +16,20 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Sort;
+                return FragmentType.Update;
             }
         }
 
         protected override T OnWrite<T>(T fragment)
         {
-            if (fragment is ISortBuilder)
+            if (fragment is IUpdateBuilder)
             {
-                var expression = fragment as ISortBuilder;
-                if (expression.Expressions.Any())
+                var expression = fragment as IUpdateBuilder;
+                if (expression.Table != null && expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.ORDER_BY);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.UPDATE);
+                    this.VisitTable(expression.Table);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.SET);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -46,7 +48,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -54,25 +56,7 @@ namespace FoxDb
 
         protected override void VisitColumn(IColumnBuilder expression)
         {
-            base.VisitColumn(expression);
-            this.VisitDirection(expression.Direction);
-        }
-
-        protected virtual void VisitDirection(OrderByDirection direction)
-        {
-            switch (direction)
-            {
-                case OrderByDirection.None:
-                    break;
-                case OrderByDirection.Ascending:
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.ASC);
-                    break;
-                case OrderByDirection.Descending:
-                    this.Builder.AppendFormat("{0} ", SQLiteSyntax.DESC);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
+            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.ColumnName));
         }
 
         public override IFragmentBuilder Clone()

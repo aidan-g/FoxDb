@@ -42,31 +42,20 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\Query\Builder\IOffsetBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ILimitBuilder.cs" />
-    <Compile Include="Interfaces\Query\Writers\ISQLiteQueryWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\Builder\OffsetBuilder.cs" />
     <Compile Include="Query\Builder\LimitBuilder.cs" />
     <Compile Include="SQLiteProvider.cs" />
     <Compile Include="SQLiteQueryBuilder.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
-    <Compile Include="Writers\SQLiteDeleteWriter.cs" />
-    <Compile Include="Writers\SQLiteFromWriter.cs" />
-    <Compile Include="Writers\SQLiteInsertWriter.cs" />
-    <Compile Include="Writers\SQLiteOffsetWriter.cs" />
-    <Compile Include="Writers\SQLiteLimitWriter.cs" />
-    <Compile Include="Writers\SQLiteGroupByWriter.cs" />
-    <Compile Include="Writers\SQLiteOrderByWriter.cs" />
     <Compile Include="SQLiteQueryFragment.cs" />
-    <Compile Include="Writers\SQLiteQueryWriter.cs" />
     <Compile Include="SQLiteSchema.cs" />
-    <Compile Include="SQLiteSyntax.cs" />
-    <Compile Include="Writers\SQLiteSelectWriter.cs" />
-    <Compile Include="Writers\SQLiteUpdateWriter.cs" />
-    <Compile Include="Writers\SQLiteWhereWriter.cs" />
     <Compile Include="SQLiteQueryBuilderVisitor.cs" />
+    <Compile Include="Writers\SQLiteLimitWriter.cs" />
+    <Compile Include="Writers\SQLiteOffsetWriter.cs" />
+    <Compile Include="Writers\SQLiteWhereWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -75,6 +64,10 @@
     <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">
       <Project>{9CDD4861-9938-41C1-88FE-9E4054BF164A}</Project>
       <Name>FoxDb.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FoxDb.Sql\FoxDb.Sql.csproj">
+      <Project>{9c50f9dd-4a7f-449a-aa52-2e734456b977}</Project>
+      <Name>FoxDb.Sql</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

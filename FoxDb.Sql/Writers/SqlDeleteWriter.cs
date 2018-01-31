@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SQLiteDeleteWriter : SQLiteQueryWriter
+    public class SqlDeleteWriter : SqlQueryWriter
     {
-        public SQLiteDeleteWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlDeleteWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
         {
 
         }
@@ -24,7 +24,7 @@ namespace FoxDb
             if (fragment is IDeleteBuilder)
             {
                 var expression = fragment as IDeleteBuilder;
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.DELETE);
+                this.Builder.AppendFormat("{0} ", SqlSyntax.DELETE);
                 return fragment;
             }
             throw new NotImplementedException();

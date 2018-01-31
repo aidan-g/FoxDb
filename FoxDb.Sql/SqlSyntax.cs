@@ -2,7 +2,7 @@
 
 namespace FoxDb
 {
-    public static class SQLiteSyntax
+    public static class SqlSyntax
     {
         public const string SELECT = "SELECT";
 

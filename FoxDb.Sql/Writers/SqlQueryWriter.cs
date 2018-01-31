@@ -6,17 +6,33 @@ using System.Text;
 
 namespace FoxDb
 {
-    public abstract class SQLiteQueryWriter : FragmentBuilder, ISQLiteQueryWriter
+    public abstract class SqlQueryWriter : FragmentBuilder, ISqlQueryWriter
     {
-        protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
+        protected static IDictionary<FragmentType, SqlQueryWriterHandler> Handlers = GetHandlers();
+
+        protected static IDictionary<FragmentType, SqlQueryWriterHandler> GetHandlers()
+        {
+            return new Dictionary<FragmentType, SqlQueryWriterHandler>()
+            {
+                { FragmentType.Unary, (writer, fragment) => writer.VisitUnary(fragment as IUnaryExpressionBuilder) },
+                { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
+                { FragmentType.Table, (writer, fragment) => writer.VisitTable(fragment as ITableBuilder) },
+                { FragmentType.Column, (writer, fragment) => writer.VisitColumn(fragment as IColumnBuilder) },
+                { FragmentType.Parameter, (writer, fragment) => writer.VisitParameter(fragment as IParameterBuilder) },
+                { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
+                { FragmentType.Operator, (writer, fragment) => writer.VisitOperator(fragment as IOperatorBuilder) },
+                { FragmentType.Constant, (writer, fragment) => writer.VisitConstant(fragment as IConstantBuilder) },
+                { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) }
+            };
+        }
 
         protected Stack<IFragmentBuilder> FragmentContext { get; private set; }
 
         protected Stack<RenderHints> RenderContext { get; private set; }
 
-        #region ISQLiteQueryWriter
+        #region ISqlQueryWriter
 
-        IReadOnlyCollection<IFragmentBuilder> ISQLiteQueryWriter.FragmentContext
+        IReadOnlyCollection<IFragmentBuilder> ISqlQueryWriter.FragmentContext
         {
             get
             {
@@ -59,7 +75,7 @@ namespace FoxDb
             return this.FragmentContext.Pop();
         }
 
-        IReadOnlyCollection<RenderHints> ISQLiteQueryWriter.RenderContext
+        IReadOnlyCollection<RenderHints> ISqlQueryWriter.RenderContext
         {
             get
             {
@@ -91,53 +107,36 @@ namespace FoxDb
 
         protected StringBuilder Builder { get; private set; }
 
-        protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
-        {
-            return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
-            {
-                { FragmentType.Unary, (parent, graph, fragment) => this.VisitUnary(fragment as IUnaryExpressionBuilder) },
-                { FragmentType.Binary, (parent, graph,fragment) => this.VisitBinary(fragment as IBinaryExpressionBuilder) },
-                { FragmentType.Table, (parent, graph,fragment) => this.VisitTable(fragment as ITableBuilder) },
-                { FragmentType.Column, (parent, graph,fragment) => this.VisitColumn(fragment as IColumnBuilder) },
-                { FragmentType.Parameter, (parent, graph,fragment) => this.VisitParameter(fragment as IParameterBuilder) },
-                { FragmentType.Function, (parent, graph,fragment) => this.VisitFunction(fragment as IFunctionBuilder) },
-                { FragmentType.Operator, (parent, graph,fragment) => this.VisitOperator(fragment as IOperatorBuilder) },
-                { FragmentType.Constant, (parent, graph,fragment) => this.VisitConstant(fragment as IConstantBuilder) },
-                { FragmentType.SubQuery, (parent, graph,fragment) => this.VisitSubQuery(fragment as ISubQueryBuilder) }
-            };
-        }
-
         protected static IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
         {
-            { QueryOperator.Not, SQLiteSyntax.NOT },
-            { QueryOperator.Equal, SQLiteSyntax.EQUAL },
-            { QueryOperator.NotEqual, SQLiteSyntax.NOT_EQUAL },
-            { QueryOperator.Greater, SQLiteSyntax.GREATER },
-            { QueryOperator.Less, SQLiteSyntax.LESS },
-            { QueryOperator.And, SQLiteSyntax.AND },
-            { QueryOperator.AndAlso, SQLiteSyntax.AND_ALSO },
-            { QueryOperator.Or, SQLiteSyntax.OR },
-            { QueryOperator.OrElse, SQLiteSyntax.OR_ELSE },
-            { QueryOperator.OpenParentheses, SQLiteSyntax.OPEN_PARENTHESES },
-            { QueryOperator.CloseParentheses, SQLiteSyntax.CLOSE_PARENTHESES },
-            { QueryOperator.Null, SQLiteSyntax.NULL },
-            { QueryOperator.Star, SQLiteSyntax.STAR }
+            { QueryOperator.Not, SqlSyntax.NOT },
+            { QueryOperator.Equal, SqlSyntax.EQUAL },
+            { QueryOperator.NotEqual, SqlSyntax.NOT_EQUAL },
+            { QueryOperator.Greater, SqlSyntax.GREATER },
+            { QueryOperator.Less, SqlSyntax.LESS },
+            { QueryOperator.And, SqlSyntax.AND },
+            { QueryOperator.AndAlso, SqlSyntax.AND_ALSO },
+            { QueryOperator.Or, SqlSyntax.OR },
+            { QueryOperator.OrElse, SqlSyntax.OR_ELSE },
+            { QueryOperator.OpenParentheses, SqlSyntax.OPEN_PARENTHESES },
+            { QueryOperator.CloseParentheses, SqlSyntax.CLOSE_PARENTHESES },
+            { QueryOperator.Null, SqlSyntax.NULL },
+            { QueryOperator.Star, SqlSyntax.STAR }
         };
 
         protected static IDictionary<QueryFunction, string> Functions = new Dictionary<QueryFunction, string>()
         {
-            { QueryFunction.Identity, SQLiteSyntax.IDENTITY },
-            { QueryFunction.Count, SQLiteSyntax.COUNT },
-            { QueryFunction.Exists, SQLiteSyntax.EXISTS }
+            { QueryFunction.Identity, SqlSyntax.IDENTITY },
+            { QueryFunction.Count, SqlSyntax.COUNT },
+            { QueryFunction.Exists, SqlSyntax.EXISTS }
         };
 
-        protected SQLiteQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-            this.Handlers = this.GetHandlers();
-            if (parent is ISQLiteQueryWriter)
+            if (parent is ISqlQueryWriter)
             {
-                this.FragmentContext = new Stack<IFragmentBuilder>((parent as ISQLiteQueryWriter).FragmentContext);
-                this.RenderContext = new Stack<RenderHints>((parent as ISQLiteQueryWriter).RenderContext);
+                this.FragmentContext = new Stack<IFragmentBuilder>((parent as ISqlQueryWriter).FragmentContext);
+                this.RenderContext = new Stack<RenderHints>((parent as ISqlQueryWriter).RenderContext);
             }
             else
             {
@@ -147,7 +146,7 @@ namespace FoxDb
             this.Builder = new StringBuilder();
         }
 
-        protected SQLiteQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, graph)
+        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, graph)
         {
             this.Database = database;
             this.Visitor = visitor;
@@ -201,15 +200,15 @@ namespace FoxDb
 
         protected virtual void Visit(IFragmentBuilder expression)
         {
-            var handler = default(QueryGraphVisitorHandler);
-            if (!this.Handlers.TryGetValue(expression.FragmentType, out handler))
+            var handler = default(SqlQueryWriterHandler);
+            if (!Handlers.TryGetValue(expression.FragmentType, out handler))
             {
                 throw new NotImplementedException();
             }
             this.AddFragmentContext(expression);
             try
             {
-                handler(this, this.Graph, expression);
+                handler(this, expression);
             }
             finally
             {
@@ -227,7 +226,7 @@ namespace FoxDb
 
         protected virtual void VisitTable(ITableBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Table.TableName));
+            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Table.TableName));
         }
 
         protected virtual void VisitUnary(IUnaryExpressionBuilder expression)
@@ -256,14 +255,14 @@ namespace FoxDb
             }
             if (expression.Flags.HasFlag(ColumnBuilderFlags.Distinct))
             {
-                this.Builder.AppendFormat("{0} ", SQLiteSyntax.DISTINCT);
+                this.Builder.AppendFormat("{0} ", SqlSyntax.DISTINCT);
             }
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.Identifier(expression.Column.Table.TableName, identifier));
+            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.Table.TableName, identifier));
         }
 
         protected virtual void VisitParameter(IParameterBuilder expression)
         {
-            this.Builder.AppendFormat("{0}{1} ", SQLiteSyntax.PARAMETER, expression.Name);
+            this.Builder.AppendFormat("{0}{1} ", SqlSyntax.PARAMETER, expression.Name);
             this.ParameterNames.Add(expression.Name);
         }
 
@@ -275,7 +274,7 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
             this.Builder.AppendFormat("{0} ", function);
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
             if (expression.Expressions.Any())
             {
                 this.AddRenderContext(RenderHints.FunctionArgument);
@@ -288,7 +287,7 @@ namespace FoxDb
                     this.RemoveRenderContext();
                 }
             }
-            this.Builder.AppendFormat("{0} ", SQLiteSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
         }
 
         protected virtual void VisitOperator(IOperatorBuilder expression)
@@ -340,8 +339,10 @@ namespace FoxDb
             {
                 return;
             }
-            this.Builder.AppendFormat("{0} {1} ", SQLiteSyntax.AS, SQLiteSyntax.Identifier(alias));
+            this.Builder.AppendFormat("{0} {1} ", SqlSyntax.AS, SqlSyntax.Identifier(alias));
         }
+
+        public delegate void SqlQueryWriterHandler(SqlQueryWriter writer, IFragmentBuilder fragment);
     }
 
     [Flags]

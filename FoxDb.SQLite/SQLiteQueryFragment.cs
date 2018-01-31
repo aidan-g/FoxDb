@@ -1,55 +1,27 @@
 ﻿using FoxDb.Interfaces;
-using System;
-using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SQLiteQueryFragment
+    public class SQLiteQueryFragment : SqlQueryFragment
     {
-        public const FragmentType Join = (FragmentType)100;
-
         public const FragmentType Limit = (FragmentType)101;
 
         public const FragmentType Offset = (FragmentType)102;
 
-        protected static IDictionary<FragmentType, byte> Priorities = new Dictionary<FragmentType, byte>()
+        static SQLiteQueryFragment()
         {
-            { FragmentType.Add, 10 },
-            { FragmentType.Update, 20 },
-            { FragmentType.Delete, 30 },
-            { FragmentType.Output, 40 },
-            { FragmentType.Source, 50 },
-            { Join, 60 },
-            { FragmentType.Filter, 70 },
-            { FragmentType.Aggregate, 80 },
-            { FragmentType.Sort, 90 },
-            { Limit, 100 },
-            { Offset, 110 }
-        };
+            Priorities[Limit] = 100;
+            Priorities[Offset] = 110;
+        }
 
-        public SQLiteQueryFragment(IFragmentTarget target) : this(target.CommandText, GetPriority(target))
+        public SQLiteQueryFragment(IFragmentTarget target) : base(target)
         {
 
         }
 
-        public SQLiteQueryFragment(string commandText, byte priority)
+        public SQLiteQueryFragment(string commandText, byte priority) : base(commandText, priority)
         {
-            this.CommandText = commandText;
-            this.Priority = priority;
-        }
 
-        public string CommandText { get; private set; }
-
-        public byte Priority { get; private set; }
-
-        public static byte GetPriority(IFragmentTarget target)
-        {
-            var priority = default(byte);
-            if (!Priorities.TryGetValue(target.FragmentType, out priority))
-            {
-                throw new NotImplementedException();
-            }
-            return priority;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface ISQLiteQueryWriter : IFragmentTarget, IFragmentBuilder
+    public interface ISqlQueryWriter : IFragmentTarget, IFragmentBuilder
     {
         IReadOnlyCollection<IFragmentBuilder> FragmentContext { get; }
 

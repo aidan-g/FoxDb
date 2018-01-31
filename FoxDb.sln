@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Core", "FoxDb.Core\FoxDb.Core.csproj", "{9CDD4861-9938-41C1-88FE-9E4054BF164A}"
 EndProject
@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SQLite", "FoxDb.SQLite\FoxDb.SQLite.csproj", "{516E910D-80C2-4BFE-9591-491BDF5FE98F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Linq", "FoxDb.Linq\FoxDb.Linq.csproj", "{41B65697-ED2E-444B-B93A-4A9757827207}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Sql", "FoxDb.Sql\FoxDb.Sql.csproj", "{9C50F9DD-4A7F-449A-AA52-2E734456B977}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SqlCe", "FoxDb.SqlCe\FoxDb.SqlCe.csproj", "{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{41B65697-ED2E-444B-B93A-4A9757827207}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41B65697-ED2E-444B-B93A-4A9757827207}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41B65697-ED2E-444B-B93A-4A9757827207}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C50F9DD-4A7F-449A-AA52-2E734456B977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C50F9DD-4A7F-449A-AA52-2E734456B977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C50F9DD-4A7F-449A-AA52-2E734456B977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C50F9DD-4A7F-449A-AA52-2E734456B977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

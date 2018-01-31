@@ -2,15 +2,15 @@
 
 namespace FoxDb
 {
-    public class SQLiteQueryFactory : SqlQueryFactory
+    public class SqlCeQueryFactory : SqlQueryFactory
     {
-        public SQLiteQueryFactory(IDatabase database) : base(database)
+        public SqlCeQueryFactory(IDatabase database) : base(database)
         {
         }
 
         protected override IQueryBuilder CreateBuilder(IDatabase database, IQueryGraphBuilder graph)
         {
-            return new SQLiteQueryBuilder(database, graph);
+            return new SqlCeQueryBuilder(database, graph);
         }
     }
 }
