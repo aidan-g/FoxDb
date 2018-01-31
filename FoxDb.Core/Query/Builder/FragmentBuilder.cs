@@ -8,32 +8,32 @@ namespace FoxDb
     [DebuggerDisplay("{DebugView}")]
     public abstract class FragmentBuilder : IFragmentBuilder
     {
-        protected IDictionary<Type, Func<IFragmentBuilder>> Factories { get; private set; }
+        protected static readonly IDictionary<Type, FragmentBuilderHandler> Factories = GetFactories();
 
-        protected virtual IDictionary<Type, Func<IFragmentBuilder>> GetFactories(IQueryGraphBuilder graph)
+        protected static IDictionary<Type, FragmentBuilderHandler> GetFactories()
         {
-            return new Dictionary<Type, Func<IFragmentBuilder>>()
+            return new Dictionary<Type, FragmentBuilderHandler>()
             {
                 //Expressions.
-                { typeof(IOutputBuilder), () => new OutputBuilder(this, graph) },
-                { typeof(IAddBuilder), () => new AddBuilder(this, graph) },
-                { typeof(IUpdateBuilder), () => new UpdateBuilder(this, graph) },
-                { typeof(IDeleteBuilder), () => new DeleteBuilder(this, graph) },
-                { typeof(ISourceBuilder), () => new SourceBuilder(this, graph) },
-                { typeof(IFilterBuilder), () => new FilterBuilder(this, graph) },
-                { typeof(IAggregateBuilder), () => new AggregateBuilder(this, graph) },
-                { typeof(ISortBuilder), () => new SortBuilder(this, graph) },
+                { typeof(IOutputBuilder), (parent, graph) => new OutputBuilder(parent, graph) },
+                { typeof(IAddBuilder), (parent, graph) => new AddBuilder(parent, graph) },
+                { typeof(IUpdateBuilder), (parent, graph) => new UpdateBuilder(parent, graph) },
+                { typeof(IDeleteBuilder), (parent, graph) => new DeleteBuilder(parent, graph) },
+                { typeof(ISourceBuilder), (parent, graph) => new SourceBuilder(parent, graph) },
+                { typeof(IFilterBuilder), (parent, graph) => new FilterBuilder(parent, graph) },
+                { typeof(IAggregateBuilder), (parent, graph) => new AggregateBuilder(parent, graph) },
+                { typeof(ISortBuilder), (parent, graph) => new SortBuilder(parent, graph) },
                 //Fragments.
-                { typeof(IUnaryExpressionBuilder), () => new UnaryExpressionBuilder(this, this.Graph) },
-                { typeof(IBinaryExpressionBuilder), () => new BinaryExpressionBuilder(this, graph) },
-                { typeof(ITableBuilder), () => new TableBuilder(this, graph) },
-                { typeof(IRelationBuilder), () => new RelationBuilder(this, graph) },
-                { typeof(ISubQueryBuilder), () => new SubQueryBuilder(this, graph) },
-                { typeof(IColumnBuilder), () => new ColumnBuilder(this, graph) },
-                { typeof(IParameterBuilder), () => new ParameterBuilder(this, graph) },
-                { typeof(IFunctionBuilder), () => new FunctionBuilder(this, graph) },
-                { typeof(IOperatorBuilder), () => new OperatorBuilder(this, graph) },
-                { typeof(IConstantBuilder), () => new ConstantBuilder(this, graph) },
+                { typeof(IUnaryExpressionBuilder), (parent, graph) => new UnaryExpressionBuilder(parent, graph) },
+                { typeof(IBinaryExpressionBuilder), (parent, graph) => new BinaryExpressionBuilder(parent, graph) },
+                { typeof(ITableBuilder), (parent, graph) => new TableBuilder(parent, graph) },
+                { typeof(IRelationBuilder), (parent, graph) => new RelationBuilder(parent, graph) },
+                { typeof(ISubQueryBuilder), (parent, graph) => new SubQueryBuilder(parent, graph) },
+                { typeof(IColumnBuilder), (parent, graph) => new ColumnBuilder(parent, graph) },
+                { typeof(IParameterBuilder), (parent, graph) => new ParameterBuilder(parent, graph) },
+                { typeof(IFunctionBuilder), (parent, graph) => new FunctionBuilder(parent, graph) },
+                { typeof(IOperatorBuilder), (parent, graph) => new OperatorBuilder(parent, graph) },
+                { typeof(IConstantBuilder), (parent, graph) => new ConstantBuilder(parent, graph) },
             };
         }
 
@@ -41,7 +41,6 @@ namespace FoxDb
         {
             this.Parent = parent;
             this.Graph = graph;
-            this.Factories = this.GetFactories(graph);
         }
 
         public IFragmentBuilder Parent { get; private set; }
@@ -84,12 +83,12 @@ namespace FoxDb
 
         public T Fragment<T>() where T : IFragmentBuilder
         {
-            var factory = default(Func<IFragmentBuilder>);
+            var factory = default(FragmentBuilderHandler);
             if (!Factories.TryGetValue(typeof(T), out factory))
             {
                 throw new NotImplementedException();
             }
-            return (T)factory();
+            return (T)factory(this, this.Graph);
         }
 
         public ITableBuilder CreateTable(ITableConfig table)
@@ -254,5 +253,7 @@ namespace FoxDb
                 }
             }
         }
+
+        public delegate IFragmentBuilder FragmentBuilderHandler(IFragmentBuilder parent, IQueryGraphBuilder graph);
     }
 }

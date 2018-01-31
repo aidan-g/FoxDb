@@ -6,6 +6,26 @@ namespace FoxDb
 {
     public static class EntityKey
     {
+        /// <summary>
+        /// The most likely key types.
+        /// </summary>
+        private static readonly Type[] IntegralTypes = new[]
+        {
+            typeof(long),
+            typeof(int),
+            typeof(byte),
+            typeof(ulong),
+            typeof(uint)
+        };
+
+        /// <summary>
+        /// Other key types.
+        /// </summary>
+        private static readonly Type[] TextTypes = new[]
+        {
+            typeof(string)
+        };
+
         public static bool IsKey(object key)
         {
             return key != null && !DBNull.Value.Equals(key);
@@ -45,10 +65,20 @@ namespace FoxDb
 
         public static bool KeyEquals(ITableConfig table, object item, object key)
         {
-            //I don't really like using dynamic but it seems to work here.
-            //The problem is that either key could be a) boxed b) of differing types.
-            //The alternative is to determine the "widest" type and use Convert.ChangeType and Equals to determine equality.
-            return (dynamic)GetKey(table, item) == (dynamic)key;
+            var type = table.PrimaryKey.Property.PropertyType;
+            if (IntegralTypes.Contains(type))
+            {
+                var key1 = Convert.ToInt64(GetKey(table, item));
+                var key2 = Convert.ToInt64(key);
+                return key1 == key2;
+            }
+            if (TextTypes.Contains(type))
+            {
+                var key1 = Convert.ToString(GetKey(table, item));
+                var key2 = Convert.ToString(key);
+                return string.Equals(key1, key2);
+            }
+            throw new NotImplementedException();
         }
     }
 }
