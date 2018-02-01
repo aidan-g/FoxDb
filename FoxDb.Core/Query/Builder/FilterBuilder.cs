@@ -23,6 +23,8 @@ namespace FoxDb
 
         public int Limit { get; set; }
 
+        public LimitType LimitType { get; set; }
+
         public int Offset { get; set; }
 
         public ICollection<IFragmentBuilder> Expressions { get; private set; }
@@ -109,6 +111,8 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IFilterBuilder>().With(builder =>
             {
+                builder.Limit = this.Limit;
+                builder.Offset = this.Offset;
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

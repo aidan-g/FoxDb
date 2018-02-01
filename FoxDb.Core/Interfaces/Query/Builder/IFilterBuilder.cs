@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
     {
         int Limit { get; set; }
 
+        LimitType LimitType { get; set; }
+
         int Offset { get; set; }
 
         IBinaryExpressionBuilder Add();
@@ -23,5 +25,11 @@ namespace FoxDb.Interfaces
         IFunctionBuilder AddFunction(IFunctionBuilder function);
 
         IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments);
+    }
+
+    public enum LimitType : byte
+    {
+        None = 0,
+        Percent = 1
     }
 }

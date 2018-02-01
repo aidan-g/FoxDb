@@ -28,7 +28,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<IColumnBuilder>().With(builder => builder.Column = this.Column);
+            return this.Parent.Fragment<IColumnBuilder>().With(builder =>
+            {
+                builder.Column = this.Column;
+                builder.Alias = this.Alias;
+            });
         }
 
         public override string DebugView

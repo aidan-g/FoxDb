@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SqlFromWriter : SqlQueryWriter
     {
-        public SqlFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
         {
 
         }
@@ -86,19 +86,26 @@ namespace FoxDb
             }
             else
             {
-                //If the table builder is filtered or sorted we have to create a sub query encapsulating this logic.
-                //This is really only necessary if limit or offset is defined.
-                var builder = this.Database.QueryFactory.Build();
-                builder.Output.AddOperator(QueryOperator.Star);
-                builder.Source.AddTable(expression.Table);
-                builder.Filter.Limit = expression.Filter.Limit;
-                builder.Filter.Offset = expression.Filter.Offset;
-                builder.Filter.Expressions.AddRange(expression.Filter.Expressions);
-                builder.Sort.Expressions.AddRange(expression.Sort.Expressions);
-                this.VisitSubQuery(this.CreateSubQuery(builder).With(
-                    query => query.Alias = expression.Table.TableName
-                ));
+                this.VisitSubQuery(
+                    this.CreateSubQuery(this.CreateSubQuery(expression)).With(
+                        query => query.Alias = expression.Table.TableName
+                    )
+                );
             }
+        }
+
+        protected virtual IQueryGraphBuilder CreateSubQuery(ITableBuilder expression)
+        {
+            //If the table builder is filtered or sorted we have to create a sub query encapsulating this logic.
+            //This is really only necessary if limit or offset is defined.
+            var builder = this.Database.QueryFactory.Build();
+            builder.Output.AddOperator(QueryOperator.Star);
+            builder.Source.AddTable(expression.Table);
+            builder.Filter.Limit = expression.Filter.Limit;
+            builder.Filter.Offset = expression.Filter.Offset;
+            builder.Filter.Expressions.AddRange(expression.Filter.Expressions);
+            builder.Sort.Expressions.AddRange(expression.Sort.Expressions);
+            return builder;
         }
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)

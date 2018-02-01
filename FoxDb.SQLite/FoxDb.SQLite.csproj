@@ -53,10 +53,12 @@
     <Compile Include="SQLiteQueryDialect.cs" />
     <Compile Include="SQLiteQueryFactory.cs" />
     <Compile Include="SQLiteQueryFragment.cs" />
+    <Compile Include="SQLiteQueryFunction.cs" />
     <Compile Include="SQLiteSchema.cs" />
     <Compile Include="SQLiteQueryBuilderVisitor.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />
     <Compile Include="Writers\SQLiteOffsetWriter.cs" />
+    <Compile Include="Writers\SQLiteSelectWriter.cs" />
     <Compile Include="Writers\SQLiteWhereWriter.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -100,6 +100,7 @@
     <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
     <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryParameter.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
     <Compile Include="Interfaces\ITransactionSource.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Query\Compatibility.cs" />
     <Compile Include="Query\DatabaseQuery.cs" />
     <Compile Include="Query\DatabaseQueryComposer.cs" />
+    <Compile Include="Query\DatabaseQueryParameter.cs" />
     <Compile Include="Query\DatabaseQuerySource.cs" />
     <Compile Include="DatabaseReader.cs" />
     <Compile Include="DatabaseSet.cs" />

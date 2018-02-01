@@ -51,12 +51,13 @@ namespace FoxDb
             var table = this.Parent as ITableBuilder;
             if (table == null && fragment.GetSourceTable(out table))
             {
-                table.Sort.Write(fragment);
+                if (table.Filter.Limit != 0)
+                {
+                    table.Sort.Write(fragment);
+                    return fragment;
+                }
             }
-            else
-            {
-                this.Expressions.Add(fragment);
-            }
+            this.Expressions.Add(fragment);
             return fragment;
         }
 

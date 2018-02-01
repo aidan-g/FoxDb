@@ -56,6 +56,17 @@ namespace FoxDb
             }
         }
 
+        IEnumerable<IColumnConfig> ITableConfig.UpdatableColumns
+        {
+            get
+            {
+                return this.Columns.Values
+                    .Except(this.PrimaryKeys)
+                    .ToLookup(column => column.ColumnName)
+                    .Select(columns => columns.First());
+            }
+        }
+
         IEnumerable<IRelationConfig> ITableConfig.Relations
         {
             get
@@ -147,7 +158,14 @@ namespace FoxDb
             var hashCode = 0;
             unchecked
             {
-                hashCode += this.TableName.GetHashCode();
+                if (!string.IsNullOrEmpty(this.TableName))
+                {
+                    hashCode += this.TableName.GetHashCode();
+                }
+                if (this.TableType != null)
+                {
+                    hashCode += this.TableType.GetHashCode();
+                }
             }
             return hashCode;
         }

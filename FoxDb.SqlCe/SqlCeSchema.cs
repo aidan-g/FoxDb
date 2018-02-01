@@ -38,10 +38,10 @@ namespace FoxDb
         {
             if (this.TableNames == null)
             {
-                var query = this.Database.QueryFactory.Create("SELECT table_name FROM information_schema.tables");
+                var query = this.Database.QueryFactory.Create("SELECT TABLE_NAME FROM information_schema.tables");
                 using (var reader = this.Database.ExecuteReader(query, transaction))
                 {
-                    this.TableNames = reader.Select(element => element.Get<string>("table_name")).ToArray();
+                    this.TableNames = reader.Select(element => element.Get<string>("TABLE_NAME")).ToArray();
                 }
             }
             return this.TableNames;
@@ -52,10 +52,10 @@ namespace FoxDb
             var columnNames = default(string[]);
             if (!this.ColumnNames.TryGetValue(tableName, out columnNames))
             {
-                var query = this.Database.QueryFactory.Create(string.Format("SELECT column_name FROM information_schema.columns WHERE table_name = '{0}'", tableName));
+                var query = this.Database.QueryFactory.Create(string.Format("SELECT COLUMN_NAME FROM information_schema.columns WHERE TABLE_NAME = '{0}'", tableName));
                 using (var reader = this.Database.ExecuteReader(query, transaction))
                 {
-                    columnNames = reader.Select(element => element.Get<string>("name")).ToArray();
+                    columnNames = reader.Select(element => element.Get<string>("COLUMN_NAME")).ToArray();
                     if (columnNames.Length == 0)
                     {
                         throw new InvalidOperationException(string.Format("No columns were found for table \"{0}\".", tableName));

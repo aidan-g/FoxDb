@@ -8,6 +8,7 @@ namespace FoxDb
         public IEnumerable<IColumnConfig> GetColumns(ITableConfig table)
         {
             var properties = new EntityPropertyEnumerator(table.TableType);
+            var columns = new List<IColumnConfig>();
             foreach (var property in properties)
             {
                 if (!ColumnValidator.Validate(property))
@@ -19,8 +20,9 @@ namespace FoxDb
                 {
                     continue;
                 }
-                yield return column;
+                columns.Add(column);
             }
+            return columns;
         }
     }
 }

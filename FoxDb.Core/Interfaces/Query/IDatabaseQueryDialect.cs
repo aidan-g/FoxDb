@@ -68,19 +68,23 @@
 
         string GREATER { get; }
 
+        string GREATER_OR_EQUAL { get; }
+
         string LESS { get; }
+
+        string LESS_OR_EQUAL { get; }
 
         string OPEN_PARENTHESES { get; }
 
         string CLOSE_PARENTHESES { get; }
+
+        string ADD { get; }
 
         string DEFAULT { get; }
 
         string IDENTIFIER_FORMAT { get; }
 
         string STRING_FORMAT { get; }
-
-        string IDENTITY { get; }
 
         string BATCH { get; }
     }

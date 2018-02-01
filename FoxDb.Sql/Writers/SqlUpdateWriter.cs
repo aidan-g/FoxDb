@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class SqlUpdateWriter : SqlQueryWriter
     {
-        public SqlUpdateWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : base(parent, graph, database, visitor, parameterNames)
+        public SqlUpdateWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
         {
 
         }

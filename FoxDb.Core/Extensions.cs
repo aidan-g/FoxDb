@@ -8,11 +8,11 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, out IDatabaseParameters parameters, ITransactionSource transaction = null)
+        public static IDbCommand CreateCommand(this IDatabase database, IDatabaseQuery query, out IDatabaseParameters parameters, ITransactionSource transaction = null)
         {
-            var command = connection.CreateCommand();
+            var command = database.Connection.CreateCommand();
             command.CommandText = query.CommandText;
-            parameters = command.CreateParameters(query);
+            parameters = database.CreateParameters(command, query);
             if (transaction != null)
             {
                 transaction.Bind(command);
@@ -20,11 +20,11 @@ namespace FoxDb
             return command;
         }
 
-        public static IDbCommand CreateCommand(this IDbConnection connection, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        public static IDbCommand CreateCommand(this IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            var command = connection.CreateCommand();
+            var command = database.Connection.CreateCommand();
             command.CommandText = query.CommandText;
-            command.CreateParameters(query, parameters);
+            database.CreateParameters(command, query, parameters);
             if (transaction != null)
             {
                 transaction.Bind(command);
@@ -32,20 +32,29 @@ namespace FoxDb
             return command;
         }
 
-        public static IDatabaseParameters CreateParameters(this IDbCommand command, IDatabaseQuery query, DatabaseParameterHandler handler = null)
+        public static IDatabaseParameters CreateParameters(this IDatabase database, IDbCommand command, IDatabaseQuery query, DatabaseParameterHandler handler = null)
         {
-            foreach (var parameterName in query.ParameterNames)
+            foreach (var parameter in query.Parameters)
             {
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = parameterName;
-                command.Parameters.Add(parameter);
+                if (parameter.Type == ParameterType.None)
+                {
+                    continue;
+                }
+                CreateParameter(command, parameter.Name, parameter.Type);
             }
-            var parameters = new DatabaseParameters(command.Parameters);
+            var parameters = new DatabaseParameters(database, query, command.Parameters);
             if (handler != null)
             {
                 handler(parameters);
             }
             return parameters;
+        }
+
+        public static void CreateParameter(IDbCommand command, string name, ParameterType type)
+        {
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = name;
+            command.Parameters.Add(parameter);
         }
 
         public static object DefaultValue(this Type type)

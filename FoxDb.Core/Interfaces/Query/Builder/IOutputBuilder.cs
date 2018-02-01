@@ -10,6 +10,8 @@ namespace FoxDb.Interfaces
 
         IOutputBuilder AddColumns(IEnumerable<IColumnConfig> columns);
 
+        IParameterBuilder AddParameter(string name);
+
         IOutputBuilder AddParameters(IEnumerable<IColumnConfig> columns);
 
         IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments);

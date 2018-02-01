@@ -13,9 +13,9 @@ namespace FoxDb
             return new SQLiteQueryBuilder(database, graph);
         }
 
-        public override IDatabaseQuery Create(string commandText, params string[] parameterNames)
+        public override IDatabaseQuery Create(string commandText, params IDatabaseQueryParameter[] parameters)
         {
-            return new SQLiteQuery(commandText, parameterNames);
+            return new SQLiteQuery(commandText, parameters);
         }
 
         public override IDatabaseQueryDialect Dialect
@@ -24,6 +24,28 @@ namespace FoxDb
             {
                 return new SQLiteQueryDialect();
             }
+        }
+
+        public override IQueryGraphBuilder Add(ITableConfig table)
+        {
+            var builder = this.Build();
+            builder.Output.AddFunction(SQLiteQueryFunction.LastInsertRowId);
+            return this.Combine(new[] { base.Add(table), builder });
+        }
+
+        public override IQueryGraphBuilder Count(ITableConfig table, IQueryGraphBuilder query)
+        {
+            var builder = this.Build();
+            builder.Output.AddFunction(
+                QueryFunction.Count,
+                builder.Output.CreateColumn(table.PrimaryKey).With(
+                    column => column.Flags = ColumnBuilderFlags.Identifier | ColumnBuilderFlags.Distinct
+                )
+            );
+            builder.Source.AddSubQuery(query).With(
+                subQuery => subQuery.Alias = table.TableName
+            );
+            return builder;
         }
     }
 }

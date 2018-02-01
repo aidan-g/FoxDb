@@ -33,7 +33,7 @@ namespace FoxDb
         protected virtual IDatabaseQuery Create(IEnumerable<IQueryGraphBuilder> graphs)
         {
             var builder = new StringBuilder();
-            var parameterNames = new List<string>();
+            var parameters = new List<IDatabaseQueryParameter>();
             foreach (var graph in graphs)
             {
                 if (builder.Length > 0)
@@ -42,12 +42,12 @@ namespace FoxDb
                 }
                 var query = this.Create(graph);
                 builder.Append(query.CommandText);
-                parameterNames.AddRange(query.ParameterNames.Except(parameterNames));
+                parameters.AddRange(query.Parameters.Except(parameters));
             }
-            return this.Create(builder.ToString(), parameterNames.ToArray());
+            return this.Create(builder.ToString(), parameters.ToArray());
         }
 
-        public abstract IDatabaseQuery Create(string commandText, params string[] parameterNames);
+        public abstract IDatabaseQuery Create(string commandText, params IDatabaseQueryParameter[] parameters);
 
         public IQueryGraphBuilder Combine(IEnumerable<IQueryGraphBuilder> graphs)
         {
@@ -57,7 +57,7 @@ namespace FoxDb
         public IDatabaseQuery Combine(IEnumerable<IDatabaseQuery> queries)
         {
             var builder = new StringBuilder();
-            var parameterNames = new List<string>();
+            var parameters = new List<IDatabaseQueryParameter>();
             foreach (var query in queries)
             {
                 if (builder.Length > 0)
@@ -65,12 +65,12 @@ namespace FoxDb
                     builder.AppendFormat("{0} ", this.Dialect.BATCH);
                 }
                 builder.Append(query.CommandText);
-                parameterNames.AddRange(query.ParameterNames);
+                parameters.AddRange(query.Parameters);
             }
-            return this.Create(builder.ToString(), parameterNames.ToArray());
+            return this.Create(builder.ToString(), parameters.ToArray());
         }
 
-        public IQueryGraphBuilder Fetch(ITableConfig table)
+        public virtual IQueryGraphBuilder Fetch(ITableConfig table)
         {
             var builder = this.Build();
             builder.Output.AddColumns(table.Columns);
@@ -79,43 +79,34 @@ namespace FoxDb
             return builder;
         }
 
-        public IQueryGraphBuilder Add(ITableConfig table)
+        public virtual IQueryGraphBuilder Add(ITableConfig table)
         {
-            var queries = new List<IQueryGraphBuilder>();
+            var builder = this.Build();
+            var columns = table.UpdatableColumns;
+            builder.Add.SetTable(table);
+            if (columns.Any())
             {
-                var builder = this.Build();
-                var columns = table.Columns.Except(table.PrimaryKeys);
-                builder.Add.SetTable(table);
-                if (columns.Any())
-                {
-                    builder.Add.AddColumns(columns);
-                    builder.Output.AddParameters(columns);
-                }
-                queries.Add(builder);
+                builder.Add.AddColumns(columns);
+                builder.Output.AddParameters(columns);
             }
-            {
-                var builder = this.Build();
-                builder.Output.AddFunction(QueryFunction.Identity);
-                queries.Add(builder);
-            }
-            return this.Combine(queries);
+            return builder;
         }
 
-        public IQueryGraphBuilder Update(ITableConfig table)
+        public virtual IQueryGraphBuilder Update(ITableConfig table)
         {
             var builder = this.Build();
             builder.Update.SetTable(table);
-            builder.Update.AddColumns(table.Columns.Except(table.PrimaryKeys));
+            builder.Update.AddColumns(table.UpdatableColumns);
             builder.Filter.AddColumns(table.PrimaryKeys);
             return builder;
         }
 
-        public IQueryGraphBuilder Delete(ITableConfig table)
+        public virtual IQueryGraphBuilder Delete(ITableConfig table)
         {
             return this.Delete(table, table.PrimaryKeys);
         }
 
-        public IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys)
+        public virtual IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys)
         {
             var builder = this.Build();
             builder.Delete.Touch();
@@ -124,7 +115,7 @@ namespace FoxDb
             return builder;
         }
 
-        public IQueryGraphBuilder Count(IQueryGraphBuilder query)
+        public virtual IQueryGraphBuilder Count(IQueryGraphBuilder query)
         {
             var builder = this.Build();
             builder.Output.AddFunction(QueryFunction.Count, builder.Output.CreateOperator(QueryOperator.Star));
@@ -132,20 +123,7 @@ namespace FoxDb
             return builder;
         }
 
-        public IQueryGraphBuilder Count(ITableConfig table, IQueryGraphBuilder query)
-        {
-            var builder = this.Build();
-            builder.Output.AddFunction(
-                QueryFunction.Count,
-                builder.Output.CreateColumn(table.PrimaryKey).With(
-                    column => column.Flags = ColumnBuilderFlags.Identifier | ColumnBuilderFlags.Distinct
-                )
-            );
-            builder.Source.AddSubQuery(query).With(
-                subQuery => subQuery.Alias = table.TableName
-            );
-            return builder;
-        }
+        public abstract IQueryGraphBuilder Count(ITableConfig table, IQueryGraphBuilder query);
 
         protected abstract IQueryBuilder CreateBuilder(IDatabase database, IQueryGraphBuilder graph);
     }

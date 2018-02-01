@@ -4,6 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface IRelationManager
     {
+        IEnumerable<IRelationConfig> Relations { get; }
+
         IEntityRelationCalculator Calculator { get; set; }
 
         IEnumerable<IEntityRelation> CalculatedRelations { get; }

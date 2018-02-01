@@ -4,7 +4,7 @@ namespace FoxDb
 {
     public class SQLiteQueryDialect : SqlQueryDialect
     {
-        public override string IDENTITY
+        public string LAST_INSERT_ROWID
         {
             get
             {

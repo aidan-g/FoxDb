@@ -52,6 +52,7 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IFunctionBuilder>().With(builder =>
             {
+                builder.Function = this.Function;
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

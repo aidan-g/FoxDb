@@ -27,6 +27,8 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> Columns { get; }
 
+        IEnumerable<IColumnConfig> UpdatableColumns { get; }
+
         IEnumerable<IRelationConfig> Relations { get; }
 
         ITableConfig AutoColumns();

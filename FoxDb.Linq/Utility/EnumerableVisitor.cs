@@ -44,15 +44,20 @@ namespace FoxDb
         {
             return new Dictionary<ExpressionType, QueryOperator>()
             {
+                //Logical.
                 { ExpressionType.Not,  QueryOperator.Not },
                 { ExpressionType.Equal, QueryOperator.Equal },
                 { ExpressionType.NotEqual, QueryOperator.NotEqual },
                 { ExpressionType.LessThan, QueryOperator.Less },
+                { ExpressionType.LessThanOrEqual, QueryOperator.LessOrEqual },
                 { ExpressionType.GreaterThan, QueryOperator.Greater },
+                { ExpressionType.GreaterThanOrEqual, QueryOperator.GreaterOrEqual },
                 { ExpressionType.And, QueryOperator.And },
                 { ExpressionType.AndAlso, QueryOperator.AndAlso },
                 { ExpressionType.Or, QueryOperator.Or },
                 { ExpressionType.OrElse, QueryOperator.OrElse },
+                //Mathmatical.
+                { ExpressionType.Add, QueryOperator.Add }
             };
         }
 

@@ -99,10 +99,10 @@ namespace FoxDb
             }
         }
 
-        [TestCase(QueryOperator.Equal, 1, 1)]
-        [TestCase(QueryOperator.Greater, 1, 2)]
-        [TestCase(QueryOperator.Less, 3, 2)]
-        public void Where(QueryOperator @operator, object value, int count)
+        [TestCase(QueryOperator.Equal, 0, 1)]
+        [TestCase(QueryOperator.Greater, 0, 2)]
+        [TestCase(QueryOperator.Less, 2, 2)]
+        public void Where(QueryOperator @operator, int offset, int count)
         {
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();
@@ -114,11 +114,12 @@ namespace FoxDb
                 new Test002() { Name = "3" }
             });
             set.AddOrUpdate(data);
+            var id = data[0].Id;
             set.Fetch.Filter.Add().With(builder =>
             {
                 builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
                 builder.Operator = builder.CreateOperator(@operator);
-                builder.Right = builder.CreateConstant(value);
+                builder.Right = builder.CreateConstant(id + offset);
             });
             Assert.AreEqual(count, set.Count());
         }
@@ -150,8 +151,9 @@ namespace FoxDb
             });
             for (var a = 0; a < data.Count; a++)
             {
-                set.Parameters = parameters => parameters["Id"] = a;
-                this.AssertSequence(new[] { data.Where(element => element.Id > a).First() }, set);
+                var id = data[a].Id - 1;
+                set.Parameters = parameters => parameters["Id"] = id;
+                this.AssertSequence(new[] { data.Where(element => element.Id > id).First() }, set);
             }
         }
 
@@ -159,6 +161,12 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Offset(RelationFlags flags)
         {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlCe:
+                    Assert.Ignore("The provider does not (easily) support offset.");
+                    return;
+            }
             var relation = this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();

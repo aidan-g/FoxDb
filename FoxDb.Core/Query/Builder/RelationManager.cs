@@ -13,6 +13,14 @@ namespace FoxDb
 
         public IEntityRelationCalculator Calculator { get; set; }
 
+        public IEnumerable<IRelationConfig> Relations
+        {
+            get
+            {
+                return this.Calculator.Relations;
+            }
+        }
+
         public IEnumerable<IEntityRelation> CalculatedRelations
         {
             get

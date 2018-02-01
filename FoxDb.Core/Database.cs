@@ -69,7 +69,7 @@ namespace FoxDb
 
         public int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            using (var command = this.Connection.CreateCommand(query, parameters, transaction))
+            using (var command = this.CreateCommand(query, parameters, transaction))
             {
                 var result = default(int);
                 foreach (var commandText in command.CommandText.Split(new[] { this.QueryFactory.Dialect.BATCH }, StringSplitOptions.None))
@@ -79,7 +79,7 @@ namespace FoxDb
                         continue;
                     }
                     command.CommandText = commandText;
-                    result += command.ExecuteNonQuery();
+                    result = command.ExecuteNonQuery();
                 }
                 return result;
             }
@@ -87,9 +87,19 @@ namespace FoxDb
 
         public T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            using (var command = this.Connection.CreateCommand(query, parameters, transaction))
+            using (var command = this.CreateCommand(query, parameters, transaction))
             {
-                return Converter.ChangeType<T>(command.ExecuteScalar());
+                var result = default(object);
+                foreach (var commandText in command.CommandText.Split(new[] { this.QueryFactory.Dialect.BATCH }, StringSplitOptions.None))
+                {
+                    if (string.IsNullOrEmpty(commandText.Trim()))
+                    {
+                        continue;
+                    }
+                    command.CommandText = commandText;
+                    result = command.ExecuteScalar();
+                }
+                return Converter.ChangeType<T>(result);
             }
         }
 
@@ -109,7 +119,7 @@ namespace FoxDb
 
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            var command = this.Connection.CreateCommand(query, parameters, transaction);
+            var command = this.CreateCommand(query, parameters, transaction);
             return new DatabaseReader(command);
         }
 

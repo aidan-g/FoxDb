@@ -136,7 +136,7 @@ namespace FoxDb
             data[1].Test003 = null;
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
-            var child = this.Database.Set<Test003>().AddOrUpdate(new Test003() { Name = "2_2" });
+            var child = this.Database.Set<Test003>(this.Transaction).AddOrUpdate(new Test003() { Name = "2_2" });
             data[1].Test003_Id = child.Id;
             new EntityPersister(this.Database, set.Table, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
             data[1].Test003 = child;
@@ -169,7 +169,7 @@ namespace FoxDb
             data[1].Test004.Clear();
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
-            var child = this.Database.Set<Test004>().AddOrUpdate(new Test004() { Name = "2_2" });
+            var child = this.Database.Set<Test004>(this.Transaction).AddOrUpdate(new Test004() { Name = "2_2" });
             data[1].Test004_Id = child.Id;
             new EntityPersister(this.Database, set.Table, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
             data[1].Test004.Add(child);

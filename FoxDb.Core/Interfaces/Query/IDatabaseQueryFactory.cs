@@ -10,7 +10,7 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuery Create(IQueryGraphBuilder graph);
 
-        IDatabaseQuery Create(string commandText, params string[] parameterNames);
+        IDatabaseQuery Create(string commandText, params IDatabaseQueryParameter[] parameters);
 
         IQueryGraphBuilder Combine(IEnumerable<IQueryGraphBuilder> graphs);
 

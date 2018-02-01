@@ -47,7 +47,10 @@
     <Compile Include="SqlCeQueryBuilderVisitor.cs" />
     <Compile Include="SqlCeQueryFactory.cs" />
     <Compile Include="SqlCeQueryFragment.cs" />
+    <Compile Include="SqlCeQueryParameter.cs" />
     <Compile Include="SqlCeSchema.cs" />
+    <Compile Include="Writers\SqlCeFromWriter.cs" />
+    <Compile Include="Writers\SqlCeSelectWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

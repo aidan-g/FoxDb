@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System;
 
 namespace FoxDb
 {
@@ -39,6 +40,26 @@ namespace FoxDb
         public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
         {
             return new SQLiteQueryFactory(database);
+        }
+
+        public object GetDbValue(IDataParameter parameter, object value)
+        {
+            if (value == null)
+            {
+                return DBNull.Value;
+            }
+            var type = value.GetType();
+            if (type.IsEnum)
+            {
+                return Convert.ChangeType(value, Enum.GetUnderlyingType(type));
+            }
+            return value;
+        }
+
+        public DbType GetDbType(IDataParameter parameter, object value)
+        {
+            //Nothing to do. 
+            return parameter.DbType;
         }
     }
 }

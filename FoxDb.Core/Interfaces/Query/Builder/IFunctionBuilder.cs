@@ -14,7 +14,6 @@ namespace FoxDb.Interfaces
     public enum QueryFunction : byte
     {
         None,
-        Identity,
         Count,
         Exists
     }

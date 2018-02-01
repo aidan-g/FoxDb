@@ -7,6 +7,8 @@ namespace FoxDb.Interfaces
     {
         IDatabase Database { get; }
 
+        bool HasTransaction { get; }
+
         void Bind(IDbCommand command);
 
         void Commit();

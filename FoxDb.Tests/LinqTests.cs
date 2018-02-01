@@ -34,13 +34,14 @@ namespace FoxDb
                 new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
             });
             set.AddOrUpdate(data);
+            var id = data[1].Id;
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             this.AssertSequence(new[] { data[1] }, query.Where(element => element.Field1 == "2_1" && element.Field2 == "2_2" && element.Field3 == "2_3"));
             this.AssertSequence(data, query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_2" || element.Field3 == "3_3"));
             this.AssertSequence(new[] { data[0], data[1] }, query.Where(element => (element.Field1 == "1_1" && element.Field2 == "1_2") || element.Field3 == "2_3"));
             this.AssertSequence(new[] { data[0] }, query.Where(element => (element.Field1 == container.A || element.Field1 == container.B) && element.Field3 != container.C));
-            this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id > 2));
-            this.AssertSequence(new[] { data[0] }, query.Where(element => element.Id < 2));
+            this.AssertSequence(new[] { data[2] }, query.Where(element => element.Id > id));
+            this.AssertSequence(new[] { data[0] }, query.Where(element => element.Id < id));
         }
 
         [Test]
@@ -132,10 +133,11 @@ namespace FoxDb
                 new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
             });
             set.AddOrUpdate(data);
+            var id = data[0].Id;
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             Assert.AreEqual(3, query.Count());
-            Assert.AreEqual(2, query.Count(element => element.Id > 1));
-            Assert.AreEqual(0, query.Count(element => element.Id < 1));
+            Assert.AreEqual(2, query.Count(element => element.Id > id));
+            Assert.AreEqual(0, query.Count(element => element.Id < id));
         }
 
         [Test]
@@ -202,7 +204,7 @@ namespace FoxDb
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();
             {
-                var child = this.Database.Set<Test004>().AddOrUpdate(new Test004() { Name = "2_2" });
+                var child = this.Database.Set<Test004>(this.Transaction).AddOrUpdate(new Test004() { Name = "2_2" });
                 data.AddRange(new[]
                 {
                     new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
@@ -246,7 +248,7 @@ namespace FoxDb
         [TestCase(1, 2)]
         [TestCase(2, 1)]
         [TestCase(3, 0)]
-        public void Composite_B(int id, int expected)
+        public void Composite_B(int offset, int expected)
         {
             var set = this.Database.Set<Test001>(this.Transaction);
             var data = new List<Test001>();
@@ -258,8 +260,9 @@ namespace FoxDb
                 new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
             });
             set.AddOrUpdate(data);
+            var id = data[0].Id;
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
-            var actual = query.Where(element => element.Id > id)
+            var actual = query.Where(element => element.Id >= (id + offset))
                 .OrderBy(element => element.Id)
                 .Count();
             Assert.AreEqual(expected, actual);
@@ -280,8 +283,9 @@ namespace FoxDb
                 new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
             });
             set.AddOrUpdate(data);
+            var id = data[0].Id;
             var query = this.Database.AsQueryable<Test002>(this.Transaction);
-            Assert.AreEqual(data[2], query.Where(element => element.Id > 1).OrderByDescending(element => element.Id).FirstOrDefault());
+            this.AssertSequence(new[] { data[2] }, new[] { query.Where(element => element.Id > id).OrderByDescending(element => element.Id).FirstOrDefault() });
         }
 
         [TestCase(RelationFlags.OneToMany)]
@@ -319,7 +323,7 @@ namespace FoxDb
             set.AddOrUpdate(data);
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             var actual = query.Select(element => element.Id);
-            Assert.AreEqual(new[] { 1, 2, 3 }, actual);
+            Assert.AreEqual(new[] { data[0].Id, data[1].Id, data[2].Id }, actual);
         }
 
         [Test]
@@ -337,7 +341,7 @@ namespace FoxDb
             set.AddOrUpdate(data);
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             var actual = query.Select(element => new { element.Id, Value = element.Field1 });
-            Assert.AreEqual(new[] { new { Id = 1L, Value = "1_1" }, new { Id = 2L, Value = "2_1" }, new { Id = 3L, Value = "3_1" } }, actual);
+            Assert.AreEqual(new[] { new { data[0].Id, Value = data[0].Field1 }, new { data[1].Id, Value = data[1].Field1 }, new { data[2].Id, Value = data[2].Field1 } }, actual);
         }
     }
 }

@@ -109,24 +109,29 @@ namespace FoxDb
 
         protected static IDictionary<QueryOperator, SqlQueryWriterDialectHandler> Operators = new Dictionary<QueryOperator, SqlQueryWriterDialectHandler>()
         {
+            //Logical
             { QueryOperator.Not, writer => writer.Database.QueryFactory.Dialect.NOT },
             { QueryOperator.Equal, writer => writer.Database.QueryFactory.Dialect.EQUAL },
             { QueryOperator.NotEqual, writer => writer.Database.QueryFactory.Dialect.NOT_EQUAL },
             { QueryOperator.Greater, writer => writer.Database.QueryFactory.Dialect.GREATER },
+            { QueryOperator.GreaterOrEqual, writer => writer.Database.QueryFactory.Dialect.GREATER_OR_EQUAL },
             { QueryOperator.Less, writer => writer.Database.QueryFactory.Dialect.LESS },
+            { QueryOperator.LessOrEqual, writer => writer.Database.QueryFactory.Dialect.LESS_OR_EQUAL },
             { QueryOperator.And, writer => writer.Database.QueryFactory.Dialect.AND },
             { QueryOperator.AndAlso, writer => writer.Database.QueryFactory.Dialect.AND_ALSO },
             { QueryOperator.Or, writer => writer.Database.QueryFactory.Dialect.OR },
             { QueryOperator.OrElse, writer => writer.Database.QueryFactory.Dialect.OR_ELSE },
             { QueryOperator.OpenParentheses, writer => writer.Database.QueryFactory.Dialect.OPEN_PARENTHESES },
             { QueryOperator.CloseParentheses, writer => writer.Database.QueryFactory.Dialect.CLOSE_PARENTHESES },
+            //Mathmatical
+            { QueryOperator.Add, writer => writer.Database.QueryFactory.Dialect.ADD },
+            //Other
             { QueryOperator.Null, writer => writer.Database.QueryFactory.Dialect.NULL },
             { QueryOperator.Star, writer => writer.Database.QueryFactory.Dialect.STAR }
         };
 
         protected static IDictionary<QueryFunction, SqlQueryWriterDialectHandler> Functions = new Dictionary<QueryFunction, SqlQueryWriterDialectHandler>()
         {
-            { QueryFunction.Identity, writer => writer.Database.QueryFactory.Dialect.IDENTITY },
             { QueryFunction.Count, writer => writer.Database.QueryFactory.Dialect.COUNT },
             { QueryFunction.Exists, writer => writer.Database.QueryFactory.Dialect.EXISTS }
         };
@@ -146,18 +151,18 @@ namespace FoxDb
             this.Builder = new StringBuilder();
         }
 
-        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<string> parameterNames) : this(parent, graph)
+        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : this(parent, graph)
         {
             this.Database = database;
             this.Visitor = visitor;
-            this.ParameterNames = parameterNames;
+            this.Parameters = parameters;
         }
 
         public IDatabase Database { get; private set; }
 
         public IQueryGraphVisitor Visitor { get; private set; }
 
-        public ICollection<string> ParameterNames { get; private set; }
+        public ICollection<IDatabaseQueryParameter> Parameters { get; private set; }
 
         public override FragmentType FragmentType
         {
@@ -263,7 +268,7 @@ namespace FoxDb
         protected virtual void VisitParameter(IParameterBuilder expression)
         {
             this.Builder.AppendFormat("{0}{1} ", this.Database.QueryFactory.Dialect.PARAMETER, expression.Name);
-            this.ParameterNames.Add(expression.Name);
+            this.Parameters.Add(new DatabaseQueryParameter(expression.Name, expression.Type));
         }
 
         protected virtual void VisitFunction(IFunctionBuilder expression)
@@ -308,9 +313,15 @@ namespace FoxDb
             }
             else
             {
-                switch (Type.GetTypeCode(expression.Value.GetType()))
+                var type = expression.Value.GetType();
+                switch (Type.GetTypeCode(type))
                 {
+                    case TypeCode.Int16:
                     case TypeCode.Int32:
+                    case TypeCode.Int64:
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:
+                    case TypeCode.UInt64:
                         this.Builder.AppendFormat("{0} ", expression.Value);
                         break;
                     default:
@@ -323,13 +334,13 @@ namespace FoxDb
         {
             var query = expression.Query.Build();
             this.Builder.AppendFormat("{0} ", query.CommandText);
-            foreach (var parameterName in query.ParameterNames)
+            foreach (var parameter in query.Parameters)
             {
-                if (this.ParameterNames.Contains(parameterName, StringComparer.OrdinalIgnoreCase))
+                if (this.Parameters.Contains(parameter))
                 {
                     continue;
                 }
-                this.ParameterNames.Add(parameterName);
+                this.Parameters.Add(parameter);
             }
         }
 

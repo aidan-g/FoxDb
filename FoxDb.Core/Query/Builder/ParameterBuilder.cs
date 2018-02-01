@@ -6,7 +6,7 @@ namespace FoxDb
     {
         public ParameterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
         {
-
+            this.Type = ParameterType.Input;
         }
 
         public override FragmentType FragmentType
@@ -18,6 +18,8 @@ namespace FoxDb
         }
 
         public string Name { get; set; }
+
+        public ParameterType Type { get; set; }
 
         public override IFragmentBuilder Clone()
         {

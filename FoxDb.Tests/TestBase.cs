@@ -22,6 +22,7 @@ namespace FoxDb
         public void OneTimeSetUp()
         {
             this.Database = this.CreateDatabase();
+            this.Database.Execute(this.Database.QueryFactory.Create(CreateSchema));
         }
 
         [OneTimeTearDown]
@@ -35,13 +36,15 @@ namespace FoxDb
         public void SetUp()
         {
             this.Transaction = this.Database.BeginTransaction();
-            this.Database.Execute(this.Database.QueryFactory.Create(CreateSchema), this.Transaction);
         }
 
         [TearDown]
         public void TearDown()
         {
-            this.Transaction.Rollback();
+            if (this.Transaction.HasTransaction)
+            {
+                this.Transaction.Rollback();
+            }
             this.Transaction.Dispose();
             this.Transaction = null;
         }

@@ -6,6 +6,6 @@ namespace FoxDb.Interfaces
     {
         string CommandText { get; }
 
-        IEnumerable<string> ParameterNames { get; }
+        IEnumerable<IDatabaseQueryParameter> Parameters { get; }
     }
 }

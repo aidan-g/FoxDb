@@ -268,11 +268,27 @@ namespace FoxDb
             }
         }
 
+        public string GREATER_OR_EQUAL
+        {
+            get
+            {
+                return ">=";
+            }
+        }
+
         public string LESS
         {
             get
             {
                 return "<";
+            }
+        }
+
+        public string LESS_OR_EQUAL
+        {
+            get
+            {
+                return "<=";
             }
         }
 
@@ -289,6 +305,14 @@ namespace FoxDb
             get
             {
                 return ")";
+            }
+        }
+
+        public string ADD
+        {
+            get
+            {
+                return "+";
             }
         }
 
@@ -315,8 +339,6 @@ namespace FoxDb
                 return "'{0}'";
             }
         }
-
-        public abstract string IDENTITY { get; }
 
         public abstract string BATCH { get; }
     }

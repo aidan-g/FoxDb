@@ -80,7 +80,7 @@ namespace FoxDb
 
         public T Find(object id)
         {
-            return this.Database.Set<T>(this.Table).With(set =>
+            return this.Database.Set<T>(this.Table, this.Transaction).With(set =>
             {
                 set.Fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
                 set.Parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, new[] { id }).Handler;
@@ -96,7 +96,12 @@ namespace FoxDb
         {
             foreach (var element in this)
             {
-                target[index++] = element;
+                if (index >= target.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                target[index] = element;
+                index++;
             }
         }
 

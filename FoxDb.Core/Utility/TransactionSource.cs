@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 
 namespace FoxDb
@@ -22,9 +23,17 @@ namespace FoxDb
 
         public IDbTransaction Transaction { get; private set; }
 
+        public bool HasTransaction
+        {
+            get
+            {
+                return this.Transaction != null;
+            }
+        }
+
         public void Bind(IDbCommand command)
         {
-            if (this.Transaction == null)
+            if (!this.HasTransaction)
             {
                 this.Begin();
             }
@@ -33,10 +42,6 @@ namespace FoxDb
 
         public void Begin()
         {
-            if (this.Transaction != null)
-            {
-                return;
-            }
             if (this.IsolationLevel.HasValue)
             {
                 this.Transaction = this.Database.Connection.BeginTransaction(this.IsolationLevel.Value);
@@ -49,12 +54,20 @@ namespace FoxDb
 
         public void Commit()
         {
+            if (!this.HasTransaction)
+            {
+                throw new InvalidOperationException("No such transaction.");
+            }
             this.Transaction.Commit();
             this.Reset();
         }
 
         public void Rollback()
         {
+            if (!this.HasTransaction)
+            {
+                throw new InvalidOperationException("No such transaction.");
+            }
             this.Transaction.Rollback();
             this.Reset();
         }

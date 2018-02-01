@@ -23,14 +23,6 @@ namespace FoxDb
 
         public ICollection<IFragmentBuilder> Fragments { get; private set; }
 
-        IEnumerable<IFragmentBuilder> IQueryGraphBuilder.Fragments
-        {
-            get
-            {
-                return this.Fragments;
-            }
-        }
-
         public IDatabase Database { get; private set; }
 
         public IRelationManager RelationManager { get; private set; }
@@ -131,6 +123,11 @@ namespace FoxDb
         public IQueryGraphBuilder Clone()
         {
             var builder = this.Database.QueryFactory.Build();
+            foreach (var relation in this.RelationManager.Relations)
+            {
+                builder.RelationManager.AddRelation(relation);
+            }
+            builder.Fragments.Clear();
             foreach (var fragment in this.Fragments)
             {
                 builder.Fragment(fragment.Clone());
@@ -259,7 +256,7 @@ namespace FoxDb
         }
 
 
-        IEnumerable<IFragmentBuilder> IQueryGraphBuilder.Fragments
+        ICollection<IFragmentBuilder> IQueryGraphBuilder.Fragments
         {
             get
             {
