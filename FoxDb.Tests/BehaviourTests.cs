@@ -3,89 +3,74 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    [TestFixture]
+    [TestFixture(ProviderType.SqlCe)]
+    [TestFixture(ProviderType.SQLite)]
     public class BehaviourTests : TestBase
     {
+        public BehaviourTests(ProviderType providerType) : base(providerType)
+        {
+
+        }
+
         [Test]
         public void NullableColumns()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
+            var set = this.Database.Set<Orange>(this.Transaction);
+            var data = new List<Orange>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
             {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Orange>(transaction);
-                var data = new List<Orange>();
-                set.Clear();
-                this.AssertSequence(data, set);
-                data.AddRange(new[]
-                {
-                    new Orange() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1, Field5 = 1 },
-                    new Orange() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = 2, Field5 = 2 },
-                    new Orange() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3, Field5 = 3 }
-                });
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                data[1].Field4 = null;
-                data[1].Field5 = null;
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                transaction.Rollback();
-            }
+                new Orange() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1, Field5 = 1 },
+                new Orange() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = 2, Field5 = 2 },
+                new Orange() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3, Field5 = 3 }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Field4 = null;
+            data[1].Field5 = null;
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
         }
 
         [Test]
         public void Int32Columns()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
+            var set = this.Database.Set<Pear>(this.Transaction);
+            var data = new List<Pear>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
             {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Pear>(transaction);
-                var data = new List<Pear>();
-                set.Clear();
-                this.AssertSequence(data, set);
-                data.AddRange(new[]
-                {
-                    new Pear() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1 },
-                    new Pear() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = 2 },
-                    new Pear() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3 }
-                });
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                data[1].Field4 = 4;
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                transaction.Rollback();
-            }
+                new Pear() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1 },
+                new Pear() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = 2 },
+                new Pear() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3 }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Field4 = 4;
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
         }
 
         [Test]
         public void EnumColumns()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
+            var set = this.Database.Set<Apple>(this.Transaction);
+            var data = new List<Apple>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
             {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Apple>(transaction);
-                var data = new List<Apple>();
-                set.Clear();
-                this.AssertSequence(data, set);
-                data.AddRange(new[]
-                {
-                    new Apple() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = AppleType.Type1 },
-                    new Apple() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = AppleType.Type2 },
-                    new Apple() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = AppleType.Type3 }
-                });
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                data[1].Field4 = AppleType.None;
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                transaction.Rollback();
-            }
+                new Apple() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = AppleType.Type1 },
+                new Apple() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = AppleType.Type2 },
+                new Apple() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = AppleType.Type3 }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Field4 = AppleType.None;
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
         }
 
         [Table(Name = "Test001")]

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using FoxDb.Interfaces;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,15 +9,68 @@ namespace FoxDb
 {
     public abstract class TestBase
     {
-        static TestBase()
+        protected TestBase(ProviderType providerType)
         {
-            if (File.Exists(FileName))
+            this.ProviderType = providerType;
+            if (File.Exists(this.FileName))
             {
-                File.Delete(FileName);
+                File.Delete(this.FileName);
             }
         }
 
-        public static string CurrentDirectory
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            this.Database = this.CreateDatabase();
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            this.Database.Dispose();
+            this.Database = null;
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            this.Transaction = this.Database.BeginTransaction();
+            this.Database.Execute(this.Database.QueryFactory.Create(CreateSchema), this.Transaction);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            this.Transaction.Rollback();
+            this.Transaction.Dispose();
+            this.Transaction = null;
+        }
+
+        public ProviderType ProviderType { get; private set; }
+
+        public IDatabase Database { get; private set; }
+
+        public ITransactionSource Transaction { get; private set; }
+
+        protected IProvider CreateProvider()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlCe:
+                //return new SqlCeProvider(this.FileName);
+                case ProviderType.SQLite:
+                    return new SQLiteProvider(this.FileName);
+            }
+            throw new NotImplementedException();
+        }
+
+        protected IDatabase CreateDatabase()
+        {
+            var provider = this.CreateProvider();
+            return new Database(provider);
+        }
+
+        public string CurrentDirectory
         {
             get
             {
@@ -23,7 +78,7 @@ namespace FoxDb
             }
         }
 
-        public static string FileName
+        public string FileName
         {
             get
             {
@@ -31,7 +86,7 @@ namespace FoxDb
             }
         }
 
-        public static string CreateSchema
+        public string CreateSchema
         {
             get
             {
@@ -56,5 +111,12 @@ namespace FoxDb
                 }
             }
         }
+    }
+
+    public enum ProviderType
+    {
+        None,
+        SqlCe,
+        SQLite
     }
 }

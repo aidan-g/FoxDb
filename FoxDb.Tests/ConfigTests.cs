@@ -7,137 +7,94 @@ using System.Linq;
 
 namespace FoxDb
 {
-    [TestFixture]
+    [TestFixture(ProviderType.SqlCe)]
+    [TestFixture(ProviderType.SQLite)]
     public class ConfigTests : TestBase
     {
+        public ConfigTests(ProviderType providerType) : base(providerType)
+        {
+
+        }
+
         [Test]
         public void TableName()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<GrapeFruit>(transaction);
-                set.Clear();
-                var data = new GrapeFruit() { Field1 = "1", Field2 = "2", Field3 = "3" };
-                var id = set.AddOrUpdate(data).Id;
-                Assert.AreEqual(data, set.Find(id));
-            }
+            var set = this.Database.Set<GrapeFruit>(this.Transaction);
+            set.Clear();
+            var data = new GrapeFruit() { Field1 = "1", Field2 = "2", Field3 = "3" };
+            var id = set.AddOrUpdate(data).Id;
+            Assert.AreEqual(data, set.Find(id));
         }
 
         [Test]
         public void ColumnName()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Orange>(transaction);
-                set.Clear();
-                var data = new Orange() { Field1 = "1", Field2 = "2", Field3 = "3", Field4 = "3" };
-                var id = set.AddOrUpdate(data).Id;
-                Assert.AreEqual(data, set.Find(id));
-                Assert.AreEqual(data.Field4, set.Find(id).Field4);
-            }
+            var set = this.Database.Set<Orange>(this.Transaction);
+            set.Clear();
+            var data = new Orange() { Field1 = "1", Field2 = "2", Field3 = "3", Field4 = "3" };
+            var id = set.AddOrUpdate(data).Id;
+            Assert.AreEqual(data, set.Find(id));
+            Assert.AreEqual(data.Field4, set.Find(id).Field4);
         }
 
         [Test]
         public void IgnoreColumn()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var table = database.Config.Table<Cheese>();
-                Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field3", StringComparison.OrdinalIgnoreCase)));
-            }
+            var table = this.Database.Config.Table<Cheese>();
+            Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field3", StringComparison.OrdinalIgnoreCase)));
         }
 
         [Test]
         public void InvalidTable()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                Assert.Throws<InvalidOperationException>(() => database.Config.Table<Mango>());
-            }
+            Assert.Throws<InvalidOperationException>(() => this.Database.Config.Table<Mango>());
         }
 
         [Test]
         public void InvalidColumn()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var table = database.Config.Table<Rabbit>();
-                Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field4", StringComparison.OrdinalIgnoreCase)));
-            }
+            var table = this.Database.Config.Table<Rabbit>();
+            Assert.IsFalse(table.Columns.Any(column => string.Equals(column.Property.Name, "Field4", StringComparison.OrdinalIgnoreCase)));
         }
 
         [Test]
         public void InvalidRelation()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var table = database.Config.Table<Rabbit>();
-                Assert.IsFalse(table.Relations.Any(relation => relation.RelationType == typeof(Rabbit)));
-            }
+            var table = this.Database.Config.Table<Rabbit>();
+            Assert.IsFalse(table.Relations.Any(relation => relation.RelationType == typeof(Rabbit)));
         }
 
         [Test]
         public void SetRelationFlags()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
-            {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var table = database.Config.Table<Toast>();
-                Assert.AreEqual(RelationFlags.ManyToMany, table.Relation(item => item.Test004).Flags.GetMultiplicity());
-            }
+            var table = this.Database.Config.Table<Toast>();
+            Assert.AreEqual(RelationFlags.ManyToMany, table.Relation(item => item.Test004).Flags.GetMultiplicity());
         }
 
         [Test]
         public void ObservableCollection()
         {
-            var provider = new SQLiteProvider(FileName);
-            var database = new Database(provider);
-            using (var transaction = database.BeginTransaction())
+            var set = this.Database.Set<Cloud>(this.Transaction);
+            var data = new List<Cloud>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
             {
-                database.Execute(database.QueryFactory.Create(CreateSchema), transaction: transaction);
-                var set = database.Set<Cloud>(transaction);
-                var data = new List<Cloud>();
-                set.Clear();
-                this.AssertSequence(data, set);
-                data.AddRange(new[]
-                {
-                    new Cloud() { Name = "1_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
-                    new Cloud() { Name = "2_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
-                    new Cloud() { Name = "3_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
-                });
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                data[1].Test004.First().Name = "updated";
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                data[1].Test004.RemoveRange(data[1].Test004);
-                set.AddOrUpdate(data);
-                this.AssertSequence(data, set);
-                set.Remove(data[1]);
-                data.RemoveAt(1);
-                this.AssertSequence(data, set);
-                transaction.Rollback();
-            }
+                new Cloud() { Name = "1_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                new Cloud() { Name = "2_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                new Cloud() { Name = "3_1", Test004 = new ObservableCollection<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test004.First().Name = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test004.RemoveRange(data[1].Test004);
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            set.Remove(data[1]);
+            data.RemoveAt(1);
+            this.AssertSequence(data, set);
         }
 
         [Table(Name = "Test001")]

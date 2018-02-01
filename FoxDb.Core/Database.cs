@@ -5,7 +5,7 @@ using System.Data;
 
 namespace FoxDb
 {
-    public class Database : IDatabase
+    public class Database : Disposable, IDatabase
     {
         private Database()
         {
@@ -101,6 +101,16 @@ namespace FoxDb
         {
             var command = this.Connection.CreateCommand(query, parameters, transaction);
             return new DatabaseReader(command);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (this._Connection != null)
+            {
+                this._Connection.Dispose();
+                this._Connection = null;
+            }
+            base.Dispose(disposing);
         }
     }
 }

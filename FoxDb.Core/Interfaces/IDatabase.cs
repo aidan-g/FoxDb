@@ -4,7 +4,7 @@ using System.Data;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabase
+    public interface IDatabase : IDisposable
     {
         IConfig Config { get; }
 
