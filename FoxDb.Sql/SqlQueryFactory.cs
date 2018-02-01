@@ -14,6 +14,8 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
+        public abstract IDatabaseQueryDialect Dialect { get; }
+
         public IQueryGraphBuilder Build()
         {
             return new QueryGraphBuilder(this.Database);
@@ -36,19 +38,16 @@ namespace FoxDb
             {
                 if (builder.Length > 0)
                 {
-                    builder.Append(SqlSyntax.STATEMENT);
+                    builder.Append(this.Dialect.BATCH);
                 }
                 var query = this.Create(graph);
                 builder.Append(query.CommandText);
                 parameterNames.AddRange(query.ParameterNames.Except(parameterNames));
             }
-            return new DatabaseQuery(builder.ToString(), parameterNames.ToArray());
+            return this.Create(builder.ToString(), parameterNames.ToArray());
         }
 
-        public IDatabaseQuery Create(string commandText, params string[] parameterNames)
-        {
-            return new DatabaseQuery(commandText, parameterNames);
-        }
+        public abstract IDatabaseQuery Create(string commandText, params string[] parameterNames);
 
         public IQueryGraphBuilder Combine(IEnumerable<IQueryGraphBuilder> graphs)
         {
@@ -63,7 +62,7 @@ namespace FoxDb
             {
                 if (builder.Length > 0)
                 {
-                    builder.AppendFormat("{0} ", SqlSyntax.STATEMENT);
+                    builder.AppendFormat("{0} ", this.Dialect.BATCH);
                 }
                 builder.Append(query.CommandText);
                 parameterNames.AddRange(query.ParameterNames);

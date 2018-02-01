@@ -4,6 +4,8 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseQueryFactory
     {
+        IDatabaseQueryDialect Dialect { get; }
+
         IQueryGraphBuilder Build();
 
         IDatabaseQuery Create(IQueryGraphBuilder graph);

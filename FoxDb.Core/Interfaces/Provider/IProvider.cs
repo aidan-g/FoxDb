@@ -9,5 +9,7 @@ namespace FoxDb.Interfaces
         IDatabaseSchema CreateSchema(IDatabase database);
 
         IDatabaseQueryFactory CreateQueryFactory(IDatabase database);
+
+
     }
 }

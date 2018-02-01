@@ -27,9 +27,9 @@ namespace FoxDb
                 var expression = fragment as IUpdateBuilder;
                 if (expression.Table != null && expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.UPDATE);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.UPDATE);
                     this.VisitTable(expression.Table);
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.SET);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.SET);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -48,7 +48,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -56,7 +56,7 @@ namespace FoxDb
 
         protected override void VisitColumn(IColumnBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.ColumnName));
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.ColumnName));
         }
 
         public override IFragmentBuilder Clone()

@@ -43,7 +43,7 @@
     <Compile Include="SqlQueryBuilder.cs" />
     <Compile Include="SqlQueryBuilderVisitor.cs" />
     <Compile Include="SqlQueryFactory.cs" />
-    <Compile Include="SqlSyntax.cs" />
+    <Compile Include="SqlQueryDialect.cs" />
     <Compile Include="Writers\SqlDeleteWriter.cs" />
     <Compile Include="Writers\SqlFromWriter.cs" />
     <Compile Include="Writers\SqlGroupByWriter.cs" />

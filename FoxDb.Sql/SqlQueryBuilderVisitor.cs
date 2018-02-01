@@ -31,7 +31,7 @@ namespace FoxDb
         {
             get
             {
-                return new DatabaseQuery(this.CommandText, this.ParameterNames.ToArray());
+                return this.Database.QueryFactory.Create(this.CommandText, this.ParameterNames.ToArray());
             }
         }
 

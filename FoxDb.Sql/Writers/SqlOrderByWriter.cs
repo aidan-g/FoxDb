@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as IAggregateBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.GROUP_BY);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.GROUP_BY);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -46,7 +46,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }

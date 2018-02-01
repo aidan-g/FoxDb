@@ -12,5 +12,18 @@ namespace FoxDb
         {
             return new SqlCeQueryBuilder(database, graph);
         }
+
+        public override IDatabaseQuery Create(string commandText, params string[] parameterNames)
+        {
+            return new SqlCeQuery(commandText, parameterNames);
+        }
+
+        public override IDatabaseQueryDialect Dialect
+        {
+            get
+            {
+                return new SqlCeQueryDialect();
+            }
+        }
     }
 }

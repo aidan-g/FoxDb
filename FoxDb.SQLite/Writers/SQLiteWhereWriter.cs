@@ -19,7 +19,7 @@ namespace FoxDb
                 if (this.Graph.RelationManager.HasExternalRelations || expression.Expressions.Any())
                 {
                     var first = true;
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.WHERE);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.WHERE);
                     if (expression.Expressions.Any())
                     {
                         this.Visit(expression.Expressions);

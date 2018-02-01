@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as ISortBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.ORDER_BY);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ORDER_BY);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -46,7 +46,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -65,10 +65,10 @@ namespace FoxDb
                 case OrderByDirection.None:
                     break;
                 case OrderByDirection.Ascending:
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.ASC);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ASC);
                     break;
                 case OrderByDirection.Descending:
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.DESC);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DESC);
                     break;
                 default:
                     throw new NotImplementedException();

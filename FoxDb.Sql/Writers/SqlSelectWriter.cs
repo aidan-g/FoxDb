@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as IOutputBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.SELECT);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.SELECT);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -46,7 +46,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -78,9 +78,9 @@ namespace FoxDb
             }
             else
             {
-                this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
                 base.VisitSubQuery(expression);
-                this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
                 this.VisitAlias(expression.Alias);
             }
         }

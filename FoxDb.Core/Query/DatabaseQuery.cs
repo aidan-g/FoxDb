@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class DatabaseQuery : IDatabaseQuery
+    public abstract class DatabaseQuery : IDatabaseQuery
     {
         public DatabaseQuery(string commandText, params string[] parameterNames)
         {

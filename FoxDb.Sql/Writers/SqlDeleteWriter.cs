@@ -24,7 +24,7 @@ namespace FoxDb
             if (fragment is IDeleteBuilder)
             {
                 var expression = fragment as IDeleteBuilder;
-                this.Builder.AppendFormat("{0} ", SqlSyntax.DELETE);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DELETE);
                 return fragment;
             }
             throw new NotImplementedException();

@@ -26,7 +26,7 @@ namespace FoxDb
                 var expression = fragment as IOffsetBuilder;
                 if (expression.Offset != 0)
                 {
-                    this.Builder.AppendFormat("{0} {1} ", SqlSyntax.OFFSET, expression.Offset);
+                    this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.OFFSET, expression.Offset);
                 }
                 return fragment;
             }

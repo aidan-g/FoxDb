@@ -25,17 +25,18 @@ namespace FoxDb
             if (fragment is IAddBuilder)
             {
                 var expression = fragment as IAddBuilder;
-                this.Builder.AppendFormat("{0} ", SqlSyntax.INSERT);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.INSERT);
                 this.Visit(expression.Table);
                 if (!expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} {1} ", SqlSyntax.DEFAULT, SqlSyntax.VALUES);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DEFAULT);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.VALUES);
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
                     this.Visit(expression.Expressions);
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
                 }
                 return fragment;
             }
@@ -53,7 +54,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -61,7 +62,7 @@ namespace FoxDb
 
         protected override void VisitColumn(IColumnBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.ColumnName));
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.ColumnName));
         }
 
         public override IFragmentBuilder Clone()

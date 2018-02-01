@@ -28,7 +28,7 @@ namespace FoxDb
                 if (this.Graph.RelationManager.HasExternalRelations || expression.Expressions.Any())
                 {
                     var first = true;
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.WHERE);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.WHERE);
                     if (expression.Expressions.Any())
                     {
                         this.Visit(expression.Expressions);
@@ -52,7 +52,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.AND_ALSO);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.AND_ALSO);
                 }
                 this.Visit(expression);
             }
@@ -77,7 +77,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.AND_ALSO);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.AND_ALSO);
                 }
                 this.Visit(expression);
             }
@@ -85,16 +85,16 @@ namespace FoxDb
 
         protected override void VisitUnary(IUnaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitUnary(expression);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected override void VisitBinary(IBinaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitBinary(expression);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         public override IFragmentBuilder Clone()

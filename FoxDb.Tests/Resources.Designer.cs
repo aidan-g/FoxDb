@@ -63,28 +63,52 @@ namespace FoxDb {
         /// <summary>
         ///   Looks up a localized string similar to CREATE TABLE [Test001](
         ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test001] PRIMARY KEY NOT NULL,
-        ///    [Field1] text NOT NULL,
-        ///    [Field2] text NOT NULL,
-        ///    [Field3] text NOT NULL
+        ///    [Field1] nvarchar(50) NOT NULL,
+        ///    [Field2] nvarchar(50) NOT NULL,
+        ///    [Field3] nvarchar(50) NOT NULL,
+        ///	[Field4] INTEGER NULL,
+        ///	[Field5] numeric(53,0) NULL 
         ///);
         ///
         ///CREATE TABLE [Test002](
         ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test002] PRIMARY KEY NOT NULL,
-        ///    [Name] text NOT NULL
+        ///	[Test003_Id] INTEGER NULL,
+        ///	[Test004_Id] INTEGER NULL,
+        ///    [Name] nvarchar(50) NOT NULL
         ///);
         ///
-        ///CREATE TABLE [Test003](
-        ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test003] PRIMARY KEY NOT NULL,
-        ///	[Test002_Id] INTEGER NULL,
-        ///    [Name] text NOT NULL
-        ///);
-        ///
-        ///CREATE TABLE [Test004](
-        ///    [Id] INT [rest of string was truncated]&quot;;.
+        ///CREATE TABLE [Test002_Test004](
+        ///    [Id] INTEGER CO [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string CreateSchema {
+        internal static string SqlCeSchema {
             get {
-                return ResourceManager.GetString("CreateSchema", resourceCulture);
+                return ResourceManager.GetString("SqlCeSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CREATE TABLE [Test001](
+        ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test001] PRIMARY KEY NOT NULL,
+        ///    [Field1] text NOT NULL,
+        ///    [Field2] text NOT NULL,
+        ///    [Field3] text NOT NULL,
+        ///	[Field4] INTEGER NULL,
+        ///	[Field5] numeric(53,0) NULL 
+        ///);
+        ///
+        ///CREATE TABLE [Test002](
+        ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test002] PRIMARY KEY NOT NULL,
+        ///	[Test003_Id] INTEGER NULL,
+        ///	[Test004_Id] INTEGER NULL,
+        ///    [Name] text NOT NULL
+        ///);
+        ///
+        ///CREATE TABLE [Test002_Test004](
+        ///    [Id] INTEGER CONSTRAINT [sqlite_master_PK_Test0 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SQLiteSchema {
+            get {
+                return ResourceManager.GetString("SQLiteSchema", resourceCulture);
             }
         }
     }

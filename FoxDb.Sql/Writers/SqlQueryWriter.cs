@@ -8,11 +8,11 @@ namespace FoxDb
 {
     public abstract class SqlQueryWriter : FragmentBuilder, ISqlQueryWriter
     {
-        protected static IDictionary<FragmentType, SqlQueryWriterHandler> Handlers = GetHandlers();
+        protected static IDictionary<FragmentType, SqlQueryWriterVisitorHandler> Handlers = GetHandlers();
 
-        protected static IDictionary<FragmentType, SqlQueryWriterHandler> GetHandlers()
+        protected static IDictionary<FragmentType, SqlQueryWriterVisitorHandler> GetHandlers()
         {
-            return new Dictionary<FragmentType, SqlQueryWriterHandler>()
+            return new Dictionary<FragmentType, SqlQueryWriterVisitorHandler>()
             {
                 { FragmentType.Unary, (writer, fragment) => writer.VisitUnary(fragment as IUnaryExpressionBuilder) },
                 { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
@@ -107,28 +107,28 @@ namespace FoxDb
 
         protected StringBuilder Builder { get; private set; }
 
-        protected static IDictionary<QueryOperator, string> Operators = new Dictionary<QueryOperator, string>()
+        protected static IDictionary<QueryOperator, SqlQueryWriterDialectHandler> Operators = new Dictionary<QueryOperator, SqlQueryWriterDialectHandler>()
         {
-            { QueryOperator.Not, SqlSyntax.NOT },
-            { QueryOperator.Equal, SqlSyntax.EQUAL },
-            { QueryOperator.NotEqual, SqlSyntax.NOT_EQUAL },
-            { QueryOperator.Greater, SqlSyntax.GREATER },
-            { QueryOperator.Less, SqlSyntax.LESS },
-            { QueryOperator.And, SqlSyntax.AND },
-            { QueryOperator.AndAlso, SqlSyntax.AND_ALSO },
-            { QueryOperator.Or, SqlSyntax.OR },
-            { QueryOperator.OrElse, SqlSyntax.OR_ELSE },
-            { QueryOperator.OpenParentheses, SqlSyntax.OPEN_PARENTHESES },
-            { QueryOperator.CloseParentheses, SqlSyntax.CLOSE_PARENTHESES },
-            { QueryOperator.Null, SqlSyntax.NULL },
-            { QueryOperator.Star, SqlSyntax.STAR }
+            { QueryOperator.Not, writer => writer.Database.QueryFactory.Dialect.NOT },
+            { QueryOperator.Equal, writer => writer.Database.QueryFactory.Dialect.EQUAL },
+            { QueryOperator.NotEqual, writer => writer.Database.QueryFactory.Dialect.NOT_EQUAL },
+            { QueryOperator.Greater, writer => writer.Database.QueryFactory.Dialect.GREATER },
+            { QueryOperator.Less, writer => writer.Database.QueryFactory.Dialect.LESS },
+            { QueryOperator.And, writer => writer.Database.QueryFactory.Dialect.AND },
+            { QueryOperator.AndAlso, writer => writer.Database.QueryFactory.Dialect.AND_ALSO },
+            { QueryOperator.Or, writer => writer.Database.QueryFactory.Dialect.OR },
+            { QueryOperator.OrElse, writer => writer.Database.QueryFactory.Dialect.OR_ELSE },
+            { QueryOperator.OpenParentheses, writer => writer.Database.QueryFactory.Dialect.OPEN_PARENTHESES },
+            { QueryOperator.CloseParentheses, writer => writer.Database.QueryFactory.Dialect.CLOSE_PARENTHESES },
+            { QueryOperator.Null, writer => writer.Database.QueryFactory.Dialect.NULL },
+            { QueryOperator.Star, writer => writer.Database.QueryFactory.Dialect.STAR }
         };
 
-        protected static IDictionary<QueryFunction, string> Functions = new Dictionary<QueryFunction, string>()
+        protected static IDictionary<QueryFunction, SqlQueryWriterDialectHandler> Functions = new Dictionary<QueryFunction, SqlQueryWriterDialectHandler>()
         {
-            { QueryFunction.Identity, SqlSyntax.IDENTITY },
-            { QueryFunction.Count, SqlSyntax.COUNT },
-            { QueryFunction.Exists, SqlSyntax.EXISTS }
+            { QueryFunction.Identity, writer => writer.Database.QueryFactory.Dialect.IDENTITY },
+            { QueryFunction.Count, writer => writer.Database.QueryFactory.Dialect.COUNT },
+            { QueryFunction.Exists, writer => writer.Database.QueryFactory.Dialect.EXISTS }
         };
 
         protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
@@ -200,7 +200,7 @@ namespace FoxDb
 
         protected virtual void Visit(IFragmentBuilder expression)
         {
-            var handler = default(SqlQueryWriterHandler);
+            var handler = default(SqlQueryWriterVisitorHandler);
             if (!Handlers.TryGetValue(expression.FragmentType, out handler))
             {
                 throw new NotImplementedException();
@@ -226,7 +226,7 @@ namespace FoxDb
 
         protected virtual void VisitTable(ITableBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Table.TableName));
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Table.TableName));
         }
 
         protected virtual void VisitUnary(IUnaryExpressionBuilder expression)
@@ -255,26 +255,26 @@ namespace FoxDb
             }
             if (expression.Flags.HasFlag(ColumnBuilderFlags.Distinct))
             {
-                this.Builder.AppendFormat("{0} ", SqlSyntax.DISTINCT);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DISTINCT);
             }
-            this.Builder.AppendFormat("{0} ", SqlSyntax.Identifier(expression.Column.Table.TableName, identifier));
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.Table.TableName, identifier));
         }
 
         protected virtual void VisitParameter(IParameterBuilder expression)
         {
-            this.Builder.AppendFormat("{0}{1} ", SqlSyntax.PARAMETER, expression.Name);
+            this.Builder.AppendFormat("{0}{1} ", this.Database.QueryFactory.Dialect.PARAMETER, expression.Name);
             this.ParameterNames.Add(expression.Name);
         }
 
         protected virtual void VisitFunction(IFunctionBuilder expression)
         {
-            var function = default(string);
-            if (!Functions.TryGetValue(expression.Function, out function))
+            var handler = default(SqlQueryWriterDialectHandler);
+            if (!Functions.TryGetValue(expression.Function, out handler))
             {
                 throw new NotImplementedException();
             }
-            this.Builder.AppendFormat("{0} ", function);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", handler(this));
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             if (expression.Expressions.Any())
             {
                 this.AddRenderContext(RenderHints.FunctionArgument);
@@ -287,17 +287,17 @@ namespace FoxDb
                     this.RemoveRenderContext();
                 }
             }
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected virtual void VisitOperator(IOperatorBuilder expression)
         {
-            var @operator = default(string);
-            if (!Operators.TryGetValue(expression.Operator, out @operator))
+            var handler = default(SqlQueryWriterDialectHandler);
+            if (!Operators.TryGetValue(expression.Operator, out handler))
             {
                 throw new NotImplementedException();
             }
-            this.Builder.AppendFormat("{0} ", @operator);
+            this.Builder.AppendFormat("{0} ", handler(this));
         }
 
         protected virtual void VisitConstant(IConstantBuilder expression)
@@ -339,10 +339,12 @@ namespace FoxDb
             {
                 return;
             }
-            this.Builder.AppendFormat("{0} {1} ", SqlSyntax.AS, SqlSyntax.Identifier(alias));
+            this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.AS, this.Database.QueryFactory.Dialect.Identifier(alias));
         }
 
-        public delegate void SqlQueryWriterHandler(SqlQueryWriter writer, IFragmentBuilder fragment);
+        public delegate string SqlQueryWriterDialectHandler(SqlQueryWriter writer);
+
+        public delegate void SqlQueryWriterVisitorHandler(SqlQueryWriter writer, IFragmentBuilder fragment);
     }
 
     [Flags]

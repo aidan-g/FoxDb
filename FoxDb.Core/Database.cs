@@ -71,7 +71,17 @@ namespace FoxDb
         {
             using (var command = this.Connection.CreateCommand(query, parameters, transaction))
             {
-                return command.ExecuteNonQuery();
+                var result = default(int);
+                foreach (var commandText in command.CommandText.Split(new[] { this.QueryFactory.Dialect.BATCH }, StringSplitOptions.None))
+                {
+                    if (string.IsNullOrEmpty(commandText.Trim()))
+                    {
+                        continue;
+                    }
+                    command.CommandText = commandText;
+                    result += command.ExecuteNonQuery();
+                }
+                return result;
             }
         }
 

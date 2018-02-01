@@ -129,6 +129,7 @@
     <Compile Include="Interfaces\Query\Builder\IUpdateBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryDialect.cs" />
     <Compile Include="Interfaces\Utility\ICloneable.cs" />
     <Compile Include="Interfaces\Utility\IFastActivator.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />

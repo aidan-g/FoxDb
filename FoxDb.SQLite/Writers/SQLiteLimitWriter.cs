@@ -26,7 +26,7 @@ namespace FoxDb
                 var expression = fragment as ILimitBuilder;
                 if (expression.Limit != 0)
                 {
-                    this.Builder.AppendFormat("{0} {1} ", SqlSyntax.LIMIT, expression.Limit);
+                    this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.LIMIT, expression.Limit);
                 }
                 return fragment;
             }

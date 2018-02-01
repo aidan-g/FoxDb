@@ -12,5 +12,18 @@ namespace FoxDb
         {
             return new SQLiteQueryBuilder(database, graph);
         }
+
+        public override IDatabaseQuery Create(string commandText, params string[] parameterNames)
+        {
+            return new SQLiteQuery(commandText, parameterNames);
+        }
+
+        public override IDatabaseQueryDialect Dialect
+        {
+            get
+            {
+                return new SQLiteQueryDialect();
+            }
+        }
     }
 }

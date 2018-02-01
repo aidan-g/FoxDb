@@ -27,7 +27,7 @@ namespace FoxDb
                 var expression = fragment as ISourceBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.FROM);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.FROM);
                     this.Visit(expression.Expressions);
                     this.Visit(this.Graph.RelationManager.CalculatedRelations);
                 }
@@ -56,7 +56,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Builder.AppendFormat("{0} ", SqlSyntax.LIST_DELIMITER);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
             }
@@ -103,31 +103,31 @@ namespace FoxDb
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitSubQuery(expression);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
             this.VisitAlias(expression.Alias);
         }
 
         protected override void VisitUnary(IUnaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitUnary(expression);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected override void VisitBinary(IBinaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.OPEN_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitBinary(expression);
-            this.Builder.AppendFormat("{0} ", SqlSyntax.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected virtual void Visit(ITableConfig table, IBinaryExpressionBuilder expression)
         {
-            this.Builder.AppendFormat("{0} ", SqlSyntax.JOIN);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.JOIN);
             this.VisitTable(this.CreateTable(table));
-            this.Builder.AppendFormat("{0} ", SqlSyntax.ON);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ON);
             this.Visit(expression);
         }
 

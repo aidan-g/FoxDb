@@ -4,12 +4,12 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseSchema
     {
-        bool TableExists(string tableName);
+        bool TableExists(string tableName, ITransactionSource transaction = null);
 
-        bool ColumnExists(string tableName, string columnName);
+        bool ColumnExists(string tableName, string columnName, ITransactionSource transaction = null);
 
-        IEnumerable<string> GetTableNames();
+        IEnumerable<string> GetTableNames(ITransactionSource transaction = null);
 
-        IEnumerable<string> GetColumnNames(string tableName);
+        IEnumerable<string> GetColumnNames(string tableName, ITransactionSource transaction = null);
     }
 }

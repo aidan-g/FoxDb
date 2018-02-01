@@ -57,7 +57,7 @@ namespace FoxDb
             switch (this.ProviderType)
             {
                 case ProviderType.SqlCe:
-                //return new SqlCeProvider(this.FileName);
+                    return new SqlCeProvider(this.FileName);
                 case ProviderType.SQLite:
                     return new SQLiteProvider(this.FileName);
             }
@@ -82,7 +82,14 @@ namespace FoxDb
         {
             get
             {
-                return Path.Combine(CurrentDirectory, "test.db");
+                switch (this.ProviderType)
+                {
+                    case ProviderType.SqlCe:
+                        return Path.Combine(this.CurrentDirectory, "test.sdf");
+                    case ProviderType.SQLite:
+                        return Path.Combine(this.CurrentDirectory, "test.db");
+                }
+                throw new NotImplementedException();
             }
         }
 
@@ -90,7 +97,14 @@ namespace FoxDb
         {
             get
             {
-                return Resources.CreateSchema;
+                switch (this.ProviderType)
+                {
+                    case ProviderType.SqlCe:
+                        return Resources.SqlCeSchema;
+                    case ProviderType.SQLite:
+                        return Resources.SQLiteSchema;
+                }
+                throw new NotImplementedException();
             }
         }
 
