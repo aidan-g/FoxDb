@@ -19,12 +19,5 @@ namespace FoxDb
             this.Peek.Write(expression);
             this.Pop();
         }
-
-        protected override void VisitSource(IFragmentBuilder parent, IQueryGraphBuilder graph, ISourceBuilder expression)
-        {
-            this.Push(new SqlCeFromWriter(parent, graph, this.Database, this, this.Parameters));
-            this.Peek.Write(expression);
-            this.Pop();
-        }
     }
 }

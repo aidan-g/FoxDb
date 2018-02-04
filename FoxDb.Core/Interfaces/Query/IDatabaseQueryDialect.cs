@@ -48,10 +48,6 @@
 
         string DESC { get; }
 
-        string LIMIT { get; }
-
-        string OFFSET { get; }
-
         string DISTINCT { get; }
 
         string LIST_DELIMITER { get; }

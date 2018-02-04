@@ -8,8 +8,10 @@ namespace FoxDb
     {
         public SQLiteLimitWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
         {
-
+            this.Dialect = this.Database.QueryFactory.Dialect as SQLiteQueryDialect;
         }
+
+        public SQLiteQueryDialect Dialect { get; private set; }
 
         public override FragmentType FragmentType
         {
@@ -26,7 +28,7 @@ namespace FoxDb
                 var expression = fragment as ILimitBuilder;
                 if (expression.Limit != 0)
                 {
-                    this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.LIMIT, expression.Limit);
+                    this.Builder.AppendFormat("{0} {1} ", this.Dialect.LIMIT, expression.Limit);
                 }
                 return fragment;
             }

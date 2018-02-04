@@ -9,7 +9,10 @@ namespace FoxDb
     {
         public SqlCeSelectWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
         {
+            this.Dialect = this.Database.QueryFactory.Dialect as SqlCeQueryDialect;
         }
+
+        public SqlCeQueryDialect Dialect { get; private set; }
 
         protected override T OnWrite<T>(T fragment)
         {
@@ -18,17 +21,17 @@ namespace FoxDb
                 var expression = fragment as IOutputBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.SELECT);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.SELECT);
                     if (this.Graph.Filter.Limit != 0)
                     {
-                        this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).TOP);
+                        this.Builder.AppendFormat("{0} ", this.Dialect.TOP);
                         this.Builder.AppendFormat("{0} ", this.Graph.Filter.Limit);
                         switch (this.Graph.Filter.LimitType)
                         {
                             case LimitType.None:
                                 break;
                             case LimitType.Percent:
-                                this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).PERCENT);
+                                this.Builder.AppendFormat("{0} ", this.Dialect.PERCENT);
                                 break;
                             default:
                                 throw new NotImplementedException();
@@ -46,17 +49,18 @@ namespace FoxDb
             switch (expression.Operator.Operator)
             {
                 case QueryOperator.Not:
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).CASE);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).WHEN);
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.NOT);
+                    //TODO Assuming expression to negate returns 1 for "true".
+                    this.Builder.AppendFormat("{0} ", this.Dialect.CASE);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.WHEN);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.NOT);
                     this.Visit(expression.Expression);
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.EQUAL);
-                    this.Builder.AppendFormat("{0} ", 1);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).THEN);
-                    this.Builder.AppendFormat("{0} ", 1);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).ELSE);
-                    this.Builder.AppendFormat("{0} ", 0);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).END);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.EQUAL);
+                    this.Visit(this.CreateConstant(1));
+                    this.Builder.AppendFormat("{0} ", this.Dialect.THEN);
+                    this.Visit(this.CreateConstant(1));
+                    this.Builder.AppendFormat("{0} ", this.Dialect.ELSE);
+                    this.Visit(this.CreateConstant(0));
+                    this.Builder.AppendFormat("{0} ", this.Dialect.END);
                     break;
             }
         }
@@ -66,14 +70,14 @@ namespace FoxDb
             switch (expression.Function)
             {
                 case QueryFunction.Exists:
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).CASE);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).WHEN);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.CASE);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.WHEN);
                     base.VisitFunction(expression);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).THEN);
-                    this.Builder.AppendFormat("{0} ", 1);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).ELSE);
-                    this.Builder.AppendFormat("{0} ", 0);
-                    this.Builder.AppendFormat("{0} ", (this.Database.QueryFactory.Dialect as SqlCeQueryDialect).END);
+                    this.Builder.AppendFormat("{0} ", this.Dialect.THEN);
+                    this.Visit(this.CreateConstant(1));
+                    this.Builder.AppendFormat("{0} ", this.Dialect.ELSE);
+                    this.Visit(this.CreateConstant(0));
+                    this.Builder.AppendFormat("{0} ", this.Dialect.END);
                     break;
                 default:
                     base.VisitFunction(expression);
