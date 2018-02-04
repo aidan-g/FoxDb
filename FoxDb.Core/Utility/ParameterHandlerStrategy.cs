@@ -22,9 +22,10 @@ namespace FoxDb
                 {
                     foreach (var column in this.Table.Columns)
                     {
-                        if (parameters.Contains(column.ColumnName) && column.Getter != null)
+                        var parameter = Conventions.ParameterName(column);
+                        if (parameters.Contains(parameter) && column.Getter != null)
                         {
-                            parameters[column.ColumnName] = column.Getter(this.Item);
+                            parameters[parameter] = column.Getter(this.Item);
                         }
                     }
                 });

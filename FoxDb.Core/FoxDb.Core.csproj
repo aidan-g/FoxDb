@@ -74,6 +74,7 @@
     <Compile Include="Entity\EntityKey.cs" />
     <Compile Include="Entity\EntityMapper.cs" />
     <Compile Include="Entity\EntityPersister.cs" />
+    <Compile Include="Entity\EntityPlaceholder.cs" />
     <Compile Include="Entity\Relation\EntityRelationCalculator.cs" />
     <Compile Include="Entity\Relation\EntityRelationQueryComposer.cs" />
     <Compile Include="Entity\Relation\Extensions.cs" />

@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -96,6 +97,11 @@ namespace FoxDb
         public static IDatabaseReader ExecuteReader(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
         {
             return database.ExecuteReader(query, null, transaction);
+        }
+
+        public static IDatabaseQuery Create(this IDatabaseQueryFactory factory, string commandText, params string[] parameters)
+        {
+            return factory.Create(commandText, parameters.Select(parameter => new DatabaseQueryParameter(parameter, ParameterType.Input)).ToArray());
         }
     }
 }

@@ -214,6 +214,16 @@ namespace FoxDb
             return !(a == b);
         }
 
+        public static ITableSelector By(string tableName, TableFlags flags)
+        {
+            return By(string.Empty, tableName, flags);
+        }
+
+        public static ITableSelector By(string identifier, string tableName, TableFlags flags)
+        {
+            return TableSelector.By(identifier, tableName, flags);
+        }
+
         public static ITableSelector By(Type tableType, TableFlags flags)
         {
             return By(string.Empty, tableType, flags);

@@ -9,6 +9,24 @@ namespace FoxDb
     public static partial class Compatibility
     {
         [Obsolete]
+        public static ITableConfig Table(this IConfig config, string tableName)
+        {
+            return config.Table(tableName, Defaults.Table.Flags);
+        }
+
+        [Obsolete]
+        public static ITableConfig Table(this IConfig config, string tableName, TableFlags flags)
+        {
+            var selector = TableConfig.By(tableName, flags);
+            var table = config.GetTable(selector);
+            if (table == null)
+            {
+                table = config.CreateTable(selector);
+            }
+            return table;
+        }
+
+        [Obsolete]
         public static ITableConfig Table(this IConfig config, Type tableType)
         {
             return config.Table(tableType, Defaults.Table.Flags);

@@ -32,6 +32,14 @@ namespace FoxDb.Interfaces
 
         IConstantBuilder CreateConstant(object value);
 
+        IBinaryExpressionBuilder CreateBinary(IFragmentBuilder left, QueryOperator @operator, IFragmentBuilder right);
+
+        IBinaryExpressionBuilder CreateBinary(IFragmentBuilder left, IOperatorBuilder @operator, IFragmentBuilder right);
+
+        IUnaryExpressionBuilder CreateUnary(QueryOperator @operator, IFragmentBuilder expression);
+
+        IUnaryExpressionBuilder CreateUnary(IOperatorBuilder @operator, IFragmentBuilder expression);
+
         string DebugView { get; }
     }
 

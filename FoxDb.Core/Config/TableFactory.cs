@@ -16,6 +16,8 @@ namespace FoxDb
         {
             switch (selector.Type)
             {
+                case TableSelectorType.TableName:
+                    return this.Create(config, selector.Identifier, selector.TableName, selector.Flags);
                 case TableSelectorType.TableType:
                     return this.Create(config, selector.Identifier, selector.TableType, selector.Flags);
                 case TableSelectorType.Mapping:
@@ -23,6 +25,11 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        public ITableConfig Create(IConfig config, string identifier, string tableName, TableFlags flags)
+        {
+            return (ITableConfig)this.Members.Invoke(this, "Create", new[] { typeof(EntityPlaceholder) }, config, identifier, tableName, flags);
         }
 
         public ITableConfig Create(IConfig config, string identifier, Type tableType, TableFlags flags)

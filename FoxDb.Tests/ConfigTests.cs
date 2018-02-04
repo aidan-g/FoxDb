@@ -27,6 +27,20 @@ namespace FoxDb
         }
 
         [Test]
+        public void Unmapped()
+        {
+            var table = this.Database.Config.Table("Strawberry", TableFlags.None);
+            table.Column("A", ColumnFlags.None);
+            table.Column("B", ColumnFlags.None);
+            table.Column("C", ColumnFlags.None);
+            var builder = this.Database.QueryFactory.Build();
+            builder.Add.SetTable(table);
+            builder.Add.AddColumns(table.Columns);
+            builder.Output.AddParameters(table.Columns);
+            builder.Build();
+        }
+
+        [Test]
         public void ColumnName()
         {
             var set = this.Database.Set<Orange>(this.Transaction);

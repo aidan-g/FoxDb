@@ -3,6 +3,7 @@ using System;
 using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace FoxDb
 {
@@ -20,6 +21,6 @@ namespace FoxDb
 
         public static Func<PropertyInfo, string> ColumnName = property => property.Name;
 
-        public static Func<IColumnConfig, string> ParameterName = column => column.ColumnName;
+        public static Func<IColumnConfig, string> ParameterName = column => Regex.Replace(column.ColumnName, "[^a-z0-9]", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }

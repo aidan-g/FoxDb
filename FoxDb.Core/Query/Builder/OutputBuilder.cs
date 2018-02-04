@@ -54,11 +54,27 @@ namespace FoxDb
             return expression;
         }
 
+        public IParameterBuilder AddParameter(IColumnConfig column)
+        {
+            var expression = this.CreateParameter(Conventions.ParameterName(column));
+            this.Expressions.Add(expression);
+            return expression;
+        }
+
+        public IOutputBuilder AddParameters(IEnumerable<string> names)
+        {
+            foreach (var name in names)
+            {
+                this.AddParameter(name);
+            }
+            return this;
+        }
+
         public IOutputBuilder AddParameters(IEnumerable<IColumnConfig> columns)
         {
             foreach (var column in columns)
             {
-                this.Expressions.Add(this.CreateParameter(Conventions.ParameterName(column)));
+                this.AddParameter(column);
             }
             return this;
         }

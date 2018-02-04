@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
     {
         string Identifier { get; }
 
+        string TableName { get; }
+
         Type TableType { get; }
 
         ITableConfig LeftTable { get; }
@@ -20,6 +22,7 @@ namespace FoxDb.Interfaces
     public enum TableSelectorType : byte
     {
         None,
+        TableName,
         TableType,
         Mapping
     }

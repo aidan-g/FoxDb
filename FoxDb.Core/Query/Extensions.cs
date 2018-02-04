@@ -15,6 +15,11 @@ namespace FoxDb
             );
         }
 
+        public static string String(this IDatabaseQueryDialect dialect, string value)
+        {
+            return string.Format(dialect.STRING_FORMAT, value);
+        }
+
         public static IQueryGraphBuilder FetchByRelation(this IDatabase database, IRelationConfig relation)
         {
             var builder = database.QueryFactory.Build();

@@ -159,6 +159,35 @@ namespace FoxDb
             return this.Fragment<IConstantBuilder>().With(builder => builder.Value = value);
         }
 
+        public IBinaryExpressionBuilder CreateBinary(IFragmentBuilder left, QueryOperator @operator, IFragmentBuilder right)
+        {
+            return this.CreateBinary(left, this.CreateOperator(@operator), right);
+        }
+
+        public IBinaryExpressionBuilder CreateBinary(IFragmentBuilder left, IOperatorBuilder @operator, IFragmentBuilder right)
+        {
+            return this.Fragment<IBinaryExpressionBuilder>().With(builder =>
+            {
+                builder.Left = left;
+                builder.Operator = @operator;
+                builder.Right = right;
+            });
+        }
+
+        public IUnaryExpressionBuilder CreateUnary(QueryOperator @operator, IFragmentBuilder expression)
+        {
+            return this.CreateUnary(this.CreateOperator(@operator), expression);
+        }
+
+        public IUnaryExpressionBuilder CreateUnary(IOperatorBuilder @operator, IFragmentBuilder expression)
+        {
+            return this.Fragment<IUnaryExpressionBuilder>().With(builder =>
+            {
+                builder.Operator = @operator;
+                builder.Expression = expression;
+            });
+        }
+
         public abstract IFragmentBuilder Clone();
 
         public abstract string DebugView { get; }
