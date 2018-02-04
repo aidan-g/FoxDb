@@ -32,7 +32,7 @@ namespace FoxDb
                     engine.CreateDatabase();
                 }
             }
-            return new SqlCeConnection(this.ConnectionString);
+            return new SqlCeConnectionWrapper(this, new SqlCeQueryDialect(), new SqlCeConnection(this.ConnectionString));
         }
 
         public IDatabaseSchema CreateSchema(IDatabase database)

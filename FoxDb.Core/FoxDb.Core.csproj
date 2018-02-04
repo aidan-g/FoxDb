@@ -198,6 +198,8 @@
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
+    <Compile Include="Utility\Command.cs" />
+    <Compile Include="Utility\Connection.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />

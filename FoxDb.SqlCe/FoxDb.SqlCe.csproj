@@ -40,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlCeCommandWrapper.cs" />
+    <Compile Include="SqlCeConnectionWrapper.cs" />
     <Compile Include="SqlCeDialect.cs" />
     <Compile Include="SqlCeProvider.cs" />
     <Compile Include="SqlCeQuery.cs" />

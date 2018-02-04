@@ -71,17 +71,7 @@ namespace FoxDb
         {
             using (var command = this.CreateCommand(query, parameters, transaction))
             {
-                var result = default(int);
-                foreach (var commandText in command.CommandText.Split(new[] { this.QueryFactory.Dialect.BATCH }, StringSplitOptions.None))
-                {
-                    if (string.IsNullOrEmpty(commandText.Trim()))
-                    {
-                        continue;
-                    }
-                    command.CommandText = commandText;
-                    result = command.ExecuteNonQuery();
-                }
-                return result;
+                return command.ExecuteNonQuery();
             }
         }
 
@@ -89,17 +79,7 @@ namespace FoxDb
         {
             using (var command = this.CreateCommand(query, parameters, transaction))
             {
-                var result = default(object);
-                foreach (var commandText in command.CommandText.Split(new[] { this.QueryFactory.Dialect.BATCH }, StringSplitOptions.None))
-                {
-                    if (string.IsNullOrEmpty(commandText.Trim()))
-                    {
-                        continue;
-                    }
-                    command.CommandText = commandText;
-                    result = command.ExecuteScalar();
-                }
-                return Converter.ChangeType<T>(result);
+                return Converter.ChangeType<T>(command.ExecuteScalar());
             }
         }
 
