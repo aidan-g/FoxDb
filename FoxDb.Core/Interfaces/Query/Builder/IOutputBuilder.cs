@@ -21,5 +21,7 @@ namespace FoxDb.Interfaces
         IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments);
 
         IOperatorBuilder AddOperator(QueryOperator @operator);
+
+        ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query);
     }
 }

@@ -93,6 +93,13 @@ namespace FoxDb
             return builder;
         }
 
+        public ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query)
+        {
+            var builder = this.CreateSubQuery(query);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
             this.Expressions.Add(fragment);

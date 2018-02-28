@@ -99,6 +99,43 @@ namespace FoxDb
             }
         }
 
+        [Test]
+        public void Select_SubQuery()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlCe:
+                    Assert.Ignore("The provider does not support projection of sub queries.");
+                    return;
+            }
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.QueryFactory.Build();
+            query.Output.AddSubQuery(this.Database.QueryFactory.Build().With(subQuery =>
+            {
+                subQuery.Output.AddFunction(QueryFunction.Count, subQuery.Output.CreateOperator(QueryOperator.Star));
+                subQuery.Source.AddTable(set.Table);
+            })).Alias = "Count";
+            query.Source.AddTable(set.Table);
+            using (var reader = this.Database.ExecuteReader(query, this.Transaction))
+            {
+                var result = reader.ToArray();
+                Assert.AreEqual(3, result.Length);
+                for (var a = 0; a < result.Length; a++)
+                {
+                    Assert.AreEqual(3, result[a]["Count"]);
+                }
+            }
+        }
+
         [TestCase(QueryOperator.Equal, 0, 1)]
         [TestCase(QueryOperator.Greater, 0, 2)]
         [TestCase(QueryOperator.Less, 2, 2)]
