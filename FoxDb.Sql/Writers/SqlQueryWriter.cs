@@ -205,6 +205,10 @@ namespace FoxDb
 
         protected virtual void Visit(IFragmentBuilder expression)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException("expression");
+            }
             var handler = default(SqlQueryWriterVisitorHandler);
             if (!Handlers.TryGetValue(expression.FragmentType, out handler))
             {
@@ -268,7 +272,10 @@ namespace FoxDb
         protected virtual void VisitParameter(IParameterBuilder expression)
         {
             this.Builder.AppendFormat("{0}{1} ", this.Database.QueryFactory.Dialect.PARAMETER, expression.Name);
-            this.Parameters.Add(new DatabaseQueryParameter(expression.Name, expression.Type));
+            if (!this.ContainsParameter(expression.Name))
+            {
+                this.Parameters.Add(new DatabaseQueryParameter(expression.Name, expression.Type));
+            }
         }
 
         protected virtual void VisitFunction(IFunctionBuilder expression)
@@ -334,14 +341,7 @@ namespace FoxDb
         {
             var query = expression.Query.Build();
             this.Builder.AppendFormat("{0} ", query.CommandText);
-            foreach (var parameter in query.Parameters)
-            {
-                if (this.Parameters.Contains(parameter))
-                {
-                    continue;
-                }
-                this.Parameters.Add(parameter);
-            }
+            this.Parameters.AddRange(query.Parameters.Except(this.Parameters));
         }
 
         protected virtual void VisitAlias(string alias)
@@ -351,6 +351,11 @@ namespace FoxDb
                 return;
             }
             this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.AS, this.Database.QueryFactory.Dialect.Identifier(alias));
+        }
+
+        protected virtual bool ContainsParameter(string name)
+        {
+            return this.Parameters.Any(parameter => string.Equals(parameter.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
         public delegate string SqlQueryWriterDialectHandler(SqlQueryWriter writer);

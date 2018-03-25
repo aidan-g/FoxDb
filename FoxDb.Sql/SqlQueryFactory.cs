@@ -65,7 +65,7 @@ namespace FoxDb
                     builder.AppendFormat("{0} ", this.Dialect.BATCH);
                 }
                 builder.Append(query.CommandText);
-                parameters.AddRange(query.Parameters);
+                parameters.AddRange(query.Parameters.Except(parameters));
             }
             return this.Create(builder.ToString(), parameters.ToArray());
         }

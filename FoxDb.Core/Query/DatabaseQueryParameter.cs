@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
@@ -43,7 +44,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!string.Equals(this.Name, other.Name))
+            if (!string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }

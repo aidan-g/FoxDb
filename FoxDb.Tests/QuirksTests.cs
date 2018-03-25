@@ -1,5 +1,7 @@
 ﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
