@@ -34,6 +34,7 @@ namespace FoxDb
                 { typeof(IFunctionBuilder), (parent, graph) => new FunctionBuilder(parent, graph) },
                 { typeof(IOperatorBuilder), (parent, graph) => new OperatorBuilder(parent, graph) },
                 { typeof(IConstantBuilder), (parent, graph) => new ConstantBuilder(parent, graph) },
+                { typeof(ISequenceBuilder), (parent, graph) => new SequenceBuilder(parent, graph) },
             };
         }
 
@@ -188,6 +189,17 @@ namespace FoxDb
             });
         }
 
+        public ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions)
+        {
+            return this.Fragment<ISequenceBuilder>().With(builder =>
+            {
+                foreach (var expression in expressions)
+                {
+                    builder.Write(expression);
+                }
+            });
+        }
+
         public abstract IFragmentBuilder Clone();
 
         public abstract string DebugView { get; }
@@ -253,11 +265,13 @@ namespace FoxDb
 
         protected class FragmentBuilderProxy : FragmentBuilder
         {
-            public FragmentBuilderProxy(IQueryGraphBuilder graph) : this(null, graph)
+            public FragmentBuilderProxy(IQueryGraphBuilder graph)
+                : this(null, graph)
             {
             }
 
-            public FragmentBuilderProxy(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+            public FragmentBuilderProxy(IFragmentBuilder parent, IQueryGraphBuilder graph)
+                : base(parent, graph)
             {
             }
 

@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,6 +26,7 @@ namespace FoxDb
                 { "FirstOrDefault", (visitor, node) => visitor.VisitFirst(node) },
                 { "Select", (visitor, node) => visitor.VisitSelect(node) },
                 { "Where", (visitor, node) => visitor.VisitWhere(node) },
+                { "Except", (visitor, node) => visitor.VisitExcept(node) },
                 { "OrderBy", (visitor, node) => visitor.VisitOrderBy(node) },
                 { "OrderByDescending", (visitor, node) => visitor.VisitOrderByDescending(node) }
             };
@@ -67,7 +69,8 @@ namespace FoxDb
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public EnumerableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType) : this()
+        public EnumerableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType)
+            : this()
         {
             this.Database = database;
             this.Query = query;
@@ -372,10 +375,7 @@ namespace FoxDb
                     }
                     try
                     {
-                        for (var a = 1; a < node.Arguments.Count; a++)
-                        {
-                            this.Visit(node.Arguments[a]);
-                        }
+                        this.Visit(node.Arguments[1]);
                     }
                     finally
                     {
@@ -388,6 +388,101 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        protected virtual void VisitExcept(MethodCallExpression node)
+        {
+            this.Visit(node.Arguments[0]);
+            switch (node.Arguments.Count)
+            {
+                case 1:
+                    break;
+                case 2:
+                    var pop = false;
+                    if (!this.TryPeek())
+                    {
+                        this.Push(this.Query.Filter);
+                        pop = true;
+                    }
+                    try
+                    {
+                        var selector = default(IFragmentBuilder);
+                        if (!this.TryGetColumnSelector(this.Table.PrimaryKey, node.Arguments[1], out selector))
+                        {
+                            return;
+                        }
+                        this.Peek.Write(
+                            this.Peek.CreateUnary(
+                                QueryOperator.Not,
+                                this.Peek.CreateBinary(
+                                    this.Peek.CreateColumn(this.Table.PrimaryKey),
+                                    QueryOperator.In,
+                                    selector
+                                )
+                            )
+                        );
+                    }
+                    finally
+                    {
+                        if (pop)
+                        {
+                            this.Pop();
+                        }
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        protected virtual bool TryGetColumnSelector(IColumnConfig column, Expression expression, out IFragmentBuilder builder)
+        {
+            var constants = default(IDictionary<string, object>);
+            this.Capture<IParameterBuilder>(null, expression, out constants);
+            foreach (var key in constants.Keys)
+            {
+                var value = constants[key];
+                if (value == null)
+                {
+                    continue;
+                }
+                if (value is IDatabaseSet)
+                {
+                    return this.TryGetColumnSelector(column, value as IDatabaseSet, out builder);
+                }
+                if (value is IEnumerable)
+                {
+                    return this.TryGetColumnSelector(column, value as IEnumerable, out builder);
+                }
+            }
+            throw new NotImplementedException();
+        }
+
+        protected virtual bool TryGetColumnSelector(IColumnConfig column, IDatabaseSet set, out IFragmentBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected virtual bool TryGetColumnSelector(IColumnConfig column, IEnumerable set, out IFragmentBuilder builder)
+        {
+            var success = false;
+            builder = this.Push(this.Peek.CreateSequence()).With(sequence =>
+            {
+                try
+                {
+                    foreach (var element in set)
+                    {
+                        var key = column.Getter(element);
+                        this.VisitParameter(key);
+                        success = true;
+                    }
+                }
+                finally
+                {
+                    this.Pop();
+                }
+            });
+            return success;
         }
 
         protected virtual void VisitOrderBy(MethodCallExpression node)
@@ -724,7 +819,8 @@ namespace FoxDb
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
         {
-            public CaptureFragmentTarget(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+            public CaptureFragmentTarget(IFragmentBuilder parent, IQueryGraphBuilder graph)
+                : base(parent, graph)
             {
                 this.Expressions = new List<IFragmentBuilder>();
                 this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);

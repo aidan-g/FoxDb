@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public class SqlWhereWriter : SqlQueryWriter
     {
-        public SqlWhereWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SqlWhereWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
 
         }
@@ -94,6 +95,27 @@ namespace FoxDb
         {
             this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
             base.VisitBinary(expression);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
+        }
+
+        protected override void VisitSubQuery(ISubQueryBuilder expression)
+        {
+            if (this.GetRenderContext().HasFlag(RenderHints.FunctionArgument))
+            {
+                base.VisitSubQuery(expression);
+            }
+            else
+            {
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+                base.VisitSubQuery(expression);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
+            }
+        }
+
+        protected override void VisitSequence(ISequenceBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+            base.VisitSequence(expression);
             this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 

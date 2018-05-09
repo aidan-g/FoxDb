@@ -10,6 +10,7 @@
         None,
         //Logical
         Not,
+        In,
         Equal,
         NotEqual,
         Greater,

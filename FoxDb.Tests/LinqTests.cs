@@ -1,4 +1,4 @@
-﻿#pragma warning disable 612, 618 
+﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -10,7 +10,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class LinqTests : TestBase
     {
-        public LinqTests(ProviderType providerType) : base(providerType)
+        public LinqTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -156,6 +157,26 @@ namespace FoxDb
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             Assert.IsTrue(query.Any(element => element.Id == +1));
             Assert.IsFalse(query.Any(element => element.Id == -1));
+        }
+
+        [Test]
+        public void Except()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query.Except(Enumerable.Empty<Test001>()));
+            this.AssertSequence(new[] { data[0], data[1] }, query.Except(new[] { data[2] }));
+            this.AssertSequence(new[] { data[0] }, query.Except(new[] { data[1], data[2] }));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query.Except(new[] { data[0], data[1], data[2] }));
         }
 
         [TestCase(RelationFlags.OneToMany, false)]

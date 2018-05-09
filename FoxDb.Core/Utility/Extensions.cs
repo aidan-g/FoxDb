@@ -92,5 +92,10 @@ namespace FoxDb
         {
             return sequence1.Except(sequence2.AsEnumerable());
         }
+
+        public static IQueryable<T> Except<T>(this IQueryable<T> sequence1, params T[] sequence2)
+        {
+            return sequence1.Except(sequence2.AsEnumerable());
+        }
     }
 }

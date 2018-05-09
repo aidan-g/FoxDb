@@ -22,7 +22,8 @@ namespace FoxDb
                 { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
                 { FragmentType.Operator, (writer, fragment) => writer.VisitOperator(fragment as IOperatorBuilder) },
                 { FragmentType.Constant, (writer, fragment) => writer.VisitConstant(fragment as IConstantBuilder) },
-                { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) }
+                { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) },
+                { FragmentType.Sequence, (writer, fragment) => writer.VisitSequence(fragment as ISequenceBuilder) }
             };
         }
 
@@ -111,6 +112,7 @@ namespace FoxDb
         {
             //Logical
             { QueryOperator.Not, writer => writer.Database.QueryFactory.Dialect.NOT },
+            { QueryOperator.In, writer => writer.Database.QueryFactory.Dialect.IN },
             { QueryOperator.Equal, writer => writer.Database.QueryFactory.Dialect.EQUAL },
             { QueryOperator.NotEqual, writer => writer.Database.QueryFactory.Dialect.NOT_EQUAL },
             { QueryOperator.Greater, writer => writer.Database.QueryFactory.Dialect.GREATER },
@@ -123,7 +125,7 @@ namespace FoxDb
             { QueryOperator.OrElse, writer => writer.Database.QueryFactory.Dialect.OR_ELSE },
             { QueryOperator.OpenParentheses, writer => writer.Database.QueryFactory.Dialect.OPEN_PARENTHESES },
             { QueryOperator.CloseParentheses, writer => writer.Database.QueryFactory.Dialect.CLOSE_PARENTHESES },
-            //Mathmatical
+            //Mathematical
             { QueryOperator.Add, writer => writer.Database.QueryFactory.Dialect.ADD },
             //Other
             { QueryOperator.Null, writer => writer.Database.QueryFactory.Dialect.NULL },
@@ -136,7 +138,8 @@ namespace FoxDb
             { QueryFunction.Exists, writer => writer.Database.QueryFactory.Dialect.EXISTS }
         };
 
-        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             if (parent is ISqlQueryWriter)
             {
@@ -151,7 +154,8 @@ namespace FoxDb
             this.Builder = new StringBuilder();
         }
 
-        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : this(parent, graph)
+        protected SqlQueryWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : this(parent, graph)
         {
             this.Database = database;
             this.Visitor = visitor;
@@ -342,6 +346,23 @@ namespace FoxDb
             var query = expression.Query.Build();
             this.Builder.AppendFormat("{0} ", query.CommandText);
             this.Parameters.AddRange(query.Parameters.Except(this.Parameters));
+        }
+
+        protected virtual void VisitSequence(ISequenceBuilder expression)
+        {
+            var first = true;
+            foreach (var element in expression.Expressions)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
+                }
+                this.Visit(element);
+            }
         }
 
         protected virtual void VisitAlias(string alias)

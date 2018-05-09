@@ -101,6 +101,7 @@
     <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
     <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\ISequenceBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryParameter.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\AggregateBuilder.cs" />
     <Compile Include="Query\Builder\RelationBuilder.cs" />
+    <Compile Include="Query\Builder\SequenceBuilder.cs" />
     <Compile Include="Query\Builder\UnaryExpressionBuilder.cs" />
     <Compile Include="Query\Builder\SourceBuilder.cs" />
     <Compile Include="Query\Builder\FunctionBuilder.cs" />

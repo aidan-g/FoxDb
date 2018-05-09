@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class AddBuilder : FragmentBuilder, IAddBuilder
     {
-        public AddBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public AddBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
         }
@@ -19,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public ICollection<IFragmentBuilder> Expressions { get; }
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
         public ITableBuilder Table { get; set; }
 

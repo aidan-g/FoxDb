@@ -40,6 +40,8 @@ namespace FoxDb.Interfaces
 
         IUnaryExpressionBuilder CreateUnary(IOperatorBuilder @operator, IFragmentBuilder expression);
 
+        ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions);
+
         string DebugView { get; }
     }
 
@@ -63,6 +65,7 @@ namespace FoxDb.Interfaces
         Source,
         Filter,
         Aggregate,
-        Sort
+        Sort,
+        Sequence
     }
 }
