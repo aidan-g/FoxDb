@@ -21,6 +21,8 @@ namespace FoxDb.Interfaces
 
         bool IsForeignKey { get; set; }
 
+        object DefaultValue { get; }
+
         Func<object, object> Getter { get; set; }
 
         Action<object, object> Setter { get; set; }

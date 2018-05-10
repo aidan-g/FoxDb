@@ -99,7 +99,7 @@ namespace FoxDb
             //The last execution seems to always contain the full expression.
             //We need to reset otherwise the same filters (etc) will be applied multiple times.
             this.Reset();
-            var visitor = new EnumerableVisitor(this.Set.Database, this.Set.Fetch, this.Set.ElementType);
+            var visitor = new EnumerableVisitor(this, this.Set.Database, this.Set.Fetch, this.Set.ElementType);
             visitor.Visit(expression);
             if (this.Set.Parameters != null)
             {

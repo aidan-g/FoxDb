@@ -70,9 +70,10 @@ namespace FoxDb
             this.Targets = new Stack<IFragmentTarget>();
         }
 
-        public EnumerableVisitor(IDatabase database, IQueryGraphBuilder query, Type elementType)
+        public EnumerableVisitor(IDatabaseSetQuery provider, IDatabase database, IQueryGraphBuilder query, Type elementType)
             : this()
         {
+            this.Provider = provider;
             this.Database = database;
             this.Query = query;
             this.ElementType = elementType;
@@ -84,9 +85,27 @@ namespace FoxDb
 
         protected Stack<IFragmentTarget> Targets { get; private set; }
 
+        public IDatabaseSetQuery Provider { get; private set; }
+
         public IDatabase Database { get; private set; }
 
         public Type ElementType { get; private set; }
+
+        public Type EnumerableType
+        {
+            get
+            {
+                return typeof(IEnumerable<>).MakeGenericType(this.ElementType);
+            }
+        }
+
+        public Type QueryableType
+        {
+            get
+            {
+                return typeof(IQueryable<>).MakeGenericType(this.ElementType);
+            }
+        }
 
         public OrderByDirection Direction { get; private set; }
 
@@ -409,19 +428,32 @@ namespace FoxDb
                     }
                     try
                     {
-                        var selector = default(IFragmentBuilder);
-                        if (!this.TryGetColumnSelector(this.Table.PrimaryKey, node.Arguments[1], out selector))
-                        {
-                            return;
-                        }
                         this.Peek.Write(
                             this.Peek.CreateUnary(
                                 QueryOperator.Not,
-                                this.Peek.CreateBinary(
+                                this.Push(this.Peek.CreateBinary(
                                     this.Peek.CreateColumn(this.Table.PrimaryKey),
                                     QueryOperator.In,
-                                    selector
-                                )
+                                    //Leave the right expression null, we will write to this later.
+                                    null
+                                )).With(binary =>
+                                {
+                                    try
+                                    {
+                                        switch (node.Arguments[1].NodeType)
+                                        {
+                                            case ExpressionType.Constant:
+                                                this.Visit(node.Arguments[1]);
+                                                break;
+                                            default:
+                                                throw new NotImplementedException();
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        this.Pop();
+                                    }
+                                })
                             )
                         );
                     }
@@ -436,56 +468,6 @@ namespace FoxDb
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        protected virtual bool TryGetColumnSelector(IColumnConfig column, Expression expression, out IFragmentBuilder builder)
-        {
-            var constants = default(IDictionary<string, object>);
-            this.Capture<IParameterBuilder>(null, expression, out constants);
-            foreach (var key in constants.Keys)
-            {
-                var value = constants[key];
-                if (value == null)
-                {
-                    continue;
-                }
-                if (value is IDatabaseSet)
-                {
-                    return this.TryGetColumnSelector(column, value as IDatabaseSet, out builder);
-                }
-                if (value is IEnumerable)
-                {
-                    return this.TryGetColumnSelector(column, value as IEnumerable, out builder);
-                }
-            }
-            throw new NotImplementedException();
-        }
-
-        protected virtual bool TryGetColumnSelector(IColumnConfig column, IDatabaseSet set, out IFragmentBuilder builder)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual bool TryGetColumnSelector(IColumnConfig column, IEnumerable set, out IFragmentBuilder builder)
-        {
-            var success = false;
-            builder = this.Push(this.Peek.CreateSequence()).With(sequence =>
-            {
-                try
-                {
-                    foreach (var element in set)
-                    {
-                        var key = column.Getter(element);
-                        this.VisitParameter(key);
-                        success = true;
-                    }
-                }
-                finally
-                {
-                    this.Pop();
-                }
-            });
-            return success;
         }
 
         protected virtual void VisitOrderBy(MethodCallExpression node)
@@ -518,6 +500,33 @@ namespace FoxDb
                 for (var a = 1; a < node.Arguments.Count; a++)
                 {
                     this.Visit(node.Arguments[a]);
+                }
+            }
+            finally
+            {
+                this.Pop();
+            }
+        }
+
+        protected virtual void VisitQueryable(IQueryable queryable)
+        {
+            //Nothing to do.
+        }
+
+        protected virtual void VisitEnumerable(IEnumerable enumerable)
+        {
+            this.Peek.Write(this.Push(this.Peek.CreateSequence()));
+            try
+            {
+                var success = false;
+                foreach (var element in enumerable)
+                {
+                    this.VisitParameter(this.Table.PrimaryKey.Getter(element));
+                    success = true;
+                }
+                if (!success)
+                {
+                    this.VisitParameter(this.Table.PrimaryKey.DefaultValue);
                 }
             }
             finally
@@ -681,28 +690,36 @@ namespace FoxDb
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Value is IQueryable)
-            {
-                //Nothing to do.
-            }
-            else if (node.Value == null)
+            if (node.Value == null)
             {
                 this.VisitOperator(QueryOperator.Null);
             }
             else
             {
-                this.VisitParameter(node.Value);
+                var type = node.Value.GetType();
+                if (this.QueryableType.IsAssignableFrom(type))
+                {
+                    this.VisitQueryable(node.Value as IQueryable);
+                }
+                else if (this.EnumerableType.IsAssignableFrom(type))
+                {
+                    this.VisitEnumerable(node.Value as IEnumerable);
+                }
+                else if (this.TryPeek())
+                {
+                    this.VisitParameter(node.Value);
+                }
             }
             return base.VisitConstant(node);
         }
 
         protected virtual bool TryUnwrapConstant(MemberInfo member, Expression node)
         {
-            var constants = default(IDictionary<string, object>);
-            this.Capture<IParameterBuilder>(null, node, out constants);
-            foreach (var key in constants.Keys)
+            var context = default(CaptureFragmentContext);
+            this.Capture<IParameterBuilder>(null, node, out context);
+            foreach (var key in context.Constants.Keys)
             {
-                var value = constants[key];
+                var value = context.Constants[key];
                 if (value == null)
                 {
                     continue;
@@ -749,6 +766,11 @@ namespace FoxDb
             }
         }
 
+        protected virtual string GetExtentName()
+        {
+            return string.Format("extent_{0}_{1}", this.Id, Unique.New);
+        }
+
         protected virtual string GetParameterName()
         {
             var count = this.Constants.Count;
@@ -770,10 +792,10 @@ namespace FoxDb
             return expression;
         }
 
-        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node, out IDictionary<string, object> constants) where T : IFragmentBuilder
+        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node, out CaptureFragmentContext context) where T : IFragmentBuilder
         {
             var expression = default(T);
-            if (!this.TryCapture<T>(parent, node, out expression, out constants))
+            if (!this.TryCapture<T>(parent, node, out expression, out context))
             {
                 throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
             }
@@ -782,21 +804,22 @@ namespace FoxDb
 
         protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result) where T : IFragmentBuilder
         {
-            var constants = default(IDictionary<string, object>);
-            if (!this.TryCapture<T>(parent, node, out result, out constants))
+            var context = default(CaptureFragmentContext);
+            if (!this.TryCapture<T>(parent, node, out result, out context))
             {
                 return false;
             }
-            if (constants.Any())
+            if (context.Constants.Any())
             {
                 throw new InvalidOperationException("Capture resulted in unhandled constants.");
             }
             return true;
         }
 
-        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result, out IDictionary<string, object> constants) where T : IFragmentBuilder
+        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result, out CaptureFragmentContext context) where T : IFragmentBuilder
         {
-            var capture = new CaptureFragmentTarget(parent, this.Query);
+            context = new CaptureFragmentContext(parent, this.Query.Clone());
+            var capture = new CaptureFragmentTarget(context);
             this.Push(capture);
             try
             {
@@ -806,27 +829,24 @@ namespace FoxDb
             {
                 this.Pop(false);
             }
-            foreach (var expression in capture.Expressions)
+            foreach (var expression in context.Expressions)
             {
                 if (expression is T)
                 {
                     result = (T)expression;
-                    constants = capture.Constants;
                     return true;
                 }
             }
             result = default(T);
-            constants = default(IDictionary<string, object>);
             return false;
         }
 
         protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
         {
-            public CaptureFragmentTarget(IFragmentBuilder parent, IQueryGraphBuilder graph)
-                : base(parent, graph)
+            public CaptureFragmentTarget(CaptureFragmentContext context)
+                : base(context.Parent, context.Graph)
             {
-                this.Expressions = new List<IFragmentBuilder>();
-                this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                this.Context = context;
             }
 
             public override FragmentType FragmentType
@@ -837,13 +857,19 @@ namespace FoxDb
                 }
             }
 
-            public ICollection<IFragmentBuilder> Expressions { get; private set; }
+            public IDictionary<string, object> Constants
+            {
+                get
+                {
+                    return this.Context.Constants;
+                }
+            }
 
-            public IDictionary<string, object> Constants { get; private set; }
+            public CaptureFragmentContext Context { get; private set; }
 
             public T Write<T>(T fragment) where T : IFragmentBuilder
             {
-                this.Expressions.Add(fragment);
+                this.Context.Expressions.Add(fragment);
                 return fragment;
             }
 
@@ -856,7 +882,39 @@ namespace FoxDb
             {
                 get
                 {
-                    return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
+                    return string.Format("{{{0}}}", string.Join(", ", this.Context.Expressions.Select(expression => expression.DebugView)));
+                }
+            }
+        }
+
+        public class CaptureFragmentContext
+        {
+            private CaptureFragmentContext()
+            {
+                this.Expressions = new List<IFragmentBuilder>();
+                this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            public CaptureFragmentContext(IFragmentBuilder parent, IQueryGraphBuilder graph)
+                : this()
+            {
+                this.Parent = parent;
+                this.Graph = graph;
+            }
+
+            public IFragmentBuilder Parent { get; private set; }
+
+            public IQueryGraphBuilder Graph { get; private set; }
+
+            public ICollection<IFragmentBuilder> Expressions { get; private set; }
+
+            public IDictionary<string, object> Constants { get; private set; }
+
+            public bool IsEmpty
+            {
+                get
+                {
+                    return this.Expressions.Count == 0 && this.Constants.Count == 0;
                 }
             }
         }

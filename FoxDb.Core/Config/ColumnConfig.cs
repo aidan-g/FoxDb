@@ -34,6 +34,18 @@ namespace FoxDb
 
         public bool IsForeignKey { get; set; }
 
+        public object DefaultValue
+        {
+            get
+            {
+                if (this.Property != null)
+                {
+                    return this.Property.PropertyType.DefaultValue();
+                }
+                throw new NotImplementedException();
+            }
+        }
+
         public Func<object, object> Getter { get; set; }
 
         public Action<object, object> Setter { get; set; }

@@ -179,6 +179,29 @@ namespace FoxDb
             this.AssertSequence(Enumerable.Empty<Test001>(), query.Except(new[] { data[0], data[1], data[2] }));
         }
 
+        [Test]
+        public void Except_Queryable()
+        {
+            Assert.Ignore("Not yet supported.");
+
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+           {
+               new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+               new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+               new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+           });
+            set.AddOrUpdate(data);
+            var query1 = this.Database.AsQueryable<Test001>(this.Transaction);
+            var query2 = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query1.Except(query2.Where(item => item.Id == 0)));
+            this.AssertSequence(new[] { data[0], data[1] }, query1.Except(query2.Where(item => item.Id == data[2].Id)));
+            this.AssertSequence(new[] { data[0] }, query1.Except(query2.Where(item => item.Id == data[1].Id || item.Id == data[2].Id)));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query1.Except(query2));
+        }
+
         [TestCase(RelationFlags.OneToMany, false)]
         [TestCase(RelationFlags.OneToMany, true)]
         [TestCase(RelationFlags.ManyToMany, false)]

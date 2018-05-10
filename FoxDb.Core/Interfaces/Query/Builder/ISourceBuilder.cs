@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface ISourceBuilder : IFragmentContainer, IFragmentBuilder
+    public interface ISourceBuilder : IFragmentContainer, IFragmentTarget
     {
         IEnumerable<ITableBuilder> Tables { get; }
 
