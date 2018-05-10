@@ -1,11 +1,13 @@
 ﻿using FoxDb.Interfaces;
 using System.Diagnostics;
+using System.Text;
 
 namespace FoxDb
 {
     public class TableBuilder : ExpressionBuilder, ITableBuilder
     {
-        public TableBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public TableBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Filter = this.Fragment<IFilterBuilder>();
             this.Sort = this.Fragment<ISortBuilder>();
@@ -47,7 +49,19 @@ namespace FoxDb
         {
             get
             {
-                return string.Format("{{{0}}}", this.Table);
+                var builder = new StringBuilder();
+                builder.Append("{");
+                builder.Append(this.Table);
+                if (this.Filter.Expressions.Count > 0)
+                {
+                    builder.AppendFormat(", Filter = {0}", this.Filter.DebugView);
+                }
+                if (this.Sort.Expressions.Count > 0)
+                {
+                    builder.AppendFormat(", Sort = {0}", this.Sort.DebugView);
+                }
+                builder.Append("}");
+                return builder.ToString();
             }
         }
 

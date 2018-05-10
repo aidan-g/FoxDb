@@ -93,9 +93,22 @@ namespace FoxDb
 
         protected virtual void ConfigureSet(Expression expression)
         {
+            //This feels wrong, but Execute is *sometimes* invoked multiple times for the same expression.
+            //Where().OrderBy() results in one execution.
+            //Where().Count() results in two executions.
+            //The last execution seems to always contain the full expression.
+            //We need to reset otherwise the same filters (etc) will be applied multiple times.
+            this.Reset();
             var visitor = new EnumerableVisitor(this.Set.Database, this.Set.Fetch, this.Set.ElementType);
             visitor.Visit(expression);
-            this.Set.Parameters = visitor.Parameters;
+            if (this.Set.Parameters != null)
+            {
+                this.Set.Parameters = (DatabaseParameterHandler)Delegate.Combine(this.Set.Parameters, visitor.Parameters);
+            }
+            else
+            {
+                this.Set.Parameters = visitor.Parameters;
+            }
         }
     }
 }

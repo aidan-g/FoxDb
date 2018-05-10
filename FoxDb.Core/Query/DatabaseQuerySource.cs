@@ -8,7 +8,7 @@ namespace FoxDb
         {
             this.Database = database;
             this.Composer = composer;
-            this.Parameters = parameters;
+            this.OriginalParameters = parameters;
             this.Transaction = transaction;
             this.Reset();
         }
@@ -18,6 +18,8 @@ namespace FoxDb
         public IDatabaseQueryComposer Composer { get; private set; }
 
         public DatabaseParameterHandler Parameters { get; set; }
+
+        public DatabaseParameterHandler OriginalParameters { get; private set; }
 
         public ITransactionSource Transaction { get; private set; }
 
@@ -35,6 +37,7 @@ namespace FoxDb
             this.Add = this.Composer.Add;
             this.Update = this.Composer.Update;
             this.Delete = this.Composer.Delete;
+            this.Parameters = this.OriginalParameters;
         }
 
         public IDatabaseQuerySource Clone()

@@ -58,13 +58,14 @@ namespace FoxDb
                 { ExpressionType.AndAlso, QueryOperator.AndAlso },
                 { ExpressionType.Or, QueryOperator.Or },
                 { ExpressionType.OrElse, QueryOperator.OrElse },
-                //Mathmatical.
+                //Mathematical.
                 { ExpressionType.Add, QueryOperator.Add }
             };
         }
 
         private EnumerableVisitor()
         {
+            this.Id = Unique.New;
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Targets = new Stack<IFragmentTarget>();
         }
@@ -76,6 +77,8 @@ namespace FoxDb
             this.Query = query;
             this.ElementType = elementType;
         }
+
+        public string Id { get; private set; }
 
         public IDictionary<string, object> Constants { get; private set; }
 
@@ -754,7 +757,7 @@ namespace FoxDb
             {
                 count += target.Constants.Count;
             }
-            return string.Format("parameter{0}", count);
+            return string.Format("parameter_{0}_{1}", this.Id, count);
         }
 
         protected virtual T Capture<T>(IFragmentBuilder parent, Expression node) where T : IFragmentBuilder

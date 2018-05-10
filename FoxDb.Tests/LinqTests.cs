@@ -160,7 +160,7 @@ namespace FoxDb
         }
 
         [Test]
-        public void Except()
+        public void Except_Enumerable()
         {
             var set = this.Database.Set<Test001>(this.Transaction);
             var data = new List<Test001>();

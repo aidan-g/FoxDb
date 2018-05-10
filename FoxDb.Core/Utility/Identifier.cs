@@ -8,7 +8,7 @@ namespace FoxDb
         {
             get
             {
-                return Guid.NewGuid().ToString("d").Split('-')[0];
+                return Guid.NewGuid().ToString("d").Split('-')[0].ToLower();
             }
         }
     }
