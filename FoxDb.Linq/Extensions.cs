@@ -19,7 +19,7 @@ namespace FoxDb
 
         public static IQueryable<T> AsQueryable<T>(this IDatabase database, IDatabaseQuerySource source)
         {
-            return new DatabaseSetQueryFactory<T>(database, source);
+            return new DatabaseSetQuery<T>(database, source);
         }
     }
 }

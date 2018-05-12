@@ -7,30 +7,20 @@ using System.Linq.Expressions;
 
 namespace FoxDb
 {
-    public abstract class DatabaseSetQuery
+    public class DatabaseSetQuery<T> : IDatabaseSetQuery<T>
     {
-        public abstract Type ElementType { get; }
-
-        public abstract IQueryProvider Provider { get; }
-    }
-
-    public class DatabaseSetQuery<T> : DatabaseSetQuery, IDatabaseSetQuery<T>
-    {
-        public DatabaseSetQuery(IDatabaseSet<T> set)
+        public DatabaseSetQuery(IDatabase database, IDatabaseQuerySource source)
         {
-            this.Set = set;
+            this.Database = database;
+            this.Source = source;
             this.Expression = Expression.Constant(this);
         }
 
-        public DatabaseSetQuery(IDatabaseSet set, Expression expression)
-        {
-            this.Set = set;
-            this.Expression = expression;
-        }
+        public IDatabase Database { get; private set; }
 
-        public IDatabaseSet Set { get; private set; }
+        public IDatabaseQuerySource Source { get; private set; }
 
-        public override Type ElementType
+        public Type ElementType
         {
             get
             {
@@ -38,7 +28,7 @@ namespace FoxDb
             }
         }
 
-        public override IQueryProvider Provider
+        public IQueryProvider Provider
         {
             get
             {
@@ -48,15 +38,9 @@ namespace FoxDb
 
         public Expression Expression { get; private set; }
 
-        public IEnumerable<T> Sequence { get; private set; }
-
         public IEnumerator<T> GetEnumerator()
         {
-            if (this.Sequence == null)
-            {
-                this.Sequence = this.CreateQuery<T>(this.Expression);
-            }
-            return this.Sequence.GetEnumerator();
+            return this.CreateQuery<T>(this.Expression).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -71,8 +55,7 @@ namespace FoxDb
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            this.ConfigureSet(expression);
-            return new EnumerableQuery<TElement>(this, expression);
+            return new EnumerableQuery<TElement>(this, this.Set(expression), expression);
         }
 
         public object Execute(Expression expression)
@@ -82,33 +65,23 @@ namespace FoxDb
 
         public TResult Execute<TResult>(Expression expression)
         {
-            this.ConfigureSet(expression);
-            return new EnumerableQuery<T>(this).Execute<TResult>(expression);
+            return new EnumerableQuery<T>(this, this.Set(expression)).Execute<TResult>(expression);
         }
 
-        public void Reset()
+        protected virtual IDatabaseSet Set(Expression expression)
         {
-            this.Set.Reset();
-        }
-
-        protected virtual void ConfigureSet(Expression expression)
-        {
-            //This feels wrong, but Execute is *sometimes* invoked multiple times for the same expression.
-            //Where().OrderBy() results in one execution.
-            //Where().Count() results in two executions.
-            //The last execution seems to always contain the full expression.
-            //We need to reset otherwise the same filters (etc) will be applied multiple times.
-            this.Reset();
-            var visitor = new EnumerableVisitor(this, this.Set.Database, this.Set.Fetch, this.Set.ElementType);
+            var set = this.Database.Set<T>(this.Source.Clone());
+            var visitor = new EnumerableVisitor(this, this.Database, set.Fetch, set.ElementType);
             visitor.Visit(expression);
-            if (this.Set.Parameters != null)
+            if (set.Parameters != null)
             {
-                this.Set.Parameters = (DatabaseParameterHandler)Delegate.Combine(this.Set.Parameters, visitor.Parameters);
+                set.Parameters = (DatabaseParameterHandler)Delegate.Combine(set.Parameters, visitor.Parameters);
             }
             else
             {
-                this.Set.Parameters = visitor.Parameters;
+                set.Parameters = visitor.Parameters;
             }
+            return set;
         }
     }
 }

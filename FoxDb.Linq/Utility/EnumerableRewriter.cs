@@ -47,12 +47,15 @@ namespace FoxDb
             };
         }
 
-        public EnumerableRewriter(IDatabaseSetQuery query)
+        public EnumerableRewriter(IDatabaseSetQuery query, IDatabaseSet set)
         {
             this.Query = query;
+            this.Set = set;
         }
 
         public IDatabaseSetQuery Query { get; private set; }
+
+        public IDatabaseSet Set { get; private set; }
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
@@ -173,25 +176,12 @@ namespace FoxDb
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            var query = node.Value as IDatabaseSetQuery;
+            if (query != null)
             {
-                var query = node.Value as IDatabaseSetQueryFactory;
-                if (query != null)
+                if (query.ElementType.IsAssignableFrom(this.Set.ElementType))
                 {
-                    if (query.ElementType.IsAssignableFrom(this.Query.Set.ElementType))
-                    {
-                        return Expression.Constant(this.Query.Set);
-                    }
-                    if (query.ElementType.IsAssignableFrom(this.Query.ElementType))
-                    {
-                        return Expression.Constant(this.Query);
-                    }
-                }
-            }
-            {
-                var query = node.Value as IDatabaseSetQuery;
-                if (query != null)
-                {
-
+                    return Expression.Constant(this.Set);
                 }
             }
             return base.VisitConstant(node);
@@ -238,9 +228,9 @@ namespace FoxDb
             return true;
         }
 
-        public static Expression Rewrite(IDatabaseSetQuery query, Expression expression)
+        public static Expression Rewrite(IDatabaseSetQuery query, IDatabaseSet set, Expression expression)
         {
-            return new EnumerableRewriter(query).Visit(expression);
+            return new EnumerableRewriter(query, set).Visit(expression);
         }
 
         public delegate Expression MethodVisitorHandler(EnumerableRewriter visitor, MethodCallExpression node);

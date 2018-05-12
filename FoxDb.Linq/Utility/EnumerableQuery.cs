@@ -14,13 +14,16 @@ namespace FoxDb
 
     public class EnumerableQuery<T> : EnumerableQuery, IEnumerableQuery<T>
     {
-        public EnumerableQuery(IDatabaseSetQuery provider) : this(provider, null)
+        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set)
         {
+            this.Query = query;
+            this.Set = set;
         }
 
-        public EnumerableQuery(IDatabaseSetQuery provider, Expression expression)
+        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set, Expression expression)
         {
-            this.Provider = provider;
+            this.Query = query;
+            this.Set = set;
             this.Expression = expression;
         }
 
@@ -32,13 +35,15 @@ namespace FoxDb
             }
         }
 
-        public IDatabaseSetQuery Provider { get; private set; }
+        public IDatabaseSetQuery Query { get; private set; }
 
-        IQueryProvider IQueryable.Provider
+        public IDatabaseSet Set { get; private set; }
+
+        public IQueryProvider Provider
         {
             get
             {
-                return this.Provider;
+                return this.Query;
             }
         }
 
@@ -50,7 +55,7 @@ namespace FoxDb
         {
             if (this.Sequence == null)
             {
-                this.Sequence = EnumerableExecutor<IEnumerable<T>>.Execute(EnumerableRewriter.Rewrite(this.Provider, this.Expression));
+                this.Sequence = EnumerableExecutor<IEnumerable<T>>.Execute(EnumerableRewriter.Rewrite(this.Query, this.Set, this.Expression));
             }
             return this.Sequence.GetEnumerator();
         }
@@ -67,7 +72,7 @@ namespace FoxDb
 
         public TResult Execute<TResult>(Expression expression)
         {
-            return EnumerableExecutor<TResult>.Execute(EnumerableRewriter.Rewrite(this.Provider, expression));
+            return EnumerableExecutor<TResult>.Execute(EnumerableRewriter.Rewrite(this.Query, this.Set, expression));
         }
     }
 }
