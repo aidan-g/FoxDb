@@ -42,6 +42,11 @@ namespace FoxDb
             return new SQLiteQueryFactory(database);
         }
 
+        public IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
+        {
+            return new SQLiteSchemaFactory(database);
+        }
+
         public object GetDbValue(IDataParameter parameter, object value)
         {
             if (value == null)

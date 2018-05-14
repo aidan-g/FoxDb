@@ -133,6 +133,11 @@
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryDialect.cs" />
+    <Compile Include="Interfaces\Schema\Builder\IAlterBuilder.cs" />
+    <Compile Include="Interfaces\Schema\Builder\ICreateBuilder.cs" />
+    <Compile Include="Interfaces\Schema\Builder\IDropBuilder.cs" />
+    <Compile Include="Interfaces\Schema\Builder\ISchemaGraphBuilder.cs" />
+    <Compile Include="Interfaces\Schema\IDatabaseSchemaFactory.cs" />
     <Compile Include="Interfaces\Utility\ICloneable.cs" />
     <Compile Include="Interfaces\Utility\IFastActivator.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
@@ -197,6 +202,10 @@
     <Compile Include="Config\RelationConfig.cs" />
     <Compile Include="Config\TableConfig.cs" />
     <Compile Include="Query\Extensions.cs" />
+    <Compile Include="Schema\Builder\AlterBuilder.cs" />
+    <Compile Include="Schema\Builder\CreateBuilder.cs" />
+    <Compile Include="Schema\Builder\DropBuilder.cs" />
+    <Compile Include="Schema\Builder\SchemaGraphBuilder.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\BidirectionalDictionary.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />

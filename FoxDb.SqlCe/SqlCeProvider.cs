@@ -45,6 +45,11 @@ namespace FoxDb
             return new SqlCeQueryFactory(database);
         }
 
+        public IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
+        {
+            return new SqlCeSchemaFactory(database);
+        }
+
         public object GetDbValue(IDataParameter parameter, object value)
         {
             if (value == null)

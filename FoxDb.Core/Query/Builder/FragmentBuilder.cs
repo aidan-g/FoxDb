@@ -14,6 +14,10 @@ namespace FoxDb
         {
             return new Dictionary<Type, FragmentBuilderHandler>()
             {
+                //Schema.
+                { typeof(ICreateBuilder), (parent, graph) => new CreateBuilder(parent, graph) },
+                { typeof(IAlterBuilder), (parent, graph) => new AlterBuilder(parent, graph) },
+                { typeof(IDropBuilder), (parent, graph) => new DropBuilder(parent, graph) },
                 //Expressions.
                 { typeof(IOutputBuilder), (parent, graph) => new OutputBuilder(parent, graph) },
                 { typeof(IAddBuilder), (parent, graph) => new AddBuilder(parent, graph) },
