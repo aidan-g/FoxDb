@@ -58,6 +58,8 @@
 
         string NOT { get; }
 
+        string IS { get; }
+
         string IN { get; }
 
         string EQUAL { get; }

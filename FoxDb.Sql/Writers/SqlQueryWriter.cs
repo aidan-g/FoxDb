@@ -112,6 +112,7 @@ namespace FoxDb
         {
             //Logical
             { QueryOperator.Not, writer => writer.Database.QueryFactory.Dialect.NOT },
+            { QueryOperator.Is,  writer => writer.Database.QueryFactory.Dialect.IS },
             { QueryOperator.In, writer => writer.Database.QueryFactory.Dialect.IN },
             { QueryOperator.Equal, writer => writer.Database.QueryFactory.Dialect.EQUAL },
             { QueryOperator.NotEqual, writer => writer.Database.QueryFactory.Dialect.NOT_EQUAL },

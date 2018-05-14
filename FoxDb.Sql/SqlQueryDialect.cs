@@ -244,6 +244,14 @@ namespace FoxDb
             }
         }
 
+        public string IS
+        {
+            get
+            {
+                return "IS";
+            }
+        }
+
         public string IN
         {
             get

@@ -161,6 +161,126 @@ namespace FoxDb
             Assert.AreEqual(count, set.Count());
         }
 
+        [Test]
+        public void Where_In()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            set.AddOrUpdate(data);
+            var id1 = data[0].Id;
+            var id2 = data[1].Id;
+            var id3 = data[2].Id;
+            set.Fetch.Filter.Add().With(builder =>
+            {
+                builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
+                builder.Operator = builder.CreateOperator(QueryOperator.In);
+                builder.Right = builder.CreateSequence(
+                    builder.CreateParameter("id1"),
+                    builder.CreateParameter("id2"),
+                    builder.CreateParameter("id3")
+                );
+            });
+            set.Parameters = parameters =>
+            {
+                parameters["id1"] = id1;
+                parameters["id2"] = id2;
+                parameters["id3"] = id3;
+            };
+            Assert.AreEqual(3, set.Count());
+        }
+
+        [Test]
+        public void Where_Not_In()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            set.AddOrUpdate(data);
+            var id1 = data[0].Id;
+            var id2 = data[1].Id;
+            var id3 = data[2].Id;
+            set.Fetch.Filter.Add().With(builder =>
+            {
+                builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
+                builder.Operator = builder.CreateOperator(QueryOperator.Not);
+                builder.Right = builder.CreateUnary(
+                    QueryOperator.In,
+                    builder.CreateSequence(
+                        builder.CreateParameter("id1"),
+                        builder.CreateParameter("id2"),
+                        builder.CreateParameter("id3")
+                    )
+                );
+            });
+            set.Parameters = parameters =>
+            {
+                parameters["id1"] = id1;
+                parameters["id2"] = id2;
+                parameters["id3"] = id3;
+            };
+            Assert.AreEqual(0, set.Count());
+        }
+
+        [Test]
+        public void Where_Is_Null()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            set.AddOrUpdate(data);
+            set.Fetch.Filter.Add().With(builder =>
+            {
+                builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
+                builder.Operator = builder.CreateOperator(QueryOperator.Is);
+                builder.Right = builder.CreateOperator(QueryOperator.Null);
+            });
+            Assert.AreEqual(0, set.Count());
+        }
+
+        [Test]
+        public void Where_Is_Not_Null()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            set.AddOrUpdate(data);
+            set.Fetch.Filter.Add().With(builder =>
+            {
+                builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
+                builder.Operator = builder.CreateOperator(QueryOperator.Is);
+                builder.Right = builder.CreateUnary(
+                    QueryOperator.Not,
+                    builder.CreateOperator(QueryOperator.Null)
+                );
+            });
+            Assert.AreEqual(3, set.Count());
+        }
+
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
         public void Limit(RelationFlags flags)
