@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -8,24 +9,19 @@ namespace FoxDb
 {
     public abstract class SqlQueryWriter : FragmentBuilder, ISqlQueryWriter
     {
-        protected static IDictionary<FragmentType, SqlQueryWriterVisitorHandler> Handlers = GetHandlers();
-
-        protected static IDictionary<FragmentType, SqlQueryWriterVisitorHandler> GetHandlers()
+        protected static IDictionary<FragmentType, SqlQueryWriterVisitorHandler> Handlers = new Dictionary<FragmentType, SqlQueryWriterVisitorHandler>()
         {
-            return new Dictionary<FragmentType, SqlQueryWriterVisitorHandler>()
-            {
-                { FragmentType.Unary, (writer, fragment) => writer.VisitUnary(fragment as IUnaryExpressionBuilder) },
-                { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
-                { FragmentType.Table, (writer, fragment) => writer.VisitTable(fragment as ITableBuilder) },
-                { FragmentType.Column, (writer, fragment) => writer.VisitColumn(fragment as IColumnBuilder) },
-                { FragmentType.Parameter, (writer, fragment) => writer.VisitParameter(fragment as IParameterBuilder) },
-                { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
-                { FragmentType.Operator, (writer, fragment) => writer.VisitOperator(fragment as IOperatorBuilder) },
-                { FragmentType.Constant, (writer, fragment) => writer.VisitConstant(fragment as IConstantBuilder) },
-                { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) },
-                { FragmentType.Sequence, (writer, fragment) => writer.VisitSequence(fragment as ISequenceBuilder) }
-            };
-        }
+            { FragmentType.Unary, (writer, fragment) => writer.VisitUnary(fragment as IUnaryExpressionBuilder) },
+            { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
+            { FragmentType.Table, (writer, fragment) => writer.VisitTable(fragment as ITableBuilder) },
+            { FragmentType.Column, (writer, fragment) => writer.VisitColumn(fragment as IColumnBuilder) },
+            { FragmentType.Parameter, (writer, fragment) => writer.VisitParameter(fragment as IParameterBuilder) },
+            { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
+            { FragmentType.Operator, (writer, fragment) => writer.VisitOperator(fragment as IOperatorBuilder) },
+            { FragmentType.Constant, (writer, fragment) => writer.VisitConstant(fragment as IConstantBuilder) },
+            { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) },
+            { FragmentType.Sequence, (writer, fragment) => writer.VisitSequence(fragment as ISequenceBuilder) }
+        };
 
         protected Stack<IFragmentBuilder> FragmentContext { get; private set; }
 
@@ -364,6 +360,11 @@ namespace FoxDb
                 }
                 this.Visit(element);
             }
+        }
+
+        protected virtual void VisitType(ITypeConfig type)
+        {
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Types.GetType(type));
         }
 
         protected virtual void VisitAlias(string alias)

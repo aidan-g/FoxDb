@@ -1,13 +1,12 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FoxDb
 {
     public class CreateBuilder : FragmentBuilder, ICreateBuilder
     {
         public CreateBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
-               : base(parent, graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
         }
@@ -16,7 +15,7 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Add;
+                return FragmentType.Create;
             }
         }
 
@@ -28,6 +27,7 @@ namespace FoxDb
         {
             return this.Table = this.CreateTable(table);
         }
+
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
             return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
@@ -51,21 +51,14 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<IAddBuilder>().With(builder =>
+            return this.Parent.Fragment<ICreateBuilder>().With(builder =>
             {
+                builder.Table = (ITableBuilder)this.Table.Clone();
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());
                 }
             });
-        }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
-            }
         }
     }
 }

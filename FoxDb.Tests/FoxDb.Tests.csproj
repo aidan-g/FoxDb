@@ -55,11 +55,7 @@
     <Compile Include="QuirksTests.cs" />
     <Compile Include="RelationCalculatorTests.cs" />
     <Compile Include="RelationTests.cs" />
-    <Compile Include="Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
+    <Compile Include="SchemaTests.cs" />
     <Compile Include="SimpleTests.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="Transaction.cs" />
@@ -88,12 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SQLiteSchema.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

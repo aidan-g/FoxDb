@@ -59,16 +59,5 @@ namespace FoxDb
                 }
             });
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}({1})}}",
-                    Enum.GetName(typeof(QueryFunction), this.Function),
-                    string.Join(", ", this.Expressions.Select(expression => expression.DebugView))
-                );
-            }
-        }
     }
 }

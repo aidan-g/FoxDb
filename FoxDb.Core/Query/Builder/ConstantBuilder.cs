@@ -23,13 +23,5 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IConstantBuilder>().With(builder => builder.Value = this.Value);
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", this.Value);
-            }
-        }
     }
 }

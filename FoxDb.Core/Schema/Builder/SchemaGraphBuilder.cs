@@ -5,7 +5,8 @@ namespace FoxDb
 {
     public class SchemaGraphBuilder : QueryGraphBuilder, ISchemaGraphBuilder
     {
-        public SchemaGraphBuilder(IDatabase database) : base(database)
+        public SchemaGraphBuilder(IDatabase database)
+            : base(database)
         {
 
         }

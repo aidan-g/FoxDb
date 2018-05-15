@@ -25,7 +25,10 @@ namespace FoxDb
                 {
                     builder.RelationManager.AddRelation(relation);
                 }
-                builder.Sort.AddColumn(this.Mapper.Table.PrimaryKey);
+                if (this.Mapper.Table.PrimaryKey != null)
+                {
+                    builder.Sort.AddColumn(this.Mapper.Table.PrimaryKey);
+                }
                 foreach (var relation in this.Mapper.Relations)
                 {
                     builder.Sort.AddColumn(relation.RightTable.PrimaryKey);

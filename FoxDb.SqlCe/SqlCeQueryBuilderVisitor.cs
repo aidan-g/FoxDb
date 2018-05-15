@@ -4,7 +4,8 @@ namespace FoxDb
 {
     public class SqlCeQueryBuilderVisitor : SqlQueryBuilderVisitor
     {
-        public SqlCeQueryBuilderVisitor(IDatabase database) : base(database)
+        public SqlCeQueryBuilderVisitor(IDatabase database)
+            : base(database)
         {
         }
 

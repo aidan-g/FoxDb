@@ -1,5 +1,5 @@
 ﻿using FoxDb.Interfaces;
-using System;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -19,7 +19,7 @@ namespace FoxDb
             return new SchemaGraphBuilder(this.Database);
         }
 
-        public ISchemaGraphBuilder Create(ITableConfig table)
+        public ISchemaGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
             builder.Create.SetTable(table);
@@ -27,12 +27,15 @@ namespace FoxDb
             return builder;
         }
 
-        public ISchemaGraphBuilder Alter(ITableConfig leftTable, ITableConfig rightTable)
+        public ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable)
         {
-            throw new NotImplementedException();
+            var builder = this.Build();
+            builder.Alter.SetLeftTable(leftTable);
+            builder.Alter.SetRightTable(rightTable);
+            return builder;
         }
 
-        public ISchemaGraphBuilder Drop(ITableConfig table)
+        public ISchemaGraphBuilder Delete(ITableConfig table)
         {
             var builder = this.Build();
             builder.Drop.SetTable(table);

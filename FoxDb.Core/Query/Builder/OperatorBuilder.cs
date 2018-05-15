@@ -24,13 +24,5 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IOperatorBuilder>().With(builder => builder.Operator = this.Operator);
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", Enum.GetName(typeof(QueryOperator), this.Operator));
-            }
-        }
     }
 }

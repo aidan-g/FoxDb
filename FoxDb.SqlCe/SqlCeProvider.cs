@@ -8,7 +8,8 @@ namespace FoxDb
 {
     public class SqlCeProvider : IProvider
     {
-        public SqlCeProvider(string fileName) : this(new SqlCeConnectionStringBuilder().With(builder => builder.DataSource = fileName))
+        public SqlCeProvider(string fileName)
+            : this(new SqlCeConnectionStringBuilder().With(builder => builder.DataSource = fileName))
         {
 
         }
@@ -32,7 +33,7 @@ namespace FoxDb
                     engine.CreateDatabase();
                 }
             }
-            return new SqlCeConnectionWrapper(this, new SqlCeQueryDialect(), new SqlCeConnection(this.ConnectionString));
+            return new SqlCeConnectionWrapper(this, new SqlCeQueryDialect(database), new SqlCeConnection(this.ConnectionString));
         }
 
         public IDatabaseSchema CreateSchema(IDatabase database)

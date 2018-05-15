@@ -5,7 +5,6 @@ using System.Diagnostics;
 
 namespace FoxDb
 {
-    [DebuggerDisplay("{DebugView}")]
     public abstract class FragmentBuilder : IFragmentBuilder
     {
         protected static readonly IDictionary<Type, FragmentBuilderHandler> Factories = GetFactories();
@@ -206,8 +205,6 @@ namespace FoxDb
 
         public abstract IFragmentBuilder Clone();
 
-        public abstract string DebugView { get; }
-
         public override int GetHashCode()
         {
             var hashCode = 0;
@@ -290,14 +287,6 @@ namespace FoxDb
             public override IFragmentBuilder Clone()
             {
                 throw new NotImplementedException();
-            }
-
-            public override string DebugView
-            {
-                get
-                {
-                    throw new NotImplementedException();
-                }
             }
         }
 

@@ -21,13 +21,5 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IDeleteBuilder>();
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{}}");
-            }
-        }
     }
 }

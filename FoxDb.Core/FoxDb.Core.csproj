@@ -60,6 +60,9 @@
     <Compile Include="Config\TableFactory.cs" />
     <Compile Include="Config\TableSelector.cs" />
     <Compile Include="Config\TableValidator.cs" />
+    <Compile Include="Config\TypeConfig.cs" />
+    <Compile Include="Config\TypeFactory.cs" />
+    <Compile Include="Config\TypeSelector.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseParameters.cs" />
     <Compile Include="Entity\EntityCompoundEnumerator.cs" />
@@ -87,6 +90,9 @@
     <Compile Include="Interfaces\Config\ITableConfigContainer.cs" />
     <Compile Include="Interfaces\Config\ITableFactory.cs" />
     <Compile Include="Interfaces\Config\ITableSelector.cs" />
+    <Compile Include="Interfaces\Config\ITypeConfig.cs" />
+    <Compile Include="Interfaces\Config\ITypeFactory.cs" />
+    <Compile Include="Interfaces\Config\ITypeSelector.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumeratorBuffer.cs" />
     <Compile Include="Interfaces\Entity\IEntityFactory.cs" />
@@ -133,6 +139,7 @@
     <Compile Include="Interfaces\Query\Builder\IFilterBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQuerySource.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryDialect.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryTypes.cs" />
     <Compile Include="Interfaces\Schema\Builder\IAlterBuilder.cs" />
     <Compile Include="Interfaces\Schema\Builder\ICreateBuilder.cs" />
     <Compile Include="Interfaces\Schema\Builder\IDropBuilder.cs" />
@@ -210,6 +217,7 @@
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
+    <Compile Include="System\Web\UI\WebControls\Parameter.cs" />
     <Compile Include="Utility\Command.cs" />
     <Compile Include="Utility\Connection.cs" />
     <Compile Include="Utility\Conventions.cs" />

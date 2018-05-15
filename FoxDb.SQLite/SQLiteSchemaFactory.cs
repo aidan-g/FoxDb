@@ -4,7 +4,8 @@ namespace FoxDb
 {
     public class SQLiteSchemaFactory : SqlSchemaFactory
     {
-        public SQLiteSchemaFactory(IDatabase database) : base(database)
+        public SQLiteSchemaFactory(IDatabase database)
+            : base(database)
         {
         }
 
@@ -12,7 +13,7 @@ namespace FoxDb
         {
             get
             {
-                return new SQLiteQueryDialect();
+                return new SQLiteQueryDialect(this.Database);
             }
         }
     }

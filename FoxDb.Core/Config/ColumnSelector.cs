@@ -10,6 +10,8 @@ namespace FoxDb
 
         public string ColumnName { get; private set; }
 
+        public ITypeConfig ColumnType { get; private set; }
+
         public PropertyInfo Property { get; private set; }
 
         public Expression Expression { get; private set; }

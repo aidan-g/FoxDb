@@ -4,7 +4,22 @@ namespace FoxDb
 {
     public abstract class SqlQueryDialect : IDatabaseQueryDialect
     {
-        public string SELECT
+        protected SqlQueryDialect(IDatabase database)
+        {
+            this.Database = database;
+        }
+
+        public IDatabase Database { get; private set; }
+
+        public virtual IDatabaseQueryTypes Types
+        {
+            get
+            {
+                return new SqlQueryTypes(this.Database);
+            }
+        }
+
+        public virtual string SELECT
         {
             get
             {
@@ -12,7 +27,7 @@ namespace FoxDb
             }
         }
 
-        public string INSERT
+        public virtual string INSERT
         {
             get
             {
@@ -20,7 +35,7 @@ namespace FoxDb
             }
         }
 
-        public string VALUES
+        public virtual string VALUES
         {
             get
             {
@@ -28,7 +43,7 @@ namespace FoxDb
             }
         }
 
-        public string UPDATE
+        public virtual string UPDATE
         {
             get
             {
@@ -36,7 +51,7 @@ namespace FoxDb
             }
         }
 
-        public string SET
+        public virtual string SET
         {
             get
             {
@@ -44,7 +59,7 @@ namespace FoxDb
             }
         }
 
-        public string DELETE
+        public virtual string DELETE
         {
             get
             {
@@ -52,7 +67,7 @@ namespace FoxDb
             }
         }
 
-        public string FROM
+        public virtual string FROM
         {
             get
             {
@@ -60,7 +75,7 @@ namespace FoxDb
             }
         }
 
-        public string JOIN
+        public virtual string JOIN
         {
             get
             {
@@ -68,7 +83,7 @@ namespace FoxDb
             }
         }
 
-        public string ON
+        public virtual string ON
         {
             get
             {
@@ -76,7 +91,7 @@ namespace FoxDb
             }
         }
 
-        public string WHERE
+        public virtual string WHERE
         {
             get
             {
@@ -84,7 +99,7 @@ namespace FoxDb
             }
         }
 
-        public string ORDER_BY
+        public virtual string ORDER_BY
         {
             get
             {
@@ -92,7 +107,7 @@ namespace FoxDb
             }
         }
 
-        public string GROUP_BY
+        public virtual string GROUP_BY
         {
             get
             {
@@ -100,7 +115,7 @@ namespace FoxDb
             }
         }
 
-        public string AND
+        public virtual string AND
         {
             get
             {
@@ -108,7 +123,7 @@ namespace FoxDb
             }
         }
 
-        public string AND_ALSO
+        public virtual string AND_ALSO
         {
             get
             {
@@ -116,7 +131,7 @@ namespace FoxDb
             }
         }
 
-        public string OR
+        public virtual string OR
         {
             get
             {
@@ -124,7 +139,7 @@ namespace FoxDb
             }
         }
 
-        public string OR_ELSE
+        public virtual string OR_ELSE
         {
             get
             {
@@ -132,7 +147,7 @@ namespace FoxDb
             }
         }
 
-        public string COUNT
+        public virtual string COUNT
         {
             get
             {
@@ -140,7 +155,7 @@ namespace FoxDb
             }
         }
 
-        public string EXISTS
+        public virtual string EXISTS
         {
             get
             {
@@ -148,7 +163,7 @@ namespace FoxDb
             }
         }
 
-        public string STAR
+        public virtual string STAR
         {
             get
             {
@@ -156,7 +171,7 @@ namespace FoxDb
             }
         }
 
-        public string NULL
+        public virtual string NULL
         {
             get
             {
@@ -164,7 +179,7 @@ namespace FoxDb
             }
         }
 
-        public string AS
+        public virtual string AS
         {
             get
             {
@@ -172,7 +187,7 @@ namespace FoxDb
             }
         }
 
-        public string ASC
+        public virtual string ASC
         {
             get
             {
@@ -180,7 +195,7 @@ namespace FoxDb
             }
         }
 
-        public string DESC
+        public virtual string DESC
         {
             get
             {
@@ -188,7 +203,7 @@ namespace FoxDb
             }
         }
 
-        public string LIMIT
+        public virtual string LIMIT
         {
             get
             {
@@ -196,7 +211,7 @@ namespace FoxDb
             }
         }
 
-        public string OFFSET
+        public virtual string OFFSET
         {
             get
             {
@@ -204,7 +219,7 @@ namespace FoxDb
             }
         }
 
-        public string DISTINCT
+        public virtual string DISTINCT
         {
             get
             {
@@ -212,7 +227,7 @@ namespace FoxDb
             }
         }
 
-        public string LIST_DELIMITER
+        public virtual string LIST_DELIMITER
         {
             get
             {
@@ -220,7 +235,7 @@ namespace FoxDb
             }
         }
 
-        public string IDENTIFIER_DELIMITER
+        public virtual string IDENTIFIER_DELIMITER
         {
             get
             {
@@ -228,7 +243,7 @@ namespace FoxDb
             }
         }
 
-        public string PARAMETER
+        public virtual string PARAMETER
         {
             get
             {
@@ -236,7 +251,7 @@ namespace FoxDb
             }
         }
 
-        public string NOT
+        public virtual string NOT
         {
             get
             {
@@ -244,7 +259,7 @@ namespace FoxDb
             }
         }
 
-        public string IS
+        public virtual string IS
         {
             get
             {
@@ -252,7 +267,7 @@ namespace FoxDb
             }
         }
 
-        public string IN
+        public virtual string IN
         {
             get
             {
@@ -260,7 +275,7 @@ namespace FoxDb
             }
         }
 
-        public string EQUAL
+        public virtual string EQUAL
         {
             get
             {
@@ -268,7 +283,7 @@ namespace FoxDb
             }
         }
 
-        public string NOT_EQUAL
+        public virtual string NOT_EQUAL
         {
             get
             {
@@ -276,7 +291,7 @@ namespace FoxDb
             }
         }
 
-        public string GREATER
+        public virtual string GREATER
         {
             get
             {
@@ -284,7 +299,7 @@ namespace FoxDb
             }
         }
 
-        public string GREATER_OR_EQUAL
+        public virtual string GREATER_OR_EQUAL
         {
             get
             {
@@ -292,7 +307,7 @@ namespace FoxDb
             }
         }
 
-        public string LESS
+        public virtual string LESS
         {
             get
             {
@@ -300,7 +315,7 @@ namespace FoxDb
             }
         }
 
-        public string LESS_OR_EQUAL
+        public virtual string LESS_OR_EQUAL
         {
             get
             {
@@ -308,7 +323,7 @@ namespace FoxDb
             }
         }
 
-        public string OPEN_PARENTHESES
+        public virtual string OPEN_PARENTHESES
         {
             get
             {
@@ -316,7 +331,7 @@ namespace FoxDb
             }
         }
 
-        public string CLOSE_PARENTHESES
+        public virtual string CLOSE_PARENTHESES
         {
             get
             {
@@ -324,7 +339,7 @@ namespace FoxDb
             }
         }
 
-        public string ADD
+        public virtual string ADD
         {
             get
             {
@@ -332,7 +347,7 @@ namespace FoxDb
             }
         }
 
-        public string DEFAULT
+        public virtual string DEFAULT
         {
             get
             {
@@ -340,7 +355,7 @@ namespace FoxDb
             }
         }
 
-        public string IDENTIFIER_FORMAT
+        public virtual string IDENTIFIER_FORMAT
         {
             get
             {
@@ -348,7 +363,7 @@ namespace FoxDb
             }
         }
 
-        public string STRING_FORMAT
+        public virtual string STRING_FORMAT
         {
             get
             {
@@ -357,5 +372,37 @@ namespace FoxDb
         }
 
         public abstract string BATCH { get; }
+
+        public virtual string CREATE_TABLE
+        {
+            get
+            {
+                return "CREATE TABLE";
+            }
+        }
+
+        public virtual string ALTER_TABLE
+        {
+            get
+            {
+                return "ALTER TABLE";
+            }
+        }
+
+        public virtual string DROP_TABLE
+        {
+            get
+            {
+                return "DROP TABLE";
+            }
+        }
+
+        public virtual string PRIMARY_KEY
+        {
+            get
+            {
+                return "PRIMARY KEY";
+            }
+        }
     }
 }

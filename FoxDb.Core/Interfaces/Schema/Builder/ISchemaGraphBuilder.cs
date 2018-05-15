@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace FoxDb.Interfaces
 {
@@ -12,5 +13,13 @@ namespace FoxDb.Interfaces
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IDropBuilder Drop { get; }
+
+        ICollection<IFragmentBuilder> Fragments { get; }
+
+        T Fragment<T>(T fragment) where T : IFragmentBuilder;
+
+        T Fragment<T>() where T : IFragmentBuilder;
+
+        IDatabaseQuery Build();
     }
 }

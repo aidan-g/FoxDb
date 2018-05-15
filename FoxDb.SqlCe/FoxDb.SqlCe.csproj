@@ -50,6 +50,7 @@
     <Compile Include="SqlCeQueryFactory.cs" />
     <Compile Include="SqlCeQueryFragment.cs" />
     <Compile Include="SqlCeQueryParameter.cs" />
+    <Compile Include="SqlCeQueryTypes.cs" />
     <Compile Include="SqlCeSchema.cs" />
     <Compile Include="SqlCeSchemaFactory.cs" />
     <Compile Include="Writers\SqlCeSelectWriter.cs" />
@@ -67,6 +68,7 @@
       <Name>FoxDb.Sql</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

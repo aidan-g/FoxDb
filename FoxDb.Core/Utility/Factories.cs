@@ -12,6 +12,8 @@ namespace FoxDb
 
         public static ICollectionFactory Collection = new CollectionFactory();
 
+        public static ITypeFactory Type = new TypeFactory();
+
         public static class PropertyAccessor
         {
             public static IPropertyAccessorFactory Column = new PropertyAccessorFactory(true);

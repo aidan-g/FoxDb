@@ -1,7 +1,23 @@
-﻿namespace FoxDb
+﻿using FoxDb.Interfaces;
+
+namespace FoxDb
 {
     public class SqlCeQueryDialect : SqlQueryDialect
     {
+        public SqlCeQueryDialect(IDatabase database)
+            : base(database)
+        {
+
+        }
+
+        public override IDatabaseQueryTypes Types
+        {
+            get
+            {
+                return new SqlCeQueryTypes(this.Database);
+            }
+        }
+
         public string TOP
         {
             get
@@ -71,6 +87,14 @@
             get
             {
                 return string.Format("\nGO");
+            }
+        }
+
+        public override string PRIMARY_KEY
+        {
+            get
+            {
+                return string.Format("IDENTITY {0}", base.PRIMARY_KEY);
             }
         }
     }

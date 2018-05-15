@@ -12,6 +12,7 @@ namespace FoxDb
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
+                 //Query.
                  { FragmentType.Add, (visitor, parent, graph, fragment) => visitor.VisitAdd(parent, graph, fragment as IAddBuilder) },
                  { FragmentType.Update, (visitor, parent, graph, fragment) => visitor.VisitUpdate(parent, graph, fragment as IUpdateBuilder) },
                  { FragmentType.Delete, (visitor, parent, graph, fragment) => visitor.VisitDelete(parent, graph,fragment as IDeleteBuilder) },
@@ -19,7 +20,11 @@ namespace FoxDb
                  { FragmentType.Source, (visitor, parent, graph, fragment) => visitor.VisitSource(parent, graph, fragment as ISourceBuilder) },
                  { FragmentType.Filter, (visitor, parent, graph, fragment) => visitor.VisitFilter(parent, graph, fragment as IFilterBuilder) },
                  { FragmentType.Aggregate, (visitor, parent, graph, fragment) => visitor.VisitAggregate(parent, graph, fragment as IAggregateBuilder) },
-                 { FragmentType.Sort, (visitor, parent, graph, fragment) => visitor.VisitSort(parent, graph, fragment as ISortBuilder) }
+                 { FragmentType.Sort, (visitor, parent, graph, fragment) => visitor.VisitSort(parent, graph, fragment as ISortBuilder) },
+                 //Schema.
+                 { FragmentType.Create, (visitor, parent, graph, fragment) => visitor.VisitCreate(parent, graph, fragment as ICreateBuilder) },
+                 { FragmentType.Alter, (visitor, parent, graph, fragment) => visitor.VisitAlter(parent, graph, fragment as IAlterBuilder) },
+                 { FragmentType.Drop, (visitor, parent, graph, fragment) => visitor.VisitDrop(parent, graph,fragment as IDropBuilder) }
             };
         }
 
@@ -56,6 +61,12 @@ namespace FoxDb
         protected abstract void VisitAggregate(IFragmentBuilder parent, IQueryGraphBuilder graph, IAggregateBuilder expression);
 
         protected abstract void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression);
+
+        protected abstract void VisitCreate(IFragmentBuilder parent, IQueryGraphBuilder graph, ICreateBuilder expression);
+
+        protected abstract void VisitAlter(IFragmentBuilder parent, IQueryGraphBuilder graph, IAlterBuilder expression);
+
+        protected abstract void VisitDrop(IFragmentBuilder parent, IQueryGraphBuilder graph, IDropBuilder expression);
 
         public abstract IDatabaseQuery Query { get; }
     }

@@ -877,14 +877,6 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
-
-            public override string DebugView
-            {
-                get
-                {
-                    return string.Format("{{{0}}}", string.Join(", ", this.Context.Expressions.Select(expression => expression.DebugView)));
-                }
-            }
         }
 
         public class CaptureFragmentContext

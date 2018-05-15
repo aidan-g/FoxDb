@@ -23,13 +23,5 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IRelationBuilder>().With(builder => builder.Relation = this.Relation);
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", this.Relation);
-            }
-        }
     }
 }

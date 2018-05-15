@@ -10,6 +10,7 @@ namespace FoxDb
 
         protected static IDictionary<FragmentType, byte> Priorities = new Dictionary<FragmentType, byte>()
         {
+            //Query.
             { FragmentType.Add, 10 },
             { FragmentType.Update, 20 },
             { FragmentType.Delete, 30 },
@@ -18,10 +19,15 @@ namespace FoxDb
             { Join, 60 },
             { FragmentType.Filter, 70 },
             { FragmentType.Aggregate, 80 },
-            { FragmentType.Sort, 90 }
+            { FragmentType.Sort, 90 },
+            //Schema.
+            { FragmentType.Create, 10 },
+            { FragmentType.Alter, 10 },
+            { FragmentType.Drop, 10 }
         };
 
-        public SqlQueryFragment(IFragmentTarget target) : this(target.CommandText, GetPriority(target))
+        public SqlQueryFragment(IFragmentTarget target)
+            : this(target.CommandText, GetPriority(target))
         {
 
         }

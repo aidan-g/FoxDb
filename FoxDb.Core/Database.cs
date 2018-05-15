@@ -17,6 +17,7 @@ namespace FoxDb
             this.Provider = provider;
             this.Schema = provider.CreateSchema(this);
             this.QueryFactory = provider.CreateQueryFactory(this);
+            this.SchemaFactory = provider.CreateSchemaFactory(this);
         }
 
         public IConfig Config { get; private set; }
@@ -46,6 +47,8 @@ namespace FoxDb
         public IDatabaseSchema Schema { get; private set; }
 
         public IDatabaseQueryFactory QueryFactory { get; private set; }
+
+        public IDatabaseSchemaFactory SchemaFactory { get; private set; }
 
         public IDatabaseQuerySource Source(IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {

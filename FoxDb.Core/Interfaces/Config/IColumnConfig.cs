@@ -15,7 +15,11 @@ namespace FoxDb.Interfaces
 
         string ColumnName { get; set; }
 
+        ITypeConfig ColumnType { get; set; }
+
         PropertyInfo Property { get; set; }
+
+        bool IsNullable { get; set; }
 
         bool IsPrimaryKey { get; set; }
 

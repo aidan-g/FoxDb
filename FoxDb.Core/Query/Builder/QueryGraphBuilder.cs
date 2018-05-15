@@ -134,14 +134,6 @@ namespace FoxDb
             }
             return builder;
         }
-
-        public string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", string.Join(", ", this.Fragments.Select(expression => expression.DebugView)));
-            }
-        }
     }
 
     public class AggregateQueryGraphBuilder : IAggregateQueryGraphBuilder
@@ -272,14 +264,6 @@ namespace FoxDb
         T IQueryGraphBuilder.Fragment<T>(T fragment)
         {
             throw new NotImplementedException();
-        }
-
-        string IQueryGraphBuilder.DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", string.Join(", ", this.Queries.Select(expression => expression.DebugView)));
-            }
         }
 
         #endregion

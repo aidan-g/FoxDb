@@ -22,7 +22,7 @@ namespace FoxDb
         {
             get
             {
-                return new SQLiteQueryDialect();
+                return new SQLiteQueryDialect(this.Database);
             }
         }
 

@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 
@@ -22,7 +23,92 @@ namespace FoxDb
         public void OneTimeSetUp()
         {
             this.Database = this.CreateDatabase();
-            this.Database.Execute(this.Database.QueryFactory.Create(CreateSchema));
+            {
+                var query = this.Database.SchemaFactory.Add(
+                    Factories.Table.Create(
+                        Config.Transient,
+                        TableConfig.By(typeof(Test001), TableFlags.None)
+                    ).With(table =>
+                    {
+                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
+                        table.CreateColumn(ColumnConfig.By("Field1", ColumnFlags.None));
+                        table.CreateColumn(ColumnConfig.By("Field2", ColumnFlags.None));
+                        table.CreateColumn(ColumnConfig.By("Field3", ColumnFlags.None));
+                        table.CreateColumn(ColumnConfig.By("Field4", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Int32;
+                            column.IsNullable = true;
+                        });
+                        table.CreateColumn(ColumnConfig.By("Field5", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Double;
+                            column.IsNullable = true;
+                        });
+                    })
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Add(
+                    Factories.Table.Create(
+                        Config.Transient,
+                        TableConfig.By(typeof(Test002), TableFlags.None)
+                    ).With(table =>
+                    {
+                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
+                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
+                    })
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Add(
+                    Factories.Table.Create(
+                        Config.Transient,
+                        TableConfig.By(typeof(Test003), TableFlags.None)
+                    ).With(table =>
+                    {
+                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
+                    })
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Add(
+                    Factories.Table.Create(
+                        Config.Transient,
+                        TableConfig.By(typeof(Test004), TableFlags.None)
+                    ).With(table =>
+                    {
+                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
+                    })
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Add(
+                    Factories.Table.Create(
+                        Config.Transient,
+                        TableConfig.By("Test002_Test004", TableFlags.None)
+                    ).With(table =>
+                    {
+                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).With(column =>
+                        {
+                            column.IsPrimaryKey = true;
+                            column.ColumnType.Type = DbType.Int32;
+                        });
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None));
+                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None));
+                    })
+                ).Build();
+                this.Database.Execute(query);
+            }
         }
 
         [OneTimeTearDown]
@@ -91,21 +177,6 @@ namespace FoxDb
                         return Path.Combine(this.CurrentDirectory, "test.sdf");
                     case ProviderType.SQLite:
                         return Path.Combine(this.CurrentDirectory, "test.db");
-                }
-                throw new NotImplementedException();
-            }
-        }
-
-        public string CreateSchema
-        {
-            get
-            {
-                switch (this.ProviderType)
-                {
-                    case ProviderType.SqlCe:
-                        return Resources.SqlCeSchema;
-                    case ProviderType.SQLite:
-                        return Resources.SQLiteSchema;
                 }
                 throw new NotImplementedException();
             }

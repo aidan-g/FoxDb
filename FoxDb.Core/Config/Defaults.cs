@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FoxDb.Interfaces;
+using System;
+using System.Data;
 
 namespace FoxDb
 {
@@ -23,8 +25,11 @@ namespace FoxDb
         {
             static Column()
             {
+                Type = new TypeConfig(DbType.AnsiString);
                 Flags = ColumnFlags.ValidateSchema;
             }
+
+            public static ITypeConfig Type { get; set; }
 
             public static ColumnFlags Flags { get; set; }
         }

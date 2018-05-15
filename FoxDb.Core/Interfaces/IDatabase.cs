@@ -20,6 +20,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseQueryFactory QueryFactory { get; }
 
+        IDatabaseSchemaFactory SchemaFactory { get; }
+
         IDatabaseQuerySource Source(IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
         IDatabaseSet<T> Set<T>(IDatabaseQuerySource source);

@@ -137,6 +137,27 @@ namespace FoxDb
             this.Pop();
         }
 
+        protected override void VisitCreate(IFragmentBuilder parent, IQueryGraphBuilder graph, ICreateBuilder expression)
+        {
+            this.Push(new SqlCreateWriter(parent, graph, this.Database, this, this.Parameters));
+            this.Peek.Write(expression);
+            this.Pop();
+        }
+
+        protected override void VisitAlter(IFragmentBuilder parent, IQueryGraphBuilder graph, IAlterBuilder expression)
+        {
+            this.Push(new SqlAlterWriter(parent, graph, this.Database, this, this.Parameters));
+            this.Peek.Write(expression);
+            this.Pop();
+        }
+
+        protected override void VisitDrop(IFragmentBuilder parent, IQueryGraphBuilder graph, IDropBuilder expression)
+        {
+            this.Push(new SqlDropWriter(parent, graph, this.Database, this, this.Parameters));
+            this.Peek.Write(expression);
+            this.Pop();
+        }
+
         protected abstract SqlQueryFragment CreateQueryFragment(IFragmentTarget target);
     }
 }

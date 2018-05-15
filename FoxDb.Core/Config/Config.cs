@@ -12,7 +12,8 @@ namespace FoxDb
             this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public Config(IDatabase database) : this()
+        public Config(IDatabase database)
+            : this()
         {
             this.Database = database;
         }
@@ -67,6 +68,14 @@ namespace FoxDb
             if (table.Flags.HasFlag(TableFlags.AutoRelations))
             {
                 table.AutoRelations();
+            }
+        }
+
+        public static IConfig Transient
+        {
+            get
+            {
+                return new Config();
             }
         }
     }

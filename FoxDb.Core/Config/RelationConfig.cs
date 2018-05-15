@@ -77,11 +77,6 @@ namespace FoxDb
             }
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} ({1})", string.Join("->", new[] { this.LeftTable, this.MappingTable, this.RightTable }.Where(table => table != null)), this.Expression != null ? this.Expression.DebugView : "{}");
-        }
-
         public override int GetHashCode()
         {
             var hashCode = 0;

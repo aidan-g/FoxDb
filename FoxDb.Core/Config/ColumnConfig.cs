@@ -1,18 +1,20 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FoxDb
 {
     public class ColumnConfig : IColumnConfig
     {
-        public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
+        public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, ITypeConfig columnType, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
         {
             this.Config = config;
             this.Flags = flags;
             this.Identifier = identifier;
             this.Table = table;
             this.ColumnName = columnName;
+            this.ColumnType = columnType;
             this.Property = property;
             this.Getter = getter;
             this.Setter = setter;
@@ -28,7 +30,11 @@ namespace FoxDb
 
         public string ColumnName { get; set; }
 
+        public ITypeConfig ColumnType { get; set; }
+
         public PropertyInfo Property { get; set; }
+
+        public bool IsNullable { get; set; }
 
         public bool IsPrimaryKey { get; set; }
 
@@ -136,6 +142,16 @@ namespace FoxDb
         public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags flags)
         {
             return ColumnSelector.By(identifier, property, flags);
+        }
+
+        public static IColumnSelector By<T, TColumn>(Expression<Func<T, TColumn>> expression, ColumnFlags flags)
+        {
+            return By<T, TColumn>(string.Empty, expression, flags);
+        }
+
+        public static IColumnSelector By<T, TColumn>(string identifier, Expression<Func<T, TColumn>> expression, ColumnFlags flags)
+        {
+            return ColumnSelector.By(identifier, expression, flags);
         }
     }
 }

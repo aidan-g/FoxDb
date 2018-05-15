@@ -6,10 +6,10 @@
 
         ISchemaGraphBuilder Build();
 
-        ISchemaGraphBuilder Create(ITableConfig table);
+        ISchemaGraphBuilder Add(ITableConfig table);
 
-        ISchemaGraphBuilder Alter(ITableConfig leftTable, ITableConfig rightTable);
+        ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable);
 
-        ISchemaGraphBuilder Drop(ITableConfig table);
+        ISchemaGraphBuilder Delete(ITableConfig table);
     }
 }

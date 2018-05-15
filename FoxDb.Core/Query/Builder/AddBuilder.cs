@@ -54,19 +54,12 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IAddBuilder>().With(builder =>
             {
+                builder.Table = (ITableBuilder)this.Table.Clone();
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());
                 }
             });
-        }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", string.Join(", ", this.Expressions.Select(expression => expression.DebugView)));
-            }
         }
     }
 }

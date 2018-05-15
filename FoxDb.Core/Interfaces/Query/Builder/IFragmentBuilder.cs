@@ -41,8 +41,6 @@ namespace FoxDb.Interfaces
         IUnaryExpressionBuilder CreateUnary(IOperatorBuilder @operator, IFragmentBuilder expression);
 
         ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions);
-
-        string DebugView { get; }
     }
 
     public enum FragmentType : byte
@@ -66,6 +64,9 @@ namespace FoxDb.Interfaces
         Filter,
         Aggregate,
         Sort,
-        Sequence
+        Sequence,
+        Create,
+        Alter,
+        Drop
     }
 }

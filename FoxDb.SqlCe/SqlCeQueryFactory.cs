@@ -4,7 +4,8 @@ namespace FoxDb
 {
     public class SqlCeQueryFactory : SqlQueryFactory
     {
-        public SqlCeQueryFactory(IDatabase database) : base(database)
+        public SqlCeQueryFactory(IDatabase database)
+            : base(database)
         {
         }
 
@@ -22,7 +23,7 @@ namespace FoxDb
         {
             get
             {
-                return new SqlCeQueryDialect();
+                return new SqlCeQueryDialect(this.Database);
             }
         }
 

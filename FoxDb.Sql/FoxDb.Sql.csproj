@@ -44,8 +44,12 @@
     <Compile Include="SqlQueryBuilderVisitor.cs" />
     <Compile Include="SqlQueryFactory.cs" />
     <Compile Include="SqlQueryDialect.cs" />
+    <Compile Include="SqlQueryTypes.cs" />
     <Compile Include="SqlSchemaFactory.cs" />
+    <Compile Include="Writers\SqlAlterWriter.cs" />
+    <Compile Include="Writers\SqlCreateWriter.cs" />
     <Compile Include="Writers\SqlDeleteWriter.cs" />
+    <Compile Include="Writers\SqlDropWriter.cs" />
     <Compile Include="Writers\SqlFromWriter.cs" />
     <Compile Include="Writers\SqlGroupByWriter.cs" />
     <Compile Include="Writers\SqlInsertWriter.cs" />

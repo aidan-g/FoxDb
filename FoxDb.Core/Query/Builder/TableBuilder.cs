@@ -45,26 +45,6 @@ namespace FoxDb
             });
         }
 
-        public override string DebugView
-        {
-            get
-            {
-                var builder = new StringBuilder();
-                builder.Append("{");
-                builder.Append(this.Table);
-                if (this.Filter.Expressions.Count > 0)
-                {
-                    builder.AppendFormat(", Filter = {0}", this.Filter.DebugView);
-                }
-                if (this.Sort.Expressions.Count > 0)
-                {
-                    builder.AppendFormat(", Sort = {0}", this.Sort.DebugView);
-                }
-                builder.Append("}");
-                return builder.ToString();
-            }
-        }
-
         public override bool Equals(IFragmentBuilder obj)
         {
             var other = obj as ITableBuilder;

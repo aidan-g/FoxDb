@@ -135,13 +135,5 @@ namespace FoxDb
         {
             throw new NotImplementedException();
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{}}");
-            }
-        }
     }
 }

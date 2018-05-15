@@ -38,8 +38,6 @@ namespace FoxDb.Interfaces
         T Fragment<T>() where T : IFragmentBuilder;
 
         IDatabaseQuery Build();
-
-        string DebugView { get; }
     }
 
     public interface IAggregateQueryGraphBuilder : IQueryGraphBuilder, IEnumerable<IQueryGraphBuilder>

@@ -2,6 +2,8 @@
 {
     public interface IDatabaseQueryDialect
     {
+        IDatabaseQueryTypes Types { get; }
+
         string SELECT { get; }
 
         string INSERT { get; }
@@ -87,5 +89,13 @@
         string STRING_FORMAT { get; }
 
         string BATCH { get; }
+
+        string CREATE_TABLE { get; }
+
+        string ALTER_TABLE { get; }
+
+        string DROP_TABLE { get; }
+
+        string PRIMARY_KEY { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -9,6 +10,8 @@ namespace FoxDb.Interfaces
         string Identifier { get; }
 
         string ColumnName { get; }
+
+        ITypeConfig ColumnType { get; }
 
         PropertyInfo Property { get; }
 

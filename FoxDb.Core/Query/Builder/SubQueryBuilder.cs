@@ -23,13 +23,5 @@ namespace FoxDb
         {
             return this.Parent.Fragment<ISubQueryBuilder>().With(builder => builder.Query = this.Query.Clone());
         }
-
-        public override string DebugView
-        {
-            get
-            {
-                return string.Format("{{{0}}}", this.Query.DebugView);
-            }
-        }
     }
 }
