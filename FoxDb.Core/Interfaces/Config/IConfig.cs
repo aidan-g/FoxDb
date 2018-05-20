@@ -4,6 +4,8 @@
     {
         IDatabase Database { get; }
 
+        IConfig Transient { get; }
+
         ITableConfig GetTable(ITableSelector selector);
 
         ITableConfig CreateTable(ITableSelector selector);

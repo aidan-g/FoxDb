@@ -26,7 +26,7 @@ namespace FoxDb
             {
                 var query = this.Database.SchemaFactory.Add(
                     Factories.Table.Create(
-                        Config.Transient,
+                        this.Database.Config.Transient,
                         TableConfig.By(typeof(Test001), TableFlags.None)
                     ).With(table =>
                     {
@@ -37,12 +37,12 @@ namespace FoxDb
                         table.CreateColumn(ColumnConfig.By("Field4", ColumnFlags.None)).With(column =>
                         {
                             column.ColumnType.Type = DbType.Int32;
-                            column.IsNullable = true;
+                            column.ColumnType.IsNullable = true;
                         });
                         table.CreateColumn(ColumnConfig.By("Field5", ColumnFlags.None)).With(column =>
                         {
                             column.ColumnType.Type = DbType.Double;
-                            column.IsNullable = true;
+                            column.ColumnType.IsNullable = true;
                         });
                     })
                 ).Build();
@@ -51,13 +51,13 @@ namespace FoxDb
             {
                 var query = this.Database.SchemaFactory.Add(
                     Factories.Table.Create(
-                        Config.Transient,
+                        this.Database.Config.Transient,
                         TableConfig.By(typeof(Test002), TableFlags.None)
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).IsNullable = true;
-                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -66,12 +66,12 @@ namespace FoxDb
             {
                 var query = this.Database.SchemaFactory.Add(
                     Factories.Table.Create(
-                        Config.Transient,
+                        this.Database.Config.Transient,
                         TableConfig.By(typeof(Test003), TableFlags.None)
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -80,12 +80,12 @@ namespace FoxDb
             {
                 var query = this.Database.SchemaFactory.Add(
                     Factories.Table.Create(
-                        Config.Transient,
+                        this.Database.Config.Transient,
                         TableConfig.By(typeof(Test004), TableFlags.None)
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -94,7 +94,7 @@ namespace FoxDb
             {
                 var query = this.Database.SchemaFactory.Add(
                     Factories.Table.Create(
-                        Config.Transient,
+                        this.Database.Config.Transient,
                         TableConfig.By("Test002_Test004", TableFlags.None)
                     ).With(table =>
                     {
@@ -114,6 +114,51 @@ namespace FoxDb
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By(typeof(Test001), TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By(typeof(Test002), TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By(typeof(Test003), TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By(typeof(Test004), TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By("Test002_Test004", TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
             this.Database.Dispose();
             this.Database = null;
         }

@@ -19,8 +19,6 @@ namespace FoxDb.Interfaces
 
         PropertyInfo Property { get; set; }
 
-        bool IsNullable { get; set; }
-
         bool IsPrimaryKey { get; set; }
 
         bool IsForeignKey { get; set; }

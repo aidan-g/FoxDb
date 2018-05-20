@@ -24,6 +24,14 @@ namespace FoxDb
 
         public IDatabase Database { get; private set; }
 
+        public IConfig Transient
+        {
+            get
+            {
+                return new Config(this.Database);
+            }
+        }
+
         public ITableConfig GetTable(ITableSelector selector)
         {
             var existing = default(ITableConfig);
@@ -68,14 +76,6 @@ namespace FoxDb
             if (table.Flags.HasFlag(TableFlags.AutoRelations))
             {
                 table.AutoRelations();
-            }
-        }
-
-        public static IConfig Transient
-        {
-            get
-            {
-                return new Config();
             }
         }
     }

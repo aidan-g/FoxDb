@@ -28,6 +28,8 @@ namespace FoxDb
 
         public int Scale { get; set; }
 
+        public bool IsNullable { get; set; }
+
         public static ITypeSelector By(PropertyInfo property)
         {
             return TypeSelector.By(property);

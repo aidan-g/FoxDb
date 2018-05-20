@@ -34,8 +34,6 @@ namespace FoxDb
 
         public PropertyInfo Property { get; set; }
 
-        public bool IsNullable { get; set; }
-
         public bool IsPrimaryKey { get; set; }
 
         public bool IsForeignKey { get; set; }

@@ -25,7 +25,9 @@ namespace FoxDb
             if (fragment is IDropBuilder)
             {
                 var expression = fragment as IDropBuilder;
-                //TODO: Implement me.
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DROP_TABLE);
+                this.Visit(expression.Table);
+                return fragment;
             }
             throw new NotImplementedException();
         }

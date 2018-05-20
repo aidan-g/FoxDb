@@ -60,7 +60,7 @@ namespace FoxDb
             {
                 this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.PRIMARY_KEY);
             }
-            if (expression.Column.IsNullable)
+            if (expression.Column.ColumnType.IsNullable)
             {
                 this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.NULL);
             }

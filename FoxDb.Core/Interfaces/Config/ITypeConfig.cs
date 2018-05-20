@@ -11,5 +11,7 @@ namespace FoxDb.Interfaces
         int Precision { get; set; }
 
         int Scale { get; set; }
+
+        bool IsNullable { get; set; }
     }
 }
