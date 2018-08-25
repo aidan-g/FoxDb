@@ -1,7 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Reflection;
-using System.Web.UI.WebControls;
 
 namespace FoxDb
 {
@@ -21,7 +20,7 @@ namespace FoxDb
         public ITypeConfig Create(PropertyInfo property)
         {
             return new TypeConfig(
-                Parameter.ConvertTypeCodeToDbType(Type.GetTypeCode(property.PropertyType))
+                global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(Type.GetTypeCode(property.PropertyType))
             );
         }
     }

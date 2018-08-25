@@ -59,4 +59,11 @@ namespace FoxDb
 
         public string Name { get; set; }
     }
+
+    public class Test005 : TestData
+    {
+        public long Id { get; set; }
+
+        public bool Value { get; set; }
+    }
 }

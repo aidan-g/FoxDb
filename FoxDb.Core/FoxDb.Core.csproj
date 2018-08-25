@@ -150,6 +150,7 @@
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorFactory.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorStrategy.cs" />
+    <Compile Include="Provider.cs" />
     <Compile Include="Query\Builder\BinaryExpressionBuilder.cs" />
     <Compile Include="Query\Builder\ColumnBuilder.cs" />
     <Compile Include="Query\Builder\ConstantBuilder.cs" />
@@ -230,6 +231,8 @@
     <Compile Include="Utility\Identifier.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\EnglishPluralizationService.cs" />
+    <Compile Include="Utility\Parameter.cs" />
+    <Compile Include="Utility\ParameterCollection.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />

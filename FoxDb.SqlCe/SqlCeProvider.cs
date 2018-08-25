@@ -6,7 +6,7 @@ using System.IO;
 
 namespace FoxDb
 {
-    public class SqlCeProvider : IProvider
+    public class SqlCeProvider : Provider
     {
         public SqlCeProvider(string fileName)
             : this(new SqlCeConnectionStringBuilder().With(builder => builder.DataSource = fileName))
@@ -24,7 +24,7 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
-        public IDbConnection CreateConnection(IDatabase database)
+        public override IDbConnection CreateConnection(IDatabase database)
         {
             if (!File.Exists(this.FileName))
             {
@@ -36,36 +36,22 @@ namespace FoxDb
             return new SqlCeConnectionWrapper(this, new SqlCeQueryDialect(database), new SqlCeConnection(this.ConnectionString));
         }
 
-        public IDatabaseSchema CreateSchema(IDatabase database)
+        public override IDatabaseSchema CreateSchema(IDatabase database)
         {
             return new SqlCeSchema(database);
         }
 
-        public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
+        public override IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
         {
             return new SqlCeQueryFactory(database);
         }
 
-        public IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
+        public override IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
         {
             return new SqlCeSchemaFactory(database);
         }
-
-        public object GetDbValue(IDataParameter parameter, object value)
-        {
-            if (value == null)
-            {
-                return DBNull.Value;
-            }
-            var type = value.GetType();
-            if (type.IsEnum)
-            {
-                return Convert.ChangeType(value, Enum.GetUnderlyingType(type));
-            }
-            return value;
-        }
-
-        public DbType GetDbType(IDataParameter parameter, object value)
+        
+        public override DbType GetDbType(IDataParameter parameter, object value)
         {
             if (value != null)
             {

@@ -30,6 +30,8 @@ namespace FoxDb
             { DbType.Double, types => types.DefaultFloatingType },
             { DbType.Decimal, types => types.DefaultFloatingType },
             { DbType.VarNumeric, types => types.DefaultFloatingType },
+            //Boolean
+            { DbType.Boolean, types => types.DefaultBooleanType },
             //String.
             { DbType.AnsiString, types => types.DefaultStringType },
             { DbType.AnsiStringFixedLength, types => types.DefaultStringType },
@@ -121,6 +123,14 @@ namespace FoxDb
             get
             {
                 return "FLOAT";
+            }
+        }
+
+        protected virtual string DefaultBooleanType
+        {
+            get
+            {
+                return "BIT";
             }
         }
 

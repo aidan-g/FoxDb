@@ -1,19 +1,24 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System;
 
 namespace FoxDb
 {
-    public class SQLiteProvider : IProvider
+    public class SQLiteProvider : Provider
     {
+        private SQLiteProvider()
+        {
+            this.ValueMappings.Add(new ProviderValueMapping((type, value) => type == typeof(bool), (type, value) => Convert.ToBoolean(value) ? 1 : 0));
+        }
+
         public SQLiteProvider(string fileName) : this(new SQLiteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
         {
 
         }
 
-        public SQLiteProvider(SQLiteConnectionStringBuilder builder)
+        public SQLiteProvider(SQLiteConnectionStringBuilder builder) : this()
         {
             this.FileName = builder.DataSource;
             this.ConnectionString = builder.ToString();
@@ -23,7 +28,7 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
-        public IDbConnection CreateConnection(IDatabase database)
+        public override IDbConnection CreateConnection(IDatabase database)
         {
             if (!File.Exists(this.FileName))
             {
@@ -32,39 +37,19 @@ namespace FoxDb
             return new SQLiteConnection(this.ConnectionString);
         }
 
-        public IDatabaseSchema CreateSchema(IDatabase database)
+        public override IDatabaseSchema CreateSchema(IDatabase database)
         {
             return new SQLiteSchema(database);
         }
 
-        public IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
+        public override IDatabaseQueryFactory CreateQueryFactory(IDatabase database)
         {
             return new SQLiteQueryFactory(database);
         }
 
-        public IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
+        public override IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database)
         {
             return new SQLiteSchemaFactory(database);
-        }
-
-        public object GetDbValue(IDataParameter parameter, object value)
-        {
-            if (value == null)
-            {
-                return DBNull.Value;
-            }
-            var type = value.GetType();
-            if (type.IsEnum)
-            {
-                return Convert.ChangeType(value, Enum.GetUnderlyingType(type));
-            }
-            return value;
-        }
-
-        public DbType GetDbType(IDataParameter parameter, object value)
-        {
-            //Nothing to do. 
-            return parameter.DbType;
         }
     }
 }

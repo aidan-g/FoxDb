@@ -56,8 +56,16 @@ namespace FoxDb
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
-                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Int32;
+                            column.ColumnType.IsNullable = true;
+                        });
+                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Int32;
+                            column.ColumnType.IsNullable = true;
+                        });
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -71,7 +79,11 @@ namespace FoxDb
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Int32;
+                            column.ColumnType.IsNullable = true;
+                        });
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -85,7 +97,11 @@ namespace FoxDb
                     ).With(table =>
                     {
                         table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType.IsNullable = true;
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
+                        {
+                            column.ColumnType.Type = DbType.Int32;
+                            column.ColumnType.IsNullable = true;
+                        });
                         table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
                     })
                 ).Build();
@@ -103,10 +119,27 @@ namespace FoxDb
                             column.IsPrimaryKey = true;
                             column.ColumnType.Type = DbType.Int32;
                         });
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None));
-                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None));
+                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType.Type = DbType.Int32;
+                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).ColumnType.Type = DbType.Int32;
                     })
                 ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Add(
+                   Factories.Table.Create(
+                       this.Database.Config.Transient,
+                       TableConfig.By("Test005", TableFlags.None)
+                   ).With(table =>
+                   {
+                       table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).With(column =>
+                       {
+                           column.IsPrimaryKey = true;
+                           column.ColumnType.Type = DbType.Int32;
+                       });
+                       table.CreateColumn(ColumnConfig.By("Value", ColumnFlags.None)).ColumnType.Type = DbType.Boolean;
+                   })
+               ).Build();
                 this.Database.Execute(query);
             }
         }
@@ -155,6 +188,15 @@ namespace FoxDb
                     Factories.Table.Create(
                         this.Database.Config.Transient,
                         TableConfig.By("Test002_Test004", TableFlags.None)
+                    )
+                ).Build();
+                this.Database.Execute(query);
+            }
+            {
+                var query = this.Database.SchemaFactory.Delete(
+                    Factories.Table.Create(
+                        this.Database.Config.Transient,
+                        TableConfig.By(typeof(Test005), TableFlags.None)
                     )
                 ).Build();
                 this.Database.Execute(query);

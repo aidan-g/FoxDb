@@ -54,6 +54,7 @@
     <Compile Include="SQLiteQueryFactory.cs" />
     <Compile Include="SQLiteQueryFragment.cs" />
     <Compile Include="SQLiteQueryFunction.cs" />
+    <Compile Include="SQLiteQueryTypes.cs" />
     <Compile Include="SQLiteSchema.cs" />
     <Compile Include="SQLiteQueryBuilderVisitor.cs" />
     <Compile Include="SQLiteSchemaFactory.cs" />

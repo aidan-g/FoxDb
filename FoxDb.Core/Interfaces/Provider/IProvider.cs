@@ -12,8 +12,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database);
 
-        object GetDbValue(IDataParameter parameter, object value);
-
         DbType GetDbType(IDataParameter parameter, object value);
+
+        object GetDbValue(IDataParameter parameter, object value);
     }
 }

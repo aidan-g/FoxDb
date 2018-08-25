@@ -78,5 +78,27 @@ namespace FoxDb
             set.Clear();
             Assert.AreEqual(0, set.Count);
         }
+
+        [Test]
+        public void CanFetchAndUpdateBoolean()
+        {
+            var set = this.Database.Set<Test005>(this.Transaction);
+            var data = new List<Test005>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Test005() { Value = true  },
+                new Test005() { Value = false },
+                new Test005() { Value = true }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[0].Value = false;
+            data[0].Value = true;
+            data[0].Value = false;
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+        }
     }
 }

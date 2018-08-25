@@ -11,6 +11,14 @@ namespace FoxDb
 
         }
 
+        public override IDatabaseQueryTypes Types
+        {
+            get
+            {
+                return new SQLiteQueryTypes(this.Database);
+            }
+        }
+
         public string LAST_INSERT_ROWID
         {
             get
