@@ -90,11 +90,17 @@
 
         string BATCH { get; }
 
-        string CREATE_TABLE { get; }
+        string TABLE { get; }
 
-        string ALTER_TABLE { get; }
+        string INDEX { get; }
 
-        string DROP_TABLE { get; }
+        string CREATE { get; }
+
+        string ALTER { get; }
+
+        string DROP { get; }
+
+        string UNIQUE { get; }
 
         string PRIMARY_KEY { get; }
     }

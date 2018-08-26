@@ -373,27 +373,51 @@ namespace FoxDb
 
         public abstract string BATCH { get; }
 
-        public virtual string CREATE_TABLE
+        public virtual string TABLE
         {
             get
             {
-                return "CREATE TABLE";
+                return "TABLE";
             }
         }
 
-        public virtual string ALTER_TABLE
+        public virtual string INDEX
         {
             get
             {
-                return "ALTER TABLE";
+                return "INDEX";
             }
         }
 
-        public virtual string DROP_TABLE
+        public virtual string CREATE
         {
             get
             {
-                return "DROP TABLE";
+                return "CREATE";
+            }
+        }
+
+        public virtual string ALTER
+        {
+            get
+            {
+                return "ALTER";
+            }
+        }
+
+        public virtual string DROP
+        {
+            get
+            {
+                return "DROP";
+            }
+        }
+
+        public virtual string UNIQUE
+        {
+            get
+            {
+                return "UNIQUE";
             }
         }
 

@@ -29,7 +29,7 @@ namespace FoxDb
 
         public ITableConfig Create(IConfig config, string identifier, string tableName, TableFlags flags)
         {
-            return (ITableConfig)this.Members.Invoke(this, "Create", new[] { typeof(EntityPlaceholder) }, config, identifier, tableName, flags);
+            return (ITableConfig)this.Members.Invoke(this, "Create", typeof(EntityPlaceholder), config, identifier, tableName, flags);
         }
 
         public ITableConfig Create(IConfig config, string identifier, Type tableType, TableFlags flags)
@@ -44,7 +44,7 @@ namespace FoxDb
             {
                 attribute.Identifier = Conventions.TableName(tableType);
             }
-            return (ITableConfig)this.Members.Invoke(this, "Create", new[] { tableType }, config, attribute.Identifier, attribute.Name, attribute.Flags);
+            return (ITableConfig)this.Members.Invoke(this, "Create", tableType, config, attribute.Identifier, attribute.Name, attribute.Flags);
         }
 
         public ITableConfig Create(IConfig config, string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)

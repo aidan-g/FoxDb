@@ -49,6 +49,9 @@
     <Compile Include="Config\ColumnEnumerator.cs" />
     <Compile Include="Config\Defaults.cs" />
     <Compile Include="Config\Extensions.cs" />
+    <Compile Include="Config\IndexConfig.cs" />
+    <Compile Include="Config\IndexFactory.cs" />
+    <Compile Include="Config\IndexSelector.cs" />
     <Compile Include="Config\ManyToManyRelationConfig.cs" />
     <Compile Include="Config\OneToManyRelationConfig.cs" />
     <Compile Include="Config\RelationEnumerator.cs" />
@@ -84,6 +87,9 @@
     <Compile Include="Interfaces\Config\IColumnEnumerator.cs" />
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
     <Compile Include="Interfaces\Config\IColumnSelector.cs" />
+    <Compile Include="Interfaces\Config\IIndexConfig.cs" />
+    <Compile Include="Interfaces\Config\IIndexFactory.cs" />
+    <Compile Include="Interfaces\Config\IIndexSelector.cs" />
     <Compile Include="Interfaces\Config\IRelationEnumerator.cs" />
     <Compile Include="Interfaces\Config\IRelationFactory.cs" />
     <Compile Include="Interfaces\Config\IRelationSelector.cs" />
@@ -106,6 +112,8 @@
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
+    <Compile Include="Interfaces\Query\Builder\IIdentifierBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IIndexBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ISequenceBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryParameter.cs" />
@@ -159,6 +167,8 @@
     <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\AggregateBuilder.cs" />
+    <Compile Include="Query\Builder\IdentifierBuilder.cs" />
+    <Compile Include="Query\Builder\IndexBuilder.cs" />
     <Compile Include="Query\Builder\RelationBuilder.cs" />
     <Compile Include="Query\Builder\SequenceBuilder.cs" />
     <Compile Include="Query\Builder\UnaryExpressionBuilder.cs" />

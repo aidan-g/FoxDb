@@ -1,7 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -15,12 +14,14 @@ namespace FoxDb
             { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
             { FragmentType.Table, (writer, fragment) => writer.VisitTable(fragment as ITableBuilder) },
             { FragmentType.Column, (writer, fragment) => writer.VisitColumn(fragment as IColumnBuilder) },
+            { FragmentType.Index, (writer, fragment) => writer.VisitIndex(fragment as IIndexBuilder) },
             { FragmentType.Parameter, (writer, fragment) => writer.VisitParameter(fragment as IParameterBuilder) },
             { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
             { FragmentType.Operator, (writer, fragment) => writer.VisitOperator(fragment as IOperatorBuilder) },
             { FragmentType.Constant, (writer, fragment) => writer.VisitConstant(fragment as IConstantBuilder) },
             { FragmentType.SubQuery, (writer, fragment) => writer.VisitSubQuery(fragment as ISubQueryBuilder) },
-            { FragmentType.Sequence, (writer, fragment) => writer.VisitSequence(fragment as ISequenceBuilder) }
+            { FragmentType.Sequence, (writer, fragment) => writer.VisitSequence(fragment as ISequenceBuilder) },
+            { FragmentType.Identifier, (writer, fragment) => writer.VisitIdentifier(fragment as IIdentifierBuilder) }
         };
 
         protected Stack<IFragmentBuilder> FragmentContext { get; private set; }
@@ -267,7 +268,19 @@ namespace FoxDb
             {
                 this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DISTINCT);
             }
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.Table.TableName, identifier));
+            if (expression.Flags.HasFlag(ColumnBuilderFlags.Unqualified))
+            {
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(identifier));
+            }
+            else
+            {
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.Table.TableName, identifier));
+            }
+        }
+
+        protected virtual void VisitIndex(IIndexBuilder expression)
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual void VisitParameter(IParameterBuilder expression)
@@ -360,6 +373,11 @@ namespace FoxDb
                 }
                 this.Visit(element);
             }
+        }
+
+        protected virtual void VisitIdentifier(IIdentifierBuilder expression)
+        {
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Identifier));
         }
 
         protected virtual void VisitType(ITypeConfig type)

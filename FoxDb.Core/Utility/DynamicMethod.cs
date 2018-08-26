@@ -44,7 +44,7 @@ namespace FoxDb
             var methods = this.Type.GetMethods(BINDING_FLAGS);
             foreach (var method in methods)
             {
-                if (string.Equals(method.Name, name, StringComparison.OrdinalIgnoreCase) && method.IsGenericMethod && method.GetGenericArguments().Length == genericArgs.Length)
+                if (string.Equals(method.Name, name, StringComparison.OrdinalIgnoreCase) && this.CanInvoke(method, genericArgs))
                 {
                     var generic = method.MakeGenericMethod(genericArgs);
                     if (!this.CanInvoke(generic, args))
@@ -61,12 +61,24 @@ namespace FoxDb
 
         protected virtual object Invoke(object target, Delegate handler, object[] args)
         {
-            return handler.DynamicInvoke(new[] { target }.Concat(args).ToArray());
+            try
+            {
+                return handler.DynamicInvoke(new[] { target }.Concat(args).ToArray());
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
         }
 
         protected virtual Type[] GetArgTypes(object[] args)
         {
             return args.Select(arg => arg != null ? arg.GetType() : null).ToArray();
+        }
+
+        protected virtual bool CanInvoke(MethodInfo method, Type[] genericArgs)
+        {
+            return method.IsGenericMethod && method.GetGenericArguments().Length == genericArgs.Length;
         }
 
         protected virtual bool CanInvoke(MethodInfo method, object[] args)

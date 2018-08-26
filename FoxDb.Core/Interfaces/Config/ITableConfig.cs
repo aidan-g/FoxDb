@@ -25,11 +25,17 @@ namespace FoxDb.Interfaces
 
         bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column);
 
+        IIndexConfig GetIndex(IIndexSelector selector);
+
+        IIndexConfig CreateIndex(IIndexSelector selector);
+
         IEnumerable<IColumnConfig> Columns { get; }
 
         IEnumerable<IColumnConfig> UpdatableColumns { get; }
 
         IEnumerable<IRelationConfig> Relations { get; }
+
+        IEnumerable<IIndexConfig> Indexes { get; }
 
         ITableConfig AutoColumns();
 

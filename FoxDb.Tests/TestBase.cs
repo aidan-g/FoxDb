@@ -44,6 +44,15 @@ namespace FoxDb
                             column.ColumnType.Type = DbType.Double;
                             column.ColumnType.IsNullable = true;
                         });
+                        table.CreateIndex(IndexConfig.By("IDX_Test001_Fields", new[] { "Field1", "Field2", "Field3", "Field4", "Field5" }, IndexFlags.Unique)).With(index =>
+                        {
+                            index.Expression = index.CreateConstraint().With(constraint =>
+                            {
+                                constraint.Left = constraint.CreateColumn(table.GetColumn(ColumnConfig.By("Field1", ColumnFlags.None)));
+                                constraint.Operator = constraint.CreateOperator(QueryOperator.Is);
+                                constraint.Right = constraint.CreateUnary(QueryOperator.Not, constraint.CreateOperator(QueryOperator.Null));
+                            });
+                        });
                     })
                 ).Build();
                 this.Database.Execute(query);

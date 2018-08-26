@@ -49,6 +49,27 @@ namespace FoxDb
             return this;
         }
 
+        public IIndexBuilder GetIndex(IIndexConfig index)
+        {
+            return this.GetExpression<IIndexBuilder>(builder => builder.Index == index);
+        }
+
+        public IIndexBuilder AddIndex(IIndexConfig index)
+        {
+            var builder = this.CreateIndex(index);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
+        public ICreateBuilder AddIndexes(IEnumerable<IIndexConfig> indexes)
+        {
+            foreach (var index in indexes)
+            {
+                this.AddIndex(index);
+            }
+            return this;
+        }
+
         public override IFragmentBuilder Clone()
         {
             return this.Parent.Fragment<ICreateBuilder>().With(builder =>

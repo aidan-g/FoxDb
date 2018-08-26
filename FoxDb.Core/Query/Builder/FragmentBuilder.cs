@@ -33,11 +33,13 @@ namespace FoxDb
                 { typeof(IRelationBuilder), (parent, graph) => new RelationBuilder(parent, graph) },
                 { typeof(ISubQueryBuilder), (parent, graph) => new SubQueryBuilder(parent, graph) },
                 { typeof(IColumnBuilder), (parent, graph) => new ColumnBuilder(parent, graph) },
+                { typeof(IIndexBuilder), (parent, graph) => new IndexBuilder(parent, graph) },
                 { typeof(IParameterBuilder), (parent, graph) => new ParameterBuilder(parent, graph) },
                 { typeof(IFunctionBuilder), (parent, graph) => new FunctionBuilder(parent, graph) },
                 { typeof(IOperatorBuilder), (parent, graph) => new OperatorBuilder(parent, graph) },
                 { typeof(IConstantBuilder), (parent, graph) => new ConstantBuilder(parent, graph) },
                 { typeof(ISequenceBuilder), (parent, graph) => new SequenceBuilder(parent, graph) },
+                { typeof(IIdentifierBuilder), (parent, graph) => new IdentifierBuilder(parent, graph) },
             };
         }
 
@@ -135,6 +137,15 @@ namespace FoxDb
             return this.Fragment<IColumnBuilder>().With(builder => builder.Column = column);
         }
 
+        public IIndexBuilder CreateIndex(IIndexConfig index)
+        {
+            if (index == null)
+            {
+                throw new NotImplementedException();
+            }
+            return this.Fragment<IIndexBuilder>().With(builder => builder.Index = index);
+        }
+
         public IParameterBuilder CreateParameter(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -201,6 +212,15 @@ namespace FoxDb
                     builder.Write(expression);
                 }
             });
+        }
+
+        public IIdentifierBuilder CreateIdentifier(string identifier)
+        {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                throw new NotImplementedException();
+            }
+            return this.Fragment<IIdentifierBuilder>().With(builder => builder.Identifier = identifier);
         }
 
         public abstract IFragmentBuilder Clone();

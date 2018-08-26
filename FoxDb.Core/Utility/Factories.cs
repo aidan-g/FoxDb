@@ -8,6 +8,8 @@ namespace FoxDb
 
         public static IColumnFactory Column = new ColumnFactory();
 
+        public static IIndexFactory Index = new IndexFactory();
+
         public static IRelationFactory Relation = new RelationFactory();
 
         public static ICollectionFactory Collection = new CollectionFactory();

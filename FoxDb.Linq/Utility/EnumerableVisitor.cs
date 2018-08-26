@@ -278,7 +278,15 @@ namespace FoxDb
             try
             {
                 var lambda = Expression.Lambda(node).Compile();
-                var value = lambda.DynamicInvoke();
+                var value = default(object);
+                try
+                {
+                    value = lambda.DynamicInvoke();
+                }
+                catch (TargetInvocationException e)
+                {
+                    throw e.InnerException;
+                }
                 this.VisitParameter(value);
             }
             catch (Exception e)

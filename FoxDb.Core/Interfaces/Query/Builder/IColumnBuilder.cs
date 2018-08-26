@@ -19,6 +19,7 @@
     public enum ColumnBuilderFlags : byte
     {
         None,
+        Unqualified,
         Identifier,
         Distinct
     }

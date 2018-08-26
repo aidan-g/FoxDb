@@ -24,6 +24,7 @@ namespace FoxDb
             var builder = this.Build();
             builder.Create.SetTable(table);
             builder.Create.AddColumns(table.Columns);
+            builder.Create.AddIndexes(table.Indexes);
             return builder;
         }
 

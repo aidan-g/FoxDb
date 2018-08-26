@@ -37,7 +37,7 @@ namespace FoxDb
 
         protected virtual IEntityGraphNode CreateNode(ITableConfig table, IEntityMapper mapper)
         {
-            var node = (EntityGraphNode)this.Members.Invoke(this, "CreateNode", new[] { this.GetMapping(table).EntityType }, table);
+            var node = (EntityGraphNode)this.Members.Invoke(this, "CreateNode", this.GetMapping(table).EntityType, table);
             node.Children = GetChildren(this, node, mapper);
             return node;
         }

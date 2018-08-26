@@ -74,6 +74,13 @@ namespace FoxDb
     }
 
     [Flags]
+    public enum IndexFlags : byte
+    {
+        None = 0,
+        Unique = 1
+    }
+
+    [Flags]
     public enum RelationFlags : byte
     {
         None = 0,

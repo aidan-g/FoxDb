@@ -11,6 +11,7 @@ namespace FoxDb
         private TableConfig()
         {
             this.Columns = new ConcurrentDictionary<string, IColumnConfig>(StringComparer.OrdinalIgnoreCase);
+            this.Indexes = new ConcurrentDictionary<string, IIndexConfig>();
             this.Relations = new ConcurrentDictionary<string, IRelationConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -46,6 +47,8 @@ namespace FoxDb
 
         protected virtual ConcurrentDictionary<string, IColumnConfig> Columns { get; private set; }
 
+        protected virtual ConcurrentDictionary<string, IIndexConfig> Indexes { get; private set; }
+
         protected virtual ConcurrentDictionary<string, IRelationConfig> Relations { get; private set; }
 
         IEnumerable<IColumnConfig> ITableConfig.Columns
@@ -64,6 +67,14 @@ namespace FoxDb
                     .Except(this.PrimaryKeys)
                     .ToLookup(column => column.ColumnName)
                     .Select(columns => columns.First());
+            }
+        }
+
+        IEnumerable<IIndexConfig> ITableConfig.Indexes
+        {
+            get
+            {
+                return this.Indexes.Values;
             }
         }
 
@@ -138,6 +149,24 @@ namespace FoxDb
             }
             column = this.Columns.AddOrUpdate(column.Identifier, column);
             return true;
+        }
+
+        public IIndexConfig GetIndex(IIndexSelector selector)
+        {
+            var existing = default(IIndexConfig);
+            var index = Factories.Index.Create(this, selector);
+            if (!this.Indexes.TryGetValue(index.Identifier, out existing) || !index.Equals(existing))
+            {
+                return default(IIndexConfig);
+            }
+            return existing;
+        }
+
+        public IIndexConfig CreateIndex(IIndexSelector selector)
+        {
+            var index = Factories.Index.Create(this, selector);
+            index = this.Indexes.AddOrUpdate(index.Identifier, index);
+            return index;
         }
 
         public abstract ITableConfig AutoColumns();

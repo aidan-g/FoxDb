@@ -54,6 +54,7 @@ namespace FoxDb.Interfaces
         Relation,
         SubQuery,
         Column,
+        Index,
         Function,
         Parameter,
         Add,
@@ -67,6 +68,7 @@ namespace FoxDb.Interfaces
         Sequence,
         Create,
         Alter,
-        Drop
+        Drop,
+        Identifier
     }
 }

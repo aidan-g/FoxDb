@@ -13,5 +13,11 @@ namespace FoxDb.Interfaces
         IColumnBuilder AddColumn(IColumnConfig column);
 
         ICreateBuilder AddColumns(IEnumerable<IColumnConfig> columns);
+
+        IIndexBuilder GetIndex(IIndexConfig index);
+
+        IIndexBuilder AddIndex(IIndexConfig index);
+
+        ICreateBuilder AddIndexes(IEnumerable<IIndexConfig> indexes);
     }
 }
