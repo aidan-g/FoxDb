@@ -1,6 +1,6 @@
 ﻿using FoxDb.Interfaces;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace FoxDb
@@ -53,16 +53,17 @@ namespace FoxDb
         {
             private EntityPersisterVisitor()
             {
-                this.Members = new DynamicMethod(this.GetType());
+                this.Members = new DynamicMethod<EntityPersisterVisitor>();
             }
 
-            public EntityPersisterVisitor(IDatabase database, ITransactionSource transaction = null) : this()
+            public EntityPersisterVisitor(IDatabase database, ITransactionSource transaction = null)
+                : this()
             {
                 this.Database = database;
                 this.Transaction = transaction;
             }
 
-            protected DynamicMethod Members { get; private set; }
+            protected DynamicMethod<EntityPersisterVisitor> Members { get; private set; }
 
             public IDatabase Database { get; private set; }
 

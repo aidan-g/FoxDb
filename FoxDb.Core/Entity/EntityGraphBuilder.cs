@@ -8,15 +8,16 @@ namespace FoxDb
     {
         protected EntityGraphBuilder()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<EntityGraphBuilder>();
         }
 
-        public EntityGraphBuilder(params IEntityGraphMapping[] mapping) : this()
+        public EntityGraphBuilder(params IEntityGraphMapping[] mapping)
+            : this()
         {
             this.Mapping = mapping.ToDictionary(map => map.Table);
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<EntityGraphBuilder> Members { get; private set; }
 
         public IDictionary<ITableConfig, IEntityGraphMapping> Mapping { get; private set; }
 

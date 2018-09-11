@@ -7,10 +7,10 @@ namespace FoxDb
     {
         public TableFactory()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<TableFactory>();
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<TableFactory> Members { get; private set; }
 
         public ITableConfig Create(IConfig config, ITableSelector selector)
         {

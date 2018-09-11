@@ -49,16 +49,17 @@ namespace FoxDb
         {
             private EntityEnumeratorVisitor()
             {
-                this.Members = new DynamicMethod(this.GetType());
+                this.Members = new DynamicMethod<EntityEnumeratorVisitor>();
                 this.Buffer = new EntityEnumeratorBuffer();
             }
 
-            public EntityEnumeratorVisitor(IEntityGraphSink sink) : this()
+            public EntityEnumeratorVisitor(IEntityGraphSink sink)
+                : this()
             {
                 this.Sink = sink;
             }
 
-            protected DynamicMethod Members { get; private set; }
+            protected DynamicMethod<EntityEnumeratorVisitor> Members { get; private set; }
 
             public IEntityEnumeratorBuffer Buffer { get; private set; }
 

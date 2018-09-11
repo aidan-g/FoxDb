@@ -10,18 +10,19 @@ namespace FoxDb
     {
         private SqlQueryBuilderVisitor()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<SqlQueryBuilderVisitor>();
             this.Parameters = new List<IDatabaseQueryParameter>();
             this.Targets = new Stack<IFragmentTarget>();
             this.Fragments = new List<SqlQueryFragment>();
         }
 
-        public SqlQueryBuilderVisitor(IDatabase database) : this()
+        public SqlQueryBuilderVisitor(IDatabase database)
+            : this()
         {
             this.Database = database;
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<SqlQueryBuilderVisitor> Members { get; private set; }
 
         public ICollection<IDatabaseQueryParameter> Parameters { get; private set; }
 

@@ -8,7 +8,7 @@ namespace FoxDb
     {
         private Config()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<Config>();
             this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -18,7 +18,7 @@ namespace FoxDb
             this.Database = database;
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<Config> Members { get; private set; }
 
         protected virtual ConcurrentDictionary<string, ITableConfig> Tables { get; private set; }
 

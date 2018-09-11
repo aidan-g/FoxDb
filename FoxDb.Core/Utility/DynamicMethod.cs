@@ -1,74 +1,55 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FoxDb
 {
-    using MemberMap = ConcurrentDictionary<DynamicMethod.DynamicMethodKey, Delegate>;
-    using TypeMap = ConcurrentDictionary<Type, ConcurrentDictionary<DynamicMethod.DynamicMethodKey, Delegate>>;
-
-    public class DynamicMethod
+    public class DynamicMethod<T> where T : class
     {
         public const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.InvokeMethod | BindingFlags.IgnoreCase;
 
-        protected static readonly TypeMap Types = new TypeMap();
+        protected static readonly ConcurrentDictionary<DynamicMethodKey, DynamicMethodHandler<T>> Handlers = new ConcurrentDictionary<DynamicMethodKey, DynamicMethodHandler<T>>();
 
-        public DynamicMethod(Type type)
-        {
-            this.Type = type;
-        }
-
-        public Type Type { get; private set; }
-
-        public object Invoke(object target, string name, Type genericArg, params object[] args)
+        public object Invoke(T target, string name, Type genericArg, params object[] args)
         {
             return this.Invoke(target, name, new[] { genericArg }, args);
         }
 
-        public object Invoke(object target, string name, Type[] genericArgs, params object[] args)
+        public object Invoke(T target, string name, Type[] genericArgs, params object[] args)
         {
-            var members = default(MemberMap);
-            if (!Types.TryGetValue(this.Type, out members))
-            {
-                members = new MemberMap();
-                Types.AddOrUpdate(this.Type, members);
-            }
             var key = new DynamicMethodKey(name, genericArgs, this.GetArgTypes(args));
-            var handler = default(Delegate);
-            if (members.TryGetValue(key, out handler))
+            var handler = default(DynamicMethodHandler<T>);
+            if (Handlers.TryGetValue(key, out handler))
             {
                 return this.Invoke(target, handler, args);
             }
-            var methods = this.Type.GetMethods(BINDING_FLAGS);
+            var methods = typeof(T).GetMethods(BINDING_FLAGS);
             foreach (var method in methods)
             {
                 if (string.Equals(method.Name, name, StringComparison.OrdinalIgnoreCase) && this.CanInvoke(method, genericArgs))
                 {
-                    var generic = method.MakeGenericMethod(genericArgs);
-                    if (!this.CanInvoke(generic, args))
+                    if (this.CanInvoke(method, genericArgs))
                     {
-                        continue;
+                        var generic = method.MakeGenericMethod(genericArgs);
+                        if (!this.CanInvoke(generic, args))
+                        {
+                            continue;
+                        }
+                        handler = this.CreateHandler(generic);
+                        Handlers.AddOrUpdate(key, handler);
+                        return this.Invoke(target, handler, args);
                     }
-                    handler = this.CreateHandler(generic);
-                    members.AddOrUpdate(key, handler);
-                    return this.Invoke(target, handler, args);
                 }
             }
-            throw new MissingMemberException(string.Format("Failed to locate suitable method: {0}.{1}", this.Type.Name, name));
+            throw new MissingMemberException(string.Format("Failed to locate suitable method: {0}.{1}", typeof(T).Name, name));
         }
 
-        protected virtual object Invoke(object target, Delegate handler, object[] args)
+        protected virtual object Invoke(T target, DynamicMethodHandler<T> handler, object[] args)
         {
-            try
-            {
-                return handler.DynamicInvoke(new[] { target }.Concat(args).ToArray());
-            }
-            catch (TargetInvocationException e)
-            {
-                throw e.InnerException;
-            }
+            return handler.Invoke(target, args);
         }
 
         protected virtual Type[] GetArgTypes(object[] args)
@@ -78,7 +59,26 @@ namespace FoxDb
 
         protected virtual bool CanInvoke(MethodInfo method, Type[] genericArgs)
         {
-            return method.IsGenericMethod && method.GetGenericArguments().Length == genericArgs.Length;
+            var arguments = method.GetGenericArguments();
+            if (arguments.Length != genericArgs.Length)
+            {
+                return false;
+            }
+            for (var a = 0; a < arguments.Length; a++)
+            {
+                if (genericArgs[a] == null)
+                {
+                    continue;
+                }
+                foreach (var constraint in arguments[a].GetGenericParameterConstraints())
+                {
+                    if (!constraint.IsAssignableFrom(genericArgs[a]))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         protected virtual bool CanInvoke(MethodInfo method, object[] args)
@@ -98,17 +98,50 @@ namespace FoxDb
             return true;
         }
 
-        protected virtual Delegate CreateHandler(MethodInfo method)
+        protected virtual DynamicMethodHandler<T> CreateHandler(MethodInfo method)
         {
-            var instance = Expression.Parameter(this.Type);
-            var parameters = method.GetParameters()
-                .Select(parameter => Expression.Parameter(parameter.ParameterType))
-                .ToArray();
-            var expression = Expression.Lambda(
-                Expression.Call(instance, method, parameters),
-                new[] { instance }.Concat(parameters)
+            var instance = Expression.Parameter(typeof(T));
+            var parameters = Expression.Parameter(typeof(object[]));
+            var call = Expression.Call(
+                instance,
+                method,
+                this.Spread(method, parameters)
+            );
+            var body = default(Expression);
+            if (method.ReturnType != typeof(void))
+            {
+                body = Expression.Convert(
+                    call,
+                    typeof(object)
+                );
+            }
+            else
+            {
+                body = Expression.Block(
+                    call,
+                    Expression.Constant(null)
+                );
+            }
+            var expression = Expression.Lambda<DynamicMethodHandler<T>>(
+                body,
+                new[] { instance, parameters }
             );
             return expression.Compile();
+        }
+
+        protected virtual IEnumerable<Expression> Spread(MethodInfo method, ParameterExpression parameters)
+        {
+            var index = 0;
+            foreach (var parameter in method.GetParameters())
+            {
+                yield return Expression.Convert(
+                    Expression.ArrayAccess(
+                        parameters,
+                        Expression.Constant(index++)
+                    ),
+                    parameter.ParameterType
+                );
+            }
         }
 
         public class DynamicMethodKey : IEquatable<DynamicMethodKey>
@@ -131,22 +164,31 @@ namespace FoxDb
                 var hashCode = 0;
                 unchecked
                 {
-                    hashCode += this.MethodName.GetHashCode();
-                    foreach (var type in this.GenericArgs)
+                    if (!string.IsNullOrEmpty(this.MethodName))
                     {
-                        if (type == null)
-                        {
-                            continue;
-                        }
-                        hashCode += type.GetHashCode();
+                        hashCode += this.MethodName.GetHashCode();
                     }
-                    foreach (var type in this.Parameters)
+                    if (this.GenericArgs != null)
                     {
-                        if (type == null)
+                        foreach (var type in this.GenericArgs)
                         {
-                            continue;
+                            if (type == null)
+                            {
+                                continue;
+                            }
+                            hashCode += type.GetHashCode();
                         }
-                        hashCode += type.GetHashCode();
+                    }
+                    if (this.Parameters != null)
+                    {
+                        foreach (var type in this.Parameters)
+                        {
+                            if (type == null)
+                            {
+                                continue;
+                            }
+                            hashCode += type.GetHashCode();
+                        }
                     }
                 }
                 return hashCode;
@@ -171,27 +213,41 @@ namespace FoxDb
                 {
                     return false;
                 }
-                if (this.GenericArgs.Length != other.GenericArgs.Length)
+                if (this.GenericArgs != null)
                 {
-                    return false;
-                }
-                for (var a = 0; a < this.GenericArgs.Length; a++)
-                {
-                    if (this.GenericArgs[a] != other.GenericArgs[a])
+                    if (this.GenericArgs.Length != other.GenericArgs.Length)
                     {
                         return false;
                     }
+                    for (var a = 0; a < this.GenericArgs.Length; a++)
+                    {
+                        if (this.GenericArgs[a] != other.GenericArgs[a])
+                        {
+                            return false;
+                        }
+                    }
                 }
-                if (this.Parameters.Length != other.Parameters.Length)
+                else if (other.GenericArgs != null)
                 {
                     return false;
                 }
-                for (var a = 0; a < this.Parameters.Length; a++)
+                if (this.Parameters != null)
                 {
-                    if (this.Parameters[a] != other.Parameters[a])
+                    if (this.Parameters.Length != other.Parameters.Length)
                     {
                         return false;
                     }
+                    for (var a = 0; a < this.Parameters.Length; a++)
+                    {
+                        if (this.Parameters[a] != other.Parameters[a])
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else if (other.Parameters != null)
+                {
+                    return false;
                 }
                 return true;
             }
@@ -219,4 +275,6 @@ namespace FoxDb
             }
         }
     }
+
+    public delegate object DynamicMethodHandler<in T>(T instance, object[] args);
 }

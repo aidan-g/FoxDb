@@ -6,15 +6,16 @@ namespace FoxDb
     {
         private EntityInitializer()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<EntityInitializer>();
         }
 
-        public EntityInitializer(ITableConfig table) : this()
+        public EntityInitializer(ITableConfig table)
+            : this()
         {
             this.Table = table;
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<EntityInitializer> Members { get; private set; }
 
         public ITableConfig Table { get; private set; }
 

@@ -10,10 +10,10 @@ namespace FoxDb
     {
         public RelationFactory()
         {
-            this.Members = new DynamicMethod(this.GetType());
+            this.Members = new DynamicMethod<RelationFactory>();
         }
 
-        protected DynamicMethod Members { get; private set; }
+        protected DynamicMethod<RelationFactory> Members { get; private set; }
 
         public IRelationConfig Create(ITableConfig table, IRelationSelector selector)
         {
@@ -102,9 +102,9 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
-                table.Config.Table<TRelation>(),
+ table.Config.Table<TRelation>(),
 #pragma warning restore 612, 618
-                accessor
+ accessor
             );
         }
 
@@ -117,9 +117,9 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
-                table.Config.Table<TRelation>(),
+ table.Config.Table<TRelation>(),
 #pragma warning restore 612, 618
-                accessor
+ accessor
             );
         }
 
@@ -132,10 +132,10 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
-                table.Config.Table<T, TRelation>(),
+ table.Config.Table<T, TRelation>(),
                 table.Config.Table<TRelation>(),
 #pragma warning restore 612, 618
-                accessor
+ accessor
             );
         }
 
