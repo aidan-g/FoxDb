@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class EntityPersister : IEntityPersister
     {
-        public EntityPersister(IDatabase database, ITableConfig table, ITransactionSource transaction = null) : this(database, table, null, transaction)
+        public EntityPersister(IDatabase database, ITableConfig table, ITransactionSource transaction = null)
+            : this(database, table, null, transaction)
         {
 
         }
@@ -36,12 +37,12 @@ namespace FoxDb
         {
             if (EntityKey.HasKey(this.Table, item))
             {
-                var update = this.Database.QueryFactory.Update(this.Table).Build();
+                var update = this.Database.QueryCache.Update(this.Table);
                 this.Database.Execute(update, this.GetParameters(item), this.Transaction);
             }
             else
             {
-                var add = this.Database.QueryFactory.Add(this.Table).Build();
+                var add = this.Database.QueryCache.Add(this.Table);
                 var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
                 EntityKey.SetKey(this.Table, item, key);
             }
@@ -54,7 +55,7 @@ namespace FoxDb
 
         public void Delete(object item, PersistenceFlags flags)
         {
-            var delete = this.Database.QueryFactory.Delete(this.Table).Build();
+            var delete = this.Database.QueryCache.Delete(this.Table);
             this.Database.Execute(delete, this.GetParameters(item), this.Transaction);
         }
 

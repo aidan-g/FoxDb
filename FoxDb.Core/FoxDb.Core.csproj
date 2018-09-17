@@ -116,6 +116,7 @@
     <Compile Include="Interfaces\Query\Builder\IIndexBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ISequenceBuilder.cs" />
+    <Compile Include="Interfaces\Query\IDatabaseQueryCache.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryParameter.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
     <Compile Include="Interfaces\IDatabaseSchema.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Query\Builder\FilterBuilder.cs" />
     <Compile Include="Query\Compatibility.cs" />
     <Compile Include="Query\DatabaseQuery.cs" />
+    <Compile Include="Query\DatabaseQueryCache.cs" />
     <Compile Include="Query\DatabaseQueryComposer.cs" />
     <Compile Include="Query\DatabaseQueryParameter.cs" />
     <Compile Include="Query\DatabaseQuerySource.cs" />

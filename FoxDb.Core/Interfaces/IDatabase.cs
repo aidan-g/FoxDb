@@ -18,6 +18,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseSchema Schema { get; }
 
+        IDatabaseQueryCache QueryCache { get; }
+
         IDatabaseQueryFactory QueryFactory { get; }
 
         IDatabaseSchemaFactory SchemaFactory { get; }

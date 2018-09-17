@@ -10,9 +10,11 @@ namespace FoxDb
         private Database()
         {
             this.Config = new Config(this);
+            this.QueryCache = new DatabaseQueryCache(this);
         }
 
-        public Database(IProvider provider) : this()
+        public Database(IProvider provider)
+            : this()
         {
             this.Provider = provider;
             this.Schema = provider.CreateSchema(this);
@@ -45,6 +47,8 @@ namespace FoxDb
         }
 
         public IDatabaseSchema Schema { get; private set; }
+
+        public IDatabaseQueryCache QueryCache { get; private set; }
 
         public IDatabaseQueryFactory QueryFactory { get; private set; }
 
