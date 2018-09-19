@@ -27,6 +27,7 @@ namespace FoxDb
         {
             var handlers = new Dictionary<string, MethodVisitorHandler>(StringComparer.OrdinalIgnoreCase)
             {
+                { "Contains", (visitor, node) => visitor.VisitContains(node) },
                 { "Count", (visitor, node) => visitor.VisitCount(node) },
                 { "Any", (visitor, node) => visitor.VisitAny(node) },
                 { "First", (visitor, node) => visitor.VisitFirst(node) },
@@ -94,6 +95,19 @@ namespace FoxDb
         protected virtual Expression VisitFirst(MethodCallExpression node)
         {
             return this.VisitEnumerableMethodCall(node.Object, node.Method, node.Arguments[0]);
+        }
+
+        protected virtual Expression VisitContains(MethodCallExpression node)
+        {
+            switch (node.Arguments.Count)
+            {
+                case 1:
+                    return this.VisitEnumerableMethodCall(node.Object, node.Method, node.Arguments[0]);
+                case 2:
+                    return this.VisitEnumerableMethodCall(node.Object, node.Method, node.Arguments[0], node.Arguments[1]);
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         protected virtual Expression VisitCount(MethodCallExpression node)

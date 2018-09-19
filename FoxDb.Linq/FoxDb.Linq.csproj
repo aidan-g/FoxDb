@@ -45,6 +45,15 @@
     <Compile Include="Utility\EnumerableExecutor.cs" />
     <Compile Include="Utility\EnumerableQuery.cs" />
     <Compile Include="Utility\EnumerableRewriter.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Any.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Capture.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Contains.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Count.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Except.cs" />
+    <Compile Include="Utility\EnumerableVisitor_First.cs" />
+    <Compile Include="Utility\EnumerableVisitor_OrderBy.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Select.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Where.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">

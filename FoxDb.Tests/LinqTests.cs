@@ -159,49 +159,6 @@ namespace FoxDb
             Assert.IsFalse(query.Any(element => element.Id == -1));
         }
 
-        [Test]
-        public void Except_Enumerable()
-        {
-            var set = this.Database.Set<Test001>(this.Transaction);
-            var data = new List<Test001>();
-            set.Clear();
-            data.AddRange(new[]
-            {
-                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
-                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
-                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
-            });
-            set.AddOrUpdate(data);
-            var query = this.Database.AsQueryable<Test001>(this.Transaction);
-            this.AssertSequence(new[] { data[0], data[1], data[2] }, query.Except(Enumerable.Empty<Test001>()));
-            this.AssertSequence(new[] { data[0], data[1] }, query.Except(new[] { data[2] }));
-            this.AssertSequence(new[] { data[0] }, query.Except(new[] { data[1], data[2] }));
-            this.AssertSequence(Enumerable.Empty<Test001>(), query.Except(new[] { data[0], data[1], data[2] }));
-        }
-
-        [Test]
-        public void Except_Queryable()
-        {
-            Assert.Ignore("Not yet supported.");
-
-            var set = this.Database.Set<Test001>(this.Transaction);
-            var data = new List<Test001>();
-            set.Clear();
-            data.AddRange(new[]
-           {
-               new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
-               new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
-               new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
-           });
-            set.AddOrUpdate(data);
-            var query1 = this.Database.AsQueryable<Test001>(this.Transaction);
-            var query2 = this.Database.AsQueryable<Test001>(this.Transaction);
-            this.AssertSequence(new[] { data[0], data[1], data[2] }, query1.Except(query2.Where(item => item.Id == 0)));
-            this.AssertSequence(new[] { data[0], data[1] }, query1.Except(query2.Where(item => item.Id == data[2].Id)));
-            this.AssertSequence(new[] { data[0] }, query1.Except(query2.Where(item => item.Id == data[1].Id || item.Id == data[2].Id)));
-            this.AssertSequence(Enumerable.Empty<Test001>(), query1.Except(query2));
-        }
-
         [TestCase(RelationFlags.OneToMany, false)]
         [TestCase(RelationFlags.OneToMany, true)]
         [TestCase(RelationFlags.ManyToMany, false)]
@@ -269,6 +226,142 @@ namespace FoxDb
             {
                 this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Any(child => child.Name == "2_2")));
             }
+        }
+
+        [Test]
+        public void Contains()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            var element1 = data[1];
+            var element2 = new Test001();
+            Assert.IsTrue(query.Contains(element1));
+            Assert.IsFalse(query.Contains(element2));
+        }
+
+        [TestCase(RelationFlags.OneToMany, false)]
+        [TestCase(RelationFlags.OneToMany, true)]
+        [TestCase(RelationFlags.ManyToMany, false)]
+        [TestCase(RelationFlags.ManyToMany, true)]
+        public void Contains(RelationFlags flags, bool invert)
+        {
+            this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                new Test002() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+            });
+            set.AddOrUpdate(data);
+            var child = data[1].Test004.First();
+            var query = this.Database.AsQueryable<Test002>(this.Transaction);
+            if (invert)
+            {
+                this.AssertSequence(new[] { data[0], data[2] }, query.Where(element => !element.Test004.Contains(child)));
+            }
+            else
+            {
+                this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Contains(child)));
+            }
+        }
+
+        [TestCase(RelationFlags.OneToMany, false)]
+        [TestCase(RelationFlags.OneToMany, true)]
+        [TestCase(RelationFlags.ManyToMany, false)]
+        [TestCase(RelationFlags.ManyToMany, true)]
+        public void ContainsCompoundRelation(RelationFlags flags, bool invert)
+        {
+            this.Database.Config.Table<Test002>().With(table =>
+            {
+                table.Relation(item => item.Test004, Defaults.Relation.Flags | flags).With(relation =>
+                {
+                    relation.Expression.Left = relation.Expression.Clone();
+                    relation.Expression.Operator = relation.Expression.CreateOperator(QueryOperator.OrElse);
+                    relation.Expression.Right = relation.CreateConstraint(relation.LeftTable.Column("Test004_Id"), relation.RightTable.PrimaryKey);
+                });
+            });
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            {
+                var child = this.Database.Set<Test004>(this.Transaction).AddOrUpdate(new Test004() { Name = "2_2" });
+                data.AddRange(new[]
+                {
+                    new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                    new Test002() { Name = "2_1" },
+                    new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+                });
+                set.AddOrUpdate(data);
+                data[1].Test004_Id = child.Id;
+                new EntityPersister(this.Database, set.Table, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
+                data[1].Test004.Add(child);
+            }
+            {
+                var child = data[1].Test004.First();
+                var query = this.Database.AsQueryable<Test002>(this.Transaction);
+                if (invert)
+                {
+                    this.AssertSequence(new[] { data[0], data[2] }, query.Where(element => !element.Test004.Contains(child)));
+                }
+                else
+                {
+                    this.AssertSequence(new[] { data[1] }, query.Where(element => element.Test004.Contains(child)));
+                }
+            }
+        }
+
+        [Test]
+        public void Except_Enumerable()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query.Except(Enumerable.Empty<Test001>()));
+            this.AssertSequence(new[] { data[0], data[1] }, query.Except(new[] { data[2] }));
+            this.AssertSequence(new[] { data[0] }, query.Except(new[] { data[1], data[2] }));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query.Except(new[] { data[0], data[1], data[2] }));
+        }
+
+        [Test]
+        public void Except_Queryable()
+        {
+            Assert.Ignore("Not yet supported.");
+
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+           {
+               new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+               new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+               new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+           });
+            set.AddOrUpdate(data);
+            var query1 = this.Database.AsQueryable<Test001>(this.Transaction);
+            var query2 = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query1.Except(query2.Where(item => item.Id == 0)));
+            this.AssertSequence(new[] { data[0], data[1] }, query1.Except(query2.Where(item => item.Id == data[2].Id)));
+            this.AssertSequence(new[] { data[0] }, query1.Except(query2.Where(item => item.Id == data[1].Id || item.Id == data[2].Id)));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query1.Except(query2));
         }
 
         [Test]

@@ -8,27 +8,42 @@ using System.Reflection;
 
 namespace FoxDb
 {
-    public class EnumerableVisitor : ExpressionVisitor
+    public partial class EnumerableVisitor : ExpressionVisitor
     {
-        public static readonly IDictionary<string, MethodVisitorHandler> MethodHandlers = GetMethodHandlers();
+        public static readonly IDictionary<MethodVisitorKey, MethodVisitorHandler> MethodHandlers = GetMethodHandlers();
 
         public static readonly IDictionary<ExpressionType, UnaryVisitorHandler> UnaryHandlers = GetUnaryHandlers();
 
         public static readonly IDictionary<ExpressionType, QueryOperator> Operators = GetOperators();
 
-        protected static IDictionary<string, MethodVisitorHandler> GetMethodHandlers()
+        protected static IDictionary<MethodVisitorKey, MethodVisitorHandler> GetMethodHandlers()
         {
-            var handlers = new Dictionary<string, MethodVisitorHandler>(StringComparer.OrdinalIgnoreCase)
+            var handlers = new Dictionary<MethodVisitorKey, MethodVisitorHandler>()
             {
-                { "Count", (visitor, node) => visitor.VisitCount(node) },
-                { "Any", (visitor, node) => visitor.VisitAny(node) },
-                { "First", (visitor, node) => visitor.VisitFirst(node) },
-                { "FirstOrDefault", (visitor, node) => visitor.VisitFirst(node) },
-                { "Select", (visitor, node) => visitor.VisitSelect(node) },
-                { "Where", (visitor, node) => visitor.VisitWhere(node) },
-                { "Except", (visitor, node) => visitor.VisitExcept(node) },
-                { "OrderBy", (visitor, node) => visitor.VisitOrderBy(node) },
-                { "OrderByDescending", (visitor, node) => visitor.VisitOrderByDescending(node) }
+                //Enumerable
+                { new MethodVisitorKey(typeof(Enumerable), "Count"), (visitor, node) => visitor.VisitCount(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Any"), (visitor, node) => visitor.VisitAny(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "First"), (visitor, node) => visitor.VisitFirst(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "FirstOrDefault"), (visitor, node) => visitor.VisitFirst(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Select"), (visitor, node) => visitor.VisitSelect(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Where"), (visitor, node) => visitor.VisitWhere(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Except"), (visitor, node) => visitor.VisitExcept(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
+                //Queryable
+                { new MethodVisitorKey(typeof(Queryable), "Count"), (visitor, node) => visitor.VisitCount(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Any"), (visitor, node) => visitor.VisitAny(node) },
+                { new MethodVisitorKey(typeof(Queryable), "First"), (visitor, node) => visitor.VisitFirst(node) },
+                { new MethodVisitorKey(typeof(Queryable), "FirstOrDefault"), (visitor, node) => visitor.VisitFirst(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Select"), (visitor, node) => visitor.VisitSelect(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Where"), (visitor, node) => visitor.VisitWhere(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Except"), (visitor, node) => visitor.VisitExcept(node) },
+                { new MethodVisitorKey(typeof(Queryable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
+                { new MethodVisitorKey(typeof(Queryable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
+                //Collection
+                { new MethodVisitorKey(typeof(ICollection<>), "Contains"), (visitor, node) => visitor.VisitContains(node) }
             };
             return handlers;
         }
@@ -106,8 +121,6 @@ namespace FoxDb
                 return typeof(IQueryable<>).MakeGenericType(this.ElementType);
             }
         }
-
-        public OrderByDirection Direction { get; private set; }
 
         public IQueryGraphBuilder Query { get; private set; }
 
@@ -263,8 +276,18 @@ namespace FoxDb
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            var type = default(Type);
+            if (node.Method.DeclaringType.IsGenericType)
+            {
+                type = node.Method.DeclaringType.GetGenericTypeDefinition();
+            }
+            else
+            {
+                type = node.Method.DeclaringType;
+            }
+            var key = new MethodVisitorKey(type, node.Method.Name);
             var handler = default(MethodVisitorHandler);
-            if (!MethodHandlers.TryGetValue(node.Method.Name, out handler))
+            if (!MethodHandlers.TryGetValue(key, out handler))
             {
                 this.VisitUnsupportedMethodCall(node);
                 return node;
@@ -291,228 +314,7 @@ namespace FoxDb
             }
             catch (Exception e)
             {
-                throw new NotImplementedException(string.Format("The method \"{0}\" of type \"{0}\" is unsupported and could not be evaluated.", node.Method.Name, node.Type.FullName), e);
-            }
-        }
-
-        protected virtual void VisitFirst(MethodCallExpression node)
-        {
-            if (this.Table.TableType == node.Type)
-            {
-                var filter = this.Query.Source.GetTable(this.Table).Filter;
-                filter.Limit = 1;
-                this.Push(filter);
-                try
-                {
-                    foreach (var argument in node.Arguments)
-                    {
-                        this.Visit(argument);
-                    }
-                }
-                finally
-                {
-                    this.Pop();
-                }
-            }
-            else
-            {
-                this.VisitUnsupportedMethodCall(node);
-            }
-        }
-
-        protected virtual void VisitCount(MethodCallExpression node)
-        {
-            //Count is not implemented here, LINQ will use the .Count property of IDatabaseSet.
-            //We just need to process the predicate (if one was supplied).
-            this.VisitWhere(node);
-        }
-
-        protected virtual void VisitAny(MethodCallExpression node)
-        {
-            var relation = default(IRelationBuilder);
-            if (this.TryCapture<IRelationBuilder>(null, node.Arguments[0], out relation))
-            {
-                this.VisitAny(node, relation.Relation);
-            }
-            else
-            {
-                this.VisitWhere(node);
-            }
-        }
-
-        protected virtual void VisitAny(MethodCallExpression node, IRelationConfig relation)
-        {
-            var target = default(IFragmentTarget);
-            var columns = relation.Expression.GetColumnMap();
-            if (!this.TryPeek(out target))
-            {
-                target = this.Query.Filter;
-            }
-            target.Write(target.CreateFunction(QueryFunction.Exists).With(function =>
-            {
-                var builder = this.Database.QueryFactory.Build();
-                builder.Output.AddOperator(QueryOperator.Star);
-                builder.Source.AddTable(relation.LeftTable.Extern());
-                builder.Source.AddTable(relation.RightTable);
-                builder.RelationManager.AddRelation(relation);
-                function.AddArgument(function.CreateSubQuery(builder));
-                this.Push(builder.Filter);
-            }));
-            try
-            {
-                for (var a = 1; a < node.Arguments.Count; a++)
-                {
-                    this.Visit(node.Arguments[a]);
-                }
-            }
-            finally
-            {
-                this.Pop();
-            }
-        }
-
-        protected virtual void VisitSelect(MethodCallExpression node)
-        {
-            this.Query.Output.Expressions.Clear();
-            this.Visit(node.Arguments[0]);
-            this.Push(this.Query.Output);
-            try
-            {
-                for (var a = 1; a < node.Arguments.Count; a++)
-                {
-                    this.Visit(node.Arguments[a]);
-                }
-            }
-            finally
-            {
-                this.Pop();
-            }
-        }
-
-        protected virtual void VisitWhere(MethodCallExpression node)
-        {
-            this.Visit(node.Arguments[0]);
-            switch (node.Arguments.Count)
-            {
-                case 1:
-                    break;
-                case 2:
-                    var pop = false;
-                    if (!this.TryPeek())
-                    {
-                        this.Push(this.Query.Filter);
-                        pop = true;
-                    }
-                    try
-                    {
-                        this.Visit(node.Arguments[1]);
-                    }
-                    finally
-                    {
-                        if (pop)
-                        {
-                            this.Pop();
-                        }
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        protected virtual void VisitExcept(MethodCallExpression node)
-        {
-            this.Visit(node.Arguments[0]);
-            switch (node.Arguments.Count)
-            {
-                case 1:
-                    break;
-                case 2:
-                    var pop = false;
-                    if (!this.TryPeek())
-                    {
-                        this.Push(this.Query.Filter);
-                        pop = true;
-                    }
-                    try
-                    {
-                        this.Peek.Write(
-                            this.Peek.CreateUnary(
-                                QueryOperator.Not,
-                                this.Push(this.Peek.CreateBinary(
-                                    this.Peek.CreateColumn(this.Table.PrimaryKey),
-                                    QueryOperator.In,
-                                    //Leave the right expression null, we will write to this later.
-                                    null
-                                )).With(binary =>
-                                {
-                                    try
-                                    {
-                                        switch (node.Arguments[1].NodeType)
-                                        {
-                                            case ExpressionType.Constant:
-                                                this.Visit(node.Arguments[1]);
-                                                break;
-                                            default:
-                                                throw new NotImplementedException();
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        this.Pop();
-                                    }
-                                })
-                            )
-                        );
-                    }
-                    finally
-                    {
-                        if (pop)
-                        {
-                            this.Pop();
-                        }
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        protected virtual void VisitOrderBy(MethodCallExpression node)
-        {
-            this.Query.Sort.Expressions.Clear();
-            this.Direction = OrderByDirection.None;
-            this.Visit(node.Arguments[0]);
-            this.Push(this.Query.Sort);
-            try
-            {
-                for (var a = 1; a < node.Arguments.Count; a++)
-                {
-                    this.Visit(node.Arguments[a]);
-                }
-            }
-            finally
-            {
-                this.Pop();
-            }
-        }
-
-        protected virtual void VisitOrderByDescending(MethodCallExpression node)
-        {
-            this.Query.Sort.Expressions.Clear();
-            this.Direction = OrderByDirection.Descending;
-            this.Visit(node.Arguments[0]);
-            this.Push(this.Query.Sort);
-            try
-            {
-                for (var a = 1; a < node.Arguments.Count; a++)
-                {
-                    this.Visit(node.Arguments[a]);
-                }
-            }
-            finally
-            {
-                this.Pop();
+                throw new NotImplementedException(string.Format("The method \"{0}\" of type \"{1}\" is unsupported and could not be evaluated.", node.Method.Name, node.Method.DeclaringType), e);
             }
         }
 
@@ -790,132 +592,81 @@ namespace FoxDb
             return string.Format("parameter_{0}_{1}", this.Id, count);
         }
 
-        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node) where T : IFragmentBuilder
+        public class MethodVisitorKey : IEquatable<MethodVisitorKey>
         {
-            var expression = default(T);
-            if (!this.TryCapture<T>(parent, node, out expression))
+            public MethodVisitorKey(Type type, string name)
             {
-                throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
+                this.Type = type;
+                this.Name = name;
             }
-            return expression;
-        }
 
-        protected virtual T Capture<T>(IFragmentBuilder parent, Expression node, out CaptureFragmentContext context) where T : IFragmentBuilder
-        {
-            var expression = default(T);
-            if (!this.TryCapture<T>(parent, node, out expression, out context))
-            {
-                throw new InvalidOperationException(string.Format("Failed to capture fragment of type \"{0}\".", typeof(T).FullName));
-            }
-            return expression;
-        }
+            public Type Type { get; private set; }
 
-        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result) where T : IFragmentBuilder
-        {
-            var context = default(CaptureFragmentContext);
-            if (!this.TryCapture<T>(parent, node, out result, out context))
-            {
-                return false;
-            }
-            if (context.Constants.Any())
-            {
-                throw new InvalidOperationException("Capture resulted in unhandled constants.");
-            }
-            return true;
-        }
+            public string Name { get; private set; }
 
-        protected virtual bool TryCapture<T>(IFragmentBuilder parent, Expression node, out T result, out CaptureFragmentContext context) where T : IFragmentBuilder
-        {
-            context = new CaptureFragmentContext(parent, this.Query.Clone());
-            var capture = new CaptureFragmentTarget(context);
-            this.Push(capture);
-            try
+            public override int GetHashCode()
             {
-                this.Visit(node);
-            }
-            finally
-            {
-                this.Pop(false);
-            }
-            foreach (var expression in context.Expressions)
-            {
-                if (expression is T)
+                var hashCode = 0;
+                unchecked
                 {
-                    result = (T)expression;
+                    if (this.Type != null)
+                    {
+                        hashCode += this.Type.GetHashCode();
+                    }
+                    if (!string.IsNullOrEmpty(this.Name))
+                    {
+                        hashCode += this.Name.GetHashCode();
+                    }
+                }
+                return hashCode;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj is MethodVisitorKey)
+                {
+                    return this.Equals(obj as MethodVisitorKey);
+                }
+                return base.Equals(obj);
+            }
+
+            public bool Equals(MethodVisitorKey other)
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+                if (this.Type != other.Type)
+                {
+                    return false;
+                }
+                if (!string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public static bool operator ==(MethodVisitorKey a, MethodVisitorKey b)
+            {
+                if ((object)a == null && (object)b == null)
+                {
                     return true;
                 }
-            }
-            result = default(T);
-            return false;
-        }
-
-        protected class CaptureFragmentTarget : FragmentBuilder, IFragmentTarget
-        {
-            public CaptureFragmentTarget(CaptureFragmentContext context)
-                : base(context.Parent, context.Graph)
-            {
-                this.Context = context;
-            }
-
-            public override FragmentType FragmentType
-            {
-                get
+                if ((object)a == null || (object)b == null)
                 {
-                    throw new NotImplementedException();
+                    return false;
                 }
-            }
-
-            public IDictionary<string, object> Constants
-            {
-                get
+                if (object.ReferenceEquals((object)a, (object)b))
                 {
-                    return this.Context.Constants;
+                    return true;
                 }
+                return a.Equals(b);
             }
 
-            public CaptureFragmentContext Context { get; private set; }
-
-            public T Write<T>(T fragment) where T : IFragmentBuilder
+            public static bool operator !=(MethodVisitorKey a, MethodVisitorKey b)
             {
-                this.Context.Expressions.Add(fragment);
-                return fragment;
-            }
-
-            public override IFragmentBuilder Clone()
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class CaptureFragmentContext
-        {
-            private CaptureFragmentContext()
-            {
-                this.Expressions = new List<IFragmentBuilder>();
-                this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            }
-
-            public CaptureFragmentContext(IFragmentBuilder parent, IQueryGraphBuilder graph)
-                : this()
-            {
-                this.Parent = parent;
-                this.Graph = graph;
-            }
-
-            public IFragmentBuilder Parent { get; private set; }
-
-            public IQueryGraphBuilder Graph { get; private set; }
-
-            public ICollection<IFragmentBuilder> Expressions { get; private set; }
-
-            public IDictionary<string, object> Constants { get; private set; }
-
-            public bool IsEmpty
-            {
-                get
-                {
-                    return this.Expressions.Count == 0 && this.Constants.Count == 0;
-                }
+                return !(a == b);
             }
         }
 

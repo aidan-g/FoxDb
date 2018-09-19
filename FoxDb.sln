@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Core", "FoxDb.Core\FoxDb.Core.csproj", "{9CDD4861-9938-41C1-88FE-9E4054BF164A}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SqlCe", "FoxDb.SqlCe\FoxDb.SqlCe.csproj", "{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Schema", "FoxDb.Schema\FoxDb.Schema.csproj", "{6CDE8C48-6E51-4CC2-B991-93EF82F7E344}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{04AE4524-32BC-4417-ADE4-8EA55B9CFA40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
