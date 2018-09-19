@@ -81,6 +81,10 @@
       <Project>{516e910d-80c2-4bfe-9591-491bdf5fe98f}</Project>
       <Name>FoxDb.SQLite</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FoxDb.SqlServer\FoxDb.SqlServer.csproj">
+      <Project>{a1dd7844-218c-4d5a-a2f9-ed69eadba386}</Project>
+      <Name>FoxDb.SqlServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SqlCeQueryTypes : SqlQueryTypes
+    public class SqlServerQueryTypes : SqlQueryTypes
     {
-        static SqlCeQueryTypes()
+        static SqlServerQueryTypes()
         {
             Arguments["nvarchar"] = DatabaseQueryTypeArguments.Size;
         }
 
-        public SqlCeQueryTypes(IDatabase database)
+        public SqlServerQueryTypes(IDatabase database)
             : base(database)
         {
 

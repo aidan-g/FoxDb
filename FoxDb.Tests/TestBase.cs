@@ -13,9 +13,16 @@ namespace FoxDb
         protected TestBase(ProviderType providerType)
         {
             this.ProviderType = providerType;
-            if (File.Exists(this.FileName))
+            try
             {
-                File.Delete(this.FileName);
+                if (File.Exists(this.FileName))
+                {
+                    File.Delete(this.FileName);
+                }
+            }
+            catch (NotImplementedException)
+            {
+
             }
         }
 
@@ -243,6 +250,8 @@ namespace FoxDb
             {
                 case ProviderType.SqlCe:
                     return new SqlCeProvider(this.FileName);
+                case FoxDb.ProviderType.SqlServer:
+                    return new SqlServerProvider(this.DataSource, this.InitialCatalog);
                 case ProviderType.SQLite:
                     return new SQLiteProvider(this.FileName);
             }
@@ -278,6 +287,22 @@ namespace FoxDb
             }
         }
 
+        public string DataSource
+        {
+            get
+            {
+                return "localhost";
+            }
+        }
+
+        public string InitialCatalog
+        {
+            get
+            {
+                return "Test";
+            }
+        }
+
         public void AssertSequence<T>(IEnumerable<T> expected, IEnumerable<T> actual, bool equal = true)
         {
             var a = expected.ToArray();
@@ -301,6 +326,7 @@ namespace FoxDb
     {
         None,
         SqlCe,
+        SqlServer,
         SQLite
     }
 }

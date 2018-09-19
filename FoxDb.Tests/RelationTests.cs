@@ -7,6 +7,7 @@ using System.Linq;
 namespace FoxDb
 {
     [TestFixture(ProviderType.SqlCe)]
+    [TestFixture(ProviderType.SqlServer)]
     [TestFixture(ProviderType.SQLite)]
     public class RelationTests : TestBase
     {

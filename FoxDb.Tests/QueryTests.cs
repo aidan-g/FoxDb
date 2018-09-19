@@ -7,6 +7,7 @@ using System.Linq;
 namespace FoxDb
 {
     [TestFixture(ProviderType.SqlCe)]
+    [TestFixture(ProviderType.SqlServer)]
     [TestFixture(ProviderType.SQLite)]
     public class QueryTests : TestBase
     {
@@ -318,12 +319,6 @@ namespace FoxDb
         [TestCase(RelationFlags.ManyToMany)]
         public void Offset(RelationFlags flags)
         {
-            switch (this.ProviderType)
-            {
-                case ProviderType.SqlCe:
-                    Assert.Ignore("The provider does not (easily) support offset.");
-                    return;
-            }
             var relation = this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();
