@@ -25,7 +25,7 @@ namespace FoxDb
         {
             static Column()
             {
-                Type = new TypeConfig(DbType.AnsiString);
+                Type = new TypeConfig(DbType.AnsiString, 0, 0, 0, false);
                 Flags = ColumnFlags.ValidateSchema;
             }
 

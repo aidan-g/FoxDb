@@ -4,11 +4,13 @@ namespace FoxDb.Interfaces
 {
     public interface IFilterBuilder : IFragmentContainer, IFragmentTarget
     {
-        int Limit { get; set; }
+        int? Limit { get; set; }
 
         LimitType LimitType { get; set; }
 
-        int Offset { get; set; }
+        int? Offset { get; set; }
+
+        OffsetType OffsetType { get; set; }
 
         IBinaryExpressionBuilder Add();
 
@@ -31,5 +33,10 @@ namespace FoxDb.Interfaces
     {
         None = 0,
         Percent = 1
+    }
+
+    public enum OffsetType : byte
+    {
+        None = 0
     }
 }

@@ -18,12 +18,16 @@ namespace FoxDb
         {
             get
             {
-                var visitor = this.CreateVisitor(this.Database);
-                visitor.Visit(this.Graph);
-                return visitor.Query;
+                var rewriter = this.CreateRewriter(this.Database);
+                rewriter.Visit(this.Graph);
+                var renderer = this.CreateRenderer(this.Database);
+                renderer.Visit(rewriter.Result);
+                return renderer.Result;
             }
         }
 
-        public abstract IQueryGraphVisitor CreateVisitor(IDatabase database);
+        public abstract IQueryGraphVisitor<IQueryGraphBuilder> CreateRewriter(IDatabase database);
+
+        public abstract IQueryGraphVisitor<IDatabaseQuery> CreateRenderer(IDatabase database);
     }
 }

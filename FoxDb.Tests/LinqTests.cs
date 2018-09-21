@@ -323,6 +323,46 @@ namespace FoxDb
         }
 
         [Test]
+        public void Skip()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query.Skip(0));
+            this.AssertSequence(new[] { data[1], data[2] }, query.Skip(1));
+            this.AssertSequence(new[] { data[2] }, query.Skip(2));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query.Skip(3));
+        }
+
+        [Test]
+        public void Take()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0], data[1], data[2] }, query.Take(3));
+            this.AssertSequence(new[] { data[0], data[1] }, query.Take(2));
+            this.AssertSequence(new[] { data[0] }, query.Take(1));
+            this.AssertSequence(Enumerable.Empty<Test001>(), query.Take(0));
+        }
+
+        [Test]
         public void Except_Enumerable()
         {
             var set = this.Database.Set<Test001>(this.Transaction);

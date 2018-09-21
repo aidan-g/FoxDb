@@ -35,7 +35,9 @@ namespace FoxDb
                 { "Where", (visitor, node) => visitor.VisitWhere(node) },
                 { "Except", (visitor, node) => visitor.VisitExcept(node) },
                 { "OrderBy", (visitor, node) => visitor.VisitOrderBy(node) },
-                { "OrderByDescending", (visitor, node) => visitor.VisitOrderByDescending(node) }
+                { "OrderByDescending", (visitor, node) => visitor.VisitOrderByDescending(node) },
+                { "Skip", (visitor, node) => visitor.VisitSkip(node) },
+                { "Take", (visitor, node) => visitor.VisitTake(node) }
             };
             return handlers;
         }
@@ -136,6 +138,16 @@ namespace FoxDb
         }
 
         protected virtual Expression VisitOrderByDescending(MethodCallExpression node)
+        {
+            return this.Visit(node.Arguments[0]);
+        }
+
+        protected virtual Expression VisitSkip(MethodCallExpression node)
+        {
+            return this.Visit(node.Arguments[0]);
+        }
+
+        protected virtual Expression VisitTake(MethodCallExpression node)
         {
             return this.Visit(node.Arguments[0]);
         }

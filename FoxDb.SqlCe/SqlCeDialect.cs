@@ -26,59 +26,11 @@ namespace FoxDb
             }
         }
 
-        public string PERCENT
-        {
-            get
-            {
-                return "PERCENT";
-            }
-        }
-
         public string IDENTITY
         {
             get
             {
                 return "@@IDENTITY";
-            }
-        }
-
-        public string CASE
-        {
-            get
-            {
-                return "CASE";
-            }
-        }
-
-        public string WHEN
-        {
-            get
-            {
-                return "WHEN";
-            }
-        }
-
-        public string THEN
-        {
-            get
-            {
-                return "THEN";
-            }
-        }
-
-        public string ELSE
-        {
-            get
-            {
-                return "ELSE";
-            }
-        }
-
-        public string END
-        {
-            get
-            {
-                return "END";
             }
         }
 
@@ -95,6 +47,38 @@ namespace FoxDb
             get
             {
                 return string.Format("IDENTITY {0}", base.PRIMARY_KEY);
+            }
+        }
+
+        public string FETCH
+        {
+            get
+            {
+                return "FETCH";
+            }
+        }
+
+        public string NEXT
+        {
+            get
+            {
+                return "NEXT";
+            }
+        }
+
+        public string ROWS
+        {
+            get
+            {
+                return "ROWS";
+            }
+        }
+
+        public string ONLY
+        {
+            get
+            {
+                return "ONLY";
             }
         }
     }

@@ -18,7 +18,7 @@ namespace FoxDb
         public IRelationConfig Create(ITableConfig table, IRelationSelector selector)
         {
             var relation = default(IRelationConfig);
-            switch (selector.Type)
+            switch (selector.SelectorType)
             {
                 case RelationSelectorType.Property:
                     relation = this.Create(table, selector.Identifier, selector.Property, selector.Flags);
@@ -81,13 +81,25 @@ namespace FoxDb
             if (!string.IsNullOrEmpty(attribute.LeftColumn))
             {
                 relation.Expression.Left = relation.Expression.CreateColumn(
-                    relation.LeftTable.CreateColumn(ColumnConfig.By(attribute.LeftColumn, Defaults.Column.Flags)).With(column => column.IsForeignKey = true)
+                    relation.LeftTable.CreateColumn(
+                        ColumnConfig.By(
+                            attribute.LeftColumn, 
+                            Factories.Type.Create(TypeConfig.By(property)), 
+                            Defaults.Column.Flags
+                        )
+                    ).With(column => column.IsForeignKey = true)
                 );
             }
             if (!string.IsNullOrEmpty(attribute.RightColumn))
             {
                 relation.Expression.Right = relation.Expression.CreateColumn(
-                    relation.RightTable.CreateColumn(ColumnConfig.By(attribute.RightColumn, Defaults.Column.Flags)).With(column => column.IsForeignKey = true)
+                    relation.RightTable.CreateColumn(
+                        ColumnConfig.By(
+                            attribute.RightColumn, 
+                            Factories.Type.Create(TypeConfig.By(property)), 
+                            Defaults.Column.Flags
+                        )
+                    ).With(column => column.IsForeignKey = true)
                 );
             }
             return relation;

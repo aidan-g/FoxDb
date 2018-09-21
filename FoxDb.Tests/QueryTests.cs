@@ -1,4 +1,4 @@
-﻿#pragma warning disable 612, 618 
+﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -11,7 +11,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class QueryTests : TestBase
     {
-        public QueryTests(ProviderType providerType) : base(providerType)
+        public QueryTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -28,18 +29,21 @@ namespace FoxDb
                     query2.Output.AddOperator(QueryOperator.Star);
                     query2.Source.AddTable(this.Database.Config.Table<Test001>());
                 })));
+                var @case = query1.Output.CreateCase();
+                query1.Output.Expressions.Add(@case);
                 if (invert)
                 {
-                    query1.Output.Expressions.Add(query1.Output.Fragment<IUnaryExpressionBuilder>().With(unary =>
+                    @case.Add(@case.Fragment<IUnaryExpressionBuilder>().With(unary =>
                     {
                         unary.Operator = unary.CreateOperator(QueryOperator.Not);
                         unary.Expression = function;
-                    }));
+                    }), @case.CreateConstant(1));
                 }
                 else
                 {
-                    query1.Output.Expressions.Add(function);
+                    @case.Add(function, @case.CreateConstant(1));
                 }
+                @case.Add(@case.CreateConstant(0));
             });
             Assert.AreEqual(invert, this.Database.ExecuteScalar<bool>(query.Build(), this.Transaction));
             set.AddOrUpdate(new[]
@@ -183,9 +187,9 @@ namespace FoxDb
                 builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
                 builder.Operator = builder.CreateOperator(QueryOperator.In);
                 builder.Right = builder.CreateSequence(
-                    builder.CreateParameter("id1"),
-                    builder.CreateParameter("id2"),
-                    builder.CreateParameter("id3")
+                    builder.CreateParameter("id1", typeof(int)),
+                    builder.CreateParameter("id2", typeof(int)),
+                    builder.CreateParameter("id3", typeof(int))
                 );
             });
             set.Parameters = parameters =>
@@ -220,9 +224,9 @@ namespace FoxDb
                 builder.Right = builder.CreateUnary(
                     QueryOperator.In,
                     builder.CreateSequence(
-                        builder.CreateParameter("id1"),
-                        builder.CreateParameter("id2"),
-                        builder.CreateParameter("id3")
+                        builder.CreateParameter("id1", typeof(int)),
+                        builder.CreateParameter("id2", typeof(int)),
+                        builder.CreateParameter("id3", typeof(int))
                     )
                 );
             });
@@ -304,7 +308,7 @@ namespace FoxDb
                 {
                     binary.Left = binary.CreateColumn(set.Table.PrimaryKey);
                     binary.Operator = binary.CreateOperator(QueryOperator.Greater);
-                    binary.Right = binary.CreateParameter("Id");
+                    binary.Right = binary.CreateParameter("Id", typeof(long));
                 });
             });
             for (var a = 0; a < data.Count; a++)
@@ -318,6 +322,28 @@ namespace FoxDb
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
         public void Offset(RelationFlags flags)
+        {
+            var relation = this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1_1", Test004 = new List<Test004>() { new Test004() { Name = "1_2" }, new Test004() { Name = "1_3" } } },
+                new Test002() { Name = "2_1", Test004 = new List<Test004>() { new Test004() { Name = "2_2" }, new Test004() { Name = "2_3" } } },
+                new Test002() { Name = "3_1", Test004 = new List<Test004>() { new Test004() { Name = "3_2" }, new Test004() { Name = "3_3" } } },
+            });
+            set.AddOrUpdate(data);
+            for (var a = 0; a < data.Count; a++)
+            {
+                set.Fetch.Source.GetTable(set.Table).Filter.With(filter => filter.Offset = a);
+                this.AssertSequence(data.Skip(a), set);
+            }
+        }
+
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void OffsetWithLimit(RelationFlags flags)
         {
             var relation = this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);

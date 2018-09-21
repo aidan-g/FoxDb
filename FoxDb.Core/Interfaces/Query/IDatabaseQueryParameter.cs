@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
@@ -6,15 +7,10 @@ namespace FoxDb.Interfaces
     {
         string Name { get; }
 
-        ParameterType Type { get; }
-    }
+        DbType Type { get; }
 
-    public enum ParameterType
-    {
-        None = 0,
-        Input = 1,
-        Output = 2,
-        InputOutput = 3,
-        ReturnValue = 6
+        ParameterDirection Direction { get; }
+
+        bool IsDeclared { get; }
     }
 }

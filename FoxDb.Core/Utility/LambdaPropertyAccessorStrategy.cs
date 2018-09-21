@@ -35,7 +35,7 @@ namespace FoxDb
             var parameter1 = Expression.Parameter(typeof(T));
             var parameter2 = Expression.Parameter(typeof(TValue));
             var convert = default(Expression);
-            if (this.TryGetInterimType(property.PropertyType, out interimType))
+            if (TypeHelper.TryGetInterimType(property.PropertyType, out interimType))
             {
                 convert = this.ChangeType(parameter2, interimType, property.PropertyType);
             }
@@ -58,22 +58,6 @@ namespace FoxDb
                 parameter2
             );
             return lambda.Compile();
-        }
-
-        protected virtual bool TryGetInterimType(Type type, out Type interimType)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                interimType = Nullable.GetUnderlyingType(type);
-                return true;
-            }
-            if (type.IsEnum)
-            {
-                interimType = Enum.GetUnderlyingType(type);
-                return true;
-            }
-            interimType = default(Type);
-            return false;
         }
 
         protected virtual Expression ChangeType(Expression parameter, Type targetType)

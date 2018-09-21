@@ -80,6 +80,8 @@
 
         string CLOSE_PARENTHESES { get; }
 
+        string BETWEEN { get; }
+
         string ADD { get; }
 
         string DEFAULT { get; }
@@ -103,5 +105,15 @@
         string UNIQUE { get; }
 
         string PRIMARY_KEY { get; }
+
+        string CASE { get; }
+
+        string WHEN { get; }
+
+        string THEN { get; }
+
+        string ELSE { get; }
+
+        string END { get; }
     }
 }

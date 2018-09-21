@@ -4,14 +4,14 @@ namespace FoxDb.Interfaces
 {
     public interface ITypeConfig
     {
-        DbType Type { get; set; }
+        DbType Type { get; }
 
-        int Size { get; set; }
+        int Size { get; }
 
-        int Precision { get; set; }
+        int Precision { get; }
 
-        int Scale { get; set; }
+        int Scale { get; }
 
-        bool IsNullable { get; set; }
+        bool IsNullable { get; }
     }
 }

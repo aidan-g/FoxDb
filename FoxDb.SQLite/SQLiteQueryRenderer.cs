@@ -1,19 +1,21 @@
 ﻿using FoxDb.Interfaces;
+using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SQLiteQueryBuilderVisitor : SqlQueryBuilderVisitor
+    public class SQLiteQueryRenderer : SqlQueryRenderer
     {
-        static SQLiteQueryBuilderVisitor()
+        public SQLiteQueryRenderer(IDatabase database) : base(database)
         {
-            Handlers[SQLiteQueryFragment.Limit] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryBuilderVisitor).VisitLimit(parent, graph, fragment as ILimitBuilder);
-            Handlers[SQLiteQueryFragment.Offset] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryBuilderVisitor).VisitOffset(parent, graph, fragment as IOffsetBuilder);
+
         }
 
-
-        public SQLiteQueryBuilderVisitor(IDatabase database) : base(database)
+        protected override IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
-
+            var handlers = base.GetHandlers();
+            handlers[SQLiteQueryFragment.Limit] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryRenderer).VisitLimit(parent, graph, fragment as ILimitBuilder);
+            handlers[SQLiteQueryFragment.Offset] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryRenderer).VisitOffset(parent, graph, fragment as IOffsetBuilder);
+            return handlers;
         }
 
         protected override SqlQueryFragment CreateQueryFragment(IFragmentTarget target)

@@ -84,13 +84,6 @@ namespace FoxDb
             }
         }
 
-        protected override void VisitBinary(IBinaryExpressionBuilder expression)
-        {
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
-            base.VisitBinary(expression);
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
-        }
-
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             if (this.GetRenderContext().HasFlag(RenderHints.FunctionArgument))

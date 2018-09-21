@@ -5,9 +5,10 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SqlGroupByWriter : SqlQueryWriter
+    public class SqlOrderByWriter : SqlQueryWriter
     {
-        public SqlGroupByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SqlOrderByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
 
         }
@@ -16,18 +17,18 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Aggregate;
+                return FragmentType.Sort;
             }
         }
 
         protected override T OnWrite<T>(T fragment)
         {
-            if (fragment is IAggregateBuilder)
+            if (fragment is ISortBuilder)
             {
-                var expression = fragment as IAggregateBuilder;
+                var expression = fragment as ISortBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.GROUP_BY);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ORDER_BY);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -52,9 +53,33 @@ namespace FoxDb
             }
         }
 
+        protected override void VisitColumn(IColumnBuilder expression)
+        {
+            base.VisitColumn(expression);
+            this.VisitDirection(expression.Direction);
+        }
+
+        protected virtual void VisitDirection(OrderByDirection direction)
+        {
+            switch (direction)
+            {
+                case OrderByDirection.None:
+                    break;
+                case OrderByDirection.Ascending:
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ASC);
+                    break;
+                case OrderByDirection.Descending:
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DESC);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public override IFragmentBuilder Clone()
         {
             throw new NotImplementedException();
         }
     }
 }
+

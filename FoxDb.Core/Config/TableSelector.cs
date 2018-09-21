@@ -17,7 +17,7 @@ namespace FoxDb
 
         public TableFlags Flags { get; private set; }
 
-        public TableSelectorType Type { get; private set; }
+        public TableSelectorType SelectorType { get; private set; }
 
         public static ITableSelector By(string identifier, string tableName, TableFlags flags)
         {
@@ -26,7 +26,7 @@ namespace FoxDb
                 Identifier = identifier,
                 TableName = tableName,
                 Flags = flags,
-                Type = TableSelectorType.TableName
+                SelectorType = TableSelectorType.TableName
             };
         }
 
@@ -37,7 +37,7 @@ namespace FoxDb
                 Identifier = identifier,
                 TableType = tableType,
                 Flags = flags,
-                Type = TableSelectorType.TableType
+                SelectorType = TableSelectorType.TableType
             };
         }
 
@@ -49,7 +49,7 @@ namespace FoxDb
                 LeftTable = leftTable,
                 RightTable = rightTable,
                 Flags = flags,
-                Type = TableSelectorType.Mapping
+                SelectorType = TableSelectorType.Mapping
             };
         }
     }

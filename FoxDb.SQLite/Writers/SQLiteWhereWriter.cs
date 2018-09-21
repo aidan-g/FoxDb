@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public class SQLiteWhereWriter : SqlWhereWriter
     {
-        public SQLiteWhereWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SQLiteWhereWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
         }
 
@@ -27,13 +28,13 @@ namespace FoxDb
                     }
                     this.Visit(this.Graph.RelationManager.Calculator, this.Graph.RelationManager.CalculatedRelations, first);
                 }
-                if (expression.Limit != 0)
+                if (expression.Limit.HasValue)
                 {
-                    this.Visitor.Visit(this, this.Graph, new LimitBuilder(this, this.Graph, expression.Limit));
+                    this.Visitor.Visit(this, this.Graph, new LimitBuilder(this, this.Graph, expression.Limit.Value));
                 }
-                if (expression.Offset != 0)
+                if (expression.Offset.HasValue)
                 {
-                    this.Visitor.Visit(this, this.Graph, new OffsetBuilder(this, this.Graph, expression.Offset));
+                    this.Visitor.Visit(this, this.Graph, new OffsetBuilder(this, this.Graph, expression.Offset.Value));
                 }
                 return fragment;
             }

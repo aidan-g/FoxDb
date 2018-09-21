@@ -1,7 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -9,7 +9,7 @@ namespace FoxDb
     {
         public IIndexConfig Create(ITableConfig table, IIndexSelector selector)
         {
-            switch (selector.Type)
+            switch (selector.SelectorType)
             {
                 case IndexSelectorType.Columns:
                     return this.Create(table, selector.Identifier, selector.IndexName, selector.Columns, selector.Flags);

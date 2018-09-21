@@ -36,11 +36,11 @@ namespace FoxDb
         {
             foreach (var parameter in query.Parameters)
             {
-                if (parameter.Type == ParameterType.None)
+                if (parameter.IsDeclared)
                 {
                     continue;
                 }
-                CreateParameter(command, parameter.Name, parameter.Type);
+                CreateParameter(command, parameter.Name, parameter.Type, parameter.Direction);
             }
             var parameters = new DatabaseParameters(database, query, command.Parameters);
             if (handler != null)
@@ -50,10 +50,12 @@ namespace FoxDb
             return parameters;
         }
 
-        public static void CreateParameter(IDbCommand command, string name, ParameterType type)
+        public static void CreateParameter(IDbCommand command, string name, DbType type, ParameterDirection direction)
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = name;
+            parameter.DbType = type;
+            parameter.Direction = direction;
             command.Parameters.Add(parameter);
         }
 
@@ -148,6 +150,14 @@ namespace FoxDb
             foreach (var element in sequence)
             {
                 collection.Add(element);
+            }
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action)
+        {
+            foreach (var element in sequence)
+            {
+                action(element);
             }
         }
     }

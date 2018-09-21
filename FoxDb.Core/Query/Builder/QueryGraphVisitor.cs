@@ -6,9 +6,14 @@ namespace FoxDb
 {
     public abstract class QueryGraphVisitor : IQueryGraphVisitor
     {
-        protected static readonly IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers = GetHandlers();
+        protected QueryGraphVisitor()
+        {
+            this.Handlers = this.GetHandlers();
+        }
 
-        protected static IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
+        protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
+
+        protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             return new Dictionary<FragmentType, QueryGraphVisitorHandler>()
             {
@@ -67,8 +72,16 @@ namespace FoxDb
         protected abstract void VisitAlter(IFragmentBuilder parent, IQueryGraphBuilder graph, IAlterBuilder expression);
 
         protected abstract void VisitDrop(IFragmentBuilder parent, IQueryGraphBuilder graph, IDropBuilder expression);
+    }
 
-        public abstract IDatabaseQuery Query { get; }
+    public abstract class QueryGraphVisitor<T> : QueryGraphVisitor, IQueryGraphVisitor<T>
+    {
+        protected QueryGraphVisitor()
+        {
+
+        }
+
+        public abstract T Result { get; protected set; }
     }
 
     public delegate void QueryGraphVisitorHandler(QueryGraphVisitor visitor, IFragmentBuilder parent, IQueryGraphBuilder graph, IFragmentBuilder fragment);

@@ -37,13 +37,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces\Rewriters\ISqlQueryRewriter.cs" />
     <Compile Include="Interfaces\Writers\ISqlQueryWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewriters\SqlWhereRewriter.cs" />
+    <Compile Include="Rewriters\SqlOrderByRewriter.cs" />
+    <Compile Include="Rewriters\SqlSelectRewriter.cs" />
     <Compile Include="SqlQueryFragment.cs" />
     <Compile Include="SqlQueryBuilder.cs" />
-    <Compile Include="SqlQueryBuilderVisitor.cs" />
+    <Compile Include="SqlQueryRenderer.cs" />
     <Compile Include="SqlQueryFactory.cs" />
     <Compile Include="SqlQueryDialect.cs" />
+    <Compile Include="Rewriters\SqlQueryRewriter.cs" />
     <Compile Include="SqlQueryTypes.cs" />
     <Compile Include="SqlSchemaFactory.cs" />
     <Compile Include="Writers\SqlAlterWriter.cs" />

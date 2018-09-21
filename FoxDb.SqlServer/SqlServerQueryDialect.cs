@@ -42,46 +42,6 @@ namespace FoxDb
             }
         }
 
-        public string CASE
-        {
-            get
-            {
-                return "CASE";
-            }
-        }
-
-        public string WHEN
-        {
-            get
-            {
-                return "WHEN";
-            }
-        }
-
-        public string THEN
-        {
-            get
-            {
-                return "THEN";
-            }
-        }
-
-        public string ELSE
-        {
-            get
-            {
-                return "ELSE";
-            }
-        }
-
-        public string END
-        {
-            get
-            {
-                return "END";
-            }
-        }
-
         public override string BATCH
         {
             get
@@ -95,6 +55,54 @@ namespace FoxDb
             get
             {
                 return string.Format("IDENTITY {0}", base.PRIMARY_KEY);
+            }
+        }
+
+        public string FETCH
+        {
+            get
+            {
+                return "FETCH";
+            }
+        }
+
+        public string NEXT
+        {
+            get
+            {
+                return "NEXT";
+            }
+        }
+
+        public string ROWS
+        {
+            get
+            {
+                return "ROWS";
+            }
+        }
+
+        public string ROW_NUMBER
+        {
+            get
+            {
+                return "ROW_NUMBER";
+            }
+        }
+
+        public string OVER
+        {
+            get
+            {
+                return "OVER";
+            }
+        }
+
+        public string ONLY
+        {
+            get
+            {
+                return "ONLY";
             }
         }
     }

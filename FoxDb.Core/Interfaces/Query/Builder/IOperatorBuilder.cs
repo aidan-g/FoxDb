@@ -24,6 +24,7 @@
         OrElse,
         OpenParentheses,
         CloseParentheses,
+        Between,
         //Mathmatical
         Add,
         //Other

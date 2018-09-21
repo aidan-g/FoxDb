@@ -101,7 +101,7 @@ namespace FoxDb
 
         public static IDatabaseQuery Create(this IDatabaseQueryFactory factory, string commandText, params string[] parameters)
         {
-            return factory.Create(commandText, parameters.Select(parameter => new DatabaseQueryParameter(parameter, ParameterType.Input)).ToArray());
+            return factory.Create(commandText, parameters.Select(parameter => new DatabaseQueryParameter(parameter)).ToArray());
         }
     }
 }

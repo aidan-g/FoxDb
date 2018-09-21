@@ -16,7 +16,8 @@ namespace FoxDb
             this.Filter.Touch(); //TODO: Relation manager requires filtering.
         }
 
-        public QueryGraphBuilder(IDatabase database) : this()
+        public QueryGraphBuilder(IDatabase database)
+            : this()
         {
             this.Database = database;
         }
@@ -24,6 +25,8 @@ namespace FoxDb
         public ICollection<IFragmentBuilder> Fragments { get; private set; }
 
         public IDatabase Database { get; private set; }
+
+        public IQueryGraphBuilder Parent { get; set; }
 
         public IRelationManager RelationManager { get; private set; }
 
@@ -143,7 +146,8 @@ namespace FoxDb
             this.Database = database;
         }
 
-        public AggregateQueryGraphBuilder(IDatabase database, IEnumerable<IQueryGraphBuilder> queries) : this(database)
+        public AggregateQueryGraphBuilder(IDatabase database, IEnumerable<IQueryGraphBuilder> queries)
+            : this(database)
         {
             this.Queries = queries;
         }
@@ -178,6 +182,18 @@ namespace FoxDb
         IRelationManager IQueryGraphBuilder.RelationManager
         {
             get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        IQueryGraphBuilder IQueryGraphBuilder.Parent
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
             {
                 throw new NotImplementedException();
             }

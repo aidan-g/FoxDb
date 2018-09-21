@@ -14,7 +14,8 @@ namespace FoxDb
             this.Expression = this.CreateConstraint();
         }
 
-        protected RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable) : this(config)
+        protected RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable)
+            : this(config)
         {
             this.Flags = flags;
             this.Identifier = identifier;
@@ -207,7 +208,8 @@ namespace FoxDb
 
     public class RelationConfig<T, TRelation> : RelationConfig, IRelationConfig<T, TRelation>
     {
-        public RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig parent, ITableConfig table, IPropertyAccessor<T, TRelation> accessor) : base(config, flags, identifier, parent, null, table)
+        public RelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig parent, ITableConfig table, IPropertyAccessor<T, TRelation> accessor)
+            : base(config, flags, identifier, parent, null, table)
         {
             this.Accessor = accessor;
         }
@@ -231,7 +233,14 @@ namespace FoxDb
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.RightTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                if (this.RightTable.TryCreateColumn(
+                    ColumnConfig.By(
+                        Conventions.RelationColumn(this.LeftTable),
+                        this.LeftTable.PrimaryKey.ColumnType,
+                        Defaults.Column.Flags
+                    ),
+                    out column
+                ))
                 {
                     this.Expression.Right = this.Expression.CreateColumn(column);
                     column.IsForeignKey = true;

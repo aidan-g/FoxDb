@@ -1,7 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Data;
 
 namespace FoxDb
 {
@@ -36,18 +36,29 @@ namespace FoxDb
                 { typeof(IIndexBuilder), (parent, graph) => new IndexBuilder(parent, graph) },
                 { typeof(IParameterBuilder), (parent, graph) => new ParameterBuilder(parent, graph) },
                 { typeof(IFunctionBuilder), (parent, graph) => new FunctionBuilder(parent, graph) },
+                { typeof(IWindowFunctionBuilder), (parent, graph) => new WindowFunctionBuilder(parent, graph) },
                 { typeof(IOperatorBuilder), (parent, graph) => new OperatorBuilder(parent, graph) },
                 { typeof(IConstantBuilder), (parent, graph) => new ConstantBuilder(parent, graph) },
                 { typeof(ISequenceBuilder), (parent, graph) => new SequenceBuilder(parent, graph) },
                 { typeof(IIdentifierBuilder), (parent, graph) => new IdentifierBuilder(parent, graph) },
+                { typeof(ICaseBuilder), (parent, graph) => new CaseBuilder(parent, graph) },
+                { typeof(ICaseConditionBuilder), (parent, graph) => new CaseConditionBuilder(parent, graph) }
             };
         }
 
+        private FragmentBuilder()
+        {
+            this.Id = Unique.New;
+        }
+
         protected FragmentBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : this()
         {
             this.Parent = parent;
             this.Graph = graph;
         }
+
+        public string Id { get; private set; }
 
         public IFragmentBuilder Parent { get; private set; }
 
@@ -137,6 +148,14 @@ namespace FoxDb
             return this.Fragment<IColumnBuilder>().With(builder => builder.Column = column);
         }
 
+        public IEnumerable<IColumnBuilder> CreateColumns(IEnumerable<IColumnConfig> columns)
+        {
+            foreach (var column in columns)
+            {
+                yield return this.CreateColumn(column);
+            }
+        }
+
         public IIndexBuilder CreateIndex(IIndexConfig index)
         {
             if (index == null)
@@ -146,18 +165,65 @@ namespace FoxDb
             return this.Fragment<IIndexBuilder>().With(builder => builder.Index = index);
         }
 
-        public IParameterBuilder CreateParameter(string name)
+        public IParameterBuilder CreateParameter(string name, Type type, ParameterDirection direction = ParameterDirection.Input)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new NotImplementedException();
             }
-            return this.Fragment<IParameterBuilder>().With(builder => builder.Name = name);
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            return this.Fragment<IParameterBuilder>().With(builder =>
+            {
+                builder.Name = name;
+                builder.Type = global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(
+                    Type.GetTypeCode(TypeHelper.GetInterimType(type))
+                );
+                builder.Direction = ParameterDirection.Input;
+            });
+        }
+
+        public IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new NotImplementedException();
+            }
+            return this.Fragment<IParameterBuilder>().With(builder =>
+            {
+                builder.Name = name;
+                builder.Type = type;
+                builder.Direction = direction;
+            });
+        }
+
+        public IParameterBuilder CreateParameter(string name, object value, ParameterDirection direction = ParameterDirection.Input)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new NotImplementedException();
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            return this.CreateParameter(name, value.GetType(), direction);
         }
 
         public IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
             return this.Fragment<IFunctionBuilder>().With(builder =>
+            {
+                builder.Function = function;
+                builder.AddArguments(arguments);
+            });
+        }
+
+        public IWindowFunctionBuilder CreateWindowFunction(QueryWindowFunction function, params IExpressionBuilder[] arguments)
+        {
+            return this.Fragment<IWindowFunctionBuilder>().With(builder =>
             {
                 builder.Function = function;
                 builder.AddArguments(arguments);
@@ -221,6 +287,26 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
             return this.Fragment<IIdentifierBuilder>().With(builder => builder.Identifier = identifier);
+        }
+
+        public ICaseBuilder CreateCase(params ICaseConditionBuilder[] expressions)
+        {
+            return this.Fragment<ICaseBuilder>().With(builder =>
+            {
+                foreach (var expression in expressions)
+                {
+                    builder.Write(expression);
+                }
+            });
+        }
+
+        public ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder condition, IFragmentBuilder result)
+        {
+            return this.Fragment<ICaseConditionBuilder>().With(builder =>
+            {
+                builder.Condition = condition;
+                builder.Result = result;
+            });
         }
 
         public abstract IFragmentBuilder Clone();

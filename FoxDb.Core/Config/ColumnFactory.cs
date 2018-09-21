@@ -9,7 +9,7 @@ namespace FoxDb
     {
         public IColumnConfig Create(ITableConfig table, IColumnSelector selector)
         {
-            switch (selector.Type)
+            switch (selector.SelectorType)
             {
                 case ColumnSelectorType.ColumnName:
                     var property = PropertyResolutionStrategy.GetProperty(table.TableType, selector.ColumnName);
@@ -36,21 +36,11 @@ namespace FoxDb
             {
                 columnType = Defaults.Column.Type;
             }
-            var attribute = new ColumnAttribute()
+            if (string.IsNullOrEmpty(identifier))
             {
-                Flags = flags,
-                Name = columnName,
-                Identifier = identifier,
-                Type = columnType.Type,
-                Size = columnType.Size,
-                Precision = columnType.Precision,
-                Scale = columnType.Scale
-            };
-            if (string.IsNullOrEmpty(attribute.Identifier))
-            {
-                attribute.Identifier = string.Format("{0}_{1}", table.TableName, columnName);
+                identifier = string.Format("{0}_{1}", table.TableName, columnName);
             }
-            return new ColumnConfig(table.Config, attribute.Flags, attribute.Identifier, table, attribute.Name, new TypeConfig(attribute), null, null, null);
+            return new ColumnConfig(table.Config, flags, identifier, table, columnName, columnType, null, null, null);
         }
 
         public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, Expression expression, ColumnFlags flags)
@@ -83,7 +73,23 @@ namespace FoxDb
                 attribute.Identifier = string.Format("{0}_{1}", table.TableName, Conventions.ColumnName(property));
             }
             var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
-            return new ColumnConfig(table.Config, attribute.Flags, attribute.Identifier, table, attribute.Name, new TypeConfig(attribute), property, accessor.Get, accessor.Set);
+            return new ColumnConfig(
+                table.Config,
+                attribute.Flags,
+                attribute.Identifier,
+                table,
+                attribute.Name,
+                new TypeConfig(
+                    attribute.Type.HasValue ? attribute.Type.Value : columnType.Type,
+                    attribute.Size.HasValue ? attribute.Size.Value : columnType.Size,
+                    attribute.Precision.HasValue ? attribute.Precision.Value : columnType.Precision,
+                    attribute.Scale.HasValue ? attribute.Scale.Value : columnType.Scale,
+                    attribute.IsNullable.HasValue ? attribute.IsNullable.Value : columnType.IsNullable
+                ),
+                property,
+                accessor.Get,
+                accessor.Set
+            );
         }
     }
 }

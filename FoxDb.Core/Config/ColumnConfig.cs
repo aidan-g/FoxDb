@@ -124,12 +124,22 @@ namespace FoxDb
 
         public static IColumnSelector By(string columnName, ColumnFlags flags)
         {
-            return By(string.Empty, columnName, flags);
+            return By(string.Empty, columnName, null, flags);
         }
 
         public static IColumnSelector By(string identifier, string columnName, ColumnFlags flags)
         {
-            return ColumnSelector.By(identifier, columnName, flags);
+            return By(identifier, columnName, null, flags);
+        }
+
+        public static IColumnSelector By(string columnName, ITypeConfig columnType, ColumnFlags flags)
+        {
+            return By(string.Empty, columnName, columnType, flags);
+        }
+
+        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
+        { 
+            return ColumnSelector.By(identifier, columnName, columnType, flags);
         }
 
         public static IColumnSelector By(PropertyInfo property, ColumnFlags flags)

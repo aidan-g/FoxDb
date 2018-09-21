@@ -1,9 +1,15 @@
-﻿namespace FoxDb.Interfaces
+﻿using System.Data;
+
+namespace FoxDb.Interfaces
 {
     public interface IParameterBuilder : IExpressionBuilder
     {
         string Name { get; set; }
 
-        ParameterType Type { get; set; }
+        DbType Type { get; set; }
+
+        ParameterDirection Direction { get; set; }
+
+        bool IsDeclared { get; set; }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb
 {
     public class FilterBuilder : FragmentBuilder, IFilterBuilder
     {
-        public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public FilterBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -20,11 +22,13 @@ namespace FoxDb
             }
         }
 
-        public int Limit { get; set; }
+        public int? Limit { get; set; }
 
         public LimitType LimitType { get; set; }
 
-        public int Offset { get; set; }
+        public int? Offset { get; set; }
+
+        public OffsetType OffsetType { get; set; }
 
         public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
@@ -49,7 +53,7 @@ namespace FoxDb
             var expression = this.Fragment<IBinaryExpressionBuilder>();
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
-            expression.Right = this.CreateParameter(Conventions.ParameterName(column));
+            expression.Right = this.CreateParameter(Conventions.ParameterName(column), column.ColumnType.Type, ParameterDirection.Input);
             this.Expressions.Add(expression);
             return expression;
         }
@@ -111,7 +115,9 @@ namespace FoxDb
             return this.Parent.Fragment<IFilterBuilder>().With(builder =>
             {
                 builder.Limit = this.Limit;
+                builder.LimitType = this.LimitType;
                 builder.Offset = this.Offset;
+                builder.OffsetType = this.OffsetType;
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

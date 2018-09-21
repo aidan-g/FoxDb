@@ -53,6 +53,8 @@
     <Compile Include="Utility\EnumerableVisitor_First.cs" />
     <Compile Include="Utility\EnumerableVisitor_OrderBy.cs" />
     <Compile Include="Utility\EnumerableVisitor_Select.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Take.cs" />
+    <Compile Include="Utility\EnumerableVisitor_Skip.cs" />
     <Compile Include="Utility\EnumerableVisitor_Where.cs" />
   </ItemGroup>
   <ItemGroup>

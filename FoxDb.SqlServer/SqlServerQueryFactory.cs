@@ -1,8 +1,9 @@
 ﻿using FoxDb.Interfaces;
+using System.Data;
 
 namespace FoxDb
 {
-   public class SqlServerQueryFactory: SqlQueryFactory
+    public class SqlServerQueryFactory : SqlQueryFactory
     {
         public SqlServerQueryFactory(IDatabase database)
             : base(database)
@@ -30,7 +31,7 @@ namespace FoxDb
         public override IQueryGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
-            builder.Output.AddParameter(SqlServerQueryParameter.Identity).Type = ParameterType.None;
+            builder.Output.AddParameter(SqlServerQueryParameter.Identity, DbType.Object, (ParameterDirection)0).IsDeclared = true;
             return this.Combine(new[] { base.Add(table), builder });
         }
 

@@ -6,18 +6,13 @@ namespace FoxDb
 {
     public class TypeConfig : ITypeConfig
     {
-        public TypeConfig(ColumnAttribute attribute)
-            : this(attribute.Type, attribute.Size, attribute.Precision, attribute.Scale)
-        {
-
-        }
-
-        public TypeConfig(DbType type, int size = 0, int precision = 0, int scale = 0)
+        public TypeConfig(DbType type, int size, int precision, int scale, bool isNullable)
         {
             this.Type = type;
             this.Size = size;
             this.Precision = precision;
             this.Scale = scale;
+            this.IsNullable = isNullable;
         }
 
         public DbType Type { get; set; }
@@ -29,6 +24,11 @@ namespace FoxDb
         public int Scale { get; set; }
 
         public bool IsNullable { get; set; }
+
+        public static ITypeSelector By(DbType? type = null, int? size = null, int? precision = null, int? scale = null, bool? isNullable = null)
+        {
+            return TypeSelector.By(type, size, precision, scale, isNullable);
+        }
 
         public static ITypeSelector By(PropertyInfo property)
         {

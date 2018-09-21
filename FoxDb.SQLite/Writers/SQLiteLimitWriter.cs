@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class SQLiteLimitWriter : SqlQueryWriter
     {
-        public SQLiteLimitWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SQLiteLimitWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
             this.Dialect = this.Database.QueryFactory.Dialect as SQLiteQueryDialect;
         }
@@ -26,10 +27,7 @@ namespace FoxDb
             if (fragment is ILimitBuilder)
             {
                 var expression = fragment as ILimitBuilder;
-                if (expression.Limit != 0)
-                {
-                    this.Builder.AppendFormat("{0} {1} ", this.Dialect.LIMIT, expression.Limit);
-                }
+                this.Builder.AppendFormat("{0} {1} ", this.Dialect.LIMIT, expression.Limit);
                 return fragment;
             }
             throw new NotImplementedException();

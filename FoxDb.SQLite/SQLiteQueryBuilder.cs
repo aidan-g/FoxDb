@@ -8,9 +8,14 @@ namespace FoxDb
         {
         }
 
-        public override IQueryGraphVisitor CreateVisitor(IDatabase database)
+        public override IQueryGraphVisitor<IQueryGraphBuilder> CreateRewriter(IDatabase database)
         {
-            return new SQLiteQueryBuilderVisitor(database);
+            return new SQLiteQueryRewriter(database);
+        }
+
+        public override IQueryGraphVisitor<IDatabaseQuery> CreateRenderer(IDatabase database)
+        {
+            return new SQLiteQueryRenderer(database);
         }
     }
 }

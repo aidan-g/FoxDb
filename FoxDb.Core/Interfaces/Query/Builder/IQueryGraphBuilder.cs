@@ -7,6 +7,8 @@ namespace FoxDb.Interfaces
     {
         IRelationManager RelationManager { get; }
 
+        IQueryGraphBuilder Parent { get; set; }
+
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IOutputBuilder Output { get; }
 

@@ -70,6 +70,12 @@ namespace FoxDb
             this.VisitAlias(expression.Alias);
         }
 
+        protected override void VisitWindowFunction(IWindowFunctionBuilder expression)
+        {
+            base.VisitWindowFunction(expression);
+            this.VisitAlias(expression.Alias);
+        }
+
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             if (this.GetRenderContext().HasFlag(RenderHints.FunctionArgument))

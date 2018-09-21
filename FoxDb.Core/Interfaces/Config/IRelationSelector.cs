@@ -14,7 +14,7 @@ namespace FoxDb.Interfaces
 
         RelationFlags Flags { get; }
 
-        RelationSelectorType Type { get; }
+        RelationSelectorType SelectorType { get; }
     }
 
     public interface IRelationSelector<T, TRelation> : IRelationSelector

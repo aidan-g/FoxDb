@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
@@ -10,15 +11,15 @@ namespace FoxDb.Interfaces
 
         IOutputBuilder AddColumns(IEnumerable<IColumnConfig> columns);
 
-        IParameterBuilder AddParameter(string name);
+        IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction);
 
         IParameterBuilder AddParameter(IColumnConfig column);
-
-        IOutputBuilder AddParameters(IEnumerable<string> names);
 
         IOutputBuilder AddParameters(IEnumerable<IColumnConfig> columns);
 
         IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments);
+
+        IWindowFunctionBuilder AddWindowFunction(QueryWindowFunction function, params IExpressionBuilder[] arguments);
 
         IOperatorBuilder AddOperator(QueryOperator @operator);
 

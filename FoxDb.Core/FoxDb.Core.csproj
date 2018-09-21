@@ -112,10 +112,13 @@
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
+    <Compile Include="Interfaces\Query\Builder\ICaseConditionBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\ICaseBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IIdentifierBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IIndexBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IRelationBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ISequenceBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IWindowFunctionBuilder.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryCache.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryParameter.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposer.cs" />
@@ -161,6 +164,8 @@
     <Compile Include="Interfaces\Utility\IPropertyAccessorStrategy.cs" />
     <Compile Include="Provider.cs" />
     <Compile Include="Query\Builder\BinaryExpressionBuilder.cs" />
+    <Compile Include="Query\Builder\CaseConditionBuilder.cs" />
+    <Compile Include="Query\Builder\CaseBuilder.cs" />
     <Compile Include="Query\Builder\ColumnBuilder.cs" />
     <Compile Include="Query\Builder\ConstantBuilder.cs" />
     <Compile Include="Query\Builder\DeleteBuilder.cs" />
@@ -168,6 +173,7 @@
     <Compile Include="Query\Builder\Extensions.cs" />
     <Compile Include="Query\Builder\FragmentBuilder.cs" />
     <Compile Include="Query\Builder\AggregateBuilder.cs" />
+    <Compile Include="Query\Builder\WindowFunctionBuilder.cs" />
     <Compile Include="Query\Builder\IdentifierBuilder.cs" />
     <Compile Include="Query\Builder\IndexBuilder.cs" />
     <Compile Include="Query\Builder\RelationBuilder.cs" />
@@ -251,6 +257,7 @@
     <Compile Include="Utility\PropertyAccessorFactory.cs" />
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
+    <Compile Include="Utility\TypeHelper.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

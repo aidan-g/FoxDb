@@ -4,7 +4,8 @@ namespace FoxDb
 {
     public class SubQueryBuilder : ExpressionBuilder, ISubQueryBuilder
     {
-        public SubQueryBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public SubQueryBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
 
         }
@@ -17,7 +18,29 @@ namespace FoxDb
             }
         }
 
-        public IQueryGraphBuilder Query { get; set; }
+        private IQueryGraphBuilder _Query { get; set; }
+
+        public IQueryGraphBuilder Query
+        {
+            get
+            {
+                return this._Query;
+            }
+            set
+            {
+                this._Query = value;
+                this.OnQueryChanged();
+            }
+        }
+
+        protected virtual void OnQueryChanged()
+        {
+            if (this.Query == null)
+            {
+                return;
+            }
+            this.Query.Parent = this.Graph;
+        }
 
         public override IFragmentBuilder Clone()
         {

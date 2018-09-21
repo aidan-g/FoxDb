@@ -15,7 +15,7 @@ namespace FoxDb
 
         public RelationFlags Flags { get; protected set; }
 
-        public RelationSelectorType Type { get; protected set; }
+        public RelationSelectorType SelectorType { get; protected set; }
 
         public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags flags)
         {
@@ -24,7 +24,7 @@ namespace FoxDb
                 Identifier = identifier,
                 Property = property,
                 Flags = flags,
-                Type = RelationSelectorType.Property
+                SelectorType = RelationSelectorType.Property
             };
         }
 
@@ -35,7 +35,7 @@ namespace FoxDb
                 Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
-                Type = RelationSelectorType.Expression
+                SelectorType = RelationSelectorType.Expression
             };
         }
     }
@@ -61,7 +61,7 @@ namespace FoxDb
                 Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
-                Type = RelationSelectorType.Expression
+                SelectorType = RelationSelectorType.Expression
             };
         }
     }

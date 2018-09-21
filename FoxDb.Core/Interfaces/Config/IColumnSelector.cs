@@ -18,7 +18,7 @@ namespace FoxDb.Interfaces
 
         ColumnFlags Flags { get; }
 
-        ColumnSelectorType Type { get; }
+        ColumnSelectorType SelectorType { get; }
     }
 
     public interface IColumnSelector<T, TRelation> : IColumnSelector

@@ -31,6 +31,8 @@ namespace FoxDb
                 { new MethodVisitorKey(typeof(Enumerable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
                 { new MethodVisitorKey(typeof(Enumerable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
                 { new MethodVisitorKey(typeof(Enumerable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
+                { new MethodVisitorKey(typeof(Enumerable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },                
+                { new MethodVisitorKey(typeof(Enumerable), "Take"), (visitor, node) => visitor.VisitTake(node) },
                 //Queryable
                 { new MethodVisitorKey(typeof(Queryable), "Count"), (visitor, node) => visitor.VisitCount(node) },
                 { new MethodVisitorKey(typeof(Queryable), "Any"), (visitor, node) => visitor.VisitAny(node) },
@@ -42,6 +44,8 @@ namespace FoxDb
                 { new MethodVisitorKey(typeof(Queryable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
                 { new MethodVisitorKey(typeof(Queryable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
                 { new MethodVisitorKey(typeof(Queryable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
+                { new MethodVisitorKey(typeof(Queryable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },                
+                { new MethodVisitorKey(typeof(Queryable), "Take"), (visitor, node) => visitor.VisitTake(node) },
                 //Collection
                 { new MethodVisitorKey(typeof(ICollection<>), "Contains"), (visitor, node) => visitor.VisitContains(node) }
             };
@@ -209,6 +213,17 @@ namespace FoxDb
                 }
                 this.Constants[key] = target.Constants[key];
             }
+        }
+
+        protected virtual bool TryGetTable(Expression expression, out ITableConfig result)
+        {
+            var type = expression.Type;
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericArguments()[0];
+            }
+            result = this.Database.Config.GetTable(TableConfig.By(type, Defaults.Table.Flags));
+            return result != null;
         }
 
         protected virtual bool TryGetTable(MemberInfo member, out ITableConfig result)
@@ -411,7 +426,7 @@ namespace FoxDb
         protected virtual IParameterBuilder VisitParameter(object value)
         {
             var name = this.GetParameterName();
-            var parameter = this.Peek.Write(this.Peek.CreateParameter(name));
+            var parameter = this.Peek.Write(this.Peek.CreateParameter(name, value));
             this.Peek.Constants[name] = value;
             return parameter;
         }

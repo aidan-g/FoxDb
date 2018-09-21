@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System.Data;
 
 namespace FoxDb
 {
@@ -30,7 +31,7 @@ namespace FoxDb
         public override IQueryGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
-            builder.Output.AddParameter(SqlCeQueryParameter.Identity).Type = ParameterType.None;
+            builder.Output.AddParameter(SqlCeQueryParameter.Identity, DbType.Object, (ParameterDirection)0).IsDeclared = true;
             return this.Combine(new[] { base.Add(table), builder });
         }
 

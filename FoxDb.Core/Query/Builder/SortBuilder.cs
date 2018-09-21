@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public class SortBuilder : FragmentBuilder, ISortBuilder
     {
-        public SortBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public SortBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -51,7 +52,7 @@ namespace FoxDb
             var table = this.Parent as ITableBuilder;
             if (table == null && fragment.GetSourceTable(out table))
             {
-                if (table.Filter.Limit != 0)
+                if (table.Filter.Limit.HasValue)
                 {
                     table.Sort.Write(fragment);
                     return fragment;

@@ -5,9 +5,10 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class SqlOrderByWriter : SqlQueryWriter
+    public class SqlGroupByWriter : SqlQueryWriter
     {
-        public SqlOrderByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SqlGroupByWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
 
         }
@@ -16,18 +17,18 @@ namespace FoxDb
         {
             get
             {
-                return FragmentType.Sort;
+                return FragmentType.Aggregate;
             }
         }
 
         protected override T OnWrite<T>(T fragment)
         {
-            if (fragment is ISortBuilder)
+            if (fragment is IAggregateBuilder)
             {
-                var expression = fragment as ISortBuilder;
+                var expression = fragment as IAggregateBuilder;
                 if (expression.Expressions.Any())
                 {
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ORDER_BY);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.GROUP_BY);
                     this.Visit(expression.Expressions);
                 }
                 return fragment;
@@ -49,29 +50,6 @@ namespace FoxDb
                     this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.LIST_DELIMITER);
                 }
                 this.Visit(expression);
-            }
-        }
-
-        protected override void VisitColumn(IColumnBuilder expression)
-        {
-            base.VisitColumn(expression);
-            this.VisitDirection(expression.Direction);
-        }
-
-        protected virtual void VisitDirection(OrderByDirection direction)
-        {
-            switch (direction)
-            {
-                case OrderByDirection.None:
-                    break;
-                case OrderByDirection.Ascending:
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ASC);
-                    break;
-                case OrderByDirection.Descending:
-                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.DESC);
-                    break;
-                default:
-                    throw new NotImplementedException();
             }
         }
 

@@ -15,7 +15,7 @@ namespace FoxDb
 
         public IndexFlags Flags { get; private set; }
 
-        public IndexSelectorType Type { get; private set; }
+        public IndexSelectorType SelectorType { get; private set; }
 
         public static IIndexSelector By(string identifier, string indexName, IEnumerable<IColumnConfig> columns, IndexFlags flags)
         {
@@ -25,7 +25,7 @@ namespace FoxDb
                 IndexName = indexName,
                 Columns = columns,
                 Flags = flags,
-                Type = IndexSelectorType.Columns
+                SelectorType = IndexSelectorType.Columns
             };
         }
 
@@ -37,7 +37,7 @@ namespace FoxDb
                 IndexName = indexName,
                 ColumnNames = columnNames,
                 Flags = flags,
-                Type = IndexSelectorType.ColumnNames
+                SelectorType = IndexSelectorType.ColumnNames
             };
         }
     }

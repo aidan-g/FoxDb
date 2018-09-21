@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
     public interface IFragmentBuilder : IEquatable<IFragmentBuilder>, ICloneable<IFragmentBuilder>
     {
+        string Id { get; }
+
         IFragmentBuilder Parent { get; }
 
         IQueryGraphBuilder Graph { get; }
@@ -24,13 +28,21 @@ namespace FoxDb.Interfaces
 
         IColumnBuilder CreateColumn(IColumnConfig column);
 
-        IParameterBuilder CreateParameter(string name);
+        IEnumerable<IColumnBuilder> CreateColumns(IEnumerable<IColumnConfig> columns);
+
+        IParameterBuilder CreateParameter(string name, Type type, ParameterDirection direction = ParameterDirection.Input);
+
+        IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input);
+
+        IParameterBuilder CreateParameter(string name, object value, ParameterDirection direction = ParameterDirection.Input);
 
         IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments);
 
         IOperatorBuilder CreateOperator(QueryOperator @operator);
 
         IConstantBuilder CreateConstant(object value);
+
+        IIdentifierBuilder CreateIdentifier(string name);
 
         IBinaryExpressionBuilder CreateBinary(IFragmentBuilder left, QueryOperator @operator, IFragmentBuilder right);
 
@@ -39,6 +51,10 @@ namespace FoxDb.Interfaces
         IUnaryExpressionBuilder CreateUnary(QueryOperator @operator, IFragmentBuilder expression);
 
         IUnaryExpressionBuilder CreateUnary(IOperatorBuilder @operator, IFragmentBuilder expression);
+
+        ICaseBuilder CreateCase(params ICaseConditionBuilder[] expressions);
+
+        ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder condition, IFragmentBuilder result);
 
         ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions);
     }
@@ -56,6 +72,7 @@ namespace FoxDb.Interfaces
         Column,
         Index,
         Function,
+        WindowFunction,
         Parameter,
         Add,
         Update,
@@ -69,6 +86,8 @@ namespace FoxDb.Interfaces
         Create,
         Alter,
         Drop,
-        Identifier
+        Identifier,
+        Case,
+        CaseCondition
     }
 }

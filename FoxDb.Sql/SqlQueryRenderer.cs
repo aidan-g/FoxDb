@@ -6,33 +6,34 @@ using System.Text;
 
 namespace FoxDb
 {
-    public abstract class SqlQueryBuilderVisitor : QueryGraphVisitor
+    public abstract class SqlQueryRenderer : QueryGraphVisitor<IDatabaseQuery>
     {
-        private SqlQueryBuilderVisitor()
+        private SqlQueryRenderer()
         {
-            this.Members = new DynamicMethod<SqlQueryBuilderVisitor>();
             this.Parameters = new List<IDatabaseQueryParameter>();
             this.Targets = new Stack<IFragmentTarget>();
             this.Fragments = new List<SqlQueryFragment>();
         }
 
-        public SqlQueryBuilderVisitor(IDatabase database)
+        public SqlQueryRenderer(IDatabase database)
             : this()
         {
             this.Database = database;
         }
 
-        protected DynamicMethod<SqlQueryBuilderVisitor> Members { get; private set; }
-
         public ICollection<IDatabaseQueryParameter> Parameters { get; private set; }
 
         public IDatabase Database { get; private set; }
 
-        public override IDatabaseQuery Query
+        public override IDatabaseQuery Result
         {
             get
             {
                 return this.Database.QueryFactory.Create(this.CommandText, this.Parameters.ToArray());
+            }
+            protected set
+            {
+                throw new NotImplementedException();
             }
         }
 

@@ -14,7 +14,7 @@ namespace FoxDb.Interfaces
 
         IndexFlags Flags { get; }
 
-        IndexSelectorType Type { get; }
+        IndexSelectorType SelectorType { get; }
     }
 
     public enum IndexSelectorType : byte

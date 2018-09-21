@@ -1,19 +1,31 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Data;
 
 namespace FoxDb
 {
     public class DatabaseQueryParameter : IDatabaseQueryParameter
     {
-        public DatabaseQueryParameter(string name, ParameterType type)
+        public DatabaseQueryParameter(string name)
+            : this(name, DbType.Object)
+        {
+            this.IsDeclared = true;
+        }
+
+        public DatabaseQueryParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input)
         {
             this.Name = name;
             this.Type = type;
+            this.Direction = direction;
         }
 
         public string Name { get; private set; }
 
-        public ParameterType Type { get; private set; }
+        public DbType Type { get; private set; }
+
+        public ParameterDirection Direction { get; private set; }
+
+        public bool IsDeclared { get; private set; }
 
         public override int GetHashCode()
         {
@@ -25,6 +37,8 @@ namespace FoxDb
                     hashCode += this.Name.GetHashCode();
                 }
                 hashCode += this.Type.GetHashCode();
+                hashCode += this.Direction.GetHashCode();
+                hashCode += this.IsDeclared.GetHashCode();
             }
             return hashCode;
         }
@@ -45,6 +59,18 @@ namespace FoxDb
                 return false;
             }
             if (!string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            if (this.Type != other.Type)
+            {
+                return false;
+            }
+            if (this.Direction != other.Direction)
+            {
+                return false;
+            }
+            if (this.IsDeclared != other.IsDeclared)
             {
                 return false;
             }

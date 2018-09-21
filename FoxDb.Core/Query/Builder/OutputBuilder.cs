@@ -1,13 +1,14 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 
 namespace FoxDb
 {
     public class OutputBuilder : FragmentBuilder, IOutputBuilder
     {
-        public OutputBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public OutputBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -47,27 +48,18 @@ namespace FoxDb
             return this;
         }
 
-        public IParameterBuilder AddParameter(string name)
+        public IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction)
         {
-            var expression = this.CreateParameter(name);
+            var expression = this.CreateParameter(name, type, direction);
             this.Expressions.Add(expression);
             return expression;
         }
 
         public IParameterBuilder AddParameter(IColumnConfig column)
         {
-            var expression = this.CreateParameter(Conventions.ParameterName(column));
+            var expression = this.CreateParameter(Conventions.ParameterName(column), column.ColumnType.Type, ParameterDirection.Input);
             this.Expressions.Add(expression);
             return expression;
-        }
-
-        public IOutputBuilder AddParameters(IEnumerable<string> names)
-        {
-            foreach (var name in names)
-            {
-                this.AddParameter(name);
-            }
-            return this;
         }
 
         public IOutputBuilder AddParameters(IEnumerable<IColumnConfig> columns)
@@ -82,6 +74,13 @@ namespace FoxDb
         public IFunctionBuilder AddFunction(QueryFunction function, params IExpressionBuilder[] arguments)
         {
             var builder = this.CreateFunction(function, arguments);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
+        public IWindowFunctionBuilder AddWindowFunction(QueryWindowFunction function, params IExpressionBuilder[] arguments)
+        {
+            var builder = this.CreateWindowFunction(function, arguments);
             this.Expressions.Add(builder);
             return builder;
         }

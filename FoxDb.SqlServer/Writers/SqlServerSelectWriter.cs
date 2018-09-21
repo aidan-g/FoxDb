@@ -15,6 +15,13 @@ namespace FoxDb
 
         public SqlServerQueryDialect Dialect { get; private set; }
 
+        protected override IDictionary<QueryWindowFunction, SqlQueryWriterVisitorHandler> GetWindowFunctions()
+        {
+            var functions = base.GetWindowFunctions();
+            functions[SqlServerQueryWindowFunction.RowNumber] = (writer, fragment) => (writer as SqlServerSelectWriter).VisitRowNumber(fragment as IWindowFunctionBuilder);
+            return functions;
+        }
+
         protected override T OnWrite<T>(T fragment)
         {
             if (fragment is IOutputBuilder)
@@ -23,67 +30,41 @@ namespace FoxDb
                 if (expression.Expressions.Any())
                 {
                     this.Builder.AppendFormat("{0} ", this.Dialect.SELECT);
-                    if (this.Graph.Filter.Limit != 0)
+                    if (this.Graph.Filter.Limit.HasValue && !this.Graph.Filter.Offset.HasValue)
                     {
                         this.Builder.AppendFormat("{0} ", this.Dialect.TOP);
                         this.Builder.AppendFormat("{0} ", this.Graph.Filter.Limit);
                         switch (this.Graph.Filter.LimitType)
                         {
-                            case LimitType.None:
-                                break;
                             case LimitType.Percent:
                                 this.Builder.AppendFormat("{0} ", this.Dialect.PERCENT);
                                 break;
-                            default:
-                                throw new NotImplementedException();
                         }
                     }
                     this.Visit(expression.Expressions);
+                    return fragment;
                 }
-                return fragment;
             }
             throw new NotImplementedException();
         }
 
-        protected override void VisitUnary(IUnaryExpressionBuilder expression)
+        protected virtual void VisitRowNumber(IWindowFunctionBuilder expression)
         {
-            switch (expression.Operator.Operator)
+            this.Builder.AppendFormat("{0}{1}{2} ", this.Dialect.ROW_NUMBER, this.Dialect.OPEN_PARENTHESES, this.Dialect.CLOSE_PARENTHESES);
+            this.Builder.AppendFormat("{0}{1} ", this.Dialect.OVER, this.Dialect.OPEN_PARENTHESES);
+            if (expression.Expressions.Any())
             {
-                case QueryOperator.Not:
-                    //TODO Assuming expression to negate returns 1 for "true".
-                    this.Builder.AppendFormat("{0} ", this.Dialect.CASE);
-                    this.Builder.AppendFormat("{0} ", this.Dialect.WHEN);
-                    this.Builder.AppendFormat("{0} ", this.Dialect.NOT);
-                    this.Visit(expression.Expression);
-                    this.Builder.AppendFormat("{0} ", this.Dialect.EQUAL);
-                    this.Visit(this.CreateConstant(1));
-                    this.Builder.AppendFormat("{0} ", this.Dialect.THEN);
-                    this.Visit(this.CreateConstant(1));
-                    this.Builder.AppendFormat("{0} ", this.Dialect.ELSE);
-                    this.Visit(this.CreateConstant(0));
-                    this.Builder.AppendFormat("{0} ", this.Dialect.END);
-                    break;
+                this.AddRenderContext(RenderHints.FunctionArgument);
+                try
+                {
+                    this.Visit(expression.Expressions);
+                }
+                finally
+                {
+                    this.RemoveRenderContext();
+                }
             }
-        }
-
-        protected override void VisitFunction(IFunctionBuilder expression)
-        {
-            switch (expression.Function)
-            {
-                case QueryFunction.Exists:
-                    this.Builder.AppendFormat("{0} ", this.Dialect.CASE);
-                    this.Builder.AppendFormat("{0} ", this.Dialect.WHEN);
-                    base.VisitFunction(expression);
-                    this.Builder.AppendFormat("{0} ", this.Dialect.THEN);
-                    this.Visit(this.CreateConstant(1));
-                    this.Builder.AppendFormat("{0} ", this.Dialect.ELSE);
-                    this.Visit(this.CreateConstant(0));
-                    this.Builder.AppendFormat("{0} ", this.Dialect.END);
-                    break;
-                default:
-                    base.VisitFunction(expression);
-                    break;
-            }
+            this.Builder.AppendFormat("{0} ", this.Dialect.CLOSE_PARENTHESES);
         }
     }
 }

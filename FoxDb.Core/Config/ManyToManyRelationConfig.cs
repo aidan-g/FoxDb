@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class ManyToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public ManyToManyRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor) : base(config, flags, identifier, leftTable, mappingTable, rightTable, accessor)
+        public ManyToManyRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor)
+            : base(config, flags, identifier, leftTable, mappingTable, rightTable, accessor)
         {
 
         }
@@ -19,7 +20,14 @@ namespace FoxDb
             {
                 var column = default(IColumnConfig);
                 left.Left = this.Expression.CreateColumn(this.LeftTable.PrimaryKey);
-                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                if (this.MappingTable.TryCreateColumn(
+                    ColumnConfig.By(
+                        Conventions.RelationColumn(this.LeftTable),
+                        this.LeftTable.PrimaryKey.ColumnType,
+                        Defaults.Column.Flags
+                    ),
+                    out column
+                ))
                 {
                     left.Right = this.Expression.CreateColumn(column);
                     column.IsForeignKey = true;
@@ -30,7 +38,14 @@ namespace FoxDb
             {
                 var column = default(IColumnConfig);
                 right.Left = this.Expression.CreateColumn(this.RightTable.PrimaryKey);
-                if (this.MappingTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), Defaults.Column.Flags), out column))
+                if (this.MappingTable.TryCreateColumn(
+                    ColumnConfig.By(
+                        Conventions.RelationColumn(this.RightTable),
+                        this.RightTable.PrimaryKey.ColumnType,
+                        Defaults.Column.Flags
+                    ),
+                    out column
+                ))
                 {
                     right.Right = this.Expression.CreateColumn(column);
                     column.IsForeignKey = true;

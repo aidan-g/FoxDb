@@ -16,7 +16,7 @@ namespace FoxDb.Interfaces
 
         TableFlags Flags { get; }
 
-        TableSelectorType Type { get; }
+        TableSelectorType SelectorType { get; }
     }
 
     public enum TableSelectorType : byte

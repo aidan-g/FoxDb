@@ -9,6 +9,10 @@ namespace FoxDb
 
         public static PropertyInfo GetProperty(Type type, string name)
         {
+            if (typeof(EntityPlaceholder).IsAssignableFrom(type))
+            {
+                return null;
+            }
             return type.GetProperty(name, BINDING_FLAGS) ?? type.GetProperty(name);
         }
     }

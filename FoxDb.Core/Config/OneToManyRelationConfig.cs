@@ -5,7 +5,8 @@ namespace FoxDb
 {
     public class OneToManyRelationConfig<T, TRelation> : CollectionRelationConfig<T, TRelation>
     {
-        public OneToManyRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor) : base(config, flags, identifier, leftTable, null, rightTable, accessor)
+        public OneToManyRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor)
+            : base(config, flags, identifier, leftTable, null, rightTable, accessor)
         {
 
         }
@@ -19,7 +20,14 @@ namespace FoxDb
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.RightTable.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                if (this.RightTable.TryCreateColumn(
+                    ColumnConfig.By(
+                        Conventions.RelationColumn(this.LeftTable),
+                        this.LeftTable.PrimaryKey.ColumnType,
+                        Defaults.Column.Flags
+                    ),
+                    out column
+                ))
                 {
                     this.Expression.Right = this.Expression.CreateColumn(column);
                     column.IsForeignKey = true;

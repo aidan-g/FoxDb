@@ -339,6 +339,14 @@ namespace FoxDb
             }
         }
 
+        public virtual string BETWEEN
+        {
+            get
+            {
+                return "BETWEEN";
+            }
+        }
+
         public virtual string ADD
         {
             get
@@ -426,6 +434,46 @@ namespace FoxDb
             get
             {
                 return "PRIMARY KEY";
+            }
+        }
+
+        public virtual string CASE
+        {
+            get
+            {
+                return "CASE";
+            }
+        }
+
+        public virtual string WHEN
+        {
+            get
+            {
+                return "WHEN";
+            }
+        }
+
+        public virtual string THEN
+        {
+            get
+            {
+                return "THEN";
+            }
+        }
+
+        public virtual string ELSE
+        {
+            get
+            {
+                return "ELSE";
+            }
+        }
+
+        public virtual string END
+        {
+            get
+            {
+                return "END";
             }
         }
     }

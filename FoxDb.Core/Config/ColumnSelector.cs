@@ -18,16 +18,17 @@ namespace FoxDb
 
         public ColumnFlags Flags { get; private set; }
 
-        public ColumnSelectorType Type { get; private set; }
+        public ColumnSelectorType SelectorType { get; private set; }
 
-        public static IColumnSelector By(string identifier, string columnName, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
         {
             return new ColumnSelector()
             {
                 Identifier = identifier,
                 ColumnName = columnName,
+                ColumnType = columnType,
                 Flags = flags,
-                Type = ColumnSelectorType.ColumnName
+                SelectorType = ColumnSelectorType.ColumnName
             };
         }
 
@@ -38,7 +39,7 @@ namespace FoxDb
                 Identifier = identifier,
                 Property = property,
                 Flags = flags,
-                Type = ColumnSelectorType.Property
+                SelectorType = ColumnSelectorType.Property
             };
         }
 
@@ -49,7 +50,7 @@ namespace FoxDb
                 Identifier = identifier,
                 Expression = expression,
                 Flags = flags,
-                Type = ColumnSelectorType.Expression
+                SelectorType = ColumnSelectorType.Expression
             };
         }
     }

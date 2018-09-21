@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public class SqlFromWriter : SqlQueryWriter
     {
-        public SqlFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters) : base(parent, graph, database, visitor, parameters)
+        public SqlFromWriter(IFragmentBuilder parent, IQueryGraphBuilder graph, IDatabase database, IQueryGraphVisitor visitor, ICollection<IDatabaseQueryParameter> parameters)
+            : base(parent, graph, database, visitor, parameters)
         {
 
         }
@@ -29,7 +30,7 @@ namespace FoxDb
                 {
                     this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.FROM);
                     this.Visit(expression.Expressions);
-                    this.Visit(this.Graph.RelationManager.CalculatedRelations);
+                    this.VisitRelations(this.Graph.RelationManager.CalculatedRelations);
                 }
                 return fragment;
             }
@@ -62,7 +63,7 @@ namespace FoxDb
             }
         }
 
-        protected virtual void Visit(IEnumerable<IEntityRelation> relations)
+        protected virtual void VisitRelations(IEnumerable<IEntityRelation> relations)
         {
             foreach (var relation in relations)
             {
@@ -73,28 +74,28 @@ namespace FoxDb
                 }
                 else
                 {
-                    this.Visit(relation.Table, relation.Expression);
+                    this.VisitRelation(relation.Table, relation.Expression);
                 }
             }
         }
 
         protected override void VisitTable(ITableBuilder expression)
         {
-            if (expression.Filter.Limit == 0 && expression.Filter.Offset == 0 && expression.Filter.IsEmpty() && expression.Sort.IsEmpty())
+            if (!expression.Filter.Limit.HasValue && !expression.Filter.Offset.HasValue && expression.Filter.IsEmpty() && expression.Sort.IsEmpty())
             {
                 base.VisitTable(expression);
             }
             else
             {
                 this.VisitSubQuery(
-                    this.CreateSubQuery(this.CreateSubQuery(expression)).With(
+                    this.CreateSubQuery(expression).With(
                         query => query.Alias = expression.Table.TableName
                     )
                 );
             }
         }
 
-        protected virtual IQueryGraphBuilder CreateSubQuery(ITableBuilder expression)
+        protected virtual ISubQueryBuilder CreateSubQuery(ITableBuilder expression)
         {
             //If the table builder is filtered or sorted we have to create a sub query encapsulating this logic.
             //This is really only necessary if limit or offset is defined.
@@ -105,7 +106,7 @@ namespace FoxDb
             builder.Filter.Offset = expression.Filter.Offset;
             builder.Filter.Expressions.AddRange(expression.Filter.Expressions);
             builder.Sort.Expressions.AddRange(expression.Sort.Expressions);
-            return builder;
+            return this.CreateSubQuery(builder);
         }
 
         protected override void VisitSubQuery(ISubQueryBuilder expression)
@@ -116,14 +117,7 @@ namespace FoxDb
             this.VisitAlias(expression.Alias);
         }
 
-        protected override void VisitBinary(IBinaryExpressionBuilder expression)
-        {
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
-            base.VisitBinary(expression);
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
-        }
-
-        protected virtual void Visit(ITableConfig table, IBinaryExpressionBuilder expression)
+        protected virtual void VisitRelation(ITableConfig table, IBinaryExpressionBuilder expression)
         {
             this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.JOIN);
             this.VisitTable(this.CreateTable(table));

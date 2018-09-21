@@ -14,7 +14,7 @@ namespace FoxDb
 
         public ITableConfig Create(IConfig config, ITableSelector selector)
         {
-            switch (selector.Type)
+            switch (selector.SelectorType)
             {
                 case TableSelectorType.TableName:
                     return this.Create(config, selector.Identifier, selector.TableName, selector.Flags);
