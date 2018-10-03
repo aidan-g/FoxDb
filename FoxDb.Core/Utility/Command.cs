@@ -98,25 +98,16 @@ namespace FoxDb
 
         public virtual int ExecuteNonQuery()
         {
-#if DEBUG
-            global::System.Diagnostics.Debug.WriteLine(this.CommandText);
-#endif
             return this.InnerCommand.ExecuteNonQuery();
         }
 
         public virtual object ExecuteScalar()
         {
-#if DEBUG
-            global::System.Diagnostics.Debug.WriteLine(this.CommandText);
-#endif
             return this.InnerCommand.ExecuteScalar();
         }
 
         public virtual IDataReader ExecuteReader()
         {
-#if DEBUG
-            global::System.Diagnostics.Debug.WriteLine(this.CommandText);
-#endif
             return this.InnerCommand.ExecuteReader();
         }
 
