@@ -54,7 +54,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerQueryDialect.cs" />
     <Compile Include="SqlServerQueryFactory.cs" />
-    <Compile Include="SqlServerQueryWindowFunction.cs" />
     <Compile Include="SqlServerSchema.cs" />
     <Compile Include="SqlServerSchemaFactory.cs" />
     <Compile Include="Writers\SqlServerSelectWriter.cs" />

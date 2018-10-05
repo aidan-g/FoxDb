@@ -15,13 +15,6 @@ namespace FoxDb
 
         public SqlServerQueryDialect Dialect { get; private set; }
 
-        protected override IDictionary<QueryWindowFunction, SqlQueryWriterVisitorHandler> GetWindowFunctions()
-        {
-            var functions = base.GetWindowFunctions();
-            functions[SqlServerQueryWindowFunction.RowNumber] = (writer, fragment) => (writer as SqlServerSelectWriter).VisitRowNumber(fragment as IWindowFunctionBuilder);
-            return functions;
-        }
-
         protected override T OnWrite<T>(T fragment)
         {
             if (fragment is IOutputBuilder)
@@ -46,25 +39,6 @@ namespace FoxDb
                 }
             }
             throw new NotImplementedException();
-        }
-
-        protected virtual void VisitRowNumber(IWindowFunctionBuilder expression)
-        {
-            this.Builder.AppendFormat("{0}{1}{2} ", this.Dialect.ROW_NUMBER, this.Dialect.OPEN_PARENTHESES, this.Dialect.CLOSE_PARENTHESES);
-            this.Builder.AppendFormat("{0}{1} ", this.Dialect.OVER, this.Dialect.OPEN_PARENTHESES);
-            if (expression.Expressions.Any())
-            {
-                this.AddRenderContext(RenderHints.FunctionArgument);
-                try
-                {
-                    this.Visit(expression.Expressions);
-                }
-                finally
-                {
-                    this.RemoveRenderContext();
-                }
-            }
-            this.Builder.AppendFormat("{0} ", this.Dialect.CLOSE_PARENTHESES);
         }
     }
 }

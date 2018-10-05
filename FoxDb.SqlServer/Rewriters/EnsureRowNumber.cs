@@ -31,7 +31,7 @@ namespace FoxDb
                 {
                     subquery.Output.AddOperator(QueryOperator.Star);
                     subquery.Output.AddWindowFunction(
-                        SqlServerQueryWindowFunction.RowNumber,
+                        QueryWindowFunction.RowNumber,
                         subquery.Output.CreateSubQuery(
                             this.Database.QueryFactory.Build().With(
                                 over => over.Sort.AddColumns(table.Table.PrimaryKeys)

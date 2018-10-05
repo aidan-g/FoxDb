@@ -476,5 +476,21 @@ namespace FoxDb
                 return "END";
             }
         }
+
+        public string ROW_NUMBER
+        {
+            get
+            {
+                return "ROW_NUMBER";
+            }
+        }
+
+        public string OVER
+        {
+            get
+            {
+                return "OVER";
+            }
+        }
     }
 }

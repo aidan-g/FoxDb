@@ -115,5 +115,9 @@
         string ELSE { get; }
 
         string END { get; }
+
+        string ROW_NUMBER { get; }
+
+        string OVER { get; }
     }
 }
