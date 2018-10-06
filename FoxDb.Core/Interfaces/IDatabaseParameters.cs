@@ -6,6 +6,8 @@
 
         bool Contains(string name);
 
+        void Reset();
+
         object this[string name] { get; set; }
     }
 }

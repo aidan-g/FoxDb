@@ -11,7 +11,7 @@ namespace FoxDb
             this.Database = database;
             this.Query = query;
             this.Parameters = parameters;
-            this.Initialize();
+            this.Reset();
         }
 
         public IDatabase Database { get; private set; }
@@ -63,7 +63,7 @@ namespace FoxDb
             }
         }
 
-        protected virtual void Initialize()
+        public void Reset()
         {
             foreach (var parameter in this.Query.Parameters)
             {

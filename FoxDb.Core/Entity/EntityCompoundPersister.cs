@@ -204,7 +204,15 @@ namespace FoxDb
                         handlers.Add(new ParameterHandlerStrategy(relation.RightTable, child).Handler);
                     }
                 }
-                return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
+                switch (handlers.Count)
+                {
+                    case 0:
+                        return null;
+                    case 1:
+                        return handlers[0];
+                    default:
+                        return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
+                }
             }
         }
     }

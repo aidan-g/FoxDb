@@ -10,10 +10,13 @@ namespace FoxDb
         {
         }
 
-        protected override IDictionary<QueryFunction, SqlQueryWriterDialectHandler> GetFunctions()
+        protected override IDictionary<QueryFunction, SqlQueryWriterVisitorHandler> GetFunctions()
         {
             var functions = base.GetFunctions();
-            functions[SQLiteQueryFunction.LastInsertRowId] = writer => (writer.Database.QueryFactory.Dialect as SQLiteQueryDialect).LAST_INSERT_ROWID;
+            functions[SQLiteQueryFunction.LastInsertRowId] = (writer, fragment) => this.Builder.AppendFormat(
+                "{0} ",
+                (writer.Database.QueryFactory.Dialect as SQLiteQueryDialect).LAST_INSERT_ROWID
+            );
             return functions;
         }
     }

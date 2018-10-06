@@ -51,13 +51,7 @@ namespace FoxDb
 
         public IDatabaseQuery GetOrAdd(IDatabaseQueryCacheKey key, Func<IDatabaseQuery> factory)
         {
-            var value = default(IDatabaseQuery);
-            if (!this.Cache.TryGetValue(key, out value))
-            {
-                value = factory();
-                this.Cache.AddOrUpdate(key, value);
-            }
-            return value;
+            return this.Cache.GetOrAdd(key, _key => factory());
         }
     }
 

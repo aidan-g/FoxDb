@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseQuery
+    public interface IDatabaseQuery : IEquatable<IDatabaseQuery>
     {
         string CommandText { get; }
 

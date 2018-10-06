@@ -112,6 +112,8 @@
     <Compile Include="Interfaces\Entity\IEntityMapper.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelation.cs" />
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
+    <Compile Include="Interfaces\IDatabaseCommand.cs" />
+    <Compile Include="Interfaces\IDatabaseCommandCache.cs" />
     <Compile Include="Interfaces\Query\Builder\ICaseConditionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ICaseBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IIdentifierBuilder.cs" />
@@ -241,6 +243,8 @@
     <Compile Include="Utility\Connection.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
+    <Compile Include="Utility\DatabaseCommand.cs" />
+    <Compile Include="Utility\DatabaseCommandCache.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\Factories.cs" />

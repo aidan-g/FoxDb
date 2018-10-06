@@ -7,13 +7,16 @@ namespace FoxDb
 {
     public class DatabaseReader : Disposable, IDatabaseReader
     {
-        public DatabaseReader(IDbCommand command)
+        public DatabaseReader(IDbCommand command, bool ownsCommand)
         {
             this.Command = command;
+            this.OwnsCommand = ownsCommand;
             this.Reader = command.ExecuteReader();
         }
 
         public IDbCommand Command { get; private set; }
+
+        public bool OwnsCommand { get; private set; }
 
         public IDataReader Reader { get; private set; }
 
@@ -33,7 +36,10 @@ namespace FoxDb
         protected override void OnDisposing()
         {
             this.Reader.Dispose();
-            this.Command.Dispose();
+            if (this.OwnsCommand)
+            {
+                this.Command.Dispose();
+            }
             base.OnDisposing();
         }
 

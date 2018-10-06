@@ -76,18 +76,38 @@ namespace FoxDb
 
         public int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            using (var command = this.CreateCommand(query, parameters, transaction))
-            {
-                return command.ExecuteNonQuery();
-            }
+            return this.CreateCommand(
+                query,
+                transaction
+            ).Using(
+                command =>
+                {
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters);
+                    }
+                    return command.ExecuteNonQuery();
+                },
+                () => transaction == null
+            );
         }
 
         public T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            using (var command = this.CreateCommand(query, parameters, transaction))
-            {
-                return Converter.ChangeType<T>(command.ExecuteScalar());
-            }
+            return this.CreateCommand(
+                query,
+                transaction
+            ).Using(
+                command =>
+                {
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters);
+                    }
+                    return Converter.ChangeType<T>(command.ExecuteScalar());
+                },
+                () => transaction == null
+            );
         }
 
         [Obsolete]
@@ -106,8 +126,12 @@ namespace FoxDb
 
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            var command = this.CreateCommand(query, parameters, transaction);
-            return new DatabaseReader(command);
+            var command = this.CreateCommand(query, transaction);
+            if (parameters != null)
+            {
+                parameters(command.Parameters);
+            }
+            return new DatabaseReader(command.Command, transaction == null);
         }
 
         protected override void Dispose(bool disposing)

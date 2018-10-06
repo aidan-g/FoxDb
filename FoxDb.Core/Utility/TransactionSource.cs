@@ -14,10 +14,13 @@ namespace FoxDb
         public TransactionSource(IDatabase database, IsolationLevel? isolationLevel)
         {
             this.Database = database;
+            this.CommandCache = new DatabaseCommandCache(database);
             this.IsolationLevel = isolationLevel;
         }
 
         public IDatabase Database { get; private set; }
+
+        public IDatabaseCommandCache CommandCache { get; private set; }
 
         public IsolationLevel? IsolationLevel { get; private set; }
 
@@ -74,6 +77,7 @@ namespace FoxDb
 
         public void Reset()
         {
+            this.CommandCache.Clear();
             if (this.Transaction != null)
             {
                 this.Transaction.Dispose();

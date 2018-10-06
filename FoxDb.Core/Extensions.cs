@@ -8,31 +8,29 @@ namespace FoxDb
 {
     public static partial class Extensions
     {
-        public static IDbCommand CreateCommand(this IDatabase database, IDatabaseQuery query, out IDatabaseParameters parameters, ITransactionSource transaction = null)
+        public static IDatabaseCommand CreateCommand(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
         {
-            var command = database.Connection.CreateCommand();
-            command.CommandText = query.CommandText;
-            parameters = database.CreateParameters(command, query);
+            var factory = new Func<IDatabaseCommand>(() =>
+            {
+                var command = database.Connection.CreateCommand();
+                command.CommandText = query.CommandText;
+                var parameters = database.CreateParameters(command, query);
+                if (transaction != null)
+                {
+                    transaction.Bind(command);
+                }
+                return new DatabaseCommand(command, parameters);
+            });
             if (transaction != null)
             {
-                transaction.Bind(command);
+                var command = transaction.CommandCache.GetOrAdd(query, factory);
+                command.Parameters.Reset();
+                return command;
             }
-            return command;
+            return factory();
         }
 
-        public static IDbCommand CreateCommand(this IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
-        {
-            var command = database.Connection.CreateCommand();
-            command.CommandText = query.CommandText;
-            database.CreateParameters(command, query, parameters);
-            if (transaction != null)
-            {
-                transaction.Bind(command);
-            }
-            return command;
-        }
-
-        public static IDatabaseParameters CreateParameters(this IDatabase database, IDbCommand command, IDatabaseQuery query, DatabaseParameterHandler handler = null)
+        public static IDatabaseParameters CreateParameters(this IDatabase database, IDbCommand command, IDatabaseQuery query)
         {
             foreach (var parameter in query.Parameters)
             {
@@ -42,12 +40,7 @@ namespace FoxDb
                 }
                 CreateParameter(command, parameter.Name, parameter.Type, parameter.Direction);
             }
-            var parameters = new DatabaseParameters(database, query, command.Parameters);
-            if (handler != null)
-            {
-                handler(parameters);
-            }
-            return parameters;
+            return new DatabaseParameters(database, query, command.Parameters);
         }
 
         public static void CreateParameter(IDbCommand command, string name, DbType type, ParameterDirection direction)
@@ -158,6 +151,26 @@ namespace FoxDb
             foreach (var element in sequence)
             {
                 action(element);
+            }
+        }
+
+        public static T Get<T>(this IDatabaseReaderRecord record, IColumnConfig column)
+        {
+            return record.Get<T>(column.Identifier);
+        }
+
+        public static TResult Using<T, TResult>(this T value, Func<T, TResult> action, Func<bool> dispose) where T : IDisposable
+        {
+            try
+            {
+                return action(value);
+            }
+            finally
+            {
+                if (dispose())
+                {
+                    value.Dispose();
+                }
             }
         }
     }

@@ -98,10 +98,5 @@ namespace FoxDb
         {
             return database.ExecuteReader(query, null, transaction);
         }
-
-        public static IDatabaseQuery Create(this IDatabaseQueryFactory factory, string commandText, params string[] parameters)
-        {
-            return factory.Create(commandText, parameters.Select(parameter => new DatabaseQueryParameter(parameter)).ToArray());
-        }
     }
 }

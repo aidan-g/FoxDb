@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#define WAIT_FOR_DEBUGGER
+using FoxDb.Interfaces;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,18 @@ namespace FoxDb
 {
     public abstract class TestBase
     {
+#if WAIT_FOR_DEBUGGER
+        static TestBase()
+        {
+            TestContext.Out.WriteLine("Waiting for debugger..");
+            while (!global::System.Diagnostics.Debugger.IsAttached)
+            {
+                global::System.Threading.Thread.Sleep(1000);
+            }
+            TestContext.Out.WriteLine("Debugger ready.");
+        }
+#endif
+
         protected TestBase(ProviderType providerType)
         {
             this.ProviderType = providerType;
