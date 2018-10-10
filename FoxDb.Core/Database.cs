@@ -78,6 +78,7 @@ namespace FoxDb
         {
             return this.CreateCommand(
                 query,
+                DatabaseCommandFlags.None,
                 transaction
             ).Using(
                 command =>
@@ -96,6 +97,7 @@ namespace FoxDb
         {
             return this.CreateCommand(
                 query,
+                DatabaseCommandFlags.None,
                 transaction
             ).Using(
                 command =>
@@ -126,7 +128,7 @@ namespace FoxDb
 
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
-            var command = this.CreateCommand(query, transaction);
+            var command = this.CreateCommand(query, DatabaseCommandFlags.None, transaction);
             if (parameters != null)
             {
                 parameters(command.Parameters);

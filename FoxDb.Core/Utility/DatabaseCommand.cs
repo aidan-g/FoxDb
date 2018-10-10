@@ -5,15 +5,18 @@ namespace FoxDb
 {
     public class DatabaseCommand : Disposable, IDatabaseCommand
     {
-        public DatabaseCommand(IDbCommand command, IDatabaseParameters parameters)
+        public DatabaseCommand(IDbCommand command, IDatabaseParameters parameters, DatabaseCommandFlags flags)
         {
             this.Command = command;
             this.Parameters = parameters;
+            this.Flags = flags;
         }
 
         public IDbCommand Command { get; private set; }
 
         public IDatabaseParameters Parameters { get; private set; }
+
+        public DatabaseCommandFlags Flags { get; private set; }
 
         public int ExecuteNonQuery()
         {

@@ -9,10 +9,19 @@ namespace FoxDb.Interfaces
 
         IDatabaseParameters Parameters { get; }
 
+        DatabaseCommandFlags Flags { get; }
+
         int ExecuteNonQuery();
 
         object ExecuteScalar();
 
         IDataReader ExecuteReader();
+    }
+
+    [Flags]
+    public enum DatabaseCommandFlags : byte
+    {
+        None = 0,
+        NoCache = 1
     }
 }

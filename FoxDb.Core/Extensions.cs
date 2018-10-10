@@ -10,6 +10,11 @@ namespace FoxDb
     {
         public static IDatabaseCommand CreateCommand(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
         {
+            return CreateCommand(database, query, DatabaseCommandFlags.None, transaction);
+        }
+
+        public static IDatabaseCommand CreateCommand(this IDatabase database, IDatabaseQuery query, DatabaseCommandFlags flags, ITransactionSource transaction = null)
+        {
             var factory = new Func<IDatabaseCommand>(() =>
             {
                 var command = database.Connection.CreateCommand();
@@ -19,9 +24,9 @@ namespace FoxDb
                 {
                     transaction.Bind(command);
                 }
-                return new DatabaseCommand(command, parameters);
+                return new DatabaseCommand(command, parameters, flags);
             });
-            if (transaction != null)
+            if (transaction != null && !flags.HasFlag(DatabaseCommandFlags.NoCache))
             {
                 var command = transaction.CommandCache.GetOrAdd(query, factory);
                 command.Parameters.Reset();
