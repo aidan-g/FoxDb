@@ -15,7 +15,8 @@ namespace FoxDb
             this.Relations = new ConcurrentDictionary<string, IRelationConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
-        protected TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, Type tableType) : this()
+        protected TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, Type tableType)
+            : this()
         {
             this.Config = config;
             this.Flags = flags;
@@ -132,7 +133,7 @@ namespace FoxDb
         public IColumnConfig CreateColumn(IColumnSelector selector)
         {
             var column = Factories.Column.Create(this, selector);
-            if (selector.Flags.HasFlag(ColumnFlags.ValidateSchema) && !ColumnValidator.Validate(column))
+            if (!ColumnValidator.Validate(this, column))
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
@@ -143,7 +144,7 @@ namespace FoxDb
         public bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column)
         {
             column = Factories.Column.Create(this, selector);
-            if (selector.Flags.HasFlag(ColumnFlags.ValidateSchema) && !ColumnValidator.Validate(column))
+            if (!ColumnValidator.Validate(this, column))
             {
                 return false;
             }
@@ -276,12 +277,14 @@ namespace FoxDb
 
     public class TableConfig<T> : TableConfig, ITableConfig<T>
     {
-        public TableConfig(IConfig config, TableFlags flags, string identifier, string name) : base(config, flags, identifier, name, typeof(T))
+        public TableConfig(IConfig config, TableFlags flags, string identifier, string name)
+            : base(config, flags, identifier, name, typeof(T))
         {
 
         }
 
-        protected TableConfig(TableConfig table) : base(table, typeof(T))
+        protected TableConfig(TableConfig table)
+            : base(table, typeof(T))
         {
 
         }
@@ -425,7 +428,8 @@ namespace FoxDb
 
     public class TableConfig<T1, T2> : TableConfig, ITableConfig<T1, T2>
     {
-        public TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable) : base(config, flags, identifier, tableName, typeof(T2))
+        public TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, ITableConfig<T1> leftTable, ITableConfig<T2> rightTable)
+            : base(config, flags, identifier, tableName, typeof(T2))
         {
             this.LeftTable = leftTable;
             this.RightTable = rightTable;

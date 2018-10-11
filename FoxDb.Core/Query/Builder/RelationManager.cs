@@ -8,7 +8,7 @@ namespace FoxDb
     {
         public RelationManager(IQueryGraphBuilder graph)
         {
-            this.Calculator = new EntityRelationCalculator(graph);
+            this.Calculator = new EntityRelationCalculator(GetTables(graph));
         }
 
         public IEntityRelationCalculator Calculator { get; set; }
@@ -40,6 +40,15 @@ namespace FoxDb
             {
                 return this.CalculatedRelations.Any(relation => relation.IsExternal);
             }
+        }
+
+        private static IEnumerable<ITableConfig> GetTables(IQueryGraphBuilder graph)
+        {
+            return graph.Fragments
+                .OfType<ISourceBuilder>()
+                .SelectMany(
+                    source => source.Tables.Select(table => table.Table)
+                );
         }
     }
 }

@@ -5,8 +5,8 @@ using System.Diagnostics;
 
 namespace FoxDb
 {
-    [TestFixture(ProviderType.SqlCe)]
-    [TestFixture(ProviderType.SqlServer)]
+    //[TestFixture(ProviderType.SqlCe)]
+    //[TestFixture(ProviderType.SqlServer)]
     [TestFixture(ProviderType.SQLite)]
     public class BulkTests : TestBase
     {

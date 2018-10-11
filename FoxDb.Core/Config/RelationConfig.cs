@@ -236,7 +236,15 @@ namespace FoxDb
                 if (this.RightTable.TryCreateColumn(
                     ColumnConfig.By(
                         Conventions.RelationColumn(this.LeftTable),
-                        this.LeftTable.PrimaryKey.ColumnType,
+                        Factories.Type.Create(
+                            TypeConfig.By(
+                                this.LeftTable.PrimaryKey.ColumnType.Type,
+                                this.LeftTable.PrimaryKey.ColumnType.Size,
+                                this.LeftTable.PrimaryKey.ColumnType.Precision,
+                                this.LeftTable.PrimaryKey.ColumnType.Scale,
+                                this.Flags.HasFlag(RelationFlags.AllowNull)
+                            )
+                        ),
                         Defaults.Column.Flags
                     ),
                     out column

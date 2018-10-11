@@ -16,7 +16,7 @@ namespace FoxDb
                     continue;
                 }
                 var column = Factories.Column.Create(table, ColumnConfig.By(property, Defaults.Column.Flags));
-                if (!ColumnValidator.Validate(column))
+                if (!ColumnValidator.Validate(table, column))
                 {
                     continue;
                 }

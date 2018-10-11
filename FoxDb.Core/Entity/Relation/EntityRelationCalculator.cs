@@ -12,29 +12,21 @@ namespace FoxDb
             this.Relations = new HashSet<IRelationConfig>();
         }
 
-        public EntityRelationCalculator(IQueryGraphBuilder graph) : this()
+        public EntityRelationCalculator(ITableConfig table)
+            : this(new[] { table })
         {
-            this.Graph = graph;
+
+        }
+
+        public EntityRelationCalculator(IEnumerable<ITableConfig> tables)
+            : this()
+        {
+            this.Tables = tables;
         }
 
         public ICollection<IRelationConfig> Relations { get; private set; }
 
-        public IQueryGraphBuilder Graph { get; private set; }
-
-        public IEnumerable<ITableConfig> Tables
-        {
-            get
-            {
-                var source = this.Graph.Fragments
-                    .OfType<ISourceBuilder>()
-                    .FirstOrDefault();
-                if (source == null)
-                {
-                    return Enumerable.Empty<ITableConfig>();
-                }
-                return source.Tables.Select(table => table.Table);
-            }
-        }
+        public IEnumerable<ITableConfig> Tables { get; private set; }
 
         public IEnumerable<ITableConfig> InternalTables
         {
@@ -79,6 +71,14 @@ namespace FoxDb
         {
             this.Relations.Add(relation);
             this.CalculatedRelations = null;
+        }
+
+        public void AddRelations(IEnumerable<IRelationConfig> relations)
+        {
+            foreach (var relation in relations)
+            {
+                this.AddRelation(relation);
+            }
         }
 
         private IEnumerable<IEntityRelation> _CalculatedRelations { get; set; }
@@ -273,7 +273,7 @@ namespace FoxDb
 
         public IEntityRelationCalculator Clone()
         {
-            return new EntityRelationCalculator(this.Graph).With(calculator =>
+            return new EntityRelationCalculator(this.Tables).With(calculator =>
             {
                 calculator.Relations.AddRange(this.Relations);
             });

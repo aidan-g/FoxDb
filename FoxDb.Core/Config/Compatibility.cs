@@ -65,8 +65,8 @@ namespace FoxDb
         [Obsolete]
         public static ITableConfig<T1, T2> Table<T1, T2>(this IConfig config, TableFlags flags)
         {
-            var leftTable = config.Table<T1>();
-            var rightTable = config.Table<T2>();
+            var leftTable = config.Table<T1>(flags);
+            var rightTable = config.Table<T2>(flags);
             var selector = TableConfig.By(leftTable, rightTable, flags);
             var table = config.GetTable(selector);
             if (table == null)

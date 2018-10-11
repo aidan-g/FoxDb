@@ -23,7 +23,15 @@ namespace FoxDb
                 if (this.MappingTable.TryCreateColumn(
                     ColumnConfig.By(
                         Conventions.RelationColumn(this.LeftTable),
-                        this.LeftTable.PrimaryKey.ColumnType,
+                        Factories.Type.Create(
+                            TypeConfig.By(
+                                this.LeftTable.PrimaryKey.ColumnType.Type,
+                                this.LeftTable.PrimaryKey.ColumnType.Size,
+                                this.LeftTable.PrimaryKey.ColumnType.Precision,
+                                this.LeftTable.PrimaryKey.ColumnType.Scale,
+                                this.Flags.HasFlag(RelationFlags.AllowNull)
+                            )
+                        ),
                         Defaults.Column.Flags
                     ),
                     out column
@@ -41,7 +49,15 @@ namespace FoxDb
                 if (this.MappingTable.TryCreateColumn(
                     ColumnConfig.By(
                         Conventions.RelationColumn(this.RightTable),
-                        this.RightTable.PrimaryKey.ColumnType,
+                        Factories.Type.Create(
+                            TypeConfig.By(
+                                this.RightTable.PrimaryKey.ColumnType.Type,
+                                this.RightTable.PrimaryKey.ColumnType.Size,
+                                this.RightTable.PrimaryKey.ColumnType.Precision,
+                                this.RightTable.PrimaryKey.ColumnType.Scale,
+                                this.Flags.HasFlag(RelationFlags.AllowNull)
+                            )
+                        ),
                         Defaults.Column.Flags
                     ),
                     out column

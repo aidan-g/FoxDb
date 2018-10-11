@@ -26,9 +26,18 @@ namespace FoxDb
             return true;
         }
 
-        public static bool Validate(IColumnConfig column)
+        public static bool Validate(ITableConfig table, IColumnConfig column)
         {
-            return !string.IsNullOrEmpty(column.Identifier) && column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName);
+            if (string.IsNullOrEmpty(column.Identifier))
+            {
+                return false;
+            }
+            if (table.Flags.HasFlag(TableFlags.ValidateSchema) &&
+            !column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
+            {
+                return false;
+            }
+            return true;
         }
 
         public static bool IsIgnored(PropertyInfo property)

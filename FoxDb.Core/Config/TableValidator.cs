@@ -6,7 +6,15 @@ namespace FoxDb
     {
         public static bool Validate(ITableConfig table)
         {
-            return !string.IsNullOrEmpty(table.Identifier) && table.Config.Database.Schema.TableExists(table.TableName);
+            if (string.IsNullOrEmpty(table.Identifier))
+            {
+                return false;
+            }
+            if (table.Flags.HasFlag(TableFlags.ValidateSchema) && !table.Config.Database.Schema.TableExists(table.TableName))
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

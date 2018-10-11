@@ -10,6 +10,8 @@ namespace FoxDb.Interfaces
 
         void AddRelation(IRelationConfig relation);
 
+        void AddRelations(IEnumerable<IRelationConfig> relations);
+
         IEnumerable<IEntityRelation> CalculatedRelations { get; }
 
         IBinaryExpressionBuilder Extern(IEntityRelation relation);

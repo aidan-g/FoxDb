@@ -47,14 +47,19 @@ namespace FoxDb
 
         public ITypeConfig Create(PropertyInfo property)
         {
-            return new TypeConfig(
-                global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(
+            var attribute = property.GetCustomAttribute<TypeAttribute>(true) ?? new TypeAttribute();
+            if (!attribute.TypeSpecified)
+            {
+                attribute.Type = global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(
                     Type.GetTypeCode(TypeHelper.GetInterimType(property.PropertyType))
-                ),
-                0,
-                0,
-                0,
-                false
+                );
+            }
+            return new TypeConfig(
+                attribute.Type,
+                attribute.Size,
+                attribute.Precision,
+                attribute.Scale,
+                attribute.IsNullable
             );
         }
     }

@@ -2,7 +2,7 @@
 
 namespace FoxDb.Interfaces
 {
-    public interface ITypeConfig
+    public interface ITypeConfig : ICloneable<ITypeConfig>
     {
         DbType Type { get; }
 

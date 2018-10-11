@@ -1,4 +1,4 @@
-﻿#define WAIT_FOR_DEBUGGER
+﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
 using NUnit.Framework;
 using System;
@@ -11,18 +11,6 @@ namespace FoxDb
 {
     public abstract class TestBase
     {
-#if WAIT_FOR_DEBUGGER
-        static TestBase()
-        {
-            TestContext.Out.WriteLine("Waiting for debugger..");
-            while (!global::System.Diagnostics.Debugger.IsAttached)
-            {
-                global::System.Threading.Thread.Sleep(1000);
-            }
-            TestContext.Out.WriteLine("Debugger ready.");
-        }
-#endif
-
         protected TestBase(ProviderType providerType)
         {
             this.ProviderType = providerType;
@@ -43,126 +31,52 @@ namespace FoxDb
         public void OneTimeSetUp()
         {
             this.Database = this.CreateDatabase();
+            var tables = new[]
             {
-                var query = this.Database.SchemaFactory.Add(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test001), TableFlags.None)
-                    ).With(table =>
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test001), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Field4", ColumnFlags.None)).With(column =>
                     {
-                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Field1", ColumnFlags.None));
-                        table.CreateColumn(ColumnConfig.By("Field2", ColumnFlags.None));
-                        table.CreateColumn(ColumnConfig.By("Field3", ColumnFlags.None));
-                        table.CreateColumn(ColumnConfig.By("Field4", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Field5", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Double, isNullable: true));
-                        });
-                        table.CreateIndex(IndexConfig.By("IDX_Test001_Fields", new[] { "Field1", "Field2", "Field3", "Field4", "Field5" }, IndexFlags.Unique)).With(index =>
-                        {
-                            index.Expression = index.CreateConstraint().With(constraint =>
-                            {
-                                constraint.Left = constraint.CreateColumn(table.GetColumn(ColumnConfig.By("Field1", ColumnFlags.None)));
-                                constraint.Operator = constraint.CreateOperator(QueryOperator.Is);
-                                constraint.Right = constraint.CreateUnary(QueryOperator.Not, constraint.CreateOperator(QueryOperator.Null));
-                            });
-                        });
-                    })
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Add(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test002), TableFlags.None)
-                    ).With(table =>
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
+                    });
+                    table.CreateColumn(ColumnConfig.By("Field5", ColumnFlags.None)).With(column =>
                     {
-                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test003_Id", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
-                    })
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Add(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test003), TableFlags.None)
-                    ).With(table =>
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Double, isNullable: true));
+                    });
+                }),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test002), TableFlags.None)
+                        ),
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test004), TableFlags.None)
+                        ),
+                        TableFlags.None
+                    )
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
                     {
-                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
-                    })
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Add(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test004), TableFlags.None)
-                    ).With(table =>
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
+                    });
+                    table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).With(column =>
                     {
-                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).IsPrimaryKey = true;
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
-                        {
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Name", ColumnFlags.None));
-                    })
-                ).Build();
-                this.Database.Execute(query);
-            }
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Double));
+                    });
+                }),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                )
+            };
+            foreach (var table in tables)
             {
-                var query = this.Database.SchemaFactory.Add(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By("Test002_Test004", TableFlags.None)
-                    ).With(table =>
-                    {
-                        table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).With(column =>
-                        {
-                            column.IsPrimaryKey = true;
-                            column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
-                        });
-                        table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
-                        table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
-                    })
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Add(
-                   Factories.Table.Create(
-                       this.Database.Config.Transient,
-                       TableConfig.By("Test005", TableFlags.None)
-                   ).With(table =>
-                   {
-                       table.CreateColumn(ColumnConfig.By("Id", ColumnFlags.None)).With(column =>
-                       {
-                           column.IsPrimaryKey = true;
-                           column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
-                       });
-                       table.CreateColumn(ColumnConfig.By("Value", ColumnFlags.None)).ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Boolean));
-                   })
-               ).Build();
+                var query = this.Database.SchemaFactory.Add(table).Build();
                 this.Database.Execute(query);
             }
         }
@@ -170,58 +84,32 @@ namespace FoxDb
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
+            var tables = new[]
             {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test001), TableFlags.None)
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test001), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test002), TableFlags.None)
+                        ),
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test004), TableFlags.None)
+                        ),
+                        TableFlags.None
                     )
-                ).Build();
-                this.Database.Execute(query);
-            }
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                )
+            };
+            foreach (var table in tables)
             {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test002), TableFlags.None)
-                    )
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test003), TableFlags.None)
-                    )
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test004), TableFlags.None)
-                    )
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By("Test002_Test004", TableFlags.None)
-                    )
-                ).Build();
-                this.Database.Execute(query);
-            }
-            {
-                var query = this.Database.SchemaFactory.Delete(
-                    Factories.Table.Create(
-                        this.Database.Config.Transient,
-                        TableConfig.By(typeof(Test005), TableFlags.None)
-                    )
-                ).Build();
+                var query = this.Database.SchemaFactory.Delete(table).Build();
                 this.Database.Execute(query);
             }
             this.Database.Dispose();

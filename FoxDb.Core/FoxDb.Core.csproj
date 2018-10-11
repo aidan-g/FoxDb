@@ -40,6 +40,7 @@
     <Compile Include="Config\Attributes\IgnoreAttribute.cs" />
     <Compile Include="Config\Attributes\RelationAttribute.cs" />
     <Compile Include="Config\Attributes\TableAttribute.cs" />
+    <Compile Include="Config\Attributes\TypeAttribute.cs" />
     <Compile Include="Config\ColumnConfig.cs" />
     <Compile Include="Config\ColumnFactory.cs" />
     <Compile Include="Config\ColumnSelector.cs" />

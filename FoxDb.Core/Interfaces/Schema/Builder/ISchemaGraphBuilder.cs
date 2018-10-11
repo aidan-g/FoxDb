@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace FoxDb.Interfaces
 {
-    public interface ISchemaGraphBuilder
+    public interface ISchemaGraphBuilder : ICloneable<ISchemaGraphBuilder>
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         ICreateBuilder Create { get; }
@@ -21,5 +21,10 @@ namespace FoxDb.Interfaces
         T Fragment<T>() where T : IFragmentBuilder;
 
         IDatabaseQuery Build();
+    }
+
+    public interface IAggregateSchemaGraphBuilder : ISchemaGraphBuilder, IEnumerable<ISchemaGraphBuilder>
+    {
+
     }
 }

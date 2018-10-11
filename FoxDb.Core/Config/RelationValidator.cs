@@ -73,7 +73,7 @@ namespace FoxDb
                 }
                 foreach (var column in columns)
                 {
-                    if (!ColumnValidator.Validate(column.Column))
+                    if (!ColumnValidator.Validate(column.Column.Table, column.Column))
                     {
                         return false;
                     }

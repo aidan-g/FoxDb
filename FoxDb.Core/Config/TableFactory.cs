@@ -29,6 +29,10 @@ namespace FoxDb
 
         public ITableConfig Create(IConfig config, string identifier, string tableName, TableFlags flags)
         {
+            if (string.IsNullOrEmpty(identifier))
+            {
+                identifier = tableName;
+            }
             return (ITableConfig)this.Members.Invoke(this, "Create", typeof(EntityPlaceholder), config, identifier, tableName, flags);
         }
 
@@ -52,7 +56,8 @@ namespace FoxDb
             var attribute = new TableAttribute()
             {
                 Name = Conventions.RelationTableName(leftTable, rightTable),
-                Identifier = identifier
+                Identifier = identifier,
+                Flags = flags
             };
             if (string.IsNullOrEmpty(attribute.Identifier))
             {

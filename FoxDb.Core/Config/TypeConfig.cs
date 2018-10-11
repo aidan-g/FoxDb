@@ -25,6 +25,19 @@ namespace FoxDb
 
         public bool IsNullable { get; set; }
 
+        public ITypeConfig Clone()
+        {
+            return Factories.Type.Create(
+                TypeConfig.By(
+                    this.Type,
+                    this.Size,
+                    this.Precision,
+                    this.Scale,
+                    this.IsNullable
+                )
+            );
+        }
+
         public static ITypeSelector By(DbType? type = null, int? size = null, int? precision = null, int? scale = null, bool? isNullable = null)
         {
             return TypeSelector.By(type, size, precision, scale, isNullable);

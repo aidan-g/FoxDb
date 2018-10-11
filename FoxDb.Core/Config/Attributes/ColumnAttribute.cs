@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace FoxDb
 {
@@ -20,16 +19,6 @@ namespace FoxDb
         public string Name { get; set; }
 
         public string Identifier { get; set; }
-
-        public DbType? Type { get; set; }
-
-        public int? Size { get; set; }
-
-        public int? Precision { get; set; }
-
-        public int? Scale { get; set; }
-
-        public bool? IsNullable { get; set; }
 
         public ColumnFlags Flags { get; set; }
     }

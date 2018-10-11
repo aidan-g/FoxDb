@@ -58,11 +58,7 @@ namespace FoxDb
             {
                 Flags = flags,
                 Name = columnName,
-                Identifier = identifier,
-                Type = columnType.Type,
-                Size = columnType.Size,
-                Precision = columnType.Precision,
-                Scale = columnType.Scale
+                Identifier = identifier
             };
             if (string.IsNullOrEmpty(attribute.Name))
             {
@@ -79,13 +75,7 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
                 attribute.Name,
-                new TypeConfig(
-                    attribute.Type.HasValue ? attribute.Type.Value : columnType.Type,
-                    attribute.Size.HasValue ? attribute.Size.Value : columnType.Size,
-                    attribute.Precision.HasValue ? attribute.Precision.Value : columnType.Precision,
-                    attribute.Scale.HasValue ? attribute.Scale.Value : columnType.Scale,
-                    attribute.IsNullable.HasValue ? attribute.IsNullable.Value : columnType.IsNullable
-                ),
+                Factories.Type.Create(TypeConfig.By(property)),
                 property,
                 accessor.Get,
                 accessor.Set

@@ -35,8 +35,10 @@ namespace FoxDb
 
         public long Id { get; set; }
 
+        [Type(IsNullable = true)]
         public long Test003_Id { get; set; }
 
+        [Type(IsNullable = true)]
         public long Test004_Id { get; set; }
 
         public string Name { get; set; }

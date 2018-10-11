@@ -38,7 +38,7 @@ namespace FoxDb
         {
             static Relation()
             {
-                Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch;
+                Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.AllowNull;
             }
 
             public static RelationFlags Flags { get; set; }
@@ -91,6 +91,7 @@ namespace FoxDb
         //Behaviour.
         AutoExpression = 32,
         EagerFetch = 64,
+        AllowNull = 128
     }
 
     [Flags]

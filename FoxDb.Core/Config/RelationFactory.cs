@@ -83,8 +83,8 @@ namespace FoxDb
                 relation.Expression.Left = relation.Expression.CreateColumn(
                     relation.LeftTable.CreateColumn(
                         ColumnConfig.By(
-                            attribute.LeftColumn, 
-                            Factories.Type.Create(TypeConfig.By(property)), 
+                            attribute.LeftColumn,
+                            Factories.Type.Create(TypeConfig.By(property)),
                             Defaults.Column.Flags
                         )
                     ).With(column => column.IsForeignKey = true)
@@ -95,8 +95,8 @@ namespace FoxDb
                 relation.Expression.Right = relation.Expression.CreateColumn(
                     relation.RightTable.CreateColumn(
                         ColumnConfig.By(
-                            attribute.RightColumn, 
-                            Factories.Type.Create(TypeConfig.By(property)), 
+                            attribute.RightColumn,
+                            Factories.Type.Create(TypeConfig.By(property)),
                             Defaults.Column.Flags
                         )
                     ).With(column => column.IsForeignKey = true)
@@ -114,7 +114,7 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
- table.Config.Table<TRelation>(),
+ table.Config.Table<TRelation>(table.Flags),
 #pragma warning restore 612, 618
  accessor
             );
@@ -129,7 +129,7 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
- table.Config.Table<TRelation>(),
+ table.Config.Table<TRelation>(table.Flags),
 #pragma warning restore 612, 618
  accessor
             );
@@ -144,8 +144,8 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
 #pragma warning disable 612, 618
- table.Config.Table<T, TRelation>(),
-                table.Config.Table<TRelation>(),
+ table.Config.Table<T, TRelation>(table.Flags),
+table.Config.Table<TRelation>(table.Flags),
 #pragma warning restore 612, 618
  accessor
             );
