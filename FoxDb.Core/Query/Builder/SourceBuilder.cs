@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public class SourceBuilder : FragmentBuilder, ISourceBuilder
     {
-        public SourceBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public SourceBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -43,7 +44,7 @@ namespace FoxDb
 
         public ITableBuilder GetTable(ITableConfig table)
         {
-            return this.GetExpression<ITableBuilder>(builder => builder.Table == table);
+            return this.GetExpression<ITableBuilder>(builder => TableComparer.TableConfig.Equals(builder.Table, table));
         }
 
         public ITableBuilder AddTable(ITableConfig table)

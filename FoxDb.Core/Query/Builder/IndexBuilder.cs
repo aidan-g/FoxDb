@@ -5,7 +5,8 @@ namespace FoxDb
 {
     public class IndexBuilder : ExpressionBuilder, IIndexBuilder
     {
-        public IndexBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public IndexBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
 
         }
@@ -19,6 +20,14 @@ namespace FoxDb
         }
 
         public IIndexConfig Index { get; set; }
+
+        public ITableBuilder Table
+        {
+            get
+            {
+                return this.CreateTable(this.Index.Table);
+            }
+        }
 
         public IEnumerable<IIdentifierBuilder> Columns
         {

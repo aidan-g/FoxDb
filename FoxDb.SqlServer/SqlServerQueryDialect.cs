@@ -57,37 +57,5 @@ namespace FoxDb
                 return string.Format("IDENTITY {0}", base.PRIMARY_KEY);
             }
         }
-
-        public string FETCH
-        {
-            get
-            {
-                return "FETCH";
-            }
-        }
-
-        public string NEXT
-        {
-            get
-            {
-                return "NEXT";
-            }
-        }
-
-        public string ROWS
-        {
-            get
-            {
-                return "ROWS";
-            }
-        }
-
-        public string ONLY
-        {
-            get
-            {
-                return "ONLY";
-            }
-        }
     }
 }

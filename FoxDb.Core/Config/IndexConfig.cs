@@ -13,12 +13,12 @@ namespace FoxDb
             this.Expression = this.CreateConstraint();
         }
 
-        public IndexConfig(IConfig config, IndexFlags flags, string identifier, ITableConfig table, string indexName, IEnumerable<IColumnConfig> columns) : this(config)
+        public IndexConfig(IConfig config, IndexFlags flags, string identifier, ITableConfig table, IEnumerable<IColumnConfig> columns)
+            : this(config)
         {
             this.Flags = flags;
             this.Identifier = identifier;
             this.Table = table;
-            this.IndexName = indexName;
             this.Columns = columns;
         }
 
@@ -32,11 +32,9 @@ namespace FoxDb
 
         public ITableConfig Table { get; private set; }
 
-        public string IndexName { get; set; }
-
         public IEnumerable<IColumnConfig> Columns { get; set; }
 
-        public IBinaryExpressionBuilder Expression { get; set; }
+        public IFragmentBuilder Expression { get; set; }
 
         public virtual IBinaryExpressionBuilder CreateConstraint()
         {
@@ -57,7 +55,7 @@ namespace FoxDb
 
         public override string ToString()
         {
-            return string.Format("{0}()", this.Table, string.Join(", ", this.Columns));
+            return string.Format("{0}({1})", this.Table, string.Join(", ", this.Columns));
         }
 
         public override int GetHashCode()
@@ -93,7 +91,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!Enumerable.SequenceEqual(this.Columns, other.Columns))
+            if (!this.Columns.SequenceEqual(other.Columns, true))
             {
                 return false;
             }
@@ -122,24 +120,24 @@ namespace FoxDb
             return !(a == b);
         }
 
-        public static IIndexSelector By(string indexName, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexSelector By(IEnumerable<IColumnConfig> columns, IndexFlags flags)
         {
-            return By(string.Empty, indexName, columns, flags);
+            return By(string.Empty, columns, flags);
         }
 
-        public static IIndexSelector By(string identifier, string indexName, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<IColumnConfig> columns, IndexFlags flags)
         {
-            return IndexSelector.By(identifier, indexName, columns, flags);
+            return IndexSelector.By(identifier, columns, flags);
         }
 
-        public static IIndexSelector By(string indexName, IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexSelector By(IEnumerable<string> columnNames, IndexFlags flags)
         {
-            return By(string.Empty, indexName, columnNames, flags);
+            return By(string.Empty, columnNames, flags);
         }
 
-        public static IIndexSelector By(string identifier, string indexName, IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<string> columnNames, IndexFlags flags)
         {
-            return IndexSelector.By(identifier, indexName, columnNames, flags);
+            return IndexSelector.By(identifier, columnNames, flags);
         }
     }
 }

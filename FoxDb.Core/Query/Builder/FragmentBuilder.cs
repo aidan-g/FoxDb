@@ -309,6 +309,23 @@ namespace FoxDb
             });
         }
 
+        public IFragmentBuilder Combine(QueryOperator @operator, params IFragmentBuilder[] expressions)
+        {
+            var builder = default(IFragmentBuilder);
+            foreach (var expression in expressions)
+            {
+                if (builder == null)
+                {
+                    builder = expression;
+                }
+                else
+                {
+                    builder = this.CreateBinary(builder, @operator, expression);
+                }
+            }
+            return builder;
+        }
+
         public abstract IFragmentBuilder Clone();
 
         public override int GetHashCode()

@@ -82,14 +82,18 @@ namespace FoxDb
                 if (flags.HasFlag(PersistenceFlags.AddOrUpdate))
                 {
                     persister.AddOrUpdate(child, flags);
+                    if (flags.HasFlag(PersistenceFlags.Cascade))
+                    {
+                        this.Cascade(node, child, flags);
+                    }
                 }
                 else if (flags.HasFlag(PersistenceFlags.Delete))
                 {
+                    if (flags.HasFlag(PersistenceFlags.Cascade))
+                    {
+                        this.Cascade(node, child, flags);
+                    }
                     persister.Delete(child, flags);
-                }
-                if (flags.HasFlag(PersistenceFlags.Cascade))
-                {
-                    this.Cascade(node, child, flags);
                 }
             }
 

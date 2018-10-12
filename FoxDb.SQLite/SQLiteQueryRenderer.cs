@@ -5,7 +5,8 @@ namespace FoxDb
 {
     public class SQLiteQueryRenderer : SqlQueryRenderer
     {
-        public SQLiteQueryRenderer(IDatabase database) : base(database)
+        public SQLiteQueryRenderer(IDatabase database)
+            : base(database)
         {
 
         }
@@ -54,6 +55,13 @@ namespace FoxDb
         protected override void VisitCreate(IFragmentBuilder parent, IQueryGraphBuilder graph, ICreateBuilder expression)
         {
             this.Push(new SQLiteCreateWriter(parent, graph, this.Database, this, this.Parameters));
+            this.Peek.Write(expression);
+            this.Pop();
+        }
+
+        protected override void VisitDrop(IFragmentBuilder parent, IQueryGraphBuilder graph, IDropBuilder expression)
+        {
+            this.Push(new SQLiteDropWriter(parent, graph, this.Database, this, this.Parameters));
             this.Peek.Write(expression);
             this.Pop();
         }

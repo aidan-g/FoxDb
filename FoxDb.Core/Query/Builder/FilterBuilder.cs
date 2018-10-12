@@ -44,7 +44,7 @@ namespace FoxDb
         public IBinaryExpressionBuilder GetColumn(IColumnConfig column)
         {
             return this.GetExpression<IBinaryExpressionBuilder>(
-                builder => builder.Left is IColumnBuilder && (builder.Left as IColumnBuilder).Column == column
+                builder => builder.Left is IColumnBuilder && ColumnComparer.ColumnConfig.Equals((builder.Left as IColumnBuilder).Column, column)
             );
         }
 
@@ -62,8 +62,8 @@ namespace FoxDb
         {
             return this.GetExpression<IBinaryExpressionBuilder>(
                 builder =>
-                    builder.Left is IColumnBuilder && (builder.Left as IColumnBuilder).Column == leftColumn &&
-                    builder.Right is IColumnBuilder && (builder.Right as IColumnBuilder).Column == rightColumn
+                    builder.Left is IColumnBuilder && ColumnComparer.ColumnConfig.Equals((builder.Left as IColumnBuilder).Column, leftColumn) &&
+                    builder.Right is IColumnBuilder && ColumnComparer.ColumnConfig.Equals((builder.Right as IColumnBuilder).Column, rightColumn)
             );
         }
 

@@ -63,6 +63,7 @@
     <Compile Include="Writers\SqlCeLimitWriter.cs" />
     <Compile Include="Writers\SqlCeOffsetWriter.cs" />
     <Compile Include="Writers\SqlCeSelectWriter.cs" />
+    <Compile Include="Writers\SqlCeCreateWriter.cs" />
     <Compile Include="Writers\SqlCeWhereWriter.cs" />
   </ItemGroup>
   <ItemGroup>

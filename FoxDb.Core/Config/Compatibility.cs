@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -77,6 +78,30 @@ namespace FoxDb
         }
 
         [Obsolete]
+        public static IIndexConfig Index(this ITableConfig table, IEnumerable<string> columnNames, IndexFlags flags)
+        {
+            var selector = IndexConfig.By(columnNames, flags);
+            var index = table.GetIndex(selector);
+            if (index == null)
+            {
+                index = table.CreateIndex(selector);
+            }
+            return index;
+        }
+
+        [Obsolete]
+        public static IIndexConfig Index(this ITableConfig table, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        {
+            var selector = IndexConfig.By(columns, flags);
+            var index = table.GetIndex(selector);
+            if (index == null)
+            {
+                index = table.CreateIndex(selector);
+            }
+            return index;
+        }
+
+        [Obsolete]
         public static IRelationConfig Relation<T, TRelation>(this ITableConfig<T> table, Expression<Func<T, TRelation>> expression)
         {
             return table.Relation(expression, Defaults.Relation.Flags);
@@ -90,6 +115,24 @@ namespace FoxDb
             if (relation == null)
             {
                 relation = table.CreateRelation<TRelation>(selector);
+            }
+            return relation;
+        }
+
+        [Obsolete]
+        public static IRelationConfig Relation<T1, T2, TRelation>(this ITableConfig<T1, T2> table, Expression<Func<T1, TRelation>> expression)
+        {
+            return table.Relation(expression, Defaults.Relation.Flags);
+        }
+
+        [Obsolete]
+        public static IRelationConfig Relation<T1, T2, TRelation>(this ITableConfig<T1, T2> table, Expression<Func<T1, TRelation>> expression, RelationFlags flags)
+        {
+            var selector = RelationConfig.By(expression, flags);
+            var relation = table.GetRelation(selector);
+            if (relation == null)
+            {
+                relation = table.CreateRelation(selector);
             }
             return relation;
         }

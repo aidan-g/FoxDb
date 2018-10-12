@@ -36,7 +36,7 @@ namespace FoxDb
         {
             var existing = default(ITableConfig);
             var table = Factories.Table.Create(this, selector);
-            if (!this.Tables.TryGetValue(table.Identifier, out existing) || !table.Equals(existing))
+            if (!this.Tables.TryGetValue(table.Identifier, out existing) || !TableComparer.TableConfig.Equals(table, existing))
             {
                 return default(ITableConfig);
             }
@@ -73,10 +73,30 @@ namespace FoxDb
             {
                 table.AutoColumns();
             }
+            if (table.Flags.HasFlag(TableFlags.AutoIndexes))
+            {
+                table.AutoIndexes();
+            }
             if (table.Flags.HasFlag(TableFlags.AutoRelations))
             {
                 table.AutoRelations();
             }
+            if (typeof(IEntityConfiguration).IsAssignableFrom(table.TableType))
+            {
+                this.ConfigureEntity(table);
+            }
+        }
+
+        protected virtual void ConfigureEntity(ITableConfig table)
+        {
+            var initializer = new EntityInitializer(table);
+            var factory = new EntityFactory(table, initializer);
+            var entity = factory.Create() as IEntityConfiguration;
+            if (entity == null)
+            {
+                return;
+            }
+            entity.Configure(this, table);
         }
     }
 }

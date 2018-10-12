@@ -6,8 +6,6 @@ namespace FoxDb.Interfaces
     {
         string Identifier { get; }
 
-        string IndexName { get; }
-
         IEnumerable<IColumnConfig> Columns { get; }
 
         IEnumerable<string> ColumnNames { get; }

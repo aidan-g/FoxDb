@@ -57,6 +57,8 @@ namespace FoxDb.Interfaces
         ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder condition, IFragmentBuilder result);
 
         ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions);
+
+        IFragmentBuilder Combine(QueryOperator @operator, params IFragmentBuilder[] expressions);
     }
 
     public enum FragmentType : byte

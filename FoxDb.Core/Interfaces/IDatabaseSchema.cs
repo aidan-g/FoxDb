@@ -11,5 +11,7 @@ namespace FoxDb.Interfaces
         IEnumerable<string> GetTableNames(ITransactionSource transaction = null);
 
         IEnumerable<string> GetColumnNames(string tableName, ITransactionSource transaction = null);
+
+        void Reset();
     }
 }

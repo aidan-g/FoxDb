@@ -6,6 +6,8 @@ namespace FoxDb.Interfaces
     {
         IIndexConfig Index { get; set; }
 
+        ITableBuilder Table { get; }
+
         IEnumerable<IIdentifierBuilder> Columns { get; }
     }
 }

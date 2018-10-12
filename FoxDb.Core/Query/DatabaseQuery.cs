@@ -62,7 +62,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!Enumerable.SequenceEqual(this.Parameters, other.Parameters))
+            if (!this.Parameters.SequenceEqual(other.Parameters, true))
             {
                 return false;
             }

@@ -9,6 +9,13 @@ namespace FoxDb
     {
         public static bool Validate(PropertyInfo property)
         {
+            var elementType = default(Type);
+            return Validate(property, out elementType);
+        }
+
+        public static bool Validate(PropertyInfo property, out Type elementType)
+        {
+            elementType = property.PropertyType;
             if (property == null)
             {
                 return false;
@@ -27,7 +34,6 @@ namespace FoxDb
             }
             if (property.PropertyType.IsGenericType)
             {
-                var elementType = default(Type);
                 if (!property.PropertyType.IsCollection(out elementType))
                 {
                     return false;

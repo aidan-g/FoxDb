@@ -34,7 +34,7 @@ namespace FoxDb
             var tables = new[]
             {
                 this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test001), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                    TableConfig.By(typeof(Test001), TableFlags.AutoColumns | TableFlags.AutoIndexes)
                 ).With(table =>
                 {
                     table.CreateColumn(ColumnConfig.By("Field4", ColumnFlags.None)).With(column =>
@@ -47,37 +47,46 @@ namespace FoxDb
                     });
                 }),
                 this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoRelations)
-                ),
-                this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(
-                        this.Database.Config.Transient.CreateTable(
-                            TableConfig.By(typeof(Test002), TableFlags.None)
-                        ),
-                        this.Database.Config.Transient.CreateTable(
-                            TableConfig.By(typeof(Test004), TableFlags.None)
-                        ),
-                        TableFlags.None
-                    )
+                    TableConfig.By(typeof(Test003), TableFlags.AutoColumns | TableFlags.AutoIndexes)
                 ).With(table =>
                 {
                     table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
                     {
-                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32));
-                    });
-                    table.CreateColumn(ColumnConfig.By("Test004_Id", ColumnFlags.None)).With(column =>
-                    {
-                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Double));
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
                     });
                 }),
                 this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                    TableConfig.By(typeof(Test004), TableFlags.AutoColumns | TableFlags.AutoIndexes)
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Test002_Id", ColumnFlags.None)).With(column =>
+                    {
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Int32, isNullable: true));
+                    });
+                }),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoIndexes | TableFlags.AutoRelations)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test002), TableFlags.AutoColumns)
+                        ),
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test004), TableFlags.AutoColumns)
+                        ),
+                        TableFlags.AutoColumns | TableFlags.AutoRelations
+                    )
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoIndexes)
                 )
             };
             foreach (var table in tables)
             {
                 var query = this.Database.SchemaFactory.Add(table).Build();
                 this.Database.Execute(query);
+                this.Database.Schema.Reset();
             }
         }
 
@@ -87,30 +96,37 @@ namespace FoxDb
             var tables = new[]
             {
                 this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test001), TableFlags.AutoColumns | TableFlags.AutoRelations)
-                ),
-                this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                    TableConfig.By(typeof(Test001), TableFlags.None)
                 ),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(
                         this.Database.Config.Transient.CreateTable(
-                            TableConfig.By(typeof(Test002), TableFlags.None)
+                            TableConfig.By(typeof(Test002), TableFlags.AutoColumns)
                         ),
                         this.Database.Config.Transient.CreateTable(
-                            TableConfig.By(typeof(Test004), TableFlags.None)
+                            TableConfig.By(typeof(Test004), TableFlags.AutoColumns)
                         ),
-                        TableFlags.None
+                        TableFlags.AutoColumns | TableFlags.AutoRelations
                     )
                 ),
                 this.Database.Config.Transient.CreateTable(
-                    TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoRelations)
+                    TableConfig.By(typeof(Test003), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test004), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test002), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test005), TableFlags.None)
                 )
             };
             foreach (var table in tables)
             {
                 var query = this.Database.SchemaFactory.Delete(table).Build();
                 this.Database.Execute(query);
+                this.Database.Schema.Reset();
             }
             this.Database.Dispose();
             this.Database = null;

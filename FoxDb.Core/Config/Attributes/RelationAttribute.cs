@@ -15,8 +15,6 @@ namespace FoxDb
             this.Flags |= flags;
         }
 
-        public string Name { get; set; }
-
         public string Identifier { get; set; }
 
         public string LeftColumn { get; set; }

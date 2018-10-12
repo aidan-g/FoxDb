@@ -13,11 +13,9 @@ namespace FoxDb.Interfaces
 
         ITableConfig Table { get; }
 
-        string IndexName { get; set; }
-
         IEnumerable<IColumnConfig> Columns { get; }
 
-        IBinaryExpressionBuilder Expression { get; set; }
+        IFragmentBuilder Expression { get; set; }
 
         IBinaryExpressionBuilder CreateConstraint();
     }

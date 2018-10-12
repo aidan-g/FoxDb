@@ -163,6 +163,7 @@ namespace FoxDb
                 { FragmentType.Binary, (writer, fragment) => writer.VisitBinary(fragment as IBinaryExpressionBuilder) },
                 { FragmentType.Table, (writer, fragment) => writer.VisitTable(fragment as ITableBuilder) },
                 { FragmentType.Column, (writer, fragment) => writer.VisitColumn(fragment as IColumnBuilder) },
+                { FragmentType.Relation, (writer, fragment) => writer.VisitRelation(fragment as IRelationBuilder) },
                 { FragmentType.Index, (writer, fragment) => writer.VisitIndex(fragment as IIndexBuilder) },
                 { FragmentType.Parameter, (writer, fragment) => writer.VisitParameter(fragment as IParameterBuilder) },
                 { FragmentType.Function, (writer, fragment) => writer.VisitFunction(fragment as IFunctionBuilder) },
@@ -199,7 +200,8 @@ namespace FoxDb
                 { QueryOperator.CloseParentheses, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.CLOSE_PARENTHESES) },
                 { QueryOperator.Between, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.BETWEEN) },
                 //Mathematical
-                { QueryOperator.Add, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.ADD) },
+                { QueryOperator.Plus, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.PLUS) },
+                { QueryOperator.Minus, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.MINUS) },
                 //Other
                 { QueryOperator.Null, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.NULL) },
                 { QueryOperator.Star, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.STAR) }
@@ -309,6 +311,11 @@ namespace FoxDb
             {
                 this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Column.Table.TableName, identifier));
             }
+        }
+
+        protected virtual void VisitRelation(IRelationBuilder expression)
+        {
+            throw new NotImplementedException();
         }
 
         protected virtual void VisitIndex(IIndexBuilder expression)
@@ -492,6 +499,24 @@ namespace FoxDb
                 return;
             }
             this.Builder.AppendFormat("{0} {1} ", this.Database.QueryFactory.Dialect.AS, this.Database.QueryFactory.Dialect.Identifier(alias));
+        }
+
+        protected virtual void VisitBatches(IEnumerable<Action> batches)
+        {
+            var first = true;
+            foreach (var batch in batches)
+            {
+                if (!first)
+                {
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.BATCH);
+                }
+                var length = this.Builder.Length;
+                batch();
+                if (this.Builder.Length > length)
+                {
+                    first = false;
+                }
+            }
         }
 
         protected virtual bool ContainsParameter(string name)

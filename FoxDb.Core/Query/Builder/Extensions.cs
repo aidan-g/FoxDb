@@ -51,9 +51,33 @@ namespace FoxDb
                 .ToDictionary(group => group.Key, group => (IList<IColumnConfig>)group.Select(expression => expression.Column).ToList());
         }
 
-        public static bool IsEmpty(this IFragmentContainer container)
+        public static TResult GetOppositeExpression<T, TResult>(this IFragmentContainer container, Predicate<T> predicate) where T : IFragmentBuilder
         {
-            return !container.Expressions.Any();
+            var expressions = container.Flatten<IBinaryExpressionBuilder>();
+            foreach (var binary in expressions)
+            {
+                if (binary.Left is T && predicate((T)binary.Left) && binary.Right is TResult)
+                {
+                    return (TResult)binary.Right;
+                }
+                if (binary.Right is T && predicate((T)binary.Right) && binary.Left is TResult)
+                {
+                    return (TResult)binary.Left;
+                }
+            }
+            return default(TResult);
+        }
+
+        public static bool IsEmpty(this IFragmentBuilder builder)
+        {
+            if (builder is IFragmentContainer)
+            {
+                return !(builder as IFragmentContainer).Expressions.Any(expression => expression != null);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static T GetExpression<T>(this IFragmentContainer container, Func<T, bool> predicate) where T : IFragmentBuilder

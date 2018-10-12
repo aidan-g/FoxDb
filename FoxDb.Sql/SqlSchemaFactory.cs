@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -27,22 +28,28 @@ namespace FoxDb
 
         public ISchemaGraphBuilder Add(ITableConfig table)
         {
-            var builder = this.Build();
-            builder.Create.SetTable(table);
-            builder.Create.AddColumns(table.Columns);
-            builder.Create.AddIndexes(table.Indexes);
+            var tableFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
+            {
+                var builder = this.Build();
+                builder.Create.AddTable(element);
+                builder.Create.AddColumns(element.Columns);
+                builder.Create.AddIndexes(element.Indexes);
+                return builder;
+            });
+            var relationFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
+            {
+                var builder = this.Build();
+                builder.Create.AddRelations(element.Relations);
+                return builder;
+            });
             if (table.Relations.Any())
             {
-                var calculator = new EntityRelationCalculator(table);
-                calculator.AddRelations(table.Relations);
                 return new AggregateSchemaGraphBuilder(
                     this.Database,
-                    calculator.CalculatedRelations.Select(
-                        relation => this.Add(relation.Table)
-                    ).Concat(builder)
+                    new[] { tableFactory(table), relationFactory(table) }
                 );
             }
-            return builder;
+            return tableFactory(table);
         }
 
         public ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable)
@@ -55,20 +62,27 @@ namespace FoxDb
 
         public ISchemaGraphBuilder Delete(ITableConfig table)
         {
-            var builder = this.Build();
-            builder.Drop.SetTable(table);
+            var tableFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
+            {
+                var builder = this.Build();
+                builder.Drop.AddTable(element);
+                builder.Drop.AddIndexes(element.Indexes);
+                return builder;
+            });
+            var relationFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
+            {
+                var builder = this.Build();
+                builder.Drop.AddRelations(element.Relations);
+                return builder;
+            });
             if (table.Relations.Any())
             {
-                var calculator = new EntityRelationCalculator(table);
-                calculator.AddRelations(table.Relations);
                 return new AggregateSchemaGraphBuilder(
                     this.Database,
-                    calculator.CalculatedRelations.Select(
-                        relation => this.Delete(relation.Table)
-                    ).Concat(builder)
+                    new[] { relationFactory(table), tableFactory(table) }
                 );
             }
-            return builder;
+            return tableFactory(table);
         }
     }
 }

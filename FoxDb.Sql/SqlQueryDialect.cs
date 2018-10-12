@@ -347,11 +347,27 @@ namespace FoxDb
             }
         }
 
-        public virtual string ADD
+        public virtual string PLUS
         {
             get
             {
                 return "+";
+            }
+        }
+
+        public virtual string MINUS
+        {
+            get
+            {
+                return "-";
+            }
+        }
+
+        public virtual string ADD
+        {
+            get
+            {
+                return "ADD";
             }
         }
 
@@ -437,6 +453,14 @@ namespace FoxDb
             }
         }
 
+        public virtual string FOREIGN_KEY
+        {
+            get
+            {
+                return "FOREIGN KEY";
+            }
+        }
+
         public virtual string CASE
         {
             get
@@ -490,6 +514,22 @@ namespace FoxDb
             get
             {
                 return "OVER";
+            }
+        }
+
+        public string CONSTRAINT
+        {
+            get
+            {
+                return "CONSTRAINT";
+            }
+        }
+
+        public string REFERENCES
+        {
+            get
+            {
+                return "REFERENCES";
             }
         }
     }

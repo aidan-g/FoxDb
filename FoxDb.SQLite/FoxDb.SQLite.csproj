@@ -61,6 +61,7 @@
     <Compile Include="SQLiteQueryRenderer.cs" />
     <Compile Include="SQLiteSchemaFactory.cs" />
     <Compile Include="Writers\SQLiteCreateWriter.cs" />
+    <Compile Include="Writers\SQLiteDropWriter.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />
     <Compile Include="Writers\SQLiteOffsetWriter.cs" />
     <Compile Include="Writers\SQLiteSelectWriter.cs" />

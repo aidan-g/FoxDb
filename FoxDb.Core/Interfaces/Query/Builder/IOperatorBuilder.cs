@@ -26,7 +26,8 @@
         CloseParentheses,
         Between,
         //Mathmatical
-        Add,
+        Plus,
+        Minus,
         //Other
         Null,
         Star

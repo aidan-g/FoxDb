@@ -40,7 +40,7 @@ namespace FoxDb
 
         public IRelationConfig Create(ITableConfig table, string identifier, Expression expression, RelationFlags flags)
         {
-            return this.Create(table, identifier, expression.GetLambdaProperty(table.TableType), flags);
+            return this.Create(table, identifier, expression.GetLambdaProperty(table), flags);
         }
 
         public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, string identifier, PropertyInfo property, RelationFlags flags)
@@ -51,13 +51,13 @@ namespace FoxDb
                 Flags = flags,
                 Identifier = identifier
             };
+            if (string.IsNullOrEmpty(attribute.Identifier))
+            {
+                attribute.Identifier = string.Format("{0}_{1}", table.TableName, property.Name);
+            }
             var relation = default(IRelationConfig);
             if (property.PropertyType.IsCollection(out elementType))
             {
-                if (string.IsNullOrEmpty(attribute.Identifier))
-                {
-                    attribute.Identifier = elementType.Name;
-                }
                 switch (attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany).GetMultiplicity())
                 {
                     case RelationFlags.OneToMany:
@@ -72,10 +72,6 @@ namespace FoxDb
             }
             else
             {
-                if (string.IsNullOrEmpty(attribute.Identifier))
-                {
-                    attribute.Identifier = property.PropertyType.Name;
-                }
                 relation = this.CreateOneToOne<T, TRelation>(table, attribute, property);
             }
             if (!string.IsNullOrEmpty(attribute.LeftColumn))

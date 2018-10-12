@@ -164,11 +164,11 @@ namespace FoxDb
 
         public ITableConfig GetOppositeTable(ITableConfig relativeTable)
         {
-            if (this.LeftTable == relativeTable)
+            if (TableComparer.TableConfig.Equals(this.LeftTable, relativeTable))
             {
                 return this.RightTable;
             }
-            if (this.RightTable == relativeTable)
+            if (TableComparer.TableConfig.Equals(this.RightTable, relativeTable))
             {
                 return this.LeftTable;
             }

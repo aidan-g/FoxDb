@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class AggregateBuilder : FragmentBuilder, IAggregateBuilder
     {
-        public AggregateBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph) : base(parent, graph)
+        public AggregateBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
+            : base(parent, graph)
         {
             this.Expressions = new List<IFragmentBuilder>();
             this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
@@ -26,7 +27,7 @@ namespace FoxDb
 
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
-            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+            return this.GetExpression<IColumnBuilder>(builder => ColumnComparer.ColumnConfig.Equals(builder.Column, column));
         }
 
         public IColumnBuilder AddColumn(IColumnConfig column)

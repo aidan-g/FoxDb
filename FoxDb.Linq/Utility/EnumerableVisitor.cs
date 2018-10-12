@@ -78,7 +78,8 @@ namespace FoxDb
                 { ExpressionType.Or, QueryOperator.Or },
                 { ExpressionType.OrElse, QueryOperator.OrElse },
                 //Mathematical.
-                { ExpressionType.Add, QueryOperator.Add }
+                { ExpressionType.Add, QueryOperator.Plus },
+                { ExpressionType.Subtract, QueryOperator.Minus }
             };
         }
 

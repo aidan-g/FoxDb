@@ -78,7 +78,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                if (children.Any(child => child.Relation.RightTable == relation.RightTable))
+                if (children.Any(child => TableComparer.TableConfig.Equals(child.Relation.RightTable, relation.RightTable)))
                 {
                     continue;
                 }

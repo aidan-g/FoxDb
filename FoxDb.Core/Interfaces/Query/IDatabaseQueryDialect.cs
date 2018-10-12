@@ -82,6 +82,10 @@
 
         string BETWEEN { get; }
 
+        string PLUS { get; }
+
+        string MINUS { get; }
+
         string ADD { get; }
 
         string DEFAULT { get; }
@@ -106,6 +110,8 @@
 
         string PRIMARY_KEY { get; }
 
+        string FOREIGN_KEY { get; }
+
         string CASE { get; }
 
         string WHEN { get; }
@@ -119,5 +125,9 @@
         string ROW_NUMBER { get; }
 
         string OVER { get; }
+
+        string CONSTRAINT { get; }
+
+        string REFERENCES { get; }
     }
 }

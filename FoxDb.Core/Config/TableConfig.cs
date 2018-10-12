@@ -123,7 +123,7 @@ namespace FoxDb
         {
             var existing = default(IColumnConfig);
             var column = Factories.Column.Create(this, selector);
-            if (!this.Columns.TryGetValue(column.Identifier, out existing) || !column.Equals(existing))
+            if (!this.Columns.TryGetValue(column.Identifier, out existing) || !ColumnComparer.ColumnConfig.Equals(column, existing))
             {
                 return default(IColumnConfig);
             }
@@ -156,7 +156,7 @@ namespace FoxDb
         {
             var existing = default(IIndexConfig);
             var index = Factories.Index.Create(this, selector);
-            if (!this.Indexes.TryGetValue(index.Identifier, out existing) || !index.Equals(existing))
+            if (!this.Indexes.TryGetValue(index.Identifier, out existing) || !IndexComparer.IndexConfig.Equals(index, existing))
             {
                 return default(IIndexConfig);
             }
@@ -171,6 +171,8 @@ namespace FoxDb
         }
 
         public abstract ITableConfig AutoColumns();
+
+        public abstract ITableConfig AutoIndexes();
 
         public abstract ITableConfig AutoRelations();
 
@@ -342,6 +344,22 @@ namespace FoxDb
             return this;
         }
 
+        public override ITableConfig AutoIndexes()
+        {
+            var enumerator = new IndexEnumerator();
+            var indexes = enumerator.GetIndexes(this).ToArray();
+            for (var a = 0; a < indexes.Length; a++)
+            {
+                var index = indexes[a];
+                if (this.Indexes.ContainsKey(index.Identifier))
+                {
+                    continue;
+                }
+                index = this.Indexes.GetOrAdd(index.Identifier, index);
+            }
+            return this;
+        }
+
         public override ITableConfig AutoRelations()
         {
             var enumerator = new RelationEnumerator();
@@ -435,12 +453,45 @@ namespace FoxDb
             this.RightTable = rightTable;
         }
 
+        public IRelationConfig GetRelation<TRelation>(IRelationSelector<T1, TRelation> selector)
+        {
+            var existing = default(IRelationConfig);
+            var relation = Factories.Relation.Create(this, selector);
+            if (!this.Relations.TryGetValue(relation.Identifier, out existing) || !relation.Equals(existing))
+            {
+                return default(IRelationConfig);
+            }
+            return existing;
+        }
+
+        public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T1, TRelation> selector)
+        {
+            var relation = Factories.Relation.Create(this, selector);
+            if (!RelationValidator.Validate(false, relation))
+            {
+                throw new InvalidOperationException(string.Format("Relation has invalid configuration: {0}", relation));
+            }
+            relation = this.Relations.AddOrUpdate(relation.Identifier, relation);
+            return relation;
+        }
+
+        public bool TryCreateRelation<TRelation>(IRelationSelector<T1, TRelation> selector, out IRelationConfig relation)
+        {
+            relation = Factories.Relation.Create(this, selector);
+            if (!RelationValidator.Validate(false, relation))
+            {
+                return false;
+            }
+            relation = this.Relations.AddOrUpdate(relation.Identifier, relation);
+            return true;
+        }
+
         public override ITableConfig AutoColumns()
         {
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), Defaults.Column.Flags), out column))
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), this.LeftTable.PrimaryKey.ColumnType, Defaults.Column.Flags), out column))
                 {
                     this.LeftForeignKey = column;
                     this.LeftForeignKey.IsForeignKey = true;
@@ -449,7 +500,7 @@ namespace FoxDb
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), Defaults.Column.Flags), out column))
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), this.RightTable.PrimaryKey.ColumnType, Defaults.Column.Flags), out column))
                 {
                     this.RightForeignKey = column;
                     this.RightForeignKey.IsForeignKey = true;
@@ -458,8 +509,35 @@ namespace FoxDb
             return this;
         }
 
+        public override ITableConfig AutoIndexes()
+        {
+            var enumerator = new IndexEnumerator();
+            var indexes = enumerator.GetIndexes(this).ToArray();
+            for (var a = 0; a < indexes.Length; a++)
+            {
+                var index = indexes[a];
+                if (this.Indexes.ContainsKey(index.Identifier))
+                {
+                    continue;
+                }
+                index = this.Indexes.GetOrAdd(index.Identifier, index);
+            }
+            return this;
+        }
+
         public override ITableConfig AutoRelations()
         {
+            var enumerator = new RelationEnumerator();
+            var relations = enumerator.GetRelations(this).ToArray();
+            for (var a = 0; a < relations.Length; a++)
+            {
+                var relation = relations[a];
+                if (this.Relations.ContainsKey(relation.Identifier))
+                {
+                    continue;
+                }
+                relation = this.Relations.GetOrAdd(relation.Identifier, relation);
+            }
             return this;
         }
 

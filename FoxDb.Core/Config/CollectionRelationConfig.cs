@@ -7,7 +7,8 @@ namespace FoxDb
 {
     public abstract class CollectionRelationConfig<T, TRelation> : RelationConfig, ICollectionRelationConfig<T, TRelation>
     {
-        public CollectionRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor) : base(config, flags, identifier, leftTable, mappingTable, rightTable)
+        public CollectionRelationConfig(IConfig config, RelationFlags flags, string identifier, ITableConfig leftTable, IMappingTableConfig mappingTable, ITableConfig rightTable, IPropertyAccessor<T, ICollection<TRelation>> accessor)
+            : base(config, flags, identifier, leftTable, mappingTable, rightTable)
         {
             this.Accessor = accessor;
         }

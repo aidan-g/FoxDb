@@ -28,7 +28,7 @@ namespace FoxDb
 
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
-            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+            return this.GetExpression<IColumnBuilder>(builder => ColumnComparer.ColumnConfig.Equals(builder.Column, column));
         }
 
         public IColumnBuilder AddColumn(IColumnConfig column)

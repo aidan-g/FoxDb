@@ -21,16 +21,30 @@ namespace FoxDb
 
         public ICollection<IFragmentBuilder> Expressions { get; private set; }
 
-        public ITableBuilder Table { get; set; }
-
-        public ITableBuilder SetTable(ITableConfig table)
+        public ITableBuilder GetTable(ITableConfig table)
         {
-            return this.Table = this.CreateTable(table);
+            return this.GetExpression<ITableBuilder>(builder => TableComparer.TableConfig.Equals(builder.Table, table));
+        }
+
+        public ITableBuilder AddTable(ITableConfig table)
+        {
+            var builder = this.CreateTable(table);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
+        public ICreateBuilder AddTables(IEnumerable<ITableConfig> tables)
+        {
+            foreach (var table in tables)
+            {
+                this.AddTable(table);
+            }
+            return this;
         }
 
         public IColumnBuilder GetColumn(IColumnConfig column)
         {
-            return this.GetExpression<IColumnBuilder>(builder => builder.Column == column);
+            return this.GetExpression<IColumnBuilder>(builder => ColumnComparer.ColumnConfig.Equals(builder.Column, column));
         }
 
         public IColumnBuilder AddColumn(IColumnConfig column)
@@ -49,9 +63,30 @@ namespace FoxDb
             return this;
         }
 
+        public IRelationBuilder GetRelation(IRelationConfig relation)
+        {
+            return this.GetExpression<IRelationBuilder>(builder => builder.Relation == relation);
+        }
+
+        public IRelationBuilder AddRelation(IRelationConfig relation)
+        {
+            var builder = this.CreateRelation(relation);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
+        public ICreateBuilder AddRelations(IEnumerable<IRelationConfig> relations)
+        {
+            foreach (var relation in relations)
+            {
+                this.AddRelation(relation);
+            }
+            return this;
+        }
+
         public IIndexBuilder GetIndex(IIndexConfig index)
         {
-            return this.GetExpression<IIndexBuilder>(builder => builder.Index == index);
+            return this.GetExpression<IIndexBuilder>(builder => IndexComparer.IndexConfig.Equals(builder.Index, index));
         }
 
         public IIndexBuilder AddIndex(IIndexConfig index)
@@ -74,7 +109,6 @@ namespace FoxDb
         {
             return this.Parent.Fragment<ICreateBuilder>().With(builder =>
             {
-                builder.Table = (ITableBuilder)this.Table.Clone();
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

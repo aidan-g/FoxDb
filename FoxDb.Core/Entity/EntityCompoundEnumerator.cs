@@ -97,7 +97,7 @@ namespace FoxDb
                 var item = this.Buffer.Get(table);
                 if (item != null)
                 {
-                    if (this.Sink.Table == table)
+                    if (TableComparer.TableConfig.Equals(this.Sink.Table, table))
                     {
                         this.Sink.Handler(this, new EntityGraphSinkEventArgs(item));
                     }

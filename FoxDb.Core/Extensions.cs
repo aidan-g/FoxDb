@@ -151,6 +151,14 @@ namespace FoxDb
             }
         }
 
+        public static void PushRange<T>(this Stack<T> collection, IEnumerable<T> sequence)
+        {
+            foreach (var element in sequence)
+            {
+                collection.Push(element);
+            }
+        }
+
         public static void ForEach<T>(this IEnumerable<T> sequence, Action<T> action)
         {
             foreach (var element in sequence)

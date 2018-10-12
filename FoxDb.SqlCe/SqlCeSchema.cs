@@ -10,7 +10,7 @@ namespace FoxDb
     {
         private SqlCeSchema()
         {
-            this.ColumnNames = new ConcurrentDictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+            this.Reset();
         }
 
         public SqlCeSchema(IDatabase database) : this()
@@ -67,6 +67,12 @@ namespace FoxDb
                 }
             }
             return columnNames;
+        }
+
+        public void Reset()
+        {
+            this.TableNames = null;
+            this.ColumnNames = new ConcurrentDictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
         }
     }
 }

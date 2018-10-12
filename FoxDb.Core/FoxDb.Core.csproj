@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Config\Attributes\ColumnAttribute.cs" />
     <Compile Include="Config\Attributes\IgnoreAttribute.cs" />
+    <Compile Include="Config\Attributes\IndexAttribute.cs" />
     <Compile Include="Config\Attributes\RelationAttribute.cs" />
     <Compile Include="Config\Attributes\TableAttribute.cs" />
     <Compile Include="Config\Attributes\TypeAttribute.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="Config\Defaults.cs" />
     <Compile Include="Config\Extensions.cs" />
     <Compile Include="Config\IndexConfig.cs" />
+    <Compile Include="Config\IndexEnumerator.cs" />
     <Compile Include="Config\IndexFactory.cs" />
     <Compile Include="Config\IndexSelector.cs" />
     <Compile Include="Config\ManyToManyRelationConfig.cs" />
@@ -59,6 +61,8 @@
     <Compile Include="Config\RelationFactory.cs" />
     <Compile Include="Config\RelationSelector.cs" />
     <Compile Include="Config\RelationValidator.cs" />
+    <Compile Include="Config\ColumnComparer.cs" />
+    <Compile Include="Config\IndexComparer.cs" />
     <Compile Include="Config\TableComparer.cs" />
     <Compile Include="Config\TableConfigContainer.cs" />
     <Compile Include="Config\TableFactory.cs" />
@@ -89,6 +93,7 @@
     <Compile Include="Interfaces\Config\IColumnFactory.cs" />
     <Compile Include="Interfaces\Config\IColumnSelector.cs" />
     <Compile Include="Interfaces\Config\IIndexConfig.cs" />
+    <Compile Include="Interfaces\Config\IIndexEnumerator.cs" />
     <Compile Include="Interfaces\Config\IIndexFactory.cs" />
     <Compile Include="Interfaces\Config\IIndexSelector.cs" />
     <Compile Include="Interfaces\Config\IRelationEnumerator.cs" />
@@ -100,6 +105,7 @@
     <Compile Include="Interfaces\Config\ITypeConfig.cs" />
     <Compile Include="Interfaces\Config\ITypeFactory.cs" />
     <Compile Include="Interfaces\Config\ITypeSelector.cs" />
+    <Compile Include="Interfaces\Entity\IEntityConfiguration.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumerator.cs" />
     <Compile Include="Interfaces\Entity\IEntityEnumeratorBuffer.cs" />
     <Compile Include="Interfaces\Entity\IEntityFactory.cs" />
@@ -261,6 +267,7 @@
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PropertyAccessorFactory.cs" />
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
+    <Compile Include="Utility\RecursiveSelector.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
     <Compile Include="Utility\TypeHelper.cs" />
   </ItemGroup>

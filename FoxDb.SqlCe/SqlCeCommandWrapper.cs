@@ -6,7 +6,8 @@ namespace FoxDb
 {
     public class SqlCeCommandWrapper : Command
     {
-        public SqlCeCommandWrapper(SqlCeProvider provider, SqlCeQueryDialect dialect, IDbCommand command) : base(command)
+        public SqlCeCommandWrapper(SqlCeProvider provider, SqlCeQueryDialect dialect, IDbCommand command)
+            : base(command)
         {
             this.Provider = provider;
             this.Dialect = dialect;
@@ -38,19 +39,7 @@ namespace FoxDb
                 }
                 else
                 {
-                    var index1 = 0;
-                    var index2 = 0;
-                    var commandBatches = new List<string>();
-                    while ((index2 = this.CommandText.IndexOf(this.Dialect.BATCH, index1, StringComparison.OrdinalIgnoreCase)) != -1)
-                    {
-                        commandBatches.Add(this.CommandText.Substring(index1, index2 - index1).Trim());
-                        index1 = index2 + this.Dialect.BATCH.Length;
-                    }
-                    if (index1 < this.CommandText.Length)
-                    {
-                        commandBatches.Add(this.CommandText.Substring(index1).Trim());
-                    }
-                    return commandBatches;
+                    return this.CommandText.Split(this.Dialect.BATCH, StringComparison.OrdinalIgnoreCase, StringSplitOptions.RemoveEmptyEntries);
                 }
             }
         }

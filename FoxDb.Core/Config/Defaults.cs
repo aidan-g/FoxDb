@@ -15,7 +15,7 @@ namespace FoxDb
         {
             static Table()
             {
-                Flags = TableFlags.ValidateSchema | TableFlags.AutoColumns | TableFlags.AutoRelations;
+                Flags = TableFlags.ValidateSchema | TableFlags.AutoColumns | TableFlags.AutoIndexes | TableFlags.AutoRelations;
             }
 
             public static TableFlags Flags { get; set; }
@@ -32,6 +32,19 @@ namespace FoxDb
             public static ITypeConfig Type { get; set; }
 
             public static ColumnFlags Flags { get; set; }
+        }
+
+        public static class Index
+        {
+            static Index()
+            {
+                Name = "DEFAULT";
+                Flags = IndexFlags.None;
+            }
+
+            public static string Name { get; set; }
+
+            public static IndexFlags Flags { get; set; }
         }
 
         public static class Relation
@@ -61,9 +74,10 @@ namespace FoxDb
         None = 0,
         ValidateSchema = 1,
         AutoColumns = 2,
-        AutoRelations = 4,
-        Transient = 8,
-        Extern = 16
+        AutoIndexes = 4,
+        AutoRelations = 8,
+        Transient = 16,
+        Extern = 32
     }
 
     [Flags]
