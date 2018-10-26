@@ -93,7 +93,7 @@ namespace FoxDb
             {
                 set.Fetch.Filter.Expressions.Add(function);
             }
-            set.Parameters = parameters => parameters["Name"] = "2_2";
+            set.Parameters = (parameters, phase) => parameters["Name"] = "2_2";
             if (invert)
             {
                 this.AssertSequence(new[] { data[0], data[2] }, set);
@@ -192,7 +192,7 @@ namespace FoxDb
                     builder.CreateParameter("id3", typeof(int))
                 );
             });
-            set.Parameters = parameters =>
+            set.Parameters = (parameters, phase) =>
             {
                 parameters["id1"] = id1;
                 parameters["id2"] = id2;
@@ -230,7 +230,7 @@ namespace FoxDb
                     )
                 );
             });
-            set.Parameters = parameters =>
+            set.Parameters = (parameters, phase) =>
             {
                 parameters["id1"] = id1;
                 parameters["id2"] = id2;
@@ -314,7 +314,7 @@ namespace FoxDb
             for (var a = 0; a < data.Count; a++)
             {
                 var id = data[a].Id - 1;
-                set.Parameters = parameters => parameters["Id"] = id;
+                set.Parameters = (parameters, phase) => parameters["Id"] = id;
                 this.AssertSequence(new[] { data.Where(element => element.Id > id).First() }, set);
             }
         }

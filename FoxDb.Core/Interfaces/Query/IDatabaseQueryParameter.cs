@@ -12,5 +12,9 @@ namespace FoxDb.Interfaces
         ParameterDirection Direction { get; }
 
         bool IsDeclared { get; }
+
+        bool CanRead { get; }
+
+        bool CanWrite { get; }
     }
 }

@@ -60,6 +60,32 @@ namespace FoxDb
             return lambda.Compile();
         }
 
+        public Action<T> CreateIncrementor<T>(PropertyInfo property)
+        {
+            var parameter1 = Expression.Parameter(typeof(T));
+            var lambda = Expression.Lambda<Action<T>>(
+                Expression.Assign(
+                    Expression.Property(
+                        Expression.Convert(parameter1, property.DeclaringType),
+                        property
+                    ),
+                    Expression.MakeBinary(
+                        ExpressionType.Add,
+                        Expression.Property(
+                            Expression.Convert(parameter1, property.DeclaringType),
+                            property
+                        ),
+                        Expression.Convert(
+                            Expression.Constant(1),
+                            property.PropertyType
+                        )
+                    )
+                ),
+                parameter1
+            );
+            return lambda.Compile();
+        }
+
         protected virtual Expression ChangeType(Expression parameter, Type targetType)
         {
             if (!this.ConversionEnabled)

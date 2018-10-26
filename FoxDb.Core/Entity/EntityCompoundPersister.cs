@@ -188,9 +188,12 @@ namespace FoxDb
             protected virtual void DeleteRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item, TRelation child)
             {
                 var columns = node.Relation.Expression.GetColumnMap();
-                var query = this.Database.QueryFactory.Delete(node.Relation.MappingTable, columns[node.Relation.MappingTable]);
+                var builder = this.Database.QueryFactory.Build();
+                builder.Delete.Touch();
+                builder.Source.AddTable(node.Relation.MappingTable);
+                builder.Filter.AddColumns(columns[node.Relation.MappingTable]);
                 var parameters = this.GetParameters(item, child, node.Relation);
-                this.Database.Execute(query, parameters, this.Transaction);
+                this.Database.Execute(builder, parameters, this.Transaction);
             }
 
             protected virtual DatabaseParameterHandler GetParameters(object parent, object child, IRelationConfig relation)

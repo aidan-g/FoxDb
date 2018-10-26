@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="BehaviourTests.cs" />
     <Compile Include="BulkTests.cs" />
+    <Compile Include="ConcurrencyTests.cs" />
     <Compile Include="ConfigTests.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="EnumeratorTests.cs" />

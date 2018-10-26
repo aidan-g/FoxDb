@@ -32,9 +32,25 @@ namespace FoxDb
         public IBinaryExpressionBuilder AddColumn(IColumnConfig column)
         {
             var expression = this.Fragment<IBinaryExpressionBuilder>();
+            var parameter = this.CreateParameter(
+                Conventions.ParameterName(column),
+                column.ColumnType.Type,
+                ParameterDirection.Input
+            );
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
-            expression.Right = this.CreateParameter(Conventions.ParameterName(column), column.ColumnType.Type, ParameterDirection.Input);
+            if (column.IsConcurrencyCheck)
+            {
+                expression.Right = this.CreateBinary(
+                    parameter,
+                    QueryOperator.Plus,
+                    this.CreateConstant(1)
+                );
+            }
+            else
+            {
+                expression.Right = parameter;
+            }
             this.Expressions.Add(expression);
             return expression;
         }

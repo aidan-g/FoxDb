@@ -8,5 +8,7 @@ namespace FoxDb.Interfaces
         Func<T, TValue> CreateGetter<T, TValue>(PropertyInfo property);
 
         Action<T, TValue> CreateSetter<T, TValue>(PropertyInfo property);
+
+        Action<T> CreateIncrementor<T>(PropertyInfo property);
     }
 }

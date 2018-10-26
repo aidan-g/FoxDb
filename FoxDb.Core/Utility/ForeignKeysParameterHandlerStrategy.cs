@@ -31,12 +31,17 @@ namespace FoxDb
         {
             get
             {
-                return parameters =>
+                return (parameters, phase) =>
                 {
-                    var parameter = this.LeftParameter;
-                    if (this.Parent != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
+                    switch (phase)
                     {
-                        parameters[parameter] = this.Relation.LeftTable.PrimaryKey.Getter(this.Parent);
+                        case DatabaseParameterPhase.Fetch:
+                            var parameter = this.LeftParameter;
+                            if (this.Parent != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
+                            {
+                                parameters[parameter] = this.Relation.LeftTable.PrimaryKey.Getter(this.Parent);
+                            }
+                            break;
                     }
                 };
             }
@@ -46,12 +51,17 @@ namespace FoxDb
         {
             get
             {
-                return parameters =>
+                return (parameters, phase) =>
                 {
-                    var parameter = this.RightParameter;
-                    if (this.Child != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
+                    switch (phase)
                     {
-                        parameters[parameter] = this.Relation.RightTable.PrimaryKey.Getter(this.Child);
+                        case DatabaseParameterPhase.Fetch:
+                            var parameter = this.RightParameter;
+                            if (this.Child != null && !string.IsNullOrEmpty(parameter) && parameters.Contains(parameter))
+                            {
+                                parameters[parameter] = this.Relation.RightTable.PrimaryKey.Getter(this.Child);
+                            }
+                            break;
                     }
                 };
             }

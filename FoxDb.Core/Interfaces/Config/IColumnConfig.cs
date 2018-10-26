@@ -23,10 +23,14 @@ namespace FoxDb.Interfaces
 
         bool IsForeignKey { get; set; }
 
+        bool IsConcurrencyCheck { get; }
+
         object DefaultValue { get; }
 
         Func<object, object> Getter { get; set; }
 
         Action<object, object> Setter { get; set; }
+
+        Action<object> Incrementor { get; set; }
     }
 }

@@ -10,5 +10,7 @@ namespace FoxDb.Interfaces
         Func<T, TValue> Get { get; }
 
         Action<T, TValue> Set { get; }
+
+        Action<T> Increment { get; }
     }
 }

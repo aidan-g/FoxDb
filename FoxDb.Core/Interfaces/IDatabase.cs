@@ -38,5 +38,12 @@ namespace FoxDb.Interfaces
         IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
     }
 
-    public delegate void DatabaseParameterHandler(IDatabaseParameters parameters);
+    public enum DatabaseParameterPhase : byte
+    {
+        None,
+        Fetch,
+        Store
+    }
+
+    public delegate void DatabaseParameterHandler(IDatabaseParameters parameters, DatabaseParameterPhase phase);
 }

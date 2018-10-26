@@ -82,7 +82,7 @@ namespace FoxDb
         public virtual IQueryGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
-            var columns = table.UpdatableColumns;
+            var columns = table.UpdatableColumns.Concat(table.ConcurrencyColumns);
             builder.Add.SetTable(table);
             if (columns.Any())
             {
@@ -95,23 +95,24 @@ namespace FoxDb
         public virtual IQueryGraphBuilder Update(ITableConfig table)
         {
             var builder = this.Build();
+            var columns = table.UpdatableColumns.Concat(table.ConcurrencyColumns);
             builder.Update.SetTable(table);
-            builder.Update.AddColumns(table.UpdatableColumns);
+            if (columns.Any())
+            {
+                builder.Update.AddColumns(columns);
+            }
             builder.Filter.AddColumns(table.PrimaryKeys);
+            builder.Filter.AddColumns(table.ConcurrencyColumns);
             return builder;
         }
 
         public virtual IQueryGraphBuilder Delete(ITableConfig table)
         {
-            return this.Delete(table, table.PrimaryKeys);
-        }
-
-        public virtual IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys)
-        {
             var builder = this.Build();
             builder.Delete.Touch();
             builder.Source.AddTable(table);
-            builder.Filter.AddColumns(keys);
+            builder.Filter.AddColumns(table.PrimaryKeys);
+            builder.Filter.AddColumns(table.ConcurrencyColumns);
             return builder;
         }
 

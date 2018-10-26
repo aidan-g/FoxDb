@@ -24,8 +24,6 @@ namespace FoxDb.Interfaces
 
         IQueryGraphBuilder Delete(ITableConfig table);
 
-        IQueryGraphBuilder Delete(ITableConfig table, IEnumerable<IColumnConfig> keys);
-
         IQueryGraphBuilder Count(IQueryGraphBuilder query);
 
         IQueryGraphBuilder Count(ITableConfig table, IQueryGraphBuilder query);

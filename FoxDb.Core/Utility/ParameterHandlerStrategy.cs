@@ -18,17 +18,31 @@ namespace FoxDb
         {
             get
             {
-                return new DatabaseParameterHandler(parameters =>
+                return (parameters, phase) =>
                 {
                     foreach (var column in this.Table.Columns)
                     {
                         var parameter = Conventions.ParameterName(column);
-                        if (parameters.Contains(parameter) && column.Getter != null)
+                        if (parameters.Contains(parameter))
                         {
-                            parameters[parameter] = column.Getter(this.Item);
+                            switch (phase)
+                            {
+                                case DatabaseParameterPhase.Fetch:
+                                    if (column.Getter != null)
+                                    {
+                                        parameters[parameter] = column.Getter(this.Item);
+                                    }
+                                    break;
+                                case DatabaseParameterPhase.Store:
+                                    if (column.Setter != null)
+                                    {
+                                        column.Setter(this.Item, parameters[parameter]);
+                                    }
+                                    break;
+                            }
                         }
                     }
-                });
+                };
             }
         }
     }

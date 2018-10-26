@@ -27,6 +27,36 @@ namespace FoxDb
 
         public bool IsDeclared { get; private set; }
 
+        public bool CanRead
+        {
+            get
+            {
+                switch (this.Direction)
+                {
+                    case ParameterDirection.Input:
+                    case ParameterDirection.InputOutput:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        public bool CanWrite
+        {
+            get
+            {
+                switch (this.Direction)
+                {
+                    case ParameterDirection.Output:
+                    case ParameterDirection.InputOutput:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
         public override int GetHashCode()
         {
             var hashCode = 0;

@@ -84,7 +84,8 @@ namespace FoxDb
     public enum ColumnFlags : byte
     {
         None = 0,
-        ValidateSchema = 1
+        ValidateSchema = 1,
+        ConcurrencyCheck = 2
     }
 
     [Flags]

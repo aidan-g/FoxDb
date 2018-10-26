@@ -19,6 +19,8 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> PrimaryKeys { get; }
 
+        IEnumerable<IColumnConfig> ForeignKeys { get; }
+
         IColumnConfig GetColumn(IColumnSelector selector);
 
         IColumnConfig CreateColumn(IColumnSelector selector);
@@ -32,6 +34,8 @@ namespace FoxDb.Interfaces
         IEnumerable<IColumnConfig> Columns { get; }
 
         IEnumerable<IColumnConfig> UpdatableColumns { get; }
+
+        IEnumerable<IColumnConfig> ConcurrencyColumns { get; }
 
         IEnumerable<IRelationConfig> Relations { get; }
 

@@ -38,13 +38,21 @@ namespace FoxDb
             if (EntityKey.HasKey(this.Table, item))
             {
                 var update = this.Database.QueryCache.Update(this.Table);
-                this.Database.Execute(update, this.GetParameters(item), this.Transaction);
+                var count = this.Database.Execute(update, this.GetParameters(item), this.Transaction);
+                if (count != 1)
+                {
+                    this.OnConcurrencyViolation(item, flags);
+                }
+                else
+                {
+                    this.OnUpdated(item, flags);
+                }
             }
             else
             {
                 var add = this.Database.QueryCache.Add(this.Table);
                 var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
-                EntityKey.SetKey(this.Table, item, key);
+                this.OnAdded(key, item, flags);
             }
         }
 
@@ -56,8 +64,47 @@ namespace FoxDb
         public void Delete(object item, PersistenceFlags flags)
         {
             var delete = this.Database.QueryCache.Delete(this.Table);
-            this.Database.Execute(delete, this.GetParameters(item), this.Transaction);
+            var count = this.Database.Execute(delete, this.GetParameters(item), this.Transaction);
+            if (count != 1)
+            {
+                this.OnConcurrencyViolation(item, flags);
+            }
+            else
+            {
+                this.OnDeleted(item, flags);
+            }
         }
+
+        protected virtual void OnAdded(object key, object item, PersistenceFlags flags)
+        {
+            EntityKey.SetKey(this.Table, item, key);
+        }
+
+        protected virtual void OnUpdated(object item, PersistenceFlags flags)
+        {
+            foreach (var column in this.Table.ConcurrencyColumns)
+            {
+                if (column.Incrementor != null)
+                {
+                    column.Incrementor(item);
+                }
+            }
+        }
+
+        protected virtual void OnDeleted(object item, PersistenceFlags flags)
+        {
+            //Nothing to do.
+        }
+
+        protected virtual void OnConcurrencyViolation(object item, PersistenceFlags flags)
+        {
+            throw new InvalidOperationException(string.Format(
+                "Failed to update data of type {0} with id {1}.",
+                this.Table.TableType.Name,
+                this.Table.PrimaryKey.Getter(item)
+            ));
+        }
+
 
         protected virtual DatabaseParameterHandler GetParameters(object item)
         {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -83,11 +84,16 @@ namespace FoxDb
             ).Using(
                 command =>
                 {
-                    if (parameters != null)
+                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
                     {
-                        parameters(command.Parameters);
+                        parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
-                    return command.ExecuteNonQuery();
+                    var result = command.ExecuteNonQuery();
+                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Store);
+                    }
+                    return result;
                 },
                 () => transaction == null
             );
@@ -102,11 +108,16 @@ namespace FoxDb
             ).Using(
                 command =>
                 {
-                    if (parameters != null)
+                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
                     {
-                        parameters(command.Parameters);
+                        parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
-                    return Converter.ChangeType<T>(command.ExecuteScalar());
+                    var result = Converter.ChangeType<T>(command.ExecuteScalar());
+                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Store);
+                    }
+                    return result;
                 },
                 () => transaction == null
             );
@@ -129,11 +140,16 @@ namespace FoxDb
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             var command = this.CreateCommand(query, DatabaseCommandFlags.None, transaction);
-            if (parameters != null)
+            if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
             {
-                parameters(command.Parameters);
+                parameters(command.Parameters, DatabaseParameterPhase.Fetch);
             }
-            return new DatabaseReader(command.Command, transaction == null);
+            var result = new DatabaseReader(command.Command, transaction == null);
+            if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+            {
+                parameters(command.Parameters, DatabaseParameterPhase.Store);
+            }
+            return result;
         }
 
         protected override void Dispose(bool disposing)

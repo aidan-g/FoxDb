@@ -11,12 +11,14 @@ namespace FoxDb
             this.Table = table;
         }
 
-        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object item) : this(table)
+        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object item)
+            : this(table)
         {
             this.Keys = this.Table.PrimaryKeys.Select(key => key.Getter(item)).ToArray();
         }
 
-        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object[] keys) : this(table)
+        public PrimaryKeysParameterHandlerStrategy(ITableConfig table, object[] keys)
+            : this(table)
         {
             this.Keys = keys;
         }
@@ -29,22 +31,27 @@ namespace FoxDb
         {
             get
             {
-                return new DatabaseParameterHandler(parameters =>
+                return (parameters, phase) =>
                 {
-                    var keys = this.Table.PrimaryKeys.ToArray();
-                    if (keys.Length != this.Keys.Length)
+                    switch (phase)
                     {
-                        throw new InvalidOperationException(string.Format("Expected {0} keys but {1} were provided.", keys.Length, this.Keys.Length));
+                        case DatabaseParameterPhase.Fetch:
+                            var keys = this.Table.PrimaryKeys.ToArray();
+                            if (keys.Length != this.Keys.Length)
+                            {
+                                throw new InvalidOperationException(string.Format("Expected {0} keys but {1} were provided.", keys.Length, this.Keys.Length));
+                            }
+                            for (var a = 0; a < keys.Length; a++)
+                            {
+                                var parameter = Conventions.ParameterName(keys[a]);
+                                if (parameters.Contains(parameter))
+                                {
+                                    parameters[parameter] = this.Keys[a];
+                                }
+                            }
+                            break;
                     }
-                    for (var a = 0; a < keys.Length; a++)
-                    {
-                        var parameter = Conventions.ParameterName(keys[a]);
-                        if (parameters.Contains(parameter))
-                        {
-                            parameters[parameter] = this.Keys[a];
-                        }
-                    }
-                });
+                };
             }
         }
     }

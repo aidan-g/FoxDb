@@ -31,6 +31,9 @@ namespace FoxDb
         [Index(Name = "Fields", Flags = IndexFlags.Unique)]
         public virtual string Field3 { get; set; }
 
+        [Column(ColumnFlags.ConcurrencyCheck)]
+        public int Version { get; set; }
+
         public void Configure(IConfig config, ITableConfig table)
         {
             var index = table.GetIndex(IndexConfig.By(new[] { "Field1", "Field2", "Field3" }, Defaults.Index.Flags));

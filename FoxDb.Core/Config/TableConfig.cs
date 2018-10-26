@@ -60,12 +60,24 @@ namespace FoxDb
             }
         }
 
-        IEnumerable<IColumnConfig> ITableConfig.UpdatableColumns
+        public IEnumerable<IColumnConfig> UpdatableColumns
         {
             get
             {
                 return this.Columns.Values
                     .Except(this.PrimaryKeys)
+                    .Except(this.ConcurrencyColumns)
+                    .ToLookup(column => column.ColumnName)
+                    .Select(columns => columns.First());
+            }
+        }
+
+        public IEnumerable<IColumnConfig> ConcurrencyColumns
+        {
+            get
+            {
+                return this.Columns.Values
+                    .Where(column => column.IsConcurrencyCheck)
                     .ToLookup(column => column.ColumnName)
                     .Select(columns => columns.First());
             }

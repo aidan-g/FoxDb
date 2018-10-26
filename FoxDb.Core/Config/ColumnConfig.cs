@@ -7,7 +7,7 @@ namespace FoxDb
 {
     public class ColumnConfig : IColumnConfig
     {
-        public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, ITypeConfig columnType, PropertyInfo property, Func<object, object> getter, Action<object, object> setter)
+        public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, ITypeConfig columnType, PropertyInfo property, Func<object, object> getter, Action<object, object> setter, Action<object> incrementor)
         {
             this.Config = config;
             this.Flags = flags;
@@ -18,6 +18,7 @@ namespace FoxDb
             this.Property = property;
             this.Getter = getter;
             this.Setter = setter;
+            this.Incrementor = incrementor;
         }
 
         public IConfig Config { get; private set; }
@@ -38,6 +39,14 @@ namespace FoxDb
 
         public bool IsForeignKey { get; set; }
 
+        public bool IsConcurrencyCheck
+        {
+            get
+            {
+                return this.Flags.HasFlag(ColumnFlags.ConcurrencyCheck);
+            }
+        }
+
         public object DefaultValue
         {
             get
@@ -53,6 +62,8 @@ namespace FoxDb
         public Func<object, object> Getter { get; set; }
 
         public Action<object, object> Setter { get; set; }
+
+        public Action<object> Incrementor { get; set; }
 
         public override string ToString()
         {
@@ -138,7 +149,7 @@ namespace FoxDb
         }
 
         public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
-        { 
+        {
             return ColumnSelector.By(identifier, columnName, columnType, flags);
         }
 

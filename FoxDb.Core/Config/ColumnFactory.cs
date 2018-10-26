@@ -40,7 +40,7 @@ namespace FoxDb
             {
                 identifier = string.Format("{0}_{1}", table.TableName, columnName);
             }
-            return new ColumnConfig(table.Config, flags, identifier, table, columnName, columnType, null, null, null);
+            return new ColumnConfig(table.Config, flags, identifier, table, columnName, columnType, null, null, null, null);
         }
 
         public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, Expression expression, ColumnFlags flags)
@@ -78,7 +78,8 @@ namespace FoxDb
                 Factories.Type.Create(TypeConfig.By(property)),
                 property,
                 accessor.Get,
-                accessor.Set
+                accessor.Set,
+                accessor.Increment
             );
         }
     }

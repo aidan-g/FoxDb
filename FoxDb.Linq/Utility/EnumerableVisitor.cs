@@ -141,7 +141,7 @@ namespace FoxDb
         {
             get
             {
-                return new DatabaseParameterHandler(parameters =>
+                return (parameters, phase) =>
                 {
                     foreach (var key in this.Constants.Keys)
                     {
@@ -150,7 +150,7 @@ namespace FoxDb
                             parameters[key] = this.Constants[key];
                         }
                     }
-                });
+                };
             }
         }
 
