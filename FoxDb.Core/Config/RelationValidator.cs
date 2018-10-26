@@ -32,6 +32,10 @@ namespace FoxDb
             {
                 return false;
             }
+            if (property.PropertyType.IsArray)
+            {
+                return false;
+            }
             if (property.PropertyType.IsGenericType)
             {
                 if (!property.PropertyType.IsCollection(out elementType))

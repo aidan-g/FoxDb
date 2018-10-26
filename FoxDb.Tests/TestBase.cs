@@ -80,6 +80,9 @@ namespace FoxDb
                 ),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(typeof(Test005), TableFlags.AutoColumns | TableFlags.AutoIndexes)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test006), TableFlags.AutoColumns | TableFlags.AutoIndexes)
                 )
             };
             foreach (var table in tables)
@@ -120,6 +123,9 @@ namespace FoxDb
                 ),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(typeof(Test005), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test006), TableFlags.None)
                 )
             };
             foreach (var table in tables)

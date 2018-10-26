@@ -100,4 +100,12 @@ namespace FoxDb
         [Index]
         public bool Value { get; set; }
     }
+
+    public class Test006 : TestData
+    {
+        [Column(IsPrimaryKey = true)]
+        public long Identifier { get; set; }
+
+        public string Name { get; set; }
+    }
 }

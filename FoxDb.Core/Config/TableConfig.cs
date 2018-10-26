@@ -347,11 +347,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                column = this.Columns.GetOrAdd(column.Identifier, column);
-                if (string.Equals(column.ColumnName, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase))
-                {
-                    column.IsPrimaryKey = true;
-                }
+                this.Columns.GetOrAdd(column.Identifier, column);
             }
             return this;
         }

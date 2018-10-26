@@ -1,4 +1,4 @@
-﻿#pragma warning disable 612, 618 
+﻿#pragma warning disable 612, 618
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class ConfigTests : TestBase
     {
-        public ConfigTests(ProviderType providerType) : base(providerType)
+        public ConfigTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -110,6 +111,16 @@ namespace FoxDb
             set.Remove(data[1]);
             data.RemoveAt(1);
             this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void NonStandardPrimaryKey()
+        {
+            var set = this.Database.Set<Test006>(this.Transaction);
+            set.Clear();
+            var data = new Test006() { Name = "Cream" };
+            var id = set.AddOrUpdate(data).Identifier;
+            Assert.AreEqual(data, set.Find(id));
         }
 
         [Table(Name = "Test001")]

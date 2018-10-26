@@ -80,7 +80,11 @@ namespace FoxDb
                 accessor.Get,
                 accessor.Set,
                 accessor.Increment
-            );
+            )
+            {
+                IsPrimaryKey = attribute.IsPrimaryKeySpecified ? attribute.IsPrimaryKey : string.Equals(attribute.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase),
+                IsForeignKey = attribute.IsForeignKeySpecified ? attribute.IsForeignKey : false
+            };
         }
     }
 }
