@@ -6,12 +6,15 @@ namespace FoxDb
 {
     public class EntityCompoundEnumerator : IEntityEnumerator
     {
-        public EntityCompoundEnumerator(ITableConfig table, IEntityMapper mapper, IDatabaseReader reader)
+        public EntityCompoundEnumerator(IDatabase database, ITableConfig table, IEntityMapper mapper, IDatabaseReader reader)
         {
+            this.Database = database;
             this.Table = table;
             this.Mapper = mapper;
             this.Reader = reader;
         }
+
+        public IDatabase Database { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
@@ -25,7 +28,7 @@ namespace FoxDb
             var sink = new EntityGraphSink(this.Table, (sender, e) => buffer.Add(e.Item));
             var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, typeof(T)));
             var graph = builder.Build(this.Table, this.Mapper);
-            var visitor = new EntityEnumeratorVisitor(sink);
+            var visitor = new EntityEnumeratorVisitor(this.Database, sink);
             foreach (var record in this.Reader)
             {
                 visitor.Visit(graph, record);
@@ -50,12 +53,12 @@ namespace FoxDb
             private EntityEnumeratorVisitor()
             {
                 this.Members = new DynamicMethod<EntityEnumeratorVisitor>();
-                this.Buffer = new EntityEnumeratorBuffer();
             }
 
-            public EntityEnumeratorVisitor(IEntityGraphSink sink)
+            public EntityEnumeratorVisitor(IDatabase database, IEntityGraphSink sink)
                 : this()
             {
+                this.Buffer = new EntityEnumeratorBuffer(database);
                 this.Sink = sink;
             }
 

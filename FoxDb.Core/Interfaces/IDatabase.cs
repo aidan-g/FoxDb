@@ -16,6 +16,8 @@ namespace FoxDb.Interfaces
 
         ITransactionSource BeginTransaction(IsolationLevel isolationLevel);
 
+        IDatabaseTranslation Translation { get; }
+
         IDatabaseSchema Schema { get; }
 
         IDatabaseQueryCache QueryCache { get; }

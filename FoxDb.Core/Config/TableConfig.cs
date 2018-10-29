@@ -66,7 +66,19 @@ namespace FoxDb
             {
                 return this.Columns.Values
                     .Except(this.PrimaryKeys)
+                    .Except(this.GeneratedColumns)
                     .Except(this.ConcurrencyColumns)
+                    .ToLookup(column => column.ColumnName)
+                    .Select(columns => columns.First());
+            }
+        }
+
+        public IEnumerable<IColumnConfig> GeneratedColumns
+        {
+            get
+            {
+                return this.Columns.Values
+                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && !column.ColumnType.IsNumeric)
                     .ToLookup(column => column.ColumnName)
                     .Select(columns => columns.First());
             }

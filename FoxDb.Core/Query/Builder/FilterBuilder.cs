@@ -53,7 +53,14 @@ namespace FoxDb
             var expression = this.Fragment<IBinaryExpressionBuilder>();
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);
-            expression.Right = this.CreateParameter(Conventions.ParameterName(column), column.ColumnType.Type, ParameterDirection.Input);
+            expression.Right = this.CreateParameter(
+                Conventions.ParameterName(column),
+                column.ColumnType.Type,
+                ParameterDirection.Input,
+                false,
+                column,
+                DatabaseQueryParameterFlags.EntityRead
+            );
             this.Expressions.Add(expression);
             return expression;
         }

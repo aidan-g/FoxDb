@@ -43,16 +43,16 @@ namespace FoxDb
                 {
                     continue;
                 }
-                CreateParameter(command, parameter.Name, parameter.Type, parameter.Direction);
+                database.CreateParameter(command, parameter.Name, parameter.Type, parameter.Direction);
             }
             return new DatabaseParameters(database, query, command.Parameters);
         }
 
-        public static void CreateParameter(IDbCommand command, string name, DbType type, ParameterDirection direction)
+        public static void CreateParameter(this IDatabase database, IDbCommand command, string name, DbType type, ParameterDirection direction)
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = name;
-            parameter.DbType = type;
+            parameter.DbType = database.Translation.GetRemoteType(type);
             parameter.Direction = direction;
             command.Parameters.Add(parameter);
         }
@@ -129,18 +129,6 @@ namespace FoxDb
                 }
             }
             return false;
-        }
-
-        public static IDictionary<string, object> ToDictionary(this IDataReader reader)
-        {
-            var data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            for (var a = 0; a < reader.FieldCount; a++)
-            {
-                var name = reader.GetName(a);
-                var value = reader.GetValue(a);
-                data[name] = value;
-            }
-            return data;
         }
 
         public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> sequence)

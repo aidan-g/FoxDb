@@ -13,5 +13,7 @@ namespace FoxDb.Interfaces
         int Scale { get; }
 
         bool IsNullable { get; }
+
+        bool IsNumeric { get; }
     }
 }

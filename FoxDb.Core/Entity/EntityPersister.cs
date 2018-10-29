@@ -37,6 +37,7 @@ namespace FoxDb
         {
             if (EntityKey.HasKey(this.Table, item))
             {
+                this.OnUpdating(item, flags);
                 var update = this.Database.QueryCache.Update(this.Table);
                 var count = this.Database.Execute(update, this.GetParameters(item), this.Transaction);
                 if (count != 1)
@@ -50,6 +51,7 @@ namespace FoxDb
             }
             else
             {
+                this.OnAdding(item, flags);
                 var add = this.Database.QueryCache.Add(this.Table);
                 var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
                 this.OnAdded(key, item, flags);
@@ -75,9 +77,29 @@ namespace FoxDb
             }
         }
 
+        protected virtual void OnAdding(object item, PersistenceFlags flags)
+        {
+            foreach (var column in this.Table.GeneratedColumns)
+            {
+                if (column.Setter == null || column.ColumnType.IsNumeric)
+                {
+                    continue;
+                }
+                column.Setter(item, ValueGeneratorStrategy.Instance.CreateValue(this.Table, column, item));
+            }
+        }
+
         protected virtual void OnAdded(object key, object item, PersistenceFlags flags)
         {
-            EntityKey.SetKey(this.Table, item, key);
+            if (key != null && !DBNull.Value.Equals(key))
+            {
+                EntityKey.SetKey(this.Table, item, key);
+            }
+        }
+
+        protected virtual void OnUpdating(object item, PersistenceFlags flags)
+        {
+            //Nothing to do.
         }
 
         protected virtual void OnUpdated(object item, PersistenceFlags flags)

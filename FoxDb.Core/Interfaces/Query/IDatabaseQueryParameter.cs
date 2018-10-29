@@ -13,8 +13,16 @@ namespace FoxDb.Interfaces
 
         bool IsDeclared { get; }
 
-        bool CanRead { get; }
+        IColumnConfig Column { get; }
 
-        bool CanWrite { get; }
+        DatabaseQueryParameterFlags Flags { get; }
+    }
+
+    [Flags]
+    public enum DatabaseQueryParameterFlags : byte
+    {
+        None = 0,
+        EntityRead = 1,
+        EntityWrite = 2
     }
 }

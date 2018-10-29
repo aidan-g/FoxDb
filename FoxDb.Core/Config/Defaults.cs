@@ -34,6 +34,16 @@ namespace FoxDb
             public static ColumnFlags Flags { get; set; }
         }
 
+        public static class PrimaryKey
+        {
+            static PrimaryKey()
+            {
+                Flags = ColumnFlags.Generated;
+            }
+
+            public static ColumnFlags Flags { get; set; }
+        }
+
         public static class Index
         {
             static Index()
@@ -85,7 +95,8 @@ namespace FoxDb
     {
         None = 0,
         ValidateSchema = 1,
-        ConcurrencyCheck = 2
+        Generated = 2,
+        ConcurrencyCheck = 4
     }
 
     [Flags]

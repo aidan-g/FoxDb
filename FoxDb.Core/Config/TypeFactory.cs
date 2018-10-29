@@ -50,9 +50,7 @@ namespace FoxDb
             var attribute = property.GetCustomAttribute<TypeAttribute>(true) ?? new TypeAttribute();
             if (!attribute.TypeSpecified)
             {
-                attribute.Type = global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(
-                    Type.GetTypeCode(TypeHelper.GetInterimType(property.PropertyType))
-                );
+                attribute.Type = TypeHelper.GetDbType(property.PropertyType);
             }
             return new TypeConfig(
                 attribute.Type,

@@ -6,14 +6,12 @@ namespace FoxDb.Interfaces
     {
         IDbConnection CreateConnection(IDatabase database);
 
+        IDatabaseTranslation CreateTranslation(IDatabase database);
+
         IDatabaseSchema CreateSchema(IDatabase database);
 
         IDatabaseQueryFactory CreateQueryFactory(IDatabase database);
 
         IDatabaseSchemaFactory CreateSchemaFactory(IDatabase database);
-
-        DbType GetDbType(IDataParameter parameter, object value);
-
-        object GetDbValue(IDataParameter parameter, object value);
     }
 }

@@ -1,5 +1,7 @@
-﻿using NUnit.Framework;
+﻿#pragma warning disable 612, 618
+using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -8,7 +10,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class SimpleTests : TestBase
     {
-        public SimpleTests(ProviderType providerType) : base(providerType)
+        public SimpleTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -29,6 +32,84 @@ namespace FoxDb
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
             data[1].Field1 = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            set.Remove(data[1]);
+            data.RemoveAt(1);
+            this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void CanAddUpdateDelete_GuidKey()
+        {
+            var set = this.Database.Set<Test007>(this.Transaction);
+            var data = new List<Test007>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Test007() { Name = "Name1" },
+                new Test007() { Name = "Name2" },
+                new Test007() { Name = "Name3" }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Name = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            set.Remove(data[1]);
+            data.RemoveAt(1);
+            this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void CanAddUpdateDelete_GuidKey_OneToOne()
+        {
+            this.Database.Config.Table<Test007>().Relation(item => item.Test008);
+            var set = this.Database.Set<Test007>(this.Transaction);
+            var data = new List<Test007>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Test007() { Name = "1_1", Test008 = new Test008() { Name = "1_2" } },
+                new Test007() { Name = "2_1", Test008 = new Test008() { Name = "2_2" } },
+                new Test007() { Name = "3_1", Test008 = new Test008() { Name = "3_2" } },
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test008.Name = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test008 = null;
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            set.Remove(data[1]);
+            data.RemoveAt(1);
+            this.AssertSequence(data, set);
+        }
+
+        [TestCase(RelationFlags.OneToMany)]
+        [TestCase(RelationFlags.ManyToMany)]
+        public void CanAddUpdateDelete_GuidKey(RelationFlags flags)
+        {
+            this.Database.Config.Table<Test007>().Relation(item => item.Test009, Defaults.Relation.Flags | flags);
+            var set = this.Database.Set<Test007>(this.Transaction);
+            var data = new List<Test007>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Test007() { Name = "1_1", Test009 = new List<Test009>() { new Test009() { Name = "1_2" }, new Test009() { Name = "1_3" } } },
+                new Test007() { Name = "2_1", Test009 = new List<Test009>() { new Test009() { Name = "2_2" }, new Test009() { Name = "2_3" } } },
+                new Test007() { Name = "3_1", Test009 = new List<Test009>() { new Test009() { Name = "3_2" }, new Test009() { Name = "3_3" } } },
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test009.First().Name = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Test009.RemoveRange(data[1].Test009);
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
             set.Remove(data[1]);

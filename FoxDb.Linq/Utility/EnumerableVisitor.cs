@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -421,13 +422,28 @@ namespace FoxDb
 
         protected virtual IColumnBuilder VisitColumn(IColumnConfig column)
         {
-            return this.Peek.Write(this.Peek.CreateColumn(column).With(builder => builder.Direction = this.Direction));
+            return this.Peek.Write(this.Peek.CreateColumn(column).With(builder =>
+            {
+                builder.Alias = column.Identifier;
+                builder.Direction = this.Direction;
+            }));
         }
 
         protected virtual IParameterBuilder VisitParameter(object value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             var name = this.GetParameterName();
-            var parameter = this.Peek.Write(this.Peek.CreateParameter(name, value));
+            var parameter = this.Peek.Write(this.Peek.CreateParameter(
+                name,
+                TypeHelper.GetDbType(value.GetType()),
+                ParameterDirection.Input,
+                false,
+                null,
+                DatabaseQueryParameterFlags.None
+            ));
             this.Peek.Constants[name] = value;
             return parameter;
         }

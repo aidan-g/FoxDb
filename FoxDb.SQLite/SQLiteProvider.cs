@@ -1,5 +1,5 @@
 ﻿using FoxDb.Interfaces;
-using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -8,17 +8,15 @@ namespace FoxDb
 {
     public class SQLiteProvider : Provider
     {
-        private SQLiteProvider()
-        {
-            this.ValueMappings.Add(new ProviderValueMapping((type, value) => type == typeof(bool), (type, value) => Convert.ToBoolean(value) ? 1 : 0));
-        }
+        public static IEnumerable<IInterceptor> Interceptors { get; set; }
 
-        public SQLiteProvider(string fileName) : this(new SQLiteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
+        public SQLiteProvider(string fileName)
+            : this(new SQLiteConnectionStringBuilder().With(builder => builder.DataSource = fileName))
         {
 
         }
 
-        public SQLiteProvider(SQLiteConnectionStringBuilder builder) : this()
+        public SQLiteProvider(SQLiteConnectionStringBuilder builder)
         {
             this.FileName = builder.DataSource;
             this.ConnectionString = builder.ToString();
@@ -34,7 +32,52 @@ namespace FoxDb
             {
                 SQLiteConnection.CreateFile(this.FileName);
             }
-            return new SQLiteConnection(this.ConnectionString);
+            return new SQLiteConnection(this.ConnectionString).With(connection => this.RegisterInterceptors(connection));
+        }
+
+        protected virtual void RegisterInterceptors(SQLiteConnection connection)
+        {
+            if (Interceptors != null)
+            {
+                var useConnectionBindValueCallbacks = default(bool);
+                var useConnectionReadValueCallbacks = default(bool);
+                foreach (var interceptor in Interceptors)
+                {
+                    if (interceptor.BindValue != null)
+                    {
+                        useConnectionBindValueCallbacks = true;
+                    }
+                    if (interceptor.ReadValue != null)
+                    {
+                        useConnectionReadValueCallbacks = true;
+                    }
+                    foreach (var typeName in interceptor.TypeNames)
+                    {
+                        connection.SetTypeCallbacks(
+                            typeName,
+                            SQLiteTypeCallbacks.Create(
+                                interceptor.BindValue,
+                                interceptor.ReadValue,
+                                null,
+                                null
+                            )
+                        );
+                    }
+                }
+                if (useConnectionBindValueCallbacks)
+                {
+                    connection.Flags |= SQLiteConnectionFlags.UseConnectionBindValueCallbacks;
+                }
+                if (useConnectionReadValueCallbacks)
+                {
+                    connection.Flags |= SQLiteConnectionFlags.UseConnectionReadValueCallbacks;
+                }
+            }
+        }
+
+        public override IDatabaseTranslation CreateTranslation(IDatabase database)
+        {
+            return new SQLiteTranslation(database);
         }
 
         public override IDatabaseSchema CreateSchema(IDatabase database)

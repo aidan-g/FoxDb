@@ -30,11 +30,7 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnBuilder> CreateColumns(IEnumerable<IColumnConfig> columns);
 
-        IParameterBuilder CreateParameter(string name, Type type, ParameterDirection direction = ParameterDirection.Input);
-
-        IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input);
-
-        IParameterBuilder CreateParameter(string name, object value, ParameterDirection direction = ParameterDirection.Input);
+        IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags);
 
         IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments);
 

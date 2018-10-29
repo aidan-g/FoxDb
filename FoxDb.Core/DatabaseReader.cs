@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -47,8 +48,11 @@ namespace FoxDb
         {
             public DatabaseReaderRecord(IDataReader reader)
             {
-                this.Data = reader.ToDictionary();
+                this.Reader = reader;
+                this.Refresh();
             }
+
+            public IDataReader Reader { get; private set; }
 
             protected virtual IDictionary<string, object> Data { get; private set; }
 
@@ -56,7 +60,20 @@ namespace FoxDb
             {
                 get
                 {
-                    return this.Data[name];
+                    var value = default(object);
+                    if (!this.TryGetValue(name, out value))
+                    {
+                        return null;
+                    }
+                    return value;
+                }
+            }
+
+            public object this[IColumnConfig column]
+            {
+                get
+                {
+                    return this[column.Identifier];
                 }
             }
 
@@ -89,15 +106,41 @@ namespace FoxDb
                 return this.Data.ContainsKey(name);
             }
 
+            public bool Contains(IColumnConfig column)
+            {
+                return this.Contains(column.Identifier);
+            }
+
             public T Get<T>(string name)
             {
                 var value = this[name];
                 return Converter.ChangeType<T>(value);
             }
 
+            public T Get<T>(IColumnConfig column)
+            {
+                return this.Get<T>(column.Identifier);
+            }
+
             public bool TryGetValue(string name, out object value)
             {
                 return this.Data.TryGetValue(name, out value);
+            }
+
+            public bool TryGetValue(IColumnConfig column, out object value)
+            {
+                return this.TryGetValue(column.Identifier, out value);
+            }
+
+            public void Refresh()
+            {
+                this.Data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                for (var a = 0; a < this.Reader.FieldCount; a++)
+                {
+                    var name = this.Reader.GetName(a);
+                    var value = this.Reader.GetValue(a);
+                    this.Data.Add(name, value);
+                }
             }
         }
     }

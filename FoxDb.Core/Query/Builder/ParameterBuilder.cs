@@ -27,6 +27,10 @@ namespace FoxDb
 
         public bool IsDeclared { get; set; }
 
+        public IColumnConfig Column { get; set; }
+
+        public DatabaseQueryParameterFlags Flags { get; set; }
+
         public override IFragmentBuilder Clone()
         {
             return this.Parent.Fragment<IParameterBuilder>().With(builder =>
@@ -35,6 +39,7 @@ namespace FoxDb
                 builder.Type = this.Type;
                 builder.Direction = this.Direction;
                 builder.IsDeclared = this.IsDeclared;
+                builder.Flags = this.Flags;
             });
         }
     }

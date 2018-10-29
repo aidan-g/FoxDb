@@ -83,6 +83,38 @@ namespace FoxDb
                 ),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(typeof(Test006), TableFlags.AutoColumns | TableFlags.AutoIndexes)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test008), TableFlags.AutoColumns | TableFlags.AutoIndexes)
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Test007_Id", ColumnFlags.None)).With(column =>
+                    {
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Guid, isNullable: true));
+                    });
+                }),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test009), TableFlags.AutoColumns | TableFlags.AutoIndexes)
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Test007_Id", ColumnFlags.None)).With(column =>
+                    {
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Guid, isNullable: true));
+                    });
+                }),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test007), TableFlags.AutoColumns | TableFlags.AutoIndexes | TableFlags.AutoRelations)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test007), TableFlags.AutoColumns)
+                        ),
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test009), TableFlags.AutoColumns)
+                        ),
+                        TableFlags.AutoColumns | TableFlags.AutoRelations
+                    )
                 )
             };
             foreach (var table in tables)
@@ -126,6 +158,26 @@ namespace FoxDb
                 ),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(typeof(Test006), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test007), TableFlags.AutoColumns)
+                        ),
+                        this.Database.Config.Transient.CreateTable(
+                            TableConfig.By(typeof(Test009), TableFlags.AutoColumns)
+                        ),
+                        TableFlags.AutoColumns | TableFlags.AutoRelations
+                    )
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test008), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test009), TableFlags.None)
+                ),
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By(typeof(Test007), TableFlags.None)
                 )
             };
             foreach (var table in tables)

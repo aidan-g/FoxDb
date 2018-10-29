@@ -19,7 +19,7 @@ namespace FoxDb
             }
         }
 
-        public string LAST_INSERT_ROWID
+        public override string LAST_INSERT_ID
         {
             get
             {

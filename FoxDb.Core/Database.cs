@@ -18,6 +18,7 @@ namespace FoxDb
             : this()
         {
             this.Provider = provider;
+            this.Translation = provider.CreateTranslation(this);
             this.Schema = provider.CreateSchema(this);
             this.QueryFactory = provider.CreateQueryFactory(this);
             this.SchemaFactory = provider.CreateSchemaFactory(this);
@@ -46,6 +47,8 @@ namespace FoxDb
                 return this._Connection;
             }
         }
+
+        public IDatabaseTranslation Translation { get; private set; }
 
         public IDatabaseSchema Schema { get; private set; }
 
@@ -84,12 +87,12 @@ namespace FoxDb
             ).Using(
                 command =>
                 {
-                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
+                    if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
                     var result = command.ExecuteNonQuery();
-                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+                    if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Store);
                     }
@@ -108,12 +111,12 @@ namespace FoxDb
             ).Using(
                 command =>
                 {
-                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
+                    if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
                     var result = Converter.ChangeType<T>(command.ExecuteScalar());
-                    if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+                    if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Store);
                     }
@@ -129,7 +132,7 @@ namespace FoxDb
             using (var reader = this.ExecuteReader(query, parameters, transaction))
             {
                 var mapper = new EntityMapper(table);
-                var enumerable = new EntityCompoundEnumerator(table, mapper, reader);
+                var enumerable = new EntityCompoundEnumerator(this, table, mapper, reader);
                 foreach (var element in enumerable.AsEnumerable<T>())
                 {
                     yield return element;
@@ -140,12 +143,12 @@ namespace FoxDb
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             var command = this.CreateCommand(query, DatabaseCommandFlags.None, transaction);
-            if (parameters != null && query.Parameters.Any(parameter => parameter.CanRead))
+            if (parameters != null)
             {
                 parameters(command.Parameters, DatabaseParameterPhase.Fetch);
             }
             var result = new DatabaseReader(command.Command, transaction == null);
-            if (parameters != null && query.Parameters.Any(parameter => parameter.CanWrite))
+            if (parameters != null)
             {
                 parameters(command.Parameters, DatabaseParameterPhase.Store);
             }

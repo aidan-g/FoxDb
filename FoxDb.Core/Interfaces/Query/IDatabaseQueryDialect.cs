@@ -28,6 +28,8 @@
 
         string GROUP_BY { get; }
 
+        string LAST_INSERT_ID { get; }
+
         string AND { get; }
 
         string AND_ALSO { get; }

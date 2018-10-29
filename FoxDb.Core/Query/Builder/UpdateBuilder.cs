@@ -35,7 +35,10 @@ namespace FoxDb
             var parameter = this.CreateParameter(
                 Conventions.ParameterName(column),
                 column.ColumnType.Type,
-                ParameterDirection.Input
+                ParameterDirection.Input,
+                false,
+                column,
+                DatabaseQueryParameterFlags.EntityRead
             );
             expression.Left = this.CreateColumn(column);
             expression.Operator = this.CreateOperator(QueryOperator.Equal);

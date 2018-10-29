@@ -25,6 +25,24 @@ namespace FoxDb
 
         public bool IsNullable { get; set; }
 
+        public bool IsNumeric
+        {
+            get
+            {
+                switch (this.Type)
+                {
+                    case DbType.Byte:
+                    case DbType.Single:
+                    case DbType.Int16:
+                    case DbType.Int32:
+                    case DbType.Int64:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
         public ITypeConfig Clone()
         {
             return Factories.Type.Create(

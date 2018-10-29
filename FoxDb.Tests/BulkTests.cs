@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -36,11 +37,18 @@ namespace FoxDb
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
-            Assert.AreEqual(COUNT, set.Count);
             stopwatch.Start();
             foreach (var element in set)
             {
-                //Nothing to do.
+                element.Field1 = "updated";
+                set.AddOrUpdate(element);
+            }
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Updated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
+            foreach (var element in set)
+            {
+                Assert.AreEqual(element.Field1, "updated");
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -90,11 +98,22 @@ namespace FoxDb
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
-            Assert.AreEqual(COUNT, set.Count);
             stopwatch.Start();
             foreach (var element in set)
             {
-                //Nothing to do.
+                element.Name = "updated";
+                element.Test003.Name = "updated";
+                element.Test004.First().Name = "updated";
+                set.AddOrUpdate(element);
+            }
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Updated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
+            foreach (var element in set)
+            {
+                Assert.AreEqual(element.Name, "updated");
+                Assert.AreEqual(element.Test003.Name, "updated");
+                Assert.AreEqual(element.Test004.First().Name, "updated");
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);

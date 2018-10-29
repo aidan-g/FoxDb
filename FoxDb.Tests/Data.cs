@@ -1,5 +1,6 @@
 ﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -106,6 +107,38 @@ namespace FoxDb
         [Column(IsPrimaryKey = true)]
         public long Identifier { get; set; }
 
+        public string Name { get; set; }
+    }
+
+    public class Test007 : TestData
+    {
+        public Test007()
+        {
+            this.Test009 = new List<Test009>();
+        }
+
+        public Guid Id { get; set; }
+
+        public string Name { get; set; }
+
+        public Test008 Test008 { get; set; }
+
+        public virtual ICollection<Test009> Test009 { get; set; }
+    }
+
+    public class Test008 : TestData
+    {
+        public Guid Id { get; set; }
+
+        [Index]
+        public string Name { get; set; }
+    }
+
+    public class Test009 : TestData
+    {
+        public Guid Id { get; set; }
+
+        [Index]
         public string Name { get; set; }
     }
 }

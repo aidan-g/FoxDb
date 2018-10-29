@@ -4,7 +4,8 @@ namespace FoxDb
 {
     public class SQLiteQueryFactory : SqlQueryFactory
     {
-        public SQLiteQueryFactory(IDatabase database) : base(database)
+        public SQLiteQueryFactory(IDatabase database)
+            : base(database)
         {
         }
 
@@ -28,8 +29,22 @@ namespace FoxDb
 
         public override IQueryGraphBuilder Add(ITableConfig table)
         {
-            var builder = this.Build();
-            builder.Output.AddFunction(SQLiteQueryFunction.LastInsertRowId);
+            var builder = default(IQueryGraphBuilder);
+            foreach (var column in table.PrimaryKeys)
+            {
+                if (column.Flags.HasFlag(ColumnFlags.Generated) && column.ColumnType.IsNumeric)
+                {
+                    if (builder == null)
+                    {
+                        builder = this.Build();
+                    }
+                    builder.Output.AddFunction(SQLiteQueryFunction.LastInsertRowId);
+                }
+            }
+            if (builder == null)
+            {
+                return base.Add(table);
+            }
             return this.Combine(new[] { base.Add(table), builder });
         }
 

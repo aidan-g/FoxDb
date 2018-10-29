@@ -328,14 +328,14 @@ namespace FoxDb
             this.Builder.AppendFormat("{0}{1} ", this.Database.QueryFactory.Dialect.PARAMETER, expression.Name);
             if (!this.ContainsParameter(expression.Name))
             {
-                if (expression.IsDeclared)
-                {
-                    this.Parameters.Add(new DatabaseQueryParameter(expression.Name));
-                }
-                else
-                {
-                    this.Parameters.Add(new DatabaseQueryParameter(expression.Name, expression.Type, expression.Direction));
-                }
+                this.Parameters.Add(new DatabaseQueryParameter(
+                    expression.Name,
+                    expression.Type,
+                    expression.Direction,
+                    expression.IsDeclared,
+                    expression.Column,
+                    expression.Flags
+                ));
             }
         }
 

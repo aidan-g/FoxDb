@@ -115,6 +115,8 @@ namespace FoxDb
             }
         }
 
+        public abstract string LAST_INSERT_ID { get; }
+
         public virtual string AND
         {
             get

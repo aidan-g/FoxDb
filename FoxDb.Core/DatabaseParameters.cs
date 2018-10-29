@@ -33,6 +33,11 @@ namespace FoxDb
             return this.Parameters.Contains(name);
         }
 
+        public bool Contains(IColumnConfig column)
+        {
+            return this.Parameters.Contains(Conventions.ParameterName(column));
+        }
+
         public object this[string name]
         {
             get
@@ -42,7 +47,14 @@ namespace FoxDb
                     throw new InvalidOperationException(string.Format("No such parameter \"{0}\".", name));
                 }
                 var parameter = this.Parameters[name] as IDataParameter;
-                return parameter.Value;
+                if (parameter.Value != null && !DBNull.Value.Equals(parameter.Value))
+                {
+                    return parameter.Value;
+                }
+                else
+                {
+                    return null;
+                }
             }
             set
             {
@@ -53,13 +65,50 @@ namespace FoxDb
                 var parameter = this.Parameters[name] as IDataParameter;
                 if (value != null)
                 {
-                    parameter.Value = this.Database.Provider.GetDbValue(parameter, value);
+                    parameter.Value = value;
                 }
                 else
                 {
                     parameter.Value = DBNull.Value;
                 }
-                parameter.DbType = this.Database.Provider.GetDbType(parameter, parameter.Value);
+            }
+        }
+
+        public object this[IColumnConfig column]
+        {
+            get
+            {
+                if (!this.Contains(column))
+                {
+                    throw new InvalidOperationException(string.Format("No such column \"{0}\".", column));
+                }
+                var name = Conventions.ParameterName(column);
+                var parameter = this.Parameters[name] as IDataParameter;
+                if (parameter.Value != null && !DBNull.Value.Equals(parameter.Value))
+                {
+                    return this.Database.Translation.GetLocalValue(column.ColumnType.Type, parameter.Value);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (!this.Contains(column))
+                {
+                    throw new InvalidOperationException(string.Format("No such column \"{0}\".", column));
+                }
+                var name = Conventions.ParameterName(column);
+                var parameter = this.Parameters[name] as IDataParameter;
+                if (value != null)
+                {
+                    parameter.Value = this.Database.Translation.GetRemoteValue(column.ColumnType.Type, value);
+                }
+                else
+                {
+                    parameter.Value = DBNull.Value;
+                }
             }
         }
 

@@ -2,6 +2,7 @@
 using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 
 namespace FoxDb
@@ -187,9 +188,9 @@ namespace FoxDb
                 builder.Left = builder.CreateColumn(set.Table.PrimaryKey);
                 builder.Operator = builder.CreateOperator(QueryOperator.In);
                 builder.Right = builder.CreateSequence(
-                    builder.CreateParameter("id1", typeof(int)),
-                    builder.CreateParameter("id2", typeof(int)),
-                    builder.CreateParameter("id3", typeof(int))
+                    builder.CreateParameter("id1", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None),
+                    builder.CreateParameter("id2", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None),
+                    builder.CreateParameter("id3", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None)
                 );
             });
             set.Parameters = (parameters, phase) =>
@@ -224,9 +225,9 @@ namespace FoxDb
                 builder.Right = builder.CreateUnary(
                     QueryOperator.In,
                     builder.CreateSequence(
-                        builder.CreateParameter("id1", typeof(int)),
-                        builder.CreateParameter("id2", typeof(int)),
-                        builder.CreateParameter("id3", typeof(int))
+                        builder.CreateParameter("id1", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None),
+                        builder.CreateParameter("id2", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None),
+                        builder.CreateParameter("id3", DbType.Int32, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None)
                     )
                 );
             });
@@ -308,7 +309,7 @@ namespace FoxDb
                 {
                     binary.Left = binary.CreateColumn(set.Table.PrimaryKey);
                     binary.Operator = binary.CreateOperator(QueryOperator.Greater);
-                    binary.Right = binary.CreateParameter("Id", typeof(long));
+                    binary.Right = binary.CreateParameter("Id", DbType.Int64, ParameterDirection.Input, false, null, DatabaseQueryParameterFlags.None);
                 });
             });
             for (var a = 0; a < data.Count; a++)

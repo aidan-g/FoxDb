@@ -19,6 +19,14 @@ namespace FoxDb
         };
 
         /// <summary>
+        /// Unique identifier types.
+        /// </summary>
+        public static readonly Type[] IdentifierTypes = new[]
+        {
+            typeof(Guid)
+        };
+
+        /// <summary>
         /// Other key types.
         /// </summary>
         private static readonly Type[] TextTypes = new[]
@@ -68,14 +76,20 @@ namespace FoxDb
             var type = table.PrimaryKey.Property.PropertyType;
             if (IntegralTypes.Contains(type))
             {
-                var key1 = Convert.ToInt64(GetKey(table, item));
-                var key2 = Convert.ToInt64(key);
+                var key1 = Converter.ChangeType<long>(GetKey(table, item));
+                var key2 = Converter.ChangeType<long>(key);
+                return key1 == key2;
+            }
+            if (IdentifierTypes.Contains(type))
+            {
+                var key1 = Converter.ChangeType<Guid>(GetKey(table, item));
+                var key2 = Converter.ChangeType<Guid>(key);
                 return key1 == key2;
             }
             if (TextTypes.Contains(type))
             {
-                var key1 = Convert.ToString(GetKey(table, item));
-                var key2 = Convert.ToString(key);
+                var key1 = Converter.ChangeType<string>(GetKey(table, item));
+                var key2 = Converter.ChangeType<string>(key);
                 return string.Equals(key1, key2);
             }
             throw new NotImplementedException();

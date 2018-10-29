@@ -43,10 +43,9 @@ namespace FoxDb
                             }
                             for (var a = 0; a < keys.Length; a++)
                             {
-                                var parameter = Conventions.ParameterName(keys[a]);
-                                if (parameters.Contains(parameter))
+                                if (parameters.Contains(keys[a]))
                                 {
-                                    parameters[parameter] = this.Keys[a];
+                                    parameters[keys[a]] = this.Keys[a];
                                 }
                             }
                             break;

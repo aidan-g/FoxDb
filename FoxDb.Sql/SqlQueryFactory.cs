@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -82,7 +83,7 @@ namespace FoxDb
         public virtual IQueryGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
-            var columns = table.UpdatableColumns.Concat(table.ConcurrencyColumns);
+            var columns = table.UpdatableColumns.Concat(table.GeneratedColumns).Concat(table.ConcurrencyColumns);
             builder.Add.SetTable(table);
             if (columns.Any())
             {

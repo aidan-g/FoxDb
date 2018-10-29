@@ -6,17 +6,14 @@ namespace FoxDb
 {
     public class DatabaseQueryParameter : IDatabaseQueryParameter
     {
-        public DatabaseQueryParameter(string name)
-            : this(name, DbType.Object)
-        {
-            this.IsDeclared = true;
-        }
-
-        public DatabaseQueryParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input)
+        public DatabaseQueryParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
         {
             this.Name = name;
             this.Type = type;
             this.Direction = direction;
+            this.IsDeclared = isDeclared;
+            this.Column = column;
+            this.Flags = flags;
         }
 
         public string Name { get; private set; }
@@ -26,6 +23,10 @@ namespace FoxDb
         public ParameterDirection Direction { get; private set; }
 
         public bool IsDeclared { get; private set; }
+
+        public IColumnConfig Column { get; private set; }
+
+        public DatabaseQueryParameterFlags Flags { get; private set; }
 
         public bool CanRead
         {

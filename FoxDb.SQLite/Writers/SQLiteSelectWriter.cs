@@ -15,7 +15,7 @@ namespace FoxDb
             var functions = base.GetFunctions();
             functions[SQLiteQueryFunction.LastInsertRowId] = (writer, fragment) => this.Builder.AppendFormat(
                 "{0} ",
-                (writer.Database.QueryFactory.Dialect as SQLiteQueryDialect).LAST_INSERT_ROWID
+                (writer.Database.QueryFactory.Dialect as SQLiteQueryDialect).LAST_INSERT_ID
             );
             return functions;
         }

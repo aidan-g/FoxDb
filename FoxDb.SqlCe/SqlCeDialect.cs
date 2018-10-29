@@ -26,11 +26,19 @@ namespace FoxDb
             }
         }
 
-        public string IDENTITY
+        public override string LAST_INSERT_ID
         {
             get
             {
                 return "@@IDENTITY";
+            }
+        }
+
+        public string IDENTITY
+        {
+            get
+            {
+                return "IDENTITY";
             }
         }
 
@@ -39,14 +47,6 @@ namespace FoxDb
             get
             {
                 return string.Format("\nGO");
-            }
-        }
-
-        public override string PRIMARY_KEY
-        {
-            get
-            {
-                return string.Format("IDENTITY {0}", base.PRIMARY_KEY);
             }
         }
 

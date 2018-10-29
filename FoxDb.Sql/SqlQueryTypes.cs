@@ -36,7 +36,9 @@ namespace FoxDb
             { DbType.AnsiString, types => types.DefaultStringType },
             { DbType.AnsiStringFixedLength, types => types.DefaultStringType },
             { DbType.String, types => types.DefaultStringType },
-            { DbType.StringFixedLength, types => types.DefaultStringType }
+            { DbType.StringFixedLength, types => types.DefaultStringType },
+            //Other
+            { DbType.Guid, types => types.DefaultGuidType }
         };
 
         protected static IDictionary<string, DatabaseQueryTypeArguments> Arguments = new Dictionary<string, DatabaseQueryTypeArguments>()
@@ -135,6 +137,14 @@ namespace FoxDb
         }
 
         protected virtual string DefaultStringType
+        {
+            get
+            {
+                return "TEXT";
+            }
+        }
+
+        protected virtual string DefaultGuidType
         {
             get
             {

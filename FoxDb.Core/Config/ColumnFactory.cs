@@ -69,6 +69,12 @@ namespace FoxDb
                 attribute.Identifier = string.Format("{0}_{1}", table.TableName, Conventions.ColumnName(property));
             }
             var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
+            var isPrimaryKey = attribute.IsPrimaryKeySpecified ? attribute.IsPrimaryKey : string.Equals(attribute.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase);
+            var isForeignKey = attribute.IsForeignKeySpecified ? attribute.IsForeignKey : false;
+            if (isPrimaryKey)
+            {
+                attribute.Flags |= Defaults.PrimaryKey.Flags;
+            }
             return new ColumnConfig(
                 table.Config,
                 attribute.Flags,
@@ -82,8 +88,8 @@ namespace FoxDb
                 accessor.Increment
             )
             {
-                IsPrimaryKey = attribute.IsPrimaryKeySpecified ? attribute.IsPrimaryKey : string.Equals(attribute.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase),
-                IsForeignKey = attribute.IsForeignKeySpecified ? attribute.IsForeignKey : false
+                IsPrimaryKey = isPrimaryKey,
+                IsForeignKey = isForeignKey
             };
         }
     }

@@ -10,6 +10,10 @@ namespace FoxDb
             {
                 return default(T);
             }
+            if (value is T)
+            {
+                return (T)value;
+            }
             return (T)Convert.ChangeType(value, typeof(T));
         }
     }

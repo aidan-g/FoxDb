@@ -110,7 +110,7 @@ namespace FoxDb
             using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
                 var mapper = new EntityMapper(this.Table);
-                var enumerable = new EntityCompoundEnumerator(this.Table, mapper, reader);
+                var enumerable = new EntityCompoundEnumerator(this.Database, this.Table, mapper, reader);
                 foreach (var element in enumerable.AsEnumerable<T>())
                 {
                     yield return element;

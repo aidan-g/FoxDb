@@ -5,15 +5,23 @@ namespace FoxDb
 {
     public class EntityEnumeratorBuffer : IEntityEnumeratorBuffer
     {
-        public EntityEnumeratorBuffer()
+        private EntityEnumeratorBuffer()
         {
             this.Factories = new Dictionary<ITableConfig, IEntityFactory>();
             this.Buffer = new Dictionary<ITableConfig, object>();
         }
 
+        public EntityEnumeratorBuffer(IDatabase database)
+            : this()
+        {
+            this.Database = database;
+        }
+
         public IDictionary<ITableConfig, IEntityFactory> Factories { get; private set; }
 
         public IDictionary<ITableConfig, object> Buffer { get; private set; }
+
+        public IDatabase Database { get; private set; }
 
         public IDatabaseReaderRecord Record { get; set; }
 
@@ -23,7 +31,7 @@ namespace FoxDb
             if (!this.Factories.TryGetValue(table, out factory))
             {
                 var initializer = new EntityInitializer(table);
-                var populator = new EntityPopulator(table);
+                var populator = new EntityPopulator(this.Database, table);
                 factory = new EntityFactory(table, initializer, populator);
                 this.Factories.Add(table, factory);
             }
@@ -59,16 +67,13 @@ namespace FoxDb
 
         protected virtual object Key(ITableConfig table)
         {
-            if (table.PrimaryKey != null)
+            var value = default(object);
+            if (this.Record.TryGetValue(table.PrimaryKey, out value))
             {
-                if (this.Record.Contains(table.PrimaryKey.Identifier))
-                {
-                    return this.Record[table.PrimaryKey.Identifier];
-                }
-                if (this.Record.Contains(table.PrimaryKey.ColumnName))
-                {
-                    return this.Record[table.PrimaryKey.ColumnName];
-                }
+                return this.Database.Translation.GetLocalValue(
+                    table.PrimaryKey.ColumnType.Type,
+                    value
+                );
             }
             return null;
         }

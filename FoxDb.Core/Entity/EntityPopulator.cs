@@ -4,10 +4,13 @@ namespace FoxDb
 {
     public class EntityPopulator : IEntityPopulator
     {
-        public EntityPopulator(ITableConfig table)
+        public EntityPopulator(IDatabase database, ITableConfig table)
         {
+            this.Database = database;
             this.Table = table;
         }
+
+        public IDatabase Database { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
@@ -26,12 +29,15 @@ namespace FoxDb
                 return false;
             }
             var value = default(object);
-            if (!record.TryGetValue(column.Identifier, out value) && !record.TryGetValue(column.ColumnName, out value))
+            if (record.TryGetValue(column, out value))
             {
-                return false;
+                column.Setter(
+                    item,
+                    this.Database.Translation.GetLocalValue(column.ColumnType.Type, value)
+                );
+                return true;
             }
-            column.Setter(item, value);
-            return true;
+            return false;
         }
     }
 }

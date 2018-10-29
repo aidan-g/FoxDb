@@ -42,6 +42,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\Interceptors\IInterceptor.cs" />
     <Compile Include="Interfaces\Query\Builder\IOffsetBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ILimitBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="SQLiteSchema.cs" />
     <Compile Include="SQLiteQueryRenderer.cs" />
     <Compile Include="SQLiteSchemaFactory.cs" />
+    <Compile Include="SQLiteTranslation.cs" />
     <Compile Include="Writers\SQLiteCreateWriter.cs" />
     <Compile Include="Writers\SQLiteDropWriter.cs" />
     <Compile Include="Writers\SQLiteLimitWriter.cs" />

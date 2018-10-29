@@ -26,16 +26,23 @@ namespace FoxDb
 
         public IDictionary<string, object> Constants { get; private set; }
 
-        public IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction)
+        public IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
         {
-            var expression = this.CreateParameter(name, type, direction);
+            var expression = this.CreateParameter(name, type, direction, isDeclared, column, flags);
             this.Expressions.Add(expression);
             return expression;
         }
 
         public IParameterBuilder AddParameter(IColumnConfig column)
         {
-            var expression = this.CreateParameter(Conventions.ParameterName(column), column.ColumnType.Type, ParameterDirection.Input);
+            var expression = this.CreateParameter(
+                Conventions.ParameterName(column),
+                column.ColumnType.Type,
+                ParameterDirection.Input,
+                false,
+                column,
+                DatabaseQueryParameterFlags.EntityRead
+            );
             this.Expressions.Add(expression);
             return expression;
         }

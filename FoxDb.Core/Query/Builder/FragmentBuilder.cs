@@ -165,27 +165,7 @@ namespace FoxDb
             return this.Fragment<IIndexBuilder>().With(builder => builder.Index = index);
         }
 
-        public IParameterBuilder CreateParameter(string name, Type type, ParameterDirection direction = ParameterDirection.Input)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new NotImplementedException();
-            }
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-            return this.Fragment<IParameterBuilder>().With(builder =>
-            {
-                builder.Name = name;
-                builder.Type = global::System.Web.UI.WebControls.Parameter.ConvertTypeCodeToDbType(
-                    Type.GetTypeCode(TypeHelper.GetInterimType(type))
-                );
-                builder.Direction = ParameterDirection.Input;
-            });
-        }
-
-        public IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction = ParameterDirection.Input)
+        public IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -196,20 +176,10 @@ namespace FoxDb
                 builder.Name = name;
                 builder.Type = type;
                 builder.Direction = direction;
+                builder.IsDeclared = isDeclared;
+                builder.Column = column;
+                builder.Flags = flags;
             });
-        }
-
-        public IParameterBuilder CreateParameter(string name, object value, ParameterDirection direction = ParameterDirection.Input)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new NotImplementedException();
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            return this.CreateParameter(name, value.GetType(), direction);
         }
 
         public IFunctionBuilder CreateFunction(QueryFunction function, params IExpressionBuilder[] arguments)

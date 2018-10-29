@@ -121,6 +121,7 @@
     <Compile Include="Interfaces\Entity\Relation\IEntityRelationCalculator.cs" />
     <Compile Include="Interfaces\IDatabaseCommand.cs" />
     <Compile Include="Interfaces\IDatabaseCommandCache.cs" />
+    <Compile Include="Interfaces\IDatabaseTranslation.cs" />
     <Compile Include="Interfaces\Query\Builder\ICaseConditionBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\ICaseBuilder.cs" />
     <Compile Include="Interfaces\Query\Builder\IIdentifierBuilder.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Interfaces\Schema\IDatabaseSchemaFactory.cs" />
     <Compile Include="Interfaces\Utility\ICloneable.cs" />
     <Compile Include="Interfaces\Utility\IFastActivator.cs" />
+    <Compile Include="Interfaces\Utility\IValueGeneratorStrategy.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessor.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorFactory.cs" />
     <Compile Include="Interfaces\Utility\IPropertyAccessorStrategy.cs" />
@@ -242,16 +244,17 @@
     <Compile Include="Schema\Builder\DropBuilder.cs" />
     <Compile Include="Schema\Builder\SchemaGraphBuilder.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\BidirectionalDictionary.cs" />
+    <Compile Include="System\Data\Entity\Design\PluralizationServices\EnglishPluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
-    <Compile Include="System\Web\UI\WebControls\Parameter.cs" />
     <Compile Include="Utility\Command.cs" />
     <Compile Include="Utility\Connection.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />
     <Compile Include="Utility\DatabaseCommand.cs" />
     <Compile Include="Utility\DatabaseCommandCache.cs" />
+    <Compile Include="Utility\DatabaseTranslation.cs" />
     <Compile Include="Utility\DynamicMethod.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="Utility\Factories.cs" />
@@ -259,15 +262,16 @@
     <Compile Include="Utility\FastActivator.cs" />
     <Compile Include="Utility\Identifier.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
-    <Compile Include="System\Data\Entity\Design\PluralizationServices\EnglishPluralizationService.cs" />
     <Compile Include="Utility\Parameter.cs" />
     <Compile Include="Utility\ParameterCollection.cs" />
+    <Compile Include="Utility\ValueGeneratorStrategy.cs" />
     <Compile Include="Utility\ParameterHandlerStrategy.cs" />
     <Compile Include="Utility\ForeignKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PrimaryKeysParameterHandlerStrategy.cs" />
     <Compile Include="Utility\PropertyAccessorFactory.cs" />
     <Compile Include="Utility\PropertyResolutionStrategy.cs" />
     <Compile Include="Utility\RecursiveSelector.cs" />
+    <Compile Include="Utility\SequentialGuid.cs" />
     <Compile Include="Utility\TransactionSource.cs" />
     <Compile Include="Utility\TypeHelper.cs" />
   </ItemGroup>

@@ -20,29 +20,38 @@ namespace FoxDb
             {
                 return (parameters, phase) =>
                 {
-                    foreach (var column in this.Table.Columns)
+                    switch (phase)
                     {
-                        var parameter = Conventions.ParameterName(column);
-                        if (parameters.Contains(parameter))
-                        {
-                            switch (phase)
-                            {
-                                case DatabaseParameterPhase.Fetch:
-                                    if (column.Getter != null)
-                                    {
-                                        parameters[parameter] = column.Getter(this.Item);
-                                    }
-                                    break;
-                                case DatabaseParameterPhase.Store:
-                                    if (column.Setter != null)
-                                    {
-                                        column.Setter(this.Item, parameters[parameter]);
-                                    }
-                                    break;
-                            }
-                        }
+                        case DatabaseParameterPhase.Fetch:
+                            this.Fetch(parameters);
+                            break;
+                        case DatabaseParameterPhase.Store:
+                            this.Store(parameters);
+                            break;
                     }
                 };
+            }
+        }
+
+        private void Fetch(IDatabaseParameters parameters)
+        {
+            foreach (var parameter in parameters.Query.Parameters)
+            {
+                if (parameter.Flags.HasFlag(DatabaseQueryParameterFlags.EntityRead) && parameter.Column != null && parameter.Column.Getter != null)
+                {
+                    parameters[parameter.Column] = parameter.Column.Getter(this.Item);
+                }
+            }
+        }
+
+        private void Store(IDatabaseParameters parameters)
+        {
+            foreach (var parameter in parameters.Query.Parameters)
+            {
+                if (parameter.Flags.HasFlag(DatabaseQueryParameterFlags.EntityWrite) && parameter.Column != null && parameter.Column.Setter != null)
+                {
+                    parameter.Column.Setter(this.Item, parameters[parameter.Column]);
+                }
             }
         }
     }

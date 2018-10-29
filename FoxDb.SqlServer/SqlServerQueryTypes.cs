@@ -24,6 +24,14 @@ namespace FoxDb
             }
         }
 
+        protected override string DefaultGuidType
+        {
+            get
+            {
+                return "uniqueidentifier";
+            }
+        }
+
         protected override int DefaultSize
         {
             get

@@ -17,10 +17,20 @@ namespace FoxDb.Interfaces
 
         object this[string name] { get; }
 
+        object this[IColumnConfig column] { get; }
+
         bool Contains(string name);
+
+        bool Contains(IColumnConfig column);
 
         T Get<T>(string name);
 
+        T Get<T>(IColumnConfig column);
+
         bool TryGetValue(string name, out object value);
+
+        bool TryGetValue(IColumnConfig column, out object value);
+
+        void Refresh();
     }
 }

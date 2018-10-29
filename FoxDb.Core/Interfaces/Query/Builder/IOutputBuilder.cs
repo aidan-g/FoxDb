@@ -11,7 +11,7 @@ namespace FoxDb.Interfaces
 
         IOutputBuilder AddColumns(IEnumerable<IColumnConfig> columns);
 
-        IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction);
+        IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags);
 
         IParameterBuilder AddParameter(IColumnConfig column);
 
