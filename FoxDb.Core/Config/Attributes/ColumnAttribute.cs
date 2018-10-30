@@ -5,17 +5,6 @@ namespace FoxDb
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class ColumnAttribute : Attribute
     {
-        public ColumnAttribute()
-        {
-            this.Flags = Defaults.Column.Flags;
-        }
-
-        public ColumnAttribute(ColumnFlags flags)
-            : this()
-        {
-            this.Flags |= flags;
-        }
-
         public string Name { get; set; }
 
         public string Identifier { get; set; }
@@ -64,6 +53,26 @@ namespace FoxDb
             }
         }
 
-        public ColumnFlags Flags { get; set; }
+        public ColumnFlags? _Flags { get; set; }
+
+        public bool IsFlagsSpecified
+        {
+            get
+            {
+                return this._Flags.HasValue;
+            }
+        }
+
+        public ColumnFlags Flags
+        {
+            get
+            {
+                return this._Flags.HasValue ? this._Flags.Value : Defaults.Column.Flags;
+            }
+            set
+            {
+                this._Flags = value;
+            }
+        }
     }
 }

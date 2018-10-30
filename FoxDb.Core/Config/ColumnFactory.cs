@@ -54,9 +54,8 @@ namespace FoxDb
             {
                 columnType = Factories.Type.Create(TypeConfig.By(property));
             }
-            var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute(flags)
+            var attribute = property.GetCustomAttribute<ColumnAttribute>(true) ?? new ColumnAttribute()
             {
-                Flags = flags,
                 Name = columnName,
                 Identifier = identifier
             };
@@ -67,6 +66,10 @@ namespace FoxDb
             if (string.IsNullOrEmpty(attribute.Identifier))
             {
                 attribute.Identifier = string.Format("{0}_{1}", table.TableName, Conventions.ColumnName(property));
+            }
+            if (!attribute.IsFlagsSpecified)
+            {
+                attribute.Flags = flags;
             }
             var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
             var isPrimaryKey = attribute.IsPrimaryKeySpecified ? attribute.IsPrimaryKey : string.Equals(attribute.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase);

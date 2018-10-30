@@ -8,19 +8,32 @@ namespace FoxDb
         public IndexAttribute()
         {
             this.Name = Defaults.Index.Name;
-            this.Flags = Defaults.Index.Flags;
-        }
-
-        public IndexAttribute(IndexFlags flags)
-            : this()
-        {
-            this.Flags |= flags;
         }
 
         public string Name { get; set; }
 
         public string Identifier { get; set; }
 
-        public IndexFlags Flags { get; set; }
+        public IndexFlags? _Flags { get; set; }
+
+        public bool IsFlagsSpecified
+        {
+            get
+            {
+                return this._Flags.HasValue;
+            }
+        }
+
+        public IndexFlags Flags
+        {
+            get
+            {
+                return this._Flags.HasValue ? this._Flags.Value : Defaults.Index.Flags;
+            }
+            set
+            {
+                this._Flags = value;
+            }
+        }
     }
 }

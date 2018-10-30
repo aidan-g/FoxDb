@@ -32,7 +32,7 @@ namespace FoxDb
         [Index(Name = "Fields", Flags = IndexFlags.Unique)]
         public virtual string Field3 { get; set; }
 
-        [Column(ColumnFlags.ConcurrencyCheck)]
+        [Column(Flags = ColumnFlags.ConcurrencyCheck)]
         public int Version { get; set; }
 
         public void Configure(IConfig config, ITableConfig table)

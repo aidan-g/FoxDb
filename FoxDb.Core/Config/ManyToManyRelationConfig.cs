@@ -16,7 +16,7 @@ namespace FoxDb
         {
             var left = this.Expression.SetLeft(this.CreateConstraint());
             var right = this.Expression.SetRight(this.CreateConstraint());
-            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns) && this.LeftTable.PrimaryKey != null)
             {
                 var column = default(IColumnConfig);
                 left.Left = this.Expression.CreateColumn(this.LeftTable.PrimaryKey);
@@ -42,7 +42,7 @@ namespace FoxDb
                 }
             }
             this.Expression.Operator = this.Expression.CreateOperator(QueryOperator.AndAlso);
-            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns) && this.RightTable.PrimaryKey != null)
             {
                 var column = default(IColumnConfig);
                 right.Left = this.Expression.CreateColumn(this.RightTable.PrimaryKey);

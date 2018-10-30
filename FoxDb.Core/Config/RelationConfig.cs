@@ -226,11 +226,11 @@ namespace FoxDb
 
         public override IRelationConfig AutoExpression()
         {
-            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
+            if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns) && this.LeftTable.PrimaryKey != null)
             {
                 this.Expression.Left = this.Expression.CreateColumn(this.LeftTable.PrimaryKey);
             }
-            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
+            if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns) && this.LeftTable.PrimaryKey != null)
             {
                 var column = default(IColumnConfig);
                 if (this.RightTable.TryCreateColumn(

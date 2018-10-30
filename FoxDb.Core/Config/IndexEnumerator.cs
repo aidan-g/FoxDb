@@ -25,7 +25,10 @@ namespace FoxDb
                     columns[attribute.Name] = new PendingIndex();
                 }
                 columns[attribute.Name].Columns.Add(column);
-                columns[attribute.Name].Flags |= attribute.Flags;
+                if (attribute.IsFlagsSpecified)
+                {
+                    columns[attribute.Name].Flags |= attribute.Flags;
+                }
             }
             foreach (var key in columns.Keys)
             {

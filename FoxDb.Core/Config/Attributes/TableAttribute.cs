@@ -5,20 +5,30 @@ namespace FoxDb
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TableAttribute : Attribute
     {
-        public TableAttribute()
-        {
-            this.Flags = Defaults.Table.Flags;
-        }
-
-        public TableAttribute(TableFlags flags) : this()
-        {
-            this.Flags |= flags;
-        }
-
         public string Name { get; set; }
 
         public string Identifier { get; set; }
 
-        public TableFlags Flags { get; set; }
+        public TableFlags? _Flags { get; set; }
+
+        public bool IsFlagsSpecified
+        {
+            get
+            {
+                return this._Flags.HasValue;
+            }
+        }
+
+        public TableFlags Flags
+        {
+            get
+            {
+                return this._Flags.HasValue ? this._Flags.Value : Defaults.Table.Flags;
+            }
+            set
+            {
+                this._Flags = value;
+            }
+        }
     }
 }

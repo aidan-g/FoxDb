@@ -40,13 +40,16 @@ namespace FoxDb
         {
             var attribute = tableType.GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
             {
-                Flags = flags,
                 Name = Conventions.TableName(tableType),
                 Identifier = identifier
             };
             if (string.IsNullOrEmpty(attribute.Identifier))
             {
                 attribute.Identifier = Conventions.TableName(tableType);
+            }
+            if (!attribute.IsFlagsSpecified)
+            {
+                attribute.Flags = flags;
             }
             return (ITableConfig)this.Members.Invoke(this, "Create", tableType, config, attribute.Identifier, attribute.Name, attribute.Flags);
         }
@@ -57,11 +60,14 @@ namespace FoxDb
             {
                 Name = Conventions.RelationTableName(leftTable, rightTable),
                 Identifier = identifier,
-                Flags = flags
             };
             if (string.IsNullOrEmpty(attribute.Identifier))
             {
                 attribute.Identifier = Conventions.RelationTableName(leftTable, rightTable);
+            }
+            if (!attribute.IsFlagsSpecified)
+            {
+                attribute.Flags = flags;
             }
             return (ITableConfig)this.Members.Invoke(this, "Create", new[] { leftTable.TableType, rightTable.TableType }, config, attribute.Identifier, attribute.Name, leftTable, rightTable, attribute.Flags);
         }

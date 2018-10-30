@@ -199,10 +199,10 @@ namespace FoxDb
             new public ObservableCollection<Test004> Test004 { get; set; }
         }
 
-        [Table(TableFlags.AutoRelations, Name = "Test002")]
+        [Table(Name = "Test002", Flags = TableFlags.AutoRelations)]
         public class Toast : Test002
         {
-            [Relation(RelationFlags.ManyToMany)]
+            [Relation(Flags = RelationFlags.ManyToMany)]
             public override ICollection<Test004> Test004
             {
                 get

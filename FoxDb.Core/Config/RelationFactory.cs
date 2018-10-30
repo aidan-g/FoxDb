@@ -48,12 +48,15 @@ namespace FoxDb
             var elementType = default(Type);
             var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
             {
-                Flags = flags,
                 Identifier = identifier
             };
             if (string.IsNullOrEmpty(attribute.Identifier))
             {
                 attribute.Identifier = string.Format("{0}_{1}", table.TableName, property.Name);
+            }
+            if (!attribute.IsFlagsSpecified)
+            {
+                attribute.Flags = flags;
             }
             var relation = default(IRelationConfig);
             if (property.PropertyType.IsCollection(out elementType))
