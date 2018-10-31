@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 
 namespace FoxDb
 {
@@ -31,6 +32,10 @@ namespace FoxDb
             var value = default(object);
             if (record.TryGetValue(column, out value))
             {
+                if (value == null || DBNull.Value.Equals(value))
+                {
+                    value = null;
+                }
                 column.Setter(
                     item,
                     this.Database.Translation.GetLocalValue(column.ColumnType.Type, value)

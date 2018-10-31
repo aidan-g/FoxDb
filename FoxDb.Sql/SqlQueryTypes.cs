@@ -38,6 +38,7 @@ namespace FoxDb
             { DbType.String, types => types.DefaultStringType },
             { DbType.StringFixedLength, types => types.DefaultStringType },
             //Other
+            { DbType.Binary, types => types.DefaultBinaryType },
             { DbType.Guid, types => types.DefaultGuidType }
         };
 
@@ -141,6 +142,14 @@ namespace FoxDb
             get
             {
                 return "TEXT";
+            }
+        }
+
+        protected virtual string DefaultBinaryType
+        {
+            get
+            {
+                return "BINARY";
             }
         }
 

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BehaviourTests.cs" />
+    <Compile Include="BinaryTests.cs" />
     <Compile Include="BulkTests.cs" />
     <Compile Include="ConcurrencyTests.cs" />
     <Compile Include="ConfigTests.cs" />

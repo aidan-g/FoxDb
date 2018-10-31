@@ -72,7 +72,7 @@
     <Compile Include="Config\TypeFactory.cs" />
     <Compile Include="Config\TypeSelector.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="DatabaseParameters.cs" />
+    <Compile Include="Utility\DatabaseParameters.cs" />
     <Compile Include="Entity\EntityCompoundEnumerator.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />
     <Compile Include="Entity\EntityEnumeratorBuffer.cs" />
@@ -210,14 +210,14 @@
     <Compile Include="Query\DatabaseQueryComposer.cs" />
     <Compile Include="Query\DatabaseQueryParameter.cs" />
     <Compile Include="Query\DatabaseQuerySource.cs" />
-    <Compile Include="DatabaseReader.cs" />
+    <Compile Include="Utility\DatabaseReader.cs" />
     <Compile Include="DatabaseSet.cs" />
-    <Compile Include="Disposable.cs" />
+    <Compile Include="Utility\DatabaseSchema.cs" />
+    <Compile Include="Utility\Disposable.cs" />
     <Compile Include="Entity\EntityFactory.cs" />
     <Compile Include="Entity\EntityCompoundPersister.cs" />
     <Compile Include="Entity\EntityPopulator.cs" />
     <Compile Include="Entity\EntityPropertyEnumerator.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces\Config\IColumnConfig.cs" />
     <Compile Include="Interfaces\Config\IConfig.cs" />
     <Compile Include="Interfaces\Entity\IEntityPersister.cs" />

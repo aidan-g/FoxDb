@@ -121,6 +121,9 @@ namespace FoxDb
 
         public string Name { get; set; }
 
+        [Type(IsNullable = true, Size = 16)]
+        public byte[] Value { get; set; }
+
         public Test008 Test008 { get; set; }
 
         public virtual ICollection<Test009> Test009 { get; set; }

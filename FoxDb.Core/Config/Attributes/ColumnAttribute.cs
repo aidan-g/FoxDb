@@ -53,7 +53,7 @@ namespace FoxDb
             }
         }
 
-        public ColumnFlags? _Flags { get; set; }
+        private ColumnFlags? _Flags { get; set; }
 
         public bool IsFlagsSpecified
         {

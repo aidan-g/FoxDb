@@ -7,13 +7,13 @@ namespace FoxDb
 {
     public static class RelationValidator
     {
-        public static bool Validate(PropertyInfo property)
+        public static bool Validate(IDatabase database, PropertyInfo property)
         {
             var elementType = default(Type);
-            return Validate(property, out elementType);
+            return Validate(database, property, out elementType);
         }
 
-        public static bool Validate(PropertyInfo property, out Type elementType)
+        public static bool Validate(IDatabase database, PropertyInfo property, out Type elementType)
         {
             elementType = property.PropertyType;
             if (property == null)
@@ -54,7 +54,7 @@ namespace FoxDb
             return true;
         }
 
-        public static bool Validate(bool strict, params IRelationConfig[] relations)
+        public static bool Validate(IDatabase database, bool strict, params IRelationConfig[] relations)
         {
             foreach (var relation in relations)
             {
@@ -83,7 +83,7 @@ namespace FoxDb
                 }
                 foreach (var column in columns)
                 {
-                    if (!ColumnValidator.Validate(column.Column.Table, column.Column))
+                    if (!ColumnValidator.Validate(database, column.Column.Table, column.Column))
                     {
                         return false;
                     }

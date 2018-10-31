@@ -1,40 +1,19 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace FoxDb
 {
-    public class SqlCeSchema : IDatabaseSchema
+    public class SqlCeSchema : DatabaseSchema
     {
-        private SqlCeSchema()
+        public SqlCeSchema(IDatabase database)
+            : base(database)
         {
-            this.Reset();
+
         }
 
-        public SqlCeSchema(IDatabase database) : this()
-        {
-            this.Database = database;
-        }
-
-        public IDatabase Database { get; private set; }
-
-        protected IEnumerable<string> TableNames { get; set; }
-
-        protected ConcurrentDictionary<string, string[]> ColumnNames { get; set; }
-
-        public bool TableExists(string tableName, ITransactionSource transaction = null)
-        {
-            return this.GetTableNames(transaction).Contains(tableName, StringComparer.OrdinalIgnoreCase);
-        }
-
-        public bool ColumnExists(string tableName, string columnName, ITransactionSource transaction = null)
-        {
-            return this.GetColumnNames(tableName, transaction).Contains(columnName, StringComparer.OrdinalIgnoreCase);
-        }
-
-        public IEnumerable<string> GetTableNames(ITransactionSource transaction = null)
+        public override IEnumerable<string> GetTableNames(ITransactionSource transaction = null)
         {
             if (this.TableNames == null)
             {
@@ -47,7 +26,7 @@ namespace FoxDb
             return this.TableNames;
         }
 
-        public IEnumerable<string> GetColumnNames(string tableName, ITransactionSource transaction = null)
+        public override IEnumerable<string> GetColumnNames(string tableName, ITransactionSource transaction = null)
         {
             var columnNames = default(string[]);
             if (!this.ColumnNames.TryGetValue(tableName, out columnNames))
@@ -67,12 +46,6 @@ namespace FoxDb
                 }
             }
             return columnNames;
-        }
-
-        public void Reset()
-        {
-            this.TableNames = null;
-            this.ColumnNames = new ConcurrentDictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
         }
     }
 }

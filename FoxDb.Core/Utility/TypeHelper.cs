@@ -39,10 +39,11 @@ namespace FoxDb
                     return DbType.UInt32;
                 case TypeCode.UInt64:
                     return DbType.UInt64;
-                case TypeCode.DBNull:
-                case TypeCode.Empty:
-                case TypeCode.Object:
                 default:
+                    if (typeof(byte[]).IsAssignableFrom(type))
+                    {
+                        return DbType.Binary;
+                    }
                     if (typeof(Guid).IsAssignableFrom(type))
                     {
                         return DbType.Guid;

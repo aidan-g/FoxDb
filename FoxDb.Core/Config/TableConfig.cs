@@ -157,7 +157,7 @@ namespace FoxDb
         public IColumnConfig CreateColumn(IColumnSelector selector)
         {
             var column = Factories.Column.Create(this, selector);
-            if (!ColumnValidator.Validate(this, column))
+            if (!ColumnValidator.Validate(this.Config.Database, this, column))
             {
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
@@ -168,7 +168,7 @@ namespace FoxDb
         public bool TryCreateColumn(IColumnSelector selector, out IColumnConfig column)
         {
             column = Factories.Column.Create(this, selector);
-            if (!ColumnValidator.Validate(this, column))
+            if (!ColumnValidator.Validate(this.Config.Database, this, column))
             {
                 return false;
             }
@@ -329,7 +329,7 @@ namespace FoxDb
         public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T, TRelation> selector)
         {
             var relation = Factories.Relation.Create(this, selector);
-            if (!RelationValidator.Validate(false, relation))
+            if (!RelationValidator.Validate(this.Config.Database, false, relation))
             {
                 throw new InvalidOperationException(string.Format("Relation has invalid configuration: {0}", relation));
             }
@@ -340,7 +340,7 @@ namespace FoxDb
         public bool TryCreateRelation<TRelation>(IRelationSelector<T, TRelation> selector, out IRelationConfig relation)
         {
             relation = Factories.Relation.Create(this, selector);
-            if (!RelationValidator.Validate(false, relation))
+            if (!RelationValidator.Validate(this.Config.Database, false, relation))
             {
                 return false;
             }
@@ -351,7 +351,7 @@ namespace FoxDb
         public override ITableConfig AutoColumns()
         {
             var enumerator = new ColumnEnumerator();
-            var columns = enumerator.GetColumns(this).ToArray();
+            var columns = enumerator.GetColumns(this.Config.Database, this).ToArray();
             for (var a = 0; a < columns.Length; a++)
             {
                 var column = columns[a];
@@ -383,7 +383,7 @@ namespace FoxDb
         public override ITableConfig AutoRelations()
         {
             var enumerator = new RelationEnumerator();
-            var relations = enumerator.GetRelations(this).ToArray();
+            var relations = enumerator.GetRelations(this.Config.Database, this).ToArray();
             for (var a = 0; a < relations.Length; a++)
             {
                 var relation = relations[a];
@@ -487,7 +487,7 @@ namespace FoxDb
         public IRelationConfig CreateRelation<TRelation>(IRelationSelector<T1, TRelation> selector)
         {
             var relation = Factories.Relation.Create(this, selector);
-            if (!RelationValidator.Validate(false, relation))
+            if (!RelationValidator.Validate(this.Config.Database, false, relation))
             {
                 throw new InvalidOperationException(string.Format("Relation has invalid configuration: {0}", relation));
             }
@@ -498,7 +498,7 @@ namespace FoxDb
         public bool TryCreateRelation<TRelation>(IRelationSelector<T1, TRelation> selector, out IRelationConfig relation)
         {
             relation = Factories.Relation.Create(this, selector);
-            if (!RelationValidator.Validate(false, relation))
+            if (!RelationValidator.Validate(this.Config.Database, false, relation))
             {
                 return false;
             }
@@ -548,7 +548,7 @@ namespace FoxDb
         public override ITableConfig AutoRelations()
         {
             var enumerator = new RelationEnumerator();
-            var relations = enumerator.GetRelations(this).ToArray();
+            var relations = enumerator.GetRelations(this.Config.Database, this).ToArray();
             for (var a = 0; a < relations.Length; a++)
             {
                 var relation = relations[a];

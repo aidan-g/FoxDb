@@ -1,11 +1,12 @@
 ﻿using FoxDb.Interfaces;
+using System.Linq;
 using System.Reflection;
 
 namespace FoxDb
 {
     public static class ColumnValidator
     {
-        public static bool Validate(PropertyInfo property)
+        public static bool Validate(IDatabase database, PropertyInfo property)
         {
             if (property == null)
             {
@@ -19,14 +20,14 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!property.PropertyType.IsScalar())
+            if (!database.Schema.SupportedTypes.Contains(TypeHelper.GetDbType(property.PropertyType)))
             {
                 return false;
             }
             return true;
         }
 
-        public static bool Validate(ITableConfig table, IColumnConfig column)
+        public static bool Validate(IDatabase database, ITableConfig table, IColumnConfig column)
         {
             if (string.IsNullOrEmpty(column.Identifier))
             {
