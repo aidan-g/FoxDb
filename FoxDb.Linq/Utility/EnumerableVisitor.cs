@@ -337,11 +337,24 @@ namespace FoxDb
 
         protected virtual void VisitQueryable(IQueryable queryable)
         {
+            if (object.ReferenceEquals(this.Provider, queryable))
+            {
+                return;
+            }
+            if (!(queryable is IDatabaseSetQuery))
+            {
+                this.VisitEnumerable(queryable);
+                return;
+            }
             //Nothing to do.
         }
 
         protected virtual void VisitEnumerable(IEnumerable enumerable)
         {
+            if (object.ReferenceEquals(this.Provider, enumerable))
+            {
+                return;
+            }
             this.Peek.Write(this.Push(this.Peek.CreateSequence()));
             try
             {

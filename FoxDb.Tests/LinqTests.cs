@@ -385,8 +385,6 @@ namespace FoxDb
         [Test]
         public void Except_Queryable()
         {
-            Assert.Ignore("Not yet supported.");
-
             var set = this.Database.Set<Test001>(this.Transaction);
             var data = new List<Test001>();
             set.Clear();
