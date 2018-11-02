@@ -16,11 +16,11 @@ namespace FoxDb
 
         public Expression Expression { get; private set; }
 
-        public ColumnFlags Flags { get; private set; }
+        public ColumnFlags? Flags { get; private set; }
 
         public ColumnSelectorType SelectorType { get; private set; }
 
-        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags? flags)
         {
             return new ColumnSelector()
             {
@@ -32,7 +32,7 @@ namespace FoxDb
             };
         }
 
-        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags? flags)
         {
             return new ColumnSelector()
             {
@@ -43,7 +43,7 @@ namespace FoxDb
             };
         }
 
-        public static IColumnSelector By(string identifier, Expression expression, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, Expression expression, ColumnFlags? flags)
         {
             return new ColumnSelector()
             {

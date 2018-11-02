@@ -10,13 +10,7 @@ namespace FoxDb
     public static partial class Compatibility
     {
         [Obsolete]
-        public static ITableConfig Table(this IConfig config, string tableName)
-        {
-            return config.Table(tableName, Defaults.Table.Flags);
-        }
-
-        [Obsolete]
-        public static ITableConfig Table(this IConfig config, string tableName, TableFlags flags)
+        public static ITableConfig Table(this IConfig config, string tableName, TableFlags? flags = null)
         {
             var selector = TableConfig.By(tableName, flags);
             var table = config.GetTable(selector);
@@ -28,13 +22,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static ITableConfig Table(this IConfig config, Type tableType)
-        {
-            return config.Table(tableType, Defaults.Table.Flags);
-        }
-
-        [Obsolete]
-        public static ITableConfig Table(this IConfig config, Type tableType, TableFlags flags)
+        public static ITableConfig Table(this IConfig config, Type tableType, TableFlags? flags = null)
         {
             var selector = TableConfig.By(tableType, flags);
             var table = config.GetTable(selector);
@@ -46,25 +34,13 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static ITableConfig<T> Table<T>(this IConfig config)
-        {
-            return config.Table<T>(Defaults.Table.Flags);
-        }
-
-        [Obsolete]
-        public static ITableConfig<T> Table<T>(this IConfig config, TableFlags flags)
+        public static ITableConfig<T> Table<T>(this IConfig config, TableFlags? flags = null)
         {
             return config.Table(typeof(T), flags) as ITableConfig<T>;
         }
 
         [Obsolete]
-        public static ITableConfig<T1, T2> Table<T1, T2>(this IConfig config)
-        {
-            return config.Table<T1, T2>(Defaults.Table.Flags);
-        }
-
-        [Obsolete]
-        public static ITableConfig<T1, T2> Table<T1, T2>(this IConfig config, TableFlags flags)
+        public static ITableConfig<T1, T2> Table<T1, T2>(this IConfig config, TableFlags? flags = null)
         {
             var leftTable = config.Table<T1>(flags);
             var rightTable = config.Table<T2>(flags);
@@ -78,7 +54,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IIndexConfig Index(this ITableConfig table, IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexConfig Index(this ITableConfig table, IEnumerable<string> columnNames, IndexFlags? flags = null)
         {
             var selector = IndexConfig.By(columnNames, flags);
             var index = table.GetIndex(selector);
@@ -90,7 +66,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IIndexConfig Index(this ITableConfig table, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexConfig Index(this ITableConfig table, IEnumerable<IColumnConfig> columns, IndexFlags? flags = null)
         {
             var selector = IndexConfig.By(columns, flags);
             var index = table.GetIndex(selector);
@@ -102,13 +78,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IRelationConfig Relation<T, TRelation>(this ITableConfig<T> table, Expression<Func<T, TRelation>> expression)
-        {
-            return table.Relation(expression, Defaults.Relation.Flags);
-        }
-
-        [Obsolete]
-        public static IRelationConfig Relation<T, TRelation>(this ITableConfig<T> table, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationConfig Relation<T, TRelation>(this ITableConfig<T> table, Expression<Func<T, TRelation>> expression, RelationFlags? flags = null)
         {
             var selector = RelationConfig.By(expression, flags);
             var relation = table.GetRelation(selector);
@@ -120,13 +90,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IRelationConfig Relation<T1, T2, TRelation>(this ITableConfig<T1, T2> table, Expression<Func<T1, TRelation>> expression)
-        {
-            return table.Relation(expression, Defaults.Relation.Flags);
-        }
-
-        [Obsolete]
-        public static IRelationConfig Relation<T1, T2, TRelation>(this ITableConfig<T1, T2> table, Expression<Func<T1, TRelation>> expression, RelationFlags flags)
+        public static IRelationConfig Relation<T1, T2, TRelation>(this ITableConfig<T1, T2> table, Expression<Func<T1, TRelation>> expression, RelationFlags? flags = null)
         {
             var selector = RelationConfig.By(expression, flags);
             var relation = table.GetRelation(selector);
@@ -138,13 +102,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IColumnConfig Column(this ITableConfig table, string columnName)
-        {
-            return table.Column(columnName, Defaults.Column.Flags);
-        }
-
-        [Obsolete]
-        public static IColumnConfig Column(this ITableConfig table, string columnName, ColumnFlags flags)
+        public static IColumnConfig Column(this ITableConfig table, string columnName, ColumnFlags? flags = null)
         {
             var selector = ColumnConfig.By(columnName, flags);
             var column = table.GetColumn(selector);
@@ -156,13 +114,7 @@ namespace FoxDb
         }
 
         [Obsolete]
-        public static IColumnConfig Column(this ITableConfig table, PropertyInfo property)
-        {
-            return table.Column(property, Defaults.Column.Flags);
-        }
-
-        [Obsolete]
-        public static IColumnConfig Column(this ITableConfig table, PropertyInfo property, ColumnFlags flags)
+        public static IColumnConfig Column(this ITableConfig table, PropertyInfo property, ColumnFlags? flags = null)
         {
             var selector = ColumnConfig.By(property, flags);
             var column = table.GetColumn(selector);

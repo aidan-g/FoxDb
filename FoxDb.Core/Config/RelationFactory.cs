@@ -33,17 +33,17 @@ namespace FoxDb
             return relation;
         }
 
-        public IRelationConfig Create(ITableConfig table, string identifier, PropertyInfo property, RelationFlags flags)
+        public IRelationConfig Create(ITableConfig table, string identifier, PropertyInfo property, RelationFlags? flags)
         {
             return (IRelationConfig)this.Members.Invoke(this, "Create", new[] { table.TableType, property.PropertyType }, table, identifier, property, flags);
         }
 
-        public IRelationConfig Create(ITableConfig table, string identifier, Expression expression, RelationFlags flags)
+        public IRelationConfig Create(ITableConfig table, string identifier, Expression expression, RelationFlags? flags)
         {
             return this.Create(table, identifier, expression.GetLambdaProperty(table), flags);
         }
 
-        public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, string identifier, PropertyInfo property, RelationFlags flags)
+        public IRelationConfig Create<T, TRelation>(ITableConfig<T> table, string identifier, PropertyInfo property, RelationFlags? flags)
         {
             var elementType = default(Type);
             var attribute = property.GetCustomAttribute<RelationAttribute>(true) ?? new RelationAttribute()
@@ -56,7 +56,14 @@ namespace FoxDb
             }
             if (!attribute.IsFlagsSpecified)
             {
-                attribute.Flags = flags;
+                if (flags.HasValue)
+                {
+                    attribute.Flags = flags.Value;
+                }
+                else
+                {
+                    attribute.Flags = Defaults.Relation.Flags;
+                }
             }
             var relation = default(IRelationConfig);
             if (property.PropertyType.IsCollection(out elementType))
@@ -83,8 +90,7 @@ namespace FoxDb
                     relation.LeftTable.CreateColumn(
                         ColumnConfig.By(
                             attribute.LeftColumn,
-                            Factories.Type.Create(TypeConfig.By(property)),
-                            Defaults.Column.Flags
+                            Factories.Type.Create(TypeConfig.By(property))
                         )
                     ).With(column => column.IsForeignKey = true)
                 );
@@ -95,8 +101,7 @@ namespace FoxDb
                     relation.RightTable.CreateColumn(
                         ColumnConfig.By(
                             attribute.RightColumn,
-                            Factories.Type.Create(TypeConfig.By(property)),
-                            Defaults.Column.Flags
+                            Factories.Type.Create(TypeConfig.By(property))
                         )
                     ).With(column => column.IsForeignKey = true)
                 );

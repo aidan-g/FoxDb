@@ -14,7 +14,7 @@ namespace FoxDb.Interfaces
 
         ITableConfig RightTable { get; }
 
-        TableFlags Flags { get; }
+        TableFlags? Flags { get; }
 
         TableSelectorType SelectorType { get; }
     }

@@ -82,10 +82,6 @@ namespace FoxDb
             var hashCode = 0;
             unchecked
             {
-                if (!string.IsNullOrEmpty(this.Identifier))
-                {
-                    hashCode += this.Identifier.GetHashCode();
-                }
                 if (this.LeftTable != null)
                 {
                     hashCode += this.LeftTable.GetHashCode();
@@ -117,10 +113,6 @@ namespace FoxDb
             {
                 return false;
             }
-            if (!string.Equals(this.Identifier, other.Identifier, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
             if ((TableConfig)this.LeftTable != (TableConfig)other.LeftTable)
             {
                 return false;
@@ -130,10 +122,6 @@ namespace FoxDb
                 return false;
             }
             if ((TableConfig)this.RightTable != (TableConfig)other.RightTable)
-            {
-                return false;
-            }
-            if (this.Flags != other.Flags)
             {
                 return false;
             }
@@ -175,32 +163,32 @@ namespace FoxDb
             throw new InvalidOperationException(string.Format("Table does not appear to be related: {0}", relativeTable));
         }
 
-        public static IRelationSelector By(PropertyInfo property, RelationFlags flags)
+        public static IRelationSelector By(PropertyInfo property, RelationFlags? flags = null)
         {
             return By(string.Empty, property, flags);
         }
 
-        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags flags)
+        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags? flags = null)
         {
             return RelationSelector.By(identifier, property, flags);
         }
 
-        public static IRelationSelector By(Expression expression, RelationFlags flags)
+        public static IRelationSelector By(Expression expression, RelationFlags? flags = null)
         {
             return By(string.Empty, expression, flags);
         }
 
-        public static IRelationSelector By(string identifier, Expression expression, RelationFlags flags)
+        public static IRelationSelector By(string identifier, Expression expression, RelationFlags? flags = null)
         {
             return RelationSelector.By(identifier, expression, flags);
         }
 
-        public static IRelationSelector<T, TRelation> By<T, TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By<T, TRelation>(Expression<Func<T, TRelation>> expression, RelationFlags? flags = null)
         {
             return By(string.Empty, expression, flags);
         }
 
-        public static IRelationSelector<T, TRelation> By<T, TRelation>(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By<T, TRelation>(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags? flags = null)
         {
             return RelationSelector<T, TRelation>.By(identifier, expression, flags);
         }
@@ -244,8 +232,7 @@ namespace FoxDb
                                 this.LeftTable.PrimaryKey.ColumnType.Scale,
                                 this.Flags.HasFlag(RelationFlags.AllowNull)
                             )
-                        ),
-                        Defaults.Column.Flags
+                        )
                     ),
                     out column
                 ))
@@ -257,12 +244,12 @@ namespace FoxDb
             return this;
         }
 
-        public static IRelationSelector<T, TRelation> By(Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By(Expression<Func<T, TRelation>> expression, RelationFlags? flags = null)
         {
             return By(string.Empty, expression, flags);
         }
 
-        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags? flags = null)
         {
             return RelationSelector<T, TRelation>.By(identifier, expression, flags);
         }

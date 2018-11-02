@@ -15,7 +15,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                var relation = Factories.Relation.Create(table, RelationConfig.By(property, Defaults.Relation.Flags));
+                var relation = Factories.Relation.Create(table, RelationConfig.By(property));
                 if (!RelationValidator.Validate(database, true, relation))
                 {
                     continue;

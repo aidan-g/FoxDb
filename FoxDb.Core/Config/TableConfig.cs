@@ -32,13 +32,14 @@ namespace FoxDb
             this.Identifier = table.Identifier;
             this.TableName = table.TableName;
             this.TableType = tableType;
-            this.Columns = table.Columns;
-            this.Relations = table.Relations;
+            this.Columns = new ConcurrentDictionary<string, IColumnConfig>(table.Columns, StringComparer.OrdinalIgnoreCase);
+            this.Indexes = new ConcurrentDictionary<string, IIndexConfig>(table.Indexes, StringComparer.OrdinalIgnoreCase);
+            this.Relations = new ConcurrentDictionary<string, IRelationConfig>(table.Relations, StringComparer.OrdinalIgnoreCase);
         }
 
         public IConfig Config { get; private set; }
 
-        public TableFlags Flags { get; private set; }
+        public TableFlags Flags { get; protected set; }
 
         public string Identifier { get; private set; }
 
@@ -235,10 +236,6 @@ namespace FoxDb
                 {
                     hashCode += this.TableName.GetHashCode();
                 }
-                if (this.TableType != null)
-                {
-                    hashCode += this.TableType.GetHashCode();
-                }
             }
             return hashCode;
         }
@@ -287,32 +284,32 @@ namespace FoxDb
             return !(a == b);
         }
 
-        public static ITableSelector By(string tableName, TableFlags flags)
+        public static ITableSelector By(string tableName, TableFlags? flags = null)
         {
             return By(string.Empty, tableName, flags);
         }
 
-        public static ITableSelector By(string identifier, string tableName, TableFlags flags)
+        public static ITableSelector By(string identifier, string tableName, TableFlags? flags = null)
         {
             return TableSelector.By(identifier, tableName, flags);
         }
 
-        public static ITableSelector By(Type tableType, TableFlags flags)
+        public static ITableSelector By(Type tableType, TableFlags? flags = null)
         {
             return By(string.Empty, tableType, flags);
         }
 
-        public static ITableSelector By(string identifier, Type tableType, TableFlags flags)
+        public static ITableSelector By(string identifier, Type tableType, TableFlags? flags = null)
         {
             return TableSelector.By(identifier, tableType, flags);
         }
 
-        public static ITableSelector By(ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        public static ITableSelector By(ITableConfig leftTable, ITableConfig rightTable, TableFlags? flags = null)
         {
             return By(string.Empty, leftTable, rightTable, flags);
         }
 
-        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags? flags = null)
         {
             return TableSelector.By(identifier, leftTable, rightTable, flags);
         }
@@ -528,7 +525,7 @@ namespace FoxDb
             if (this.LeftTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), this.LeftTable.PrimaryKey.ColumnType, Defaults.Column.Flags), out column))
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.LeftTable), this.LeftTable.PrimaryKey.ColumnType), out column))
                 {
                     this.LeftForeignKey = column;
                     this.LeftForeignKey.IsForeignKey = true;
@@ -537,7 +534,7 @@ namespace FoxDb
             if (this.RightTable.Flags.HasFlag(TableFlags.AutoColumns))
             {
                 var column = default(IColumnConfig);
-                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), this.RightTable.PrimaryKey.ColumnType, Defaults.Column.Flags), out column))
+                if (this.TryCreateColumn(ColumnConfig.By(Conventions.RelationColumn(this.RightTable), this.RightTable.PrimaryKey.ColumnType), out column))
                 {
                     this.RightForeignKey = column;
                     this.RightForeignKey.IsForeignKey = true;

@@ -31,8 +31,7 @@ namespace FoxDb
                                 this.LeftTable.PrimaryKey.ColumnType.Scale,
                                 this.Flags.HasFlag(RelationFlags.AllowNull)
                             )
-                        ),
-                        Defaults.Column.Flags
+                        )
                     ),
                     out column
                 ))

@@ -133,42 +133,42 @@ namespace FoxDb
             return !(a == b);
         }
 
-        public static IColumnSelector By(string columnName, ColumnFlags flags)
+        public static IColumnSelector By(string columnName, ColumnFlags? flags = null)
         {
             return By(string.Empty, columnName, null, flags);
         }
 
-        public static IColumnSelector By(string identifier, string columnName, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, string columnName, ColumnFlags? flags = null)
         {
             return By(identifier, columnName, null, flags);
         }
 
-        public static IColumnSelector By(string columnName, ITypeConfig columnType, ColumnFlags flags)
+        public static IColumnSelector By(string columnName, ITypeConfig columnType, ColumnFlags? flags = null)
         {
             return By(string.Empty, columnName, columnType, flags);
         }
 
-        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, string columnName, ITypeConfig columnType, ColumnFlags? flags = null)
         {
             return ColumnSelector.By(identifier, columnName, columnType, flags);
         }
 
-        public static IColumnSelector By(PropertyInfo property, ColumnFlags flags)
+        public static IColumnSelector By(PropertyInfo property, ColumnFlags? flags = null)
         {
             return By(string.Empty, property, flags);
         }
 
-        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags flags)
+        public static IColumnSelector By(string identifier, PropertyInfo property, ColumnFlags? flags = null)
         {
             return ColumnSelector.By(identifier, property, flags);
         }
 
-        public static IColumnSelector By<T, TColumn>(Expression<Func<T, TColumn>> expression, ColumnFlags flags)
+        public static IColumnSelector By<T, TColumn>(Expression<Func<T, TColumn>> expression, ColumnFlags? flags = null)
         {
             return By<T, TColumn>(string.Empty, expression, flags);
         }
 
-        public static IColumnSelector By<T, TColumn>(string identifier, Expression<Func<T, TColumn>> expression, ColumnFlags flags)
+        public static IColumnSelector By<T, TColumn>(string identifier, Expression<Func<T, TColumn>> expression, ColumnFlags? flags = null)
         {
             return ColumnSelector.By(identifier, expression, flags);
         }

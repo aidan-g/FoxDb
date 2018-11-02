@@ -120,22 +120,22 @@ namespace FoxDb
             return !(a == b);
         }
 
-        public static IIndexSelector By(IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexSelector By(IEnumerable<IColumnConfig> columns, IndexFlags? flags = null)
         {
             return By(string.Empty, columns, flags);
         }
 
-        public static IIndexSelector By(string identifier, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<IColumnConfig> columns, IndexFlags? flags = null)
         {
             return IndexSelector.By(identifier, columns, flags);
         }
 
-        public static IIndexSelector By(IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexSelector By(IEnumerable<string> columnNames, IndexFlags? flags = null)
         {
             return By(string.Empty, columnNames, flags);
         }
 
-        public static IIndexSelector By(string identifier, IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<string> columnNames, IndexFlags? flags = null)
         {
             return IndexSelector.By(identifier, columnNames, flags);
         }

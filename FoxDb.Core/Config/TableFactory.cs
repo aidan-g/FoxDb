@@ -27,7 +27,7 @@ namespace FoxDb
             }
         }
 
-        public ITableConfig Create(IConfig config, string identifier, string tableName, TableFlags flags)
+        public ITableConfig Create(IConfig config, string identifier, string tableName, TableFlags? flags)
         {
             if (string.IsNullOrEmpty(identifier))
             {
@@ -36,7 +36,7 @@ namespace FoxDb
             return (ITableConfig)this.Members.Invoke(this, "Create", typeof(EntityPlaceholder), config, identifier, tableName, flags);
         }
 
-        public ITableConfig Create(IConfig config, string identifier, Type tableType, TableFlags flags)
+        public ITableConfig Create(IConfig config, string identifier, Type tableType, TableFlags? flags)
         {
             var attribute = tableType.GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
             {
@@ -49,12 +49,19 @@ namespace FoxDb
             }
             if (!attribute.IsFlagsSpecified)
             {
-                attribute.Flags = flags;
+                if (flags.HasValue)
+                {
+                    attribute.Flags = flags.Value;
+                }
+                else
+                {
+                    attribute.Flags = Defaults.Table.Flags;
+                }
             }
             return (ITableConfig)this.Members.Invoke(this, "Create", tableType, config, attribute.Identifier, attribute.Name, attribute.Flags);
         }
 
-        public ITableConfig Create(IConfig config, string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        public ITableConfig Create(IConfig config, string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags? flags)
         {
             var attribute = new TableAttribute()
             {
@@ -67,7 +74,14 @@ namespace FoxDb
             }
             if (!attribute.IsFlagsSpecified)
             {
-                attribute.Flags = flags;
+                if (flags.HasValue)
+                {
+                    attribute.Flags = flags.Value;
+                }
+                else
+                {
+                    attribute.Flags = Defaults.Table.Flags;
+                }
             }
             return (ITableConfig)this.Members.Invoke(this, "Create", new[] { leftTable.TableType, rightTable.TableType }, config, attribute.Identifier, attribute.Name, leftTable, rightTable, attribute.Flags);
         }

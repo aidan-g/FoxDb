@@ -11,11 +11,11 @@ namespace FoxDb
 
         public IEnumerable<string> ColumnNames { get; private set; }
 
-        public IndexFlags Flags { get; private set; }
+        public IndexFlags? Flags { get; private set; }
 
         public IndexSelectorType SelectorType { get; private set; }
 
-        public static IIndexSelector By(string identifier, IEnumerable<IColumnConfig> columns, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<IColumnConfig> columns, IndexFlags? flags)
         {
             return new IndexSelector()
             {
@@ -26,7 +26,7 @@ namespace FoxDb
             };
         }
 
-        public static IIndexSelector By(string identifier, IEnumerable<string> columnNames, IndexFlags flags)
+        public static IIndexSelector By(string identifier, IEnumerable<string> columnNames, IndexFlags? flags)
         {
             return new IndexSelector()
             {

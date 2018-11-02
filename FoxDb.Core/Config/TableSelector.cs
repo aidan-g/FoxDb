@@ -15,11 +15,11 @@ namespace FoxDb
 
         public ITableConfig RightTable { get; private set; }
 
-        public TableFlags Flags { get; private set; }
+        public TableFlags? Flags { get; private set; }
 
         public TableSelectorType SelectorType { get; private set; }
 
-        public static ITableSelector By(string identifier, string tableName, TableFlags flags)
+        public static ITableSelector By(string identifier, string tableName, TableFlags? flags)
         {
             return new TableSelector()
             {
@@ -30,7 +30,7 @@ namespace FoxDb
             };
         }
 
-        public static ITableSelector By(string identifier, Type tableType, TableFlags flags)
+        public static ITableSelector By(string identifier, Type tableType, TableFlags? flags)
         {
             return new TableSelector()
             {
@@ -41,7 +41,7 @@ namespace FoxDb
             };
         }
 
-        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags flags)
+        public static ITableSelector By(string identifier, ITableConfig leftTable, ITableConfig rightTable, TableFlags? flags)
         {
             return new TableSelector()
             {

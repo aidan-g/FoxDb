@@ -10,7 +10,7 @@ namespace FoxDb.Interfaces
 
         IEnumerable<string> ColumnNames { get; }
 
-        IndexFlags Flags { get; }
+        IndexFlags? Flags { get; }
 
         IndexSelectorType SelectorType { get; }
     }

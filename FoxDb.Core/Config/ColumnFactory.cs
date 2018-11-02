@@ -30,7 +30,7 @@ namespace FoxDb
             }
         }
 
-        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, ColumnFlags flags)
+        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, ColumnFlags? flags)
         {
             if (columnType == null)
             {
@@ -40,15 +40,19 @@ namespace FoxDb
             {
                 identifier = string.Format("{0}_{1}", table.TableName, columnName);
             }
-            return new ColumnConfig(table.Config, flags, identifier, table, columnName, columnType, null, null, null, null);
+            if (!flags.HasValue)
+            {
+                flags = Defaults.Column.Flags;
+            }
+            return new ColumnConfig(table.Config, flags.Value, identifier, table, columnName, columnType, null, null, null, null);
         }
 
-        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, Expression expression, ColumnFlags flags)
+        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, Expression expression, ColumnFlags? flags)
         {
             return this.Create(table, identifier, columnName, columnType, expression.GetLambdaProperty(table.TableType), flags);
         }
 
-        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, PropertyInfo property, ColumnFlags flags)
+        public IColumnConfig Create(ITableConfig table, string identifier, string columnName, ITypeConfig columnType, PropertyInfo property, ColumnFlags? flags)
         {
             if (columnType == null)
             {
@@ -67,21 +71,28 @@ namespace FoxDb
             {
                 attribute.Identifier = string.Format("{0}_{1}", table.TableName, Conventions.ColumnName(property));
             }
-            if (!attribute.IsFlagsSpecified)
-            {
-                attribute.Flags = flags;
-            }
-            var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
             var isPrimaryKey = attribute.IsPrimaryKeySpecified ? attribute.IsPrimaryKey : string.Equals(attribute.Name, Conventions.KeyColumn, StringComparison.OrdinalIgnoreCase);
             var isForeignKey = attribute.IsForeignKeySpecified ? attribute.IsForeignKey : false;
-            if (isPrimaryKey)
+            if (!attribute.IsFlagsSpecified)
             {
-                attribute.Flags |= Defaults.PrimaryKey.Flags;
+                if (flags.HasValue)
+                {
+                    attribute.Flags = flags.Value;
+                }
+                else
+                {
+                    attribute.Flags = Defaults.Column.Flags;
+                    if (isPrimaryKey)
+                    {
+                        attribute.Flags |= Defaults.PrimaryKey.Flags;
+                    }
+                    if (isForeignKey)
+                    {
+                        attribute.Flags |= Defaults.ForeignKey.Flags;
+                    }
+                }
             }
-            if (isForeignKey)
-            {
-                attribute.Flags |= Defaults.ForeignKey.Flags;
-            }
+            var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
             return new ColumnConfig(
                 table.Config,
                 attribute.Flags,

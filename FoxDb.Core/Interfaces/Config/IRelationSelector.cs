@@ -12,7 +12,7 @@ namespace FoxDb.Interfaces
 
         Expression Expression { get; }
 
-        RelationFlags Flags { get; }
+        RelationFlags? Flags { get; }
 
         RelationSelectorType SelectorType { get; }
     }

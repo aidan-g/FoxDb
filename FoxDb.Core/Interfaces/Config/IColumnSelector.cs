@@ -16,7 +16,7 @@ namespace FoxDb.Interfaces
 
         Expression Expression { get; }
 
-        ColumnFlags Flags { get; }
+        ColumnFlags? Flags { get; }
 
         ColumnSelectorType SelectorType { get; }
     }

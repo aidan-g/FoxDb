@@ -448,9 +448,9 @@ namespace FoxDb
 
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
-        public void Composite_C(RelationFlags relationFlags)
+        public void Composite_C(RelationFlags flags)
         {
-            this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | relationFlags);
+            this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();
             set.Clear();

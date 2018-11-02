@@ -13,11 +13,11 @@ namespace FoxDb
 
         public Expression Expression { get; protected set; }
 
-        public RelationFlags Flags { get; protected set; }
+        public RelationFlags? Flags { get; protected set; }
 
         public RelationSelectorType SelectorType { get; protected set; }
 
-        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags flags)
+        public static IRelationSelector By(string identifier, PropertyInfo property, RelationFlags? flags)
         {
             return new RelationSelector()
             {
@@ -28,7 +28,7 @@ namespace FoxDb
             };
         }
 
-        public static IRelationSelector By(string identifier, Expression expression, RelationFlags flags)
+        public static IRelationSelector By(string identifier, Expression expression, RelationFlags? flags)
         {
             return new RelationSelector()
             {
@@ -54,7 +54,7 @@ namespace FoxDb
             }
         }
 
-        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags flags)
+        public static IRelationSelector<T, TRelation> By(string identifier, Expression<Func<T, TRelation>> expression, RelationFlags? flags)
         {
             return new RelationSelector<T, TRelation>()
             {

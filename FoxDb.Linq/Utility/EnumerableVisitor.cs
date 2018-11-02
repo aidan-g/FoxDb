@@ -134,7 +134,7 @@ namespace FoxDb
         {
             get
             {
-                return this.Database.Config.GetTable(TableConfig.By(this.ElementType, Defaults.Table.Flags));
+                return this.Database.Config.GetTable(TableConfig.By(this.ElementType));
             }
         }
 
@@ -224,7 +224,7 @@ namespace FoxDb
             {
                 type = type.GetGenericArguments()[0];
             }
-            result = this.Database.Config.GetTable(TableConfig.By(type, Defaults.Table.Flags));
+            result = this.Database.Config.GetTable(TableConfig.By(type));
             return result != null;
         }
 
@@ -241,7 +241,7 @@ namespace FoxDb
                 result = default(ITableConfig);
                 return false;
             }
-            result = this.Database.Config.GetTable(TableConfig.By(type, Defaults.Table.Flags));
+            result = this.Database.Config.GetTable(TableConfig.By(type));
             return result != null;
         }
 
@@ -257,7 +257,7 @@ namespace FoxDb
             {
                 type = type.GetGenericArguments()[0];
             }
-            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType, Defaults.Table.Flags));
+            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType));
             if (table != null)
             {
                 foreach (var relation in table.Relations)
@@ -281,13 +281,13 @@ namespace FoxDb
                 result = default(IColumnConfig);
                 return false;
             }
-            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType, Defaults.Table.Flags));
+            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType));
             if (table == null)
             {
                 result = default(IColumnConfig);
                 return false;
             }
-            result = table.GetColumn(ColumnConfig.By(property, Defaults.Column.Flags));
+            result = table.GetColumn(ColumnConfig.By(property));
             return result != null;
         }
 

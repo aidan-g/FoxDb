@@ -1,4 +1,4 @@
-﻿#pragma warning disable 612, 618 
+﻿#pragma warning disable 612, 618
 using NUnit.Framework;
 using System.Collections.Generic;
 
@@ -9,7 +9,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class EnumeratorTests : TestBase
     {
-        public EnumeratorTests(ProviderType providerType) : base(providerType)
+        public EnumeratorTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }

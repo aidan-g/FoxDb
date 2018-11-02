@@ -37,7 +37,7 @@ namespace FoxDb
 
         public void Configure(IConfig config, ITableConfig table)
         {
-            var index = table.GetIndex(IndexConfig.By(new[] { "Field1", "Field2", "Field3" }, Defaults.Index.Flags));
+            var index = table.GetIndex(IndexConfig.By(new[] { "Field1", "Field2", "Field3" }));
             if (index != null)
             {
                 index.Expression = index.Expression.Combine(
