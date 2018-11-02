@@ -11,7 +11,7 @@ namespace FoxDb
         private TableConfig()
         {
             this.Columns = new ConcurrentDictionary<string, IColumnConfig>(StringComparer.OrdinalIgnoreCase);
-            this.Indexes = new ConcurrentDictionary<string, IIndexConfig>();
+            this.Indexes = new ConcurrentDictionary<string, IIndexConfig>(StringComparer.OrdinalIgnoreCase);
             this.Relations = new ConcurrentDictionary<string, IRelationConfig>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -60,27 +60,46 @@ namespace FoxDb
             }
         }
 
-        public IEnumerable<IColumnConfig> UpdatableColumns
+        public IEnumerable<IColumnConfig> InsertableColumns
         {
             get
             {
                 return this.Columns.Values
-                    .Except(this.PrimaryKeys)
-                    .Except(this.GeneratedColumns)
+                    .Except(this.RemoteGeneratedColumns)
                     .Except(this.ConcurrencyColumns)
                     .ToLookup(column => column.ColumnName)
                     .Select(columns => columns.First());
             }
         }
 
-        public IEnumerable<IColumnConfig> GeneratedColumns
+        public IEnumerable<IColumnConfig> UpdatableColumns
         {
             get
             {
                 return this.Columns.Values
-                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && !column.ColumnType.IsNumeric)
-                    .ToLookup(column => column.ColumnName)
-                    .Select(columns => columns.First());
+                    .Except(this.PrimaryKeys)
+                    .Except(this.LocalGeneratedColumns)
+                    .Except(this.RemoteGeneratedColumns)
+                    .Except(this.ConcurrencyColumns)
+                    .Distinct();
+            }
+        }
+
+        public IEnumerable<IColumnConfig> LocalGeneratedColumns
+        {
+            get
+            {
+                return this.Columns.Values
+                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && !column.ColumnType.IsNumeric);
+            }
+        }
+
+        public IEnumerable<IColumnConfig> RemoteGeneratedColumns
+        {
+            get
+            {
+                return this.Columns.Values
+                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && column.ColumnType.IsNumeric);
             }
         }
 
@@ -89,9 +108,7 @@ namespace FoxDb
             get
             {
                 return this.Columns.Values
-                    .Where(column => column.IsConcurrencyCheck)
-                    .ToLookup(column => column.ColumnName)
-                    .Select(columns => columns.First());
+                    .Where(column => column.IsConcurrencyCheck);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿#pragma warning disable 612, 618
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -51,6 +52,30 @@ namespace FoxDb
                 new Test007() { Name = "Name1" },
                 new Test007() { Name = "Name2" },
                 new Test007() { Name = "Name3" }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            data[1].Name = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            set.Remove(data[1]);
+            data.RemoveAt(1);
+            this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void CanAddUpdateDelete_GuidKey_UserDefined()
+        {
+            this.Database.Config.Table<Test007>().Column("Id").Flags &= ~ColumnFlags.Generated;
+            var set = this.Database.Set<Test007>(this.Transaction);
+            var data = new List<Test007>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Test007() { Id = SequentialGuid.New(), Name = "Name1" },
+                new Test007() { Id = SequentialGuid.New(), Name = "Name2" },
+                new Test007() { Id = SequentialGuid.New(), Name = "Name3" }
             });
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);

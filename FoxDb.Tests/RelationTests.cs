@@ -1,4 +1,4 @@
-﻿#pragma warning disable 612, 618 
+﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -11,7 +11,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class RelationTests : TestBase
     {
-        public RelationTests(ProviderType providerType) : base(providerType)
+        public RelationTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -139,7 +140,8 @@ namespace FoxDb
             this.AssertSequence(data, set);
             var child = this.Database.Set<Test003>(this.Transaction).AddOrUpdate(new Test003() { Name = "2_2" });
             data[1].Test003_Id = child.Id;
-            new EntityPersister(this.Database, set.Table, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
+            var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
+            new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
             data[1].Test003 = child;
             this.AssertSequence(data, set);
         }
@@ -172,7 +174,8 @@ namespace FoxDb
             this.AssertSequence(data, set);
             var child = this.Database.Set<Test004>(this.Transaction).AddOrUpdate(new Test004() { Name = "2_2" });
             data[1].Test004_Id = child.Id;
-            new EntityPersister(this.Database, set.Table, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
+            var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
+            new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1], PersistenceFlags.None);
             data[1].Test004.Add(child);
             this.AssertSequence(data, set);
         }

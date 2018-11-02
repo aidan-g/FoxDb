@@ -6,6 +6,10 @@ namespace FoxDb
 {
     public class DatabaseQueryCache : IDatabaseQueryCache
     {
+        public const string EXISTS = "C0CE76F8-CFEA-4138-A5FA-B445291AB44E";
+
+        public const string LOOKUP = "F8FC6257-7E0E-47E2-8CC5-99F0DC5CF04E";
+
         public const string FETCH = "8363888C-D616-419D-9402-0274BD290B5C";
 
         public const string ADD = "30CFF274-C469-46C1-A44D-ECDCE4459409";
@@ -28,6 +32,16 @@ namespace FoxDb
         public ConcurrentDictionary<IDatabaseQueryCacheKey, IDatabaseQuery> Cache { get; private set; }
 
         public IDatabase Database { get; private set; }
+
+        public IDatabaseQuery Exists(ITableConfig table)
+        {
+            return this.GetOrAdd(new DatabaseQueryTableCacheKey(table, EXISTS), () => this.Database.QueryFactory.Exists(table).Build());
+        }
+
+        public IDatabaseQuery Lookup(ITableConfig table)
+        {
+            return this.GetOrAdd(new DatabaseQueryTableCacheKey(table, LOOKUP), () => this.Database.QueryFactory.Lookup(table).Build());
+        }
 
         public IDatabaseQuery Fetch(ITableConfig table)
         {

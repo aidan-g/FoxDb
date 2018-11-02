@@ -23,7 +23,7 @@ namespace FoxDb
 
         public IConfig Config { get; private set; }
 
-        public ColumnFlags Flags { get; private set; }
+        public ColumnFlags Flags { get; set; }
 
         public string Identifier { get; private set; }
 

@@ -33,9 +33,13 @@ namespace FoxDb.Interfaces
 
         IEnumerable<IColumnConfig> Columns { get; }
 
+        IEnumerable<IColumnConfig> InsertableColumns { get; }
+
         IEnumerable<IColumnConfig> UpdatableColumns { get; }
 
-        IEnumerable<IColumnConfig> GeneratedColumns { get; }
+        IEnumerable<IColumnConfig> LocalGeneratedColumns { get; }
+
+        IEnumerable<IColumnConfig> RemoteGeneratedColumns { get; }
 
         IEnumerable<IColumnConfig> ConcurrencyColumns { get; }
 

@@ -6,25 +6,28 @@ namespace FoxDb
 {
     public class EntityPersister : IEntityPersister
     {
-        public EntityPersister(IDatabase database, ITableConfig table, ITransactionSource transaction = null)
-            : this(database, table, null, transaction)
+        public EntityPersister(IDatabase database, ITableConfig table, IEntityStateDetector stateDetector, ITransactionSource transaction = null)
+            : this(database, table, stateDetector, null, transaction)
         {
 
         }
 
-        public EntityPersister(IDatabase database, ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        public EntityPersister(IDatabase database, ITableConfig table, IEntityStateDetector stateDetector, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             this.Database = database;
             this.Table = table;
+            this.StateDetector = stateDetector;
             this.Parameters = parameters;
             this.Transaction = transaction;
         }
 
         public IDatabase Database { get; private set; }
 
-        public DatabaseParameterHandler Parameters { get; private set; }
-
         public ITableConfig Table { get; private set; }
+
+        public IEntityStateDetector StateDetector { get; private set; }
+
+        public DatabaseParameterHandler Parameters { get; private set; }
 
         public ITransactionSource Transaction { get; private set; }
 
@@ -35,26 +38,49 @@ namespace FoxDb
 
         public void AddOrUpdate(object item, PersistenceFlags flags)
         {
-            if (EntityKey.HasKey(this.Table, item))
+            switch (this.StateDetector.GetState(item))
             {
-                this.OnUpdating(item, flags);
-                var update = this.Database.QueryCache.Update(this.Table);
-                var count = this.Database.Execute(update, this.GetParameters(item), this.Transaction);
-                if (count != 1)
-                {
-                    this.OnConcurrencyViolation(item, flags);
-                }
-                else
-                {
-                    this.OnUpdated(item, flags);
-                }
+                case EntityState.None:
+                    this.Add(item, flags);
+                    break;
+                case EntityState.Exists:
+                    this.Update(item, flags);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public void Add(object item)
+        {
+            this.Add(item, Defaults.Persistence.Flags);
+        }
+
+        public void Add(object item, PersistenceFlags flags)
+        {
+            this.OnAdding(item, flags);
+            var add = this.Database.QueryCache.Add(this.Table);
+            var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
+            this.OnAdded(key, item, flags);
+        }
+
+        public void Update(object item)
+        {
+            this.Update(item, Defaults.Persistence.Flags);
+        }
+
+        public void Update(object item, PersistenceFlags flags)
+        {
+            this.OnUpdating(item, flags);
+            var update = this.Database.QueryCache.Update(this.Table);
+            var count = this.Database.Execute(update, this.GetParameters(item), this.Transaction);
+            if (count != 1)
+            {
+                this.OnConcurrencyViolation(item, flags);
             }
             else
             {
-                this.OnAdding(item, flags);
-                var add = this.Database.QueryCache.Add(this.Table);
-                var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
-                this.OnAdded(key, item, flags);
+                this.OnUpdated(item, flags);
             }
         }
 
@@ -79,12 +105,8 @@ namespace FoxDb
 
         protected virtual void OnAdding(object item, PersistenceFlags flags)
         {
-            foreach (var column in this.Table.GeneratedColumns)
+            foreach (var column in this.Table.LocalGeneratedColumns)
             {
-                if (column.Setter == null || column.ColumnType.IsNumeric)
-                {
-                    continue;
-                }
                 column.Setter(item, ValueGeneratorStrategy.Instance.CreateValue(this.Table, column, item));
             }
         }
@@ -136,7 +158,15 @@ namespace FoxDb
                 handlers.Add(this.Parameters);
             }
             handlers.Add(new ParameterHandlerStrategy(this.Table, item).Handler);
-            return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
+            switch (handlers.Count)
+            {
+                case 0:
+                    return null;
+                case 1:
+                    return handlers[0];
+                default:
+                    return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
+            }
         }
     }
 }

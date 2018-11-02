@@ -78,6 +78,10 @@ namespace FoxDb
             {
                 attribute.Flags |= Defaults.PrimaryKey.Flags;
             }
+            if (isForeignKey)
+            {
+                attribute.Flags |= Defaults.ForeignKey.Flags;
+            }
             return new ColumnConfig(
                 table.Config,
                 attribute.Flags,

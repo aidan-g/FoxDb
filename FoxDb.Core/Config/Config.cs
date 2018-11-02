@@ -9,7 +9,7 @@ namespace FoxDb
         private Config()
         {
             this.Members = new DynamicMethod<Config>();
-            this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
+            this.Reset();
         }
 
         public Config(IDatabase database)
@@ -97,6 +97,11 @@ namespace FoxDb
                 return;
             }
             entity.Configure(this, table);
+        }
+
+        public void Reset()
+        {
+            this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
         }
     }
 }

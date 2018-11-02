@@ -1,6 +1,5 @@
 ﻿using FoxDb.Interfaces;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -71,6 +70,34 @@ namespace FoxDb
             return this.Create(builder.ToString(), parameters.ToArray());
         }
 
+        public virtual IQueryGraphBuilder Exists(ITableConfig table)
+        {
+            var builder = this.Build();
+            builder.Output.Expressions.Add(builder.Output.CreateCase(
+                builder.Output.CreateCaseCondition(
+                    builder.Output.CreateFunction(
+                        QueryFunction.Exists,
+                        builder.Output.CreateSubQuery(this.Lookup(table))
+                    ),
+                    builder.Output.CreateConstant(1)
+                ),
+                builder.Output.CreateCaseCondition(
+                    null,
+                    builder.Output.CreateConstant(0)
+                )
+            ));
+            return builder;
+        }
+
+        public virtual IQueryGraphBuilder Lookup(ITableConfig table)
+        {
+            var builder = this.Build();
+            builder.Output.AddColumns(table.Columns);
+            builder.Source.AddTable(table);
+            builder.Filter.AddColumns(table.PrimaryKeys);
+            return builder;
+        }
+
         public virtual IQueryGraphBuilder Fetch(ITableConfig table)
         {
             var builder = this.Build();
@@ -83,7 +110,7 @@ namespace FoxDb
         public virtual IQueryGraphBuilder Add(ITableConfig table)
         {
             var builder = this.Build();
-            var columns = table.UpdatableColumns.Concat(table.GeneratedColumns).Concat(table.ConcurrencyColumns);
+            var columns = table.InsertableColumns.Concat(table.ConcurrencyColumns);
             builder.Add.SetTable(table);
             if (columns.Any())
             {

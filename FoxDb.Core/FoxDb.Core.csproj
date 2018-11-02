@@ -72,6 +72,8 @@
     <Compile Include="Config\TypeFactory.cs" />
     <Compile Include="Config\TypeSelector.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="Entity\EntityStateDetector.cs" />
+    <Compile Include="Interfaces\Entity\IEntityStateDetector.cs" />
     <Compile Include="Utility\DatabaseParameters.cs" />
     <Compile Include="Entity\EntityCompoundEnumerator.cs" />
     <Compile Include="Entity\EntityEnumerator.cs" />

@@ -7,7 +7,7 @@ namespace FoxDb.Interfaces
     {
         IConfig Config { get; }
 
-        ColumnFlags Flags { get; }
+        ColumnFlags Flags { get; set; }
 
         string Identifier { get; }
 

@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,13 +8,21 @@ namespace FoxDb
 {
     public class EntityCompoundPersister : IEntityPersister
     {
+        private EntityCompoundPersister()
+        {
+            this.EntityGraphBuilders = new ConcurrentDictionary<Type, IEntityGraph>();
+        }
+
         public EntityCompoundPersister(IDatabase database, ITableConfig table, IEntityMapper mapper, ITransactionSource transaction = null)
+            : this()
         {
             this.Database = database;
             this.Table = table;
             this.Mapper = mapper;
             this.Transaction = transaction;
         }
+
+        public ConcurrentDictionary<Type, IEntityGraph> EntityGraphBuilders { get; private set; }
 
         public IDatabase Database { get; private set; }
 
@@ -30,8 +39,11 @@ namespace FoxDb
 
         public void AddOrUpdate(object item, PersistenceFlags flags)
         {
-            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, item.GetType()));
-            var graph = builder.Build(this.Table, this.Mapper);
+            if (item == null)
+            {
+                throw new ArgumentNullException("item");
+            }
+            var graph = this.GetEntityGraph(item.GetType());
             var visitor = new EntityPersisterVisitor(this.Database, this.Transaction);
             visitor.Visit(graph, item, flags | PersistenceFlags.AddOrUpdate);
         }
@@ -43,10 +55,22 @@ namespace FoxDb
 
         public void Delete(object item, PersistenceFlags flags)
         {
-            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, item.GetType()));
-            var graph = builder.Build(this.Table, this.Mapper);
+            if (item == null)
+            {
+                throw new ArgumentNullException("item");
+            }
+            var graph = this.GetEntityGraph(item.GetType());
             var visitor = new EntityPersisterVisitor(this.Database, this.Transaction);
             visitor.Visit(graph, item, flags | PersistenceFlags.Delete);
+        }
+
+        protected virtual IEntityGraph GetEntityGraph(Type type)
+        {
+            return this.EntityGraphBuilders.GetOrAdd(type, key =>
+            {
+                var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, key));
+                return builder.Build(this.Table, this.Mapper);
+            });
         }
 
         private class EntityPersisterVisitor
@@ -54,6 +78,7 @@ namespace FoxDb
             private EntityPersisterVisitor()
             {
                 this.Members = new DynamicMethod<EntityPersisterVisitor>();
+                this.EntityStateDetectors = new ConcurrentDictionary<ITableConfig, IEntityStateDetector>();
             }
 
             public EntityPersisterVisitor(IDatabase database, ITransactionSource transaction = null)
@@ -64,6 +89,8 @@ namespace FoxDb
             }
 
             protected DynamicMethod<EntityPersisterVisitor> Members { get; private set; }
+
+            public ConcurrentDictionary<ITableConfig, IEntityStateDetector> EntityStateDetectors { get; private set; }
 
             public IDatabase Database { get; private set; }
 
@@ -76,9 +103,7 @@ namespace FoxDb
 
             protected virtual void Visit(IEntityGraphNode node, object parent, object child, PersistenceFlags flags)
             {
-                var table = node.Table;
-                var parameters = this.GetParameters(parent, child, node.Relation);
-                var persister = new EntityPersister(this.Database, node.Table, parameters, this.Transaction);
+                var persister = this.GetPersister(node, parent, child);
                 if (flags.HasFlag(PersistenceFlags.AddOrUpdate))
                 {
                     persister.AddOrUpdate(child, flags);
@@ -204,6 +229,18 @@ namespace FoxDb
                 );
                 var parameters = this.GetParameters(item, child, node.Relation);
                 this.Database.Execute(query, parameters, this.Transaction);
+            }
+
+            protected virtual IEntityPersister GetPersister(IEntityGraphNode node, object parent, object child)
+            {
+                var parameters = this.GetParameters(parent, child, node.Relation);
+                var persister = new EntityPersister(this.Database, node.Table, this.GetStateDetector(node.Table), parameters, this.Transaction);
+                return persister;
+            }
+
+            protected virtual IEntityStateDetector GetStateDetector(ITableConfig table)
+            {
+                return this.EntityStateDetectors.GetOrAdd(table, key => new EntityStateDetector(this.Database, table, this.Transaction));
             }
 
             protected virtual DatabaseParameterHandler GetParameters(object parent, object child, IRelationConfig relation)

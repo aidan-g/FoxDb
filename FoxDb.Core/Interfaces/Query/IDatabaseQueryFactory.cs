@@ -16,7 +16,11 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuery Combine(IEnumerable<IDatabaseQuery> queries);
 
+        IQueryGraphBuilder Exists(ITableConfig table);
+
         IQueryGraphBuilder Fetch(ITableConfig table);
+
+        IQueryGraphBuilder Lookup(ITableConfig table);
 
         IQueryGraphBuilder Add(ITableConfig table);
 

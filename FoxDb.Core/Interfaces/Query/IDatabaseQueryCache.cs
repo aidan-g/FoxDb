@@ -4,6 +4,10 @@ namespace FoxDb.Interfaces
 {
     public interface IDatabaseQueryCache
     {
+        IDatabaseQuery Exists(ITableConfig table);
+
+        IDatabaseQuery Lookup(ITableConfig table);
+
         IDatabaseQuery Fetch(ITableConfig table);
 
         IDatabaseQuery Add(ITableConfig table);

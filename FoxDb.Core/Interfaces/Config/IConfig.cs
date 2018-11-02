@@ -11,5 +11,7 @@
         ITableConfig CreateTable(ITableSelector selector);
 
         bool TryCreateTable(ITableSelector selector, out ITableConfig table);
+
+        void Reset();
     }
 }

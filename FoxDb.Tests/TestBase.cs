@@ -199,6 +199,7 @@ namespace FoxDb
         [TearDown]
         public void TearDown()
         {
+            this.Database.Config.Reset();
             if (this.Transaction.HasTransaction)
             {
                 this.Transaction.Rollback();

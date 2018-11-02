@@ -44,6 +44,16 @@ namespace FoxDb
             public static ColumnFlags Flags { get; set; }
         }
 
+        public static class ForeignKey
+        {
+            static ForeignKey()
+            {
+                Flags = ColumnFlags.None;
+            }
+
+            public static ColumnFlags Flags { get; set; }
+        }
+
         public static class Index
         {
             static Index()
@@ -96,7 +106,8 @@ namespace FoxDb
         None = 0,
         ValidateSchema = 1,
         Generated = 2,
-        ConcurrencyCheck = 4
+        ConcurrencyCheck = 4,
+        StateCheck = 8
     }
 
     [Flags]
