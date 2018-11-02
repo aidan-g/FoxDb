@@ -8,10 +8,33 @@ namespace FoxDb
 {
     public class DatabaseSet<T> : IDatabaseSet<T>
     {
+        private DatabaseSet()
+        {
+            this.Persister = new Lazy<IEntityPersister>(() =>
+            {
+                var mapper = new EntityMapper(this.Table);
+                var visitor = new EntityCompoundPersisterVisitor(this.Database, this.Transaction);
+                var persister = new EntityCompoundPersister(this.Database, this.Table, mapper, visitor, this.Transaction);
+                return persister;
+            });
+            this.Enumerator = new Lazy<IEntityEnumerator>(() =>
+            {
+                var mapper = new EntityMapper(this.Table);
+                var visitor = new EntityCompoundEnumeratorVisitor();
+                var enumerator = new EntityCompoundEnumerator(this.Database, this.Table, mapper, visitor);
+                return enumerator;
+            });
+        }
+
         public DatabaseSet(IDatabaseQuerySource source)
+            : this()
         {
             this.Source = source;
         }
+
+        public Lazy<IEntityPersister> Persister { get; private set; }
+
+        public Lazy<IEntityEnumerator> Enumerator { get; private set; }
 
         public Type ElementType
         {
@@ -40,11 +63,9 @@ namespace FoxDb
 
         public IEnumerable<T> AddOrUpdate(IEnumerable<T> items)
         {
-            var mapper = new EntityMapper(this.Table);
-            var persister = new EntityCompoundPersister(this.Database, this.Table, mapper, this.Transaction);
             foreach (var item in items)
             {
-                persister.AddOrUpdate(item);
+                this.Persister.Value.AddOrUpdate(item);
             }
             return items;
         }
@@ -62,11 +83,9 @@ namespace FoxDb
 
         public IEnumerable<T> Remove(IEnumerable<T> items)
         {
-            var mapper = new EntityMapper(this.Table);
-            var persister = new EntityCompoundPersister(this.Database, this.Table, mapper, this.Transaction);
             foreach (var item in items)
             {
-                persister.Delete(item);
+                this.Persister.Value.Delete(item);
             }
             return items;
         }
@@ -109,9 +128,9 @@ namespace FoxDb
         {
             using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
-                var mapper = new EntityMapper(this.Table);
-                var enumerable = new EntityCompoundEnumerator(this.Database, this.Table, mapper, reader);
-                foreach (var element in enumerable.AsEnumerable<T>())
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                foreach (var element in this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader))
                 {
                     yield return element;
                 }

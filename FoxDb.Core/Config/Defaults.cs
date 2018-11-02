@@ -86,6 +86,16 @@ namespace FoxDb
 
             public static PersistenceFlags Flags { get; set; }
         }
+
+        public static class Enumerator
+        {
+            static Enumerator()
+            {
+                Flags = EnumeratorFlags.None;
+            }
+
+            public static EnumeratorFlags Flags { get; set; }
+        }
     }
 
     [Flags]
@@ -138,5 +148,11 @@ namespace FoxDb
         AddOrUpdate = 1,
         Delete = 2,
         Cascade = 4
+    }
+
+    [Flags]
+    public enum EnumeratorFlags
+    {
+        None = 0
     }
 }

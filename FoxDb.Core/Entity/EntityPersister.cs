@@ -1,23 +1,15 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Collections.Generic;
 
 namespace FoxDb
 {
     public class EntityPersister : IEntityPersister
     {
         public EntityPersister(IDatabase database, ITableConfig table, IEntityStateDetector stateDetector, ITransactionSource transaction = null)
-            : this(database, table, stateDetector, null, transaction)
-        {
-
-        }
-
-        public EntityPersister(IDatabase database, ITableConfig table, IEntityStateDetector stateDetector, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             this.Database = database;
             this.Table = table;
             this.StateDetector = stateDetector;
-            this.Parameters = parameters;
             this.Transaction = transaction;
         }
 
@@ -27,83 +19,73 @@ namespace FoxDb
 
         public IEntityStateDetector StateDetector { get; private set; }
 
-        public DatabaseParameterHandler Parameters { get; private set; }
-
         public ITransactionSource Transaction { get; private set; }
 
-        public void AddOrUpdate(object item)
-        {
-            this.AddOrUpdate(item, Defaults.Persistence.Flags);
-        }
-
-        public void AddOrUpdate(object item, PersistenceFlags flags)
+        public void AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
         {
             switch (this.StateDetector.GetState(item))
             {
                 case EntityState.None:
-                    this.Add(item, flags);
+                    this.Add(item, parameters);
                     break;
                 case EntityState.Exists:
-                    this.Update(item, flags);
+                    this.Update(item, parameters);
                     break;
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public void Add(object item)
+        public void Add(object item, DatabaseParameterHandler parameters = null)
         {
-            this.Add(item, Defaults.Persistence.Flags);
-        }
-
-        public void Add(object item, PersistenceFlags flags)
-        {
-            this.OnAdding(item, flags);
+            this.OnAdding(item);
             var add = this.Database.QueryCache.Add(this.Table);
-            var key = this.Database.ExecuteScalar<object>(add, this.GetParameters(item), this.Transaction);
-            this.OnAdded(key, item, flags);
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
+            }
+            var key = this.Database.ExecuteScalar<object>(add, parameters, this.Transaction);
+            this.OnAdded(key, item);
         }
 
-        public void Update(object item)
+        public void Update(object item, DatabaseParameterHandler parameters = null)
         {
-            this.Update(item, Defaults.Persistence.Flags);
-        }
-
-        public void Update(object item, PersistenceFlags flags)
-        {
-            this.OnUpdating(item, flags);
+            this.OnUpdating(item);
             var update = this.Database.QueryCache.Update(this.Table);
-            var count = this.Database.Execute(update, this.GetParameters(item), this.Transaction);
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
+            }
+            var count = this.Database.Execute(update, parameters, this.Transaction);
             if (count != 1)
             {
-                this.OnConcurrencyViolation(item, flags);
+                this.OnConcurrencyViolation(item);
             }
             else
             {
-                this.OnUpdated(item, flags);
+                this.OnUpdated(item);
             }
         }
 
-        public void Delete(object item)
-        {
-            this.Delete(item, Defaults.Persistence.Flags);
-        }
-
-        public void Delete(object item, PersistenceFlags flags)
+        public void Delete(object item, DatabaseParameterHandler parameters = null)
         {
             var delete = this.Database.QueryCache.Delete(this.Table);
-            var count = this.Database.Execute(delete, this.GetParameters(item), this.Transaction);
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
+            }
+            var count = this.Database.Execute(delete, parameters, this.Transaction);
             if (count != 1)
             {
-                this.OnConcurrencyViolation(item, flags);
+                this.OnConcurrencyViolation(item);
             }
             else
             {
-                this.OnDeleted(item, flags);
+                this.OnDeleted(item);
             }
         }
 
-        protected virtual void OnAdding(object item, PersistenceFlags flags)
+        protected virtual void OnAdding(object item)
         {
             foreach (var column in this.Table.LocalGeneratedColumns)
             {
@@ -111,7 +93,7 @@ namespace FoxDb
             }
         }
 
-        protected virtual void OnAdded(object key, object item, PersistenceFlags flags)
+        protected virtual void OnAdded(object key, object item)
         {
             if (key != null && !DBNull.Value.Equals(key))
             {
@@ -119,12 +101,12 @@ namespace FoxDb
             }
         }
 
-        protected virtual void OnUpdating(object item, PersistenceFlags flags)
+        protected virtual void OnUpdating(object item)
         {
             //Nothing to do.
         }
 
-        protected virtual void OnUpdated(object item, PersistenceFlags flags)
+        protected virtual void OnUpdated(object item)
         {
             foreach (var column in this.Table.ConcurrencyColumns)
             {
@@ -135,38 +117,18 @@ namespace FoxDb
             }
         }
 
-        protected virtual void OnDeleted(object item, PersistenceFlags flags)
+        protected virtual void OnDeleted(object item)
         {
             //Nothing to do.
         }
 
-        protected virtual void OnConcurrencyViolation(object item, PersistenceFlags flags)
+        protected virtual void OnConcurrencyViolation(object item)
         {
             throw new InvalidOperationException(string.Format(
                 "Failed to update data of type {0} with id {1}.",
                 this.Table.TableType.Name,
                 this.Table.PrimaryKey.Getter(item)
             ));
-        }
-
-
-        protected virtual DatabaseParameterHandler GetParameters(object item)
-        {
-            var handlers = new List<DatabaseParameterHandler>();
-            if (this.Parameters != null)
-            {
-                handlers.Add(this.Parameters);
-            }
-            handlers.Add(new ParameterHandlerStrategy(this.Table, item).Handler);
-            switch (handlers.Count)
-            {
-                case 0:
-                    return null;
-                case 1:
-                    return handlers[0];
-                default:
-                    return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
-            }
         }
     }
 }

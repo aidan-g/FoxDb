@@ -1,18 +1,27 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace FoxDb
 {
     public class EntityCompoundEnumerator : IEntityEnumerator
     {
-        public EntityCompoundEnumerator(IDatabase database, ITableConfig table, IEntityMapper mapper, IDatabaseReader reader)
+        private EntityCompoundEnumerator()
+        {
+            this.EntityGraphBuilders = new ConcurrentDictionary<Type, IEntityGraph>();
+        }
+
+        public EntityCompoundEnumerator(IDatabase database, ITableConfig table, IEntityMapper mapper, IEntityEnumeratorVisitor visitor)
+            : this()
         {
             this.Database = database;
             this.Table = table;
             this.Mapper = mapper;
-            this.Reader = reader;
+            this.Visitor = visitor;
         }
+
+        public ConcurrentDictionary<Type, IEntityGraph> EntityGraphBuilders { get; private set; }
 
         public IDatabase Database { get; private set; }
 
@@ -20,147 +29,41 @@ namespace FoxDb
 
         public IEntityMapper Mapper { get; private set; }
 
-        public IDatabaseReader Reader { get; private set; }
+        public IEntityEnumeratorVisitor Visitor { get; private set; }
 
-        public IEnumerable<T> AsEnumerable<T>()
+        public IEnumerable<T> AsEnumerable<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
         {
-            var buffer = new List<object>();
-            var sink = new EntityGraphSink(this.Table, (sender, e) => buffer.Add(e.Item));
-            var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, typeof(T)));
-            var graph = builder.Build(this.Table, this.Mapper);
-            var visitor = new EntityEnumeratorVisitor(this.Database, sink);
-            foreach (var record in this.Reader)
+            var graph = this.GetEntityGraph(typeof(T));
+            foreach (var record in reader)
             {
-                visitor.Visit(graph, record);
-                if (buffer.Count > 0)
+                this.Visitor.Visit(graph, buffer, sink, record, Defaults.Enumerator.Flags);
+                if (sink.Count > 0)
                 {
-                    foreach (var item in buffer)
+                    foreach (var item in sink)
                     {
                         yield return (T)item;
                     }
-                    buffer.Clear();
+                    sink.Clear();
                 }
             }
-            visitor.Flush(this.Table);
-            foreach (var item in buffer)
+            this.Visitor.Flush(buffer, sink);
+            if (sink.Count > 0)
             {
-                yield return (T)item;
+                foreach (var item in sink)
+                {
+                    yield return (T)item;
+                }
+                sink.Clear();
             }
         }
 
-        private class EntityEnumeratorVisitor
+        protected virtual IEntityGraph GetEntityGraph(Type type)
         {
-            private EntityEnumeratorVisitor()
+            return this.EntityGraphBuilders.GetOrAdd(type, key =>
             {
-                this.Members = new DynamicMethod<EntityEnumeratorVisitor>();
-            }
-
-            public EntityEnumeratorVisitor(IDatabase database, IEntityGraphSink sink)
-                : this()
-            {
-                this.Buffer = new EntityEnumeratorBuffer(database);
-                this.Sink = sink;
-            }
-
-            protected DynamicMethod<EntityEnumeratorVisitor> Members { get; private set; }
-
-            public IEntityEnumeratorBuffer Buffer { get; private set; }
-
-            public IEntityGraphSink Sink { get; private set; }
-
-            public void Visit(IEntityGraph graph, IDatabaseReaderRecord record)
-            {
-                this.Buffer.Update(record);
-                this.Visit(graph.Root);
-            }
-
-            protected virtual void Visit(IEntityGraphNode node)
-            {
-                if (node.Table != null)
-                {
-                    this.Members.Invoke(this, "OnVisit", node.EntityType, node);
-                    if (node.Relation != null)
-                    {
-                        this.Members.Invoke(this, "OnVisit", new[] { node.Parent.EntityType, node.Relation.RelationType }, node);
-                    }
-                }
-                foreach (var child in node.Children)
-                {
-                    this.Visit(child);
-                }
-            }
-
-            public void Flush(ITableConfig table)
-            {
-                this.Emit(table);
-            }
-
-            protected virtual object Emit(ITableConfig table)
-            {
-                var item = this.Buffer.Get(table);
-                if (item != null)
-                {
-                    if (TableComparer.TableConfig.Equals(this.Sink.Table, table))
-                    {
-                        this.Sink.Handler(this, new EntityGraphSinkEventArgs(item));
-                    }
-                    this.Buffer.Remove(table);
-                }
-                return item;
-            }
-
-            protected virtual void OnVisit<T>(IEntityGraphNode<T> node)
-            {
-                do
-                {
-                    if (!this.Buffer.Exists(node.Table))
-                    {
-                        if (this.Buffer.HasKey(node.Table))
-                        {
-                            this.Buffer.Create(node.Table);
-                        }
-                        break;
-                    }
-                    else if (this.Buffer.KeyChanged(node.Table))
-                    {
-                        this.Emit(node.Table);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                } while (true);
-            }
-
-            protected virtual void OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node)
-            {
-                if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
-                {
-                    return;
-                }
-                var parent = (T)this.Buffer.Get(node.Parent.Table);
-                var child = (TRelation)this.Buffer.Get(node.Table);
-                node.Relation.Accessor.Set(parent, child);
-            }
-
-            protected virtual void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node)
-            {
-                if (!this.Buffer.Exists(node.Parent.Table) || !this.Buffer.Exists(node.Table))
-                {
-                    return;
-                }
-                var parent = (T)this.Buffer.Get(node.Parent.Table);
-                var child = (TRelation)this.Buffer.Get(node.Table);
-                var sequence = node.Relation.Accessor.Get(parent);
-                if (sequence == null)
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    sequence.Add(child);
-                }
-            }
+                var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, key));
+                return builder.Build(this.Table, this.Mapper);
+            });
         }
     }
 }
