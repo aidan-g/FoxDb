@@ -2,6 +2,6 @@
 {
     public interface IEntityPersisterVisitor
     {
-        void Visit(IEntityGraph graph, object item, PersistenceFlags flags);
+        EntityAction Visit(IEntityGraph graph, object item, PersistenceFlags flags);
     }
 }

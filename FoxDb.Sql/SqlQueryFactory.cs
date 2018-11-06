@@ -98,6 +98,18 @@ namespace FoxDb
             return builder;
         }
 
+        public virtual IQueryGraphBuilder Lookup(IRelationConfig relation)
+        {
+            var builder = this.Build();
+            builder.Output.AddColumns(relation.RightTable.Columns);
+            builder.Source.AddTable(relation.RightTable);
+            builder.RelationManager.AddRelation(relation);
+            //TODO: Assuming the relation is using the primary key?
+            builder.Filter.AddColumn(relation.LeftTable.PrimaryKey);
+            builder.Sort.AddColumns(relation.RightTable.PrimaryKeys);
+            return builder;
+        }
+
         public virtual IQueryGraphBuilder Fetch(ITableConfig table)
         {
             var builder = this.Build();

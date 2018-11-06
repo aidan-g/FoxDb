@@ -1,8 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -35,7 +33,7 @@ namespace FoxDb
 
         public ITransactionSource Transaction { get; private set; }
 
-        public void AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
+        public EntityAction AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
         {
             if (item == null)
             {
@@ -46,10 +44,10 @@ namespace FoxDb
                 throw new ArgumentException(string.Format("{0} does not support parameters.", this.GetType().Name));
             }
             var graph = this.GetEntityGraph(item.GetType());
-            this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.AddOrUpdate);
+            return this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.AddOrUpdate);
         }
 
-        public void Delete(object item, DatabaseParameterHandler parameters = null)
+        public EntityAction Delete(object item, DatabaseParameterHandler parameters = null)
         {
             if (item == null)
             {
@@ -60,7 +58,7 @@ namespace FoxDb
                 throw new ArgumentException(string.Format("{0} does not support parameters.", this.GetType().Name));
             }
             var graph = this.GetEntityGraph(item.GetType());
-            this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.Delete);
+            return this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.Delete);
         }
 
         protected virtual IEntityGraph GetEntityGraph(Type type)

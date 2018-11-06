@@ -10,6 +10,8 @@ namespace FoxDb
 
         public const string LOOKUP = "F8FC6257-7E0E-47E2-8CC5-99F0DC5CF04E";
 
+        public const string LOOKUP_BY_RELATION = "8425EDBF-3F40-4AA1-B2BB-A70C2F4E687E";
+
         public const string FETCH = "8363888C-D616-419D-9402-0274BD290B5C";
 
         public const string ADD = "30CFF274-C469-46C1-A44D-ECDCE4459409";
@@ -41,6 +43,11 @@ namespace FoxDb
         public IDatabaseQuery Lookup(ITableConfig table)
         {
             return this.GetOrAdd(new DatabaseQueryTableCacheKey(table, LOOKUP), () => this.Database.QueryFactory.Lookup(table).Build());
+        }
+
+        public IDatabaseQuery Lookup(IRelationConfig relation)
+        {
+            return this.GetOrAdd(new DatabaseQueryRelationCacheKey(relation, LOOKUP_BY_RELATION), () => this.Database.QueryFactory.Lookup(relation).Build());
         }
 
         public IDatabaseQuery Fetch(ITableConfig table)
@@ -168,6 +175,44 @@ namespace FoxDb
         public bool Equals(DatabaseQueryTableCacheKey other)
         {
             return base.Equals(other) && TableComparer.TableConfig.Equals(this.Table, other.Table);
+        }
+    }
+
+    public class DatabaseQueryRelationCacheKey : DatabaseQueryCacheKey
+    {
+        public DatabaseQueryRelationCacheKey(IRelationConfig relation, string id)
+            : base(id)
+        {
+            this.Relation = relation;
+        }
+
+        public IRelationConfig Relation { get; private set; }
+
+        public override int GetHashCode()
+        {
+            var hashCode = base.GetHashCode();
+            unchecked
+            {
+                if (this.Relation != null)
+                {
+                    hashCode += this.Relation.GetHashCode();
+                }
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(IDatabaseQueryCacheKey other)
+        {
+            if (other is DatabaseQueryRelationCacheKey)
+            {
+                return this.Equals(other as DatabaseQueryRelationCacheKey);
+            }
+            return base.Equals(other);
+        }
+
+        public bool Equals(DatabaseQueryRelationCacheKey other)
+        {
+            return base.Equals(other) && RelationComparer.RelationConfig.Equals(this.Relation, other.Relation);
         }
     }
 }

@@ -63,6 +63,7 @@
     <Compile Include="Config\RelationValidator.cs" />
     <Compile Include="Config\ColumnComparer.cs" />
     <Compile Include="Config\IndexComparer.cs" />
+    <Compile Include="Config\RelationComparer.cs" />
     <Compile Include="Config\TableComparer.cs" />
     <Compile Include="Config\TableConfigContainer.cs" />
     <Compile Include="Config\TableFactory.cs" />

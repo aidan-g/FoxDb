@@ -8,6 +8,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuery Lookup(ITableConfig table);
 
+        IDatabaseQuery Lookup(IRelationConfig relation);
+
         IDatabaseQuery Fetch(ITableConfig table);
 
         IDatabaseQuery Add(ITableConfig table);

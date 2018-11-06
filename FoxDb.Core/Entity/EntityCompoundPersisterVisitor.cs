@@ -29,17 +29,18 @@ namespace FoxDb
 
         public ITransactionSource Transaction { get; private set; }
 
-        public void Visit(IEntityGraph graph, object item, PersistenceFlags flags)
+        public EntityAction Visit(IEntityGraph graph, object item, PersistenceFlags flags)
         {
-            this.Visit(graph.Root, null, item, flags);
+            return this.Visit(graph.Root, null, item, flags);
         }
 
-        protected virtual void Visit(IEntityGraphNode node, object parent, object child, PersistenceFlags flags)
+        protected virtual EntityAction Visit(IEntityGraphNode node, object parent, object child, PersistenceFlags flags)
         {
+            var result = default(EntityAction);
             var persister = this.GetPersister(node, parent, child);
             if (flags.HasFlag(PersistenceFlags.AddOrUpdate))
             {
-                persister.AddOrUpdate(child, this.GetParameters(parent, child, node.Relation));
+                result = persister.AddOrUpdate(child, this.GetParameters(parent, child, node.Relation));
                 if (flags.HasFlag(PersistenceFlags.Cascade))
                 {
                     this.Cascade(node, child, flags);
@@ -51,8 +52,9 @@ namespace FoxDb
                 {
                     this.Cascade(node, child, flags);
                 }
-                persister.Delete(child, this.GetParameters(parent, child, node.Relation));
+                result = persister.Delete(child, this.GetParameters(parent, child, node.Relation));
             }
+            return result;
         }
 
         protected virtual void Cascade(IEntityGraphNode node, object item, PersistenceFlags flags)
@@ -93,9 +95,8 @@ namespace FoxDb
                 {
                     foreach (var child in children)
                     {
-                        var hasKey = EntityKey.HasKey(node.Table, child);
-                        this.Visit(node, item, child, flags);
-                        if (!hasKey && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
+                        var result = this.Visit(node, item, child, flags);
+                        if (result.HasFlag(EntityAction.Added) && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
                         {
                             this.AddRelation(node, item, child);
                         }
@@ -122,7 +123,7 @@ namespace FoxDb
 
         protected virtual TRelation Fetch<T, TRelation>(IEntityGraphNode<T, TRelation> node, T item)
         {
-            var query = this.Database.FetchByRelation(node.Relation).Build();
+            var query = this.Database.QueryCache.Lookup(node.Relation);
 #pragma warning disable 612, 618
             return this.Database.ExecuteEnumerator<TRelation>(query, this.GetParameters(item, null, node.Relation), this.Transaction).FirstOrDefault();
 #pragma warning restore 612, 618
@@ -130,7 +131,7 @@ namespace FoxDb
 
         protected virtual IEnumerable<TRelation> Fetch<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item)
         {
-            var query = this.Database.FetchByRelation(node.Relation).Build();
+            var query = this.Database.QueryCache.Lookup(node.Relation);
 #pragma warning disable 612, 618
             return this.Database.ExecuteEnumerator<TRelation>(query, this.GetParameters(item, null, node.Relation), this.Transaction);
 #pragma warning restore 612, 618
@@ -145,7 +146,6 @@ namespace FoxDb
 
         protected virtual void DeleteRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item, TRelation child)
         {
-            var columns = node.Relation.Expression.GetColumnMap();
             var query = this.Database.QueryCache.GetOrAdd(
                 new DatabaseQueryTableCacheKey(
                     node.Relation.MappingTable,
@@ -154,6 +154,7 @@ namespace FoxDb
                 () =>
                 {
                     var builder = this.Database.QueryFactory.Build();
+                    var columns = node.Relation.Expression.GetColumnMap();
                     builder.Delete.Touch();
                     builder.Source.AddTable(node.Relation.MappingTable);
                     builder.Filter.AddColumns(columns[node.Relation.MappingTable]);

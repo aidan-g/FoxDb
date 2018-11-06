@@ -22,6 +22,8 @@ namespace FoxDb.Interfaces
 
         IQueryGraphBuilder Lookup(ITableConfig table);
 
+        IQueryGraphBuilder Lookup(IRelationConfig relation);
+
         IQueryGraphBuilder Add(ITableConfig table);
 
         IQueryGraphBuilder Update(ITableConfig table);

@@ -21,16 +21,16 @@ namespace FoxDb
 
         public ITransactionSource Transaction { get; private set; }
 
-        public void AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
+        public EntityAction AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
         {
             switch (this.StateDetector.GetState(item))
             {
                 case EntityState.None:
                     this.Add(item, parameters);
-                    break;
+                    return EntityAction.Added;
                 case EntityState.Exists:
                     this.Update(item, parameters);
-                    break;
+                    return EntityAction.Updated;
                 default:
                     throw new NotImplementedException();
             }
@@ -67,7 +67,7 @@ namespace FoxDb
             }
         }
 
-        public void Delete(object item, DatabaseParameterHandler parameters = null)
+        public EntityAction Delete(object item, DatabaseParameterHandler parameters = null)
         {
             var delete = this.Database.QueryCache.Delete(this.Table);
             if (parameters == null)
@@ -78,10 +78,12 @@ namespace FoxDb
             if (count != 1)
             {
                 this.OnConcurrencyViolation(item);
+                return EntityAction.None;
             }
             else
             {
                 this.OnDeleted(item);
+                return EntityAction.Deleted;
             }
         }
 
