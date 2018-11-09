@@ -215,8 +215,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 data[1].Test004_Id = child.Id;
-                var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
-                new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1]);
+                new EntityPersister(this.Database, set.Table, this.Transaction).Update(set.Find(data[1].Id), data[1]);
                 data[1].Test004.Add(child);
             }
             var query = this.Database.AsQueryable<Test002>(this.Transaction);
@@ -306,8 +305,7 @@ namespace FoxDb
                 });
                 set.AddOrUpdate(data);
                 data[1].Test004_Id = child.Id;
-                var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
-                new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1]);
+                new EntityPersister(this.Database, set.Table, this.Transaction).Update(set.Find(data[1].Id), data[1]);
                 data[1].Test004.Add(child);
             }
             {

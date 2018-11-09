@@ -5,6 +5,8 @@ namespace FoxDb.Interfaces
     public interface IEntityStateDetector
     {
         EntityState GetState(object item);
+
+        EntityState GetState(object item, out object persisted);
     }
 
     [Flags]

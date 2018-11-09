@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,122 +30,110 @@ namespace FoxDb
 
         public ITransactionSource Transaction { get; private set; }
 
-        public EntityAction Visit(IEntityGraph graph, object item, PersistenceFlags flags)
+        public EntityAction Visit(IEntityGraph graph, object persisted, object updated)
         {
-            return this.Visit(graph.Root, null, item, flags);
+            return (EntityAction)this.Members.Invoke(this, "Visit", (persisted ?? updated).GetType(), graph, persisted, updated);
         }
 
-        protected virtual EntityAction Visit(IEntityGraphNode node, object parent, object child, PersistenceFlags flags)
+        public EntityAction Visit<T>(IEntityGraph graph, T persisted, T updated)
         {
-            var result = default(EntityAction);
-            var persister = this.GetPersister(node, parent, child);
-            if (flags.HasFlag(PersistenceFlags.AddOrUpdate))
+            return this.OnVisit(graph.Root, new Frame<T>(persisted, updated));
+        }
+
+        protected virtual EntityAction OnVisit(IEntityGraphNode node, Frame frame)
+        {
+            var result = EntityAction.None;
+            var persister = this.GetPersister(node);
+            if (frame.Persisted != null && frame.Updated != null)
             {
-                result = persister.AddOrUpdate(child, this.GetParameters(parent, child, node.Relation));
-                if (flags.HasFlag(PersistenceFlags.Cascade))
-                {
-                    this.Cascade(node, child, flags);
-                }
+                result = persister.Update(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation));
+                this.Cascade(node, frame);
             }
-            else if (flags.HasFlag(PersistenceFlags.Delete))
+            else if (frame.Updated != null)
             {
-                if (flags.HasFlag(PersistenceFlags.Cascade))
-                {
-                    this.Cascade(node, child, flags);
-                }
-                result = persister.Delete(child, this.GetParameters(parent, child, node.Relation));
+                result = persister.Add(frame.Updated, this.GetParameters(frame, node.Relation));
+                this.Cascade(node, frame);
+            }
+            else if (frame.Persisted != null)
+            {
+                this.Cascade(node, frame);
+                result = persister.Delete(frame.Persisted, this.GetParameters(frame, node.Relation));
             }
             return result;
         }
 
-        protected virtual void Cascade(IEntityGraphNode node, object item, PersistenceFlags flags)
+        protected virtual EntityAction OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node, Frame<T> frame)
         {
-            foreach (var child in node.Children)
+            var difference = EntityDiffer.Instance.GetDifference<T, TRelation>(node.Relation, frame.Persisted, frame.Updated);
+            foreach (var element in difference.All)
             {
-                if (child.Relation != null)
-                {
-                    this.Members.Invoke(this, "OnVisit", new[] { node.EntityType, child.Relation.RelationType }, child, item, flags);
-                }
+                return this.OnVisit(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
             }
+            return EntityAction.None;
         }
 
-        protected virtual void OnVisit<T, TRelation>(IEntityGraphNode<T, TRelation> node, T item, PersistenceFlags flags)
+        protected virtual TRelation GetChild<T, TRelation>(IRelationConfig<T, TRelation> relation, T item)
         {
-            var child = node.Relation.Accessor.Get(item);
-            if (child != null)
+            if (item != null)
             {
-                this.Visit(node, item, child, flags);
+                return relation.Accessor.Get(item);
             }
-            else
-            {
-                child = this.Fetch(node, item);
-                if (child != null)
-                {
-                    this.Visit(node, item, child, flags.SetPersistence(PersistenceFlags.Delete));
-                }
-            }
+            return default(TRelation);
         }
 
-        protected virtual void OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item, PersistenceFlags flags)
+        protected virtual EntityAction OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame<T> frame)
         {
-            var children = default(ICollection<TRelation>);
-            if (flags.HasFlag(PersistenceFlags.AddOrUpdate))
+            var result = EntityAction.None;
+            var difference = EntityDiffer.Instance.GetDifference<T, TRelation>(node.Relation, frame.Persisted, frame.Updated);
+            foreach (var element in difference.Added.Concat(difference.Updated))
             {
-                children = node.Relation.Accessor.Get(item);
-                if (children != null)
+                result |= this.OnVisit(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                if (result.HasFlag(EntityAction.Added) && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
                 {
-                    foreach (var child in children)
+                    this.AddRelation(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                }
+            }
+            foreach (var element in difference.Deleted)
+            {
+                if (node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
+                {
+                    this.DeleteRelation(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                }
+                result |= this.OnVisit(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+            }
+            return result;
+        }
+
+        protected virtual void GetChildren<T, TRelation>(ICollectionRelationConfig<T, TRelation> relation, T item, out IDictionary<object, TRelation> mapped, out IList<TRelation> unmapped)
+        {
+            mapped = new Dictionary<object, TRelation>();
+            unmapped = new List<TRelation>();
+            if (item != null)
+            {
+                var children = relation.Accessor.Get(item);
+                foreach (var child in children)
+                {
+                    var key = default(object);
+                    if (EntityKey.HasKey(relation.RightTable, child, out key))
                     {
-                        var result = this.Visit(node, item, child, flags);
-                        if (result.HasFlag(EntityAction.Added) && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
-                        {
-                            this.AddRelation(node, item, child);
-                        }
+                        mapped.Add(key, child);
+                    }
+                    else
+                    {
+                        unmapped.Add(child);
                     }
                 }
             }
-            var existing = this.Fetch(node, item);
-            if (existing != null)
-            {
-                foreach (var child in existing)
-                {
-                    if (children != null && children.Contains(child))
-                    {
-                        continue;
-                    }
-                    if (node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
-                    {
-                        this.DeleteRelation(node, item, child);
-                    }
-                    this.Visit(node, item, child, flags.SetPersistence(PersistenceFlags.Delete));
-                }
-            }
         }
 
-        protected virtual TRelation Fetch<T, TRelation>(IEntityGraphNode<T, TRelation> node, T item)
-        {
-            var query = this.Database.QueryCache.Lookup(node.Relation);
-#pragma warning disable 612, 618
-            return this.Database.ExecuteEnumerator<TRelation>(query, this.GetParameters(item, null, node.Relation), this.Transaction).FirstOrDefault();
-#pragma warning restore 612, 618
-        }
-
-        protected virtual IEnumerable<TRelation> Fetch<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item)
-        {
-            var query = this.Database.QueryCache.Lookup(node.Relation);
-#pragma warning disable 612, 618
-            return this.Database.ExecuteEnumerator<TRelation>(query, this.GetParameters(item, null, node.Relation), this.Transaction);
-#pragma warning restore 612, 618
-        }
-
-        protected virtual void AddRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item, TRelation child)
+        protected virtual void AddRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame frame)
         {
             var query = this.Database.QueryCache.Add(node.Relation.MappingTable);
-            var parameters = this.GetParameters(item, child, node.Relation);
+            var parameters = this.GetParameters(frame, node.Relation);
             this.Database.Execute(query, parameters, this.Transaction);
         }
 
-        protected virtual void DeleteRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, T item, TRelation child)
+        protected virtual void DeleteRelation<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame frame)
         {
             var query = this.Database.QueryCache.GetOrAdd(
                 new DatabaseQueryTableCacheKey(
@@ -161,33 +150,43 @@ namespace FoxDb
                     return builder.Build();
                 }
             );
-            var parameters = this.GetParameters(item, child, node.Relation);
+            var parameters = this.GetParameters(frame, node.Relation);
             this.Database.Execute(query, parameters, this.Transaction);
         }
 
-        protected virtual IEntityPersister GetPersister(IEntityGraphNode node, object parent, object child)
+        protected virtual void Cascade(IEntityGraphNode node, Frame frame)
+        {
+            foreach (var child in node.Children)
+            {
+                if (child.Relation == null)
+                {
+                    continue;
+                }
+                this.Members.Invoke(this, "OnVisit", new[] { node.EntityType, child.Relation.RelationType }, child, frame);
+            }
+        }
+
+        protected virtual IEntityPersister GetPersister(IEntityGraphNode node)
         {
             return this.EntityPersisters.GetOrAdd(node.Table, key =>
             {
-                var stateDetector = new EntityStateDetector(this.Database, key, this.Transaction);
-                var persister = new EntityPersister(this.Database, key, stateDetector, this.Transaction);
+                var persister = new EntityPersister(this.Database, key, this.Transaction);
                 return persister;
             });
         }
 
-        protected virtual DatabaseParameterHandler GetParameters(object parent, object child, IRelationConfig relation)
+        protected virtual DatabaseParameterHandler GetParameters(Frame frame, IRelationConfig relation)
         {
             var handlers = new List<DatabaseParameterHandler>();
             if (relation != null)
             {
-                if (parent != null)
+                if (frame.Parent != null)
                 {
-                    handlers.Add(new PrimaryKeysParameterHandlerStrategy(relation.LeftTable, parent).Handler);
-                    handlers.Add(new ForeignKeysParameterHandlerStrategy(parent, child, relation).Handler);
+                    handlers.Add(new ForeignKeysParameterHandlerStrategy(frame.Parent.Updated ?? frame.Parent.Persisted, frame.Updated ?? frame.Persisted, relation).Handler);
                 }
-                if (child != null)
+                if (frame.Updated != null || frame.Persisted != null)
                 {
-                    handlers.Add(new ParameterHandlerStrategy(relation.RightTable, child).Handler);
+                    handlers.Add(new ParameterHandlerStrategy(relation.RightTable, frame.Updated ?? frame.Persisted).Handler);
                 }
             }
             switch (handlers.Count)
@@ -199,6 +198,48 @@ namespace FoxDb
                 default:
                     return Delegate.Combine(handlers.ToArray()) as DatabaseParameterHandler;
             }
+        }
+
+        protected abstract class Frame
+        {
+            public Frame(object persisted, object updated)
+                : this(null, persisted, updated)
+            {
+
+            }
+
+            public Frame(Frame parent, object persisted, object updated)
+            {
+                this.Parent = parent;
+                this.Persisted = persisted;
+                this.Updated = updated;
+            }
+
+            public Frame Parent { get; private set; }
+
+            public object Persisted { get; private set; }
+
+            public object Updated { get; private set; }
+        }
+
+        protected class Frame<T> : Frame
+        {
+            public Frame(T persisted, T updated)
+                : this(null, persisted, updated)
+            {
+
+            }
+
+            public Frame(Frame parent, T persisted, T updated)
+                : base(parent, persisted, updated)
+            {
+                this.Persisted = persisted;
+                this.Updated = updated;
+            }
+
+            new public T Persisted { get; private set; }
+
+            new public T Updated { get; private set; }
         }
     }
 }

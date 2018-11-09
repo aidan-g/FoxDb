@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -10,6 +9,7 @@ namespace FoxDb
     {
         private Database()
         {
+            this.Members = new DynamicMethod<Database>();
             this.Config = new Config(this);
             this.QueryCache = new DatabaseQueryCache(this);
         }
@@ -23,6 +23,8 @@ namespace FoxDb
             this.QueryFactory = provider.CreateQueryFactory(this);
             this.SchemaFactory = provider.CreateSchemaFactory(this);
         }
+
+        protected DynamicMethod<Database> Members { get; private set; }
 
         public IConfig Config { get; private set; }
 
@@ -71,6 +73,11 @@ namespace FoxDb
         public ITransactionSource BeginTransaction(IsolationLevel isolationLevel)
         {
             return new TransactionSource(this, isolationLevel);
+        }
+
+        public IDatabaseSet Set(Type type, IDatabaseQuerySource source)
+        {
+            return (IDatabaseSet)this.Members.Invoke(this, "Set", type, source);
         }
 
         public IDatabaseSet<T> Set<T>(IDatabaseQuerySource source)

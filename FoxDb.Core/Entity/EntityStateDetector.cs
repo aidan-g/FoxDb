@@ -1,6 +1,6 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -8,12 +8,8 @@ namespace FoxDb
     {
         private EntityStateDetector()
         {
-            this.Strategy = new Lazy<EntityStateDetectorStrategy>(() =>
+            this.ExistsStrategy = new Lazy<EntityStateDetectorExistsStrategy>(() =>
             {
-                if (!this.Table.PrimaryKeys.Any())
-                {
-                    throw new InvalidOperationException(string.Format("Table \"{0}\" does not have a valid primary key configuration.", this.Table.TableName));
-                }
                 foreach (var column in this.Table.PrimaryKeys)
                 {
                     if (column.Flags.HasFlag(ColumnFlags.Generated))
@@ -41,13 +37,31 @@ namespace FoxDb
                     return EntityState.None;
                 };
             });
+            this.FetchStrategy = new Lazy<EntityStateDetectorFetchStrategy>(() =>
+            {
+                return (object item, out object persisted) =>
+                {
+                    if (EntityKey.HasKey(this.Table, item))
+                    {
+                        var set = this.Database.Set(item.GetType(), this.Database.Source(this.Composer, this.Transaction));
+                        persisted = set.Find(EntityKey.GetKey(this.Table, item));
+                        if (persisted != null)
+                        {
+                            return EntityState.Exists;
+                        }
+                    }
+                    persisted = null;
+                    return EntityState.None;
+                };
+            });
         }
 
-        public EntityStateDetector(IDatabase database, ITableConfig table, ITransactionSource transaction = null)
+        public EntityStateDetector(IDatabase database, ITableConfig table, IDatabaseQueryComposer composer, ITransactionSource transaction = null)
             : this()
         {
             this.Database = database;
             this.Table = table;
+            this.Composer = composer;
             this.Transaction = transaction;
         }
 
@@ -55,15 +69,26 @@ namespace FoxDb
 
         public ITableConfig Table { get; private set; }
 
+        public IDatabaseQueryComposer Composer { get; private set; }
+
         public ITransactionSource Transaction { get; private set; }
 
-        public Lazy<EntityStateDetectorStrategy> Strategy { get; private set; }
+        public Lazy<EntityStateDetectorExistsStrategy> ExistsStrategy { get; private set; }
+
+        public Lazy<EntityStateDetectorFetchStrategy> FetchStrategy { get; private set; }
 
         public EntityState GetState(object item)
         {
-            return this.Strategy.Value(item);
+            return this.ExistsStrategy.Value(item);
         }
 
-        public delegate EntityState EntityStateDetectorStrategy(object item);
+        public EntityState GetState(object item, out object persisted)
+        {
+            return this.FetchStrategy.Value(item, out persisted);
+        }
+
+        public delegate EntityState EntityStateDetectorExistsStrategy(object item);
+
+        public delegate EntityState EntityStateDetectorFetchStrategy(object item, out object persisted);
     }
 }

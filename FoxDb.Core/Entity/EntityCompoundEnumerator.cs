@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -9,6 +10,7 @@ namespace FoxDb
     {
         private EntityCompoundEnumerator()
         {
+            this.Members = new DynamicMethod<EntityCompoundEnumerator>();
             this.EntityGraphBuilders = new ConcurrentDictionary<Type, IEntityGraph>();
         }
 
@@ -21,6 +23,8 @@ namespace FoxDb
             this.Visitor = visitor;
         }
 
+        public DynamicMethod<EntityCompoundEnumerator> Members { get; private set; }
+
         public ConcurrentDictionary<Type, IEntityGraph> EntityGraphBuilders { get; private set; }
 
         public IDatabase Database { get; private set; }
@@ -30,6 +34,11 @@ namespace FoxDb
         public IEntityMapper Mapper { get; private set; }
 
         public IEntityEnumeratorVisitor Visitor { get; private set; }
+
+        public IEnumerable AsEnumerable(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
+        {
+            return (IEnumerable)this.Members.Invoke(this, "AsEnumerable", this.Table.TableType, buffer, sink, reader);
+        }
 
         public IEnumerable<T> AsEnumerable<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
         {

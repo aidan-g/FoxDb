@@ -104,7 +104,6 @@ namespace FoxDb
             builder.Output.AddColumns(relation.RightTable.Columns);
             builder.Source.AddTable(relation.RightTable);
             builder.RelationManager.AddRelation(relation);
-            //TODO: Assuming the relation is using the primary key?
             builder.Filter.AddColumn(relation.LeftTable.PrimaryKey);
             builder.Sort.AddColumns(relation.RightTable.PrimaryKeys);
             return builder;

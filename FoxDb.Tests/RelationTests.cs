@@ -140,8 +140,7 @@ namespace FoxDb
             this.AssertSequence(data, set);
             var child = this.Database.Set<Test003>(this.Transaction).AddOrUpdate(new Test003() { Name = "2_2" });
             data[1].Test003_Id = child.Id;
-            var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
-            new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1]);
+            new EntityPersister(this.Database, set.Table, this.Transaction).Update(set.Find(data[1].Id), data[1]);
             data[1].Test003 = child;
             this.AssertSequence(data, set);
         }
@@ -174,8 +173,7 @@ namespace FoxDb
             this.AssertSequence(data, set);
             var child = this.Database.Set<Test004>(this.Transaction).AddOrUpdate(new Test004() { Name = "2_2" });
             data[1].Test004_Id = child.Id;
-            var stateDetector = new EntityStateDetector(this.Database, set.Table, this.Transaction);
-            new EntityPersister(this.Database, set.Table, stateDetector, this.Transaction).AddOrUpdate(data[1]);
+            new EntityPersister(this.Database, set.Table, this.Transaction).Update(set.Find(data[1].Id), data[1]);
             data[1].Test004.Add(child);
             this.AssertSequence(data, set);
         }

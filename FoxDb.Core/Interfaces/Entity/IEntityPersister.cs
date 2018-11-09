@@ -1,9 +1,12 @@
 ﻿using System;
+
 namespace FoxDb.Interfaces
 {
     public interface IEntityPersister
     {
-        EntityAction AddOrUpdate(object item, DatabaseParameterHandler parameters = null);
+        EntityAction Add(object item, DatabaseParameterHandler parameters = null);
+
+        EntityAction Update(object persisted, object updated, DatabaseParameterHandler parameters = null);
 
         EntityAction Delete(object item, DatabaseParameterHandler parameters = null);
     }

@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -117,10 +118,8 @@ namespace FoxDb
                 attribute.Flags.EnsureMultiplicity(RelationFlags.OneToOne),
                 attribute.Identifier,
                 table,
-#pragma warning disable 612, 618
- table.Config.Table<TRelation>(table.Flags),
-#pragma warning restore 612, 618
- accessor
+                table.Config.Table<TRelation>(table.Flags),
+                accessor
             );
         }
 
@@ -132,10 +131,8 @@ namespace FoxDb
                 attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany),
                 attribute.Identifier,
                 table,
-#pragma warning disable 612, 618
- table.Config.Table<TRelation>(table.Flags),
-#pragma warning restore 612, 618
- accessor
+                table.Config.Table<TRelation>(table.Flags),
+                accessor
             );
         }
 
@@ -147,11 +144,9 @@ namespace FoxDb
                 attribute.Flags.EnsureMultiplicity(RelationFlags.ManyToMany),
                 attribute.Identifier,
                 table,
-#pragma warning disable 612, 618
- table.Config.Table<T, TRelation>(table.Flags),
-table.Config.Table<TRelation>(table.Flags),
-#pragma warning restore 612, 618
- accessor
+                table.Config.Table<T, TRelation>(table.Flags),
+                table.Config.Table<TRelation>(table.Flags),
+                accessor
             );
         }
 

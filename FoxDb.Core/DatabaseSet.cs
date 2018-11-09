@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,10 +7,15 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public class DatabaseSet<T> : IDatabaseSet<T>
+    public partial class DatabaseSet<T> : IDatabaseSet<T>
     {
         private DatabaseSet()
         {
+            this.StateDetector = new Lazy<IEntityStateDetector>(() =>
+            {
+                var stateDetector = new EntityStateDetector(this.Database, this.Table, this.Source.Composer, this.Transaction);
+                return stateDetector;
+            });
             this.Persister = new Lazy<IEntityPersister>(() =>
             {
                 var mapper = new EntityMapper(this.Table);
@@ -32,6 +38,8 @@ namespace FoxDb
             this.Source = source;
         }
 
+        public Lazy<IEntityStateDetector> StateDetector { get; private set; }
+
         public Lazy<IEntityPersister> Persister { get; private set; }
 
         public Lazy<IEntityEnumerator> Enumerator { get; private set; }
@@ -45,104 +53,6 @@ namespace FoxDb
         }
 
         public IDatabaseQuerySource Source { get; private set; }
-
-        public int Count
-        {
-            get
-            {
-                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
-                return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
-            }
-        }
-
-        public T AddOrUpdate(T item)
-        {
-            this.AddOrUpdate(new[] { item });
-            return item;
-        }
-
-        public IEnumerable<T> AddOrUpdate(IEnumerable<T> items)
-        {
-            foreach (var item in items)
-            {
-                this.Persister.Value.AddOrUpdate(item);
-            }
-            return items;
-        }
-
-        public void Clear()
-        {
-            this.Remove(this);
-        }
-
-        public T Remove(T item)
-        {
-            this.Remove(new[] { item });
-            return item;
-        }
-
-        public IEnumerable<T> Remove(IEnumerable<T> items)
-        {
-            foreach (var item in items)
-            {
-                this.Persister.Value.Delete(item);
-            }
-            return items;
-        }
-
-        public T Create()
-        {
-            var initializer = new EntityInitializer(this.Table);
-            var factory = new EntityFactory(this.Table, initializer);
-            return (T)factory.Create();
-        }
-
-        public T Find(object id)
-        {
-            return this.Database.Set<T>(this.Table, this.Transaction).With(set =>
-            {
-                set.Fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
-                set.Parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, new[] { id }).Handler;
-            }).FirstOrDefault();
-        }
-
-        public bool Contains(T item)
-        {
-            return this.Find(EntityKey.GetKey(this.Table, item)) != null;
-        }
-
-        public void CopyTo(T[] target, int index)
-        {
-            foreach (var element in this)
-            {
-                if (index >= target.Length)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-                target[index] = element;
-                index++;
-            }
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
-            {
-                var buffer = new EntityEnumeratorBuffer(this.Database);
-                var sink = new EntityEnumeratorSink(this.Table);
-                foreach (var element in this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader))
-                {
-                    yield return element;
-                }
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        #region IDatabaseQuerySource
 
         public IDatabase Database
         {
@@ -179,7 +89,189 @@ namespace FoxDb
                 return this.Source.Transaction;
             }
         }
+    }
 
+    public partial class DatabaseSet<T>
+    {
+        object IDatabaseSet.Create()
+        {
+            var initializer = new EntityInitializer(this.Table);
+            var factory = new EntityFactory(this.Table, initializer);
+            return factory.Create();
+        }
+
+        object IDatabaseSet.Find(params object[] keys)
+        {
+            var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+            var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
+            using (var reader = this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction))
+            {
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                return this.Enumerator.Value.AsEnumerable(buffer, sink, reader).OfType<object>().FirstOrDefault();
+            }
+        }
+
+        object IDatabaseSet.AddOrUpdate(object item)
+        {
+            var set = (IDatabaseSet)this;
+            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            if (persisted == null)
+            {
+                this.Persister.Value.Add(item);
+            }
+            else
+            {
+                this.Persister.Value.Update(persisted, item);
+            }
+            return item;
+        }
+
+        IEnumerable<object> IDatabaseSet.AddOrUpdate(IEnumerable<object> items)
+        {
+            var set = (IDatabaseSet)this;
+            foreach (var item in items)
+            {
+                set.AddOrUpdate(item);
+            }
+            return items;
+        }
+
+        IEnumerable<object> IDatabaseSet.Remove(IEnumerable<object> items)
+        {
+            foreach (var item in items)
+            {
+                this.Persister.Value.Delete(item);
+            }
+            return items;
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
+        T IDatabaseSet<T>.Create()
+        {
+            var initializer = new EntityInitializer(this.Table);
+            var factory = new EntityFactory(this.Table, initializer);
+            return (T)factory.Create();
+        }
+
+        T IDatabaseSet<T>.Find(params object[] keys)
+        {
+            var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+            var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
+            using (var reader = this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction))
+            {
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                return this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader).FirstOrDefault();
+            }
+        }
+
+        T IDatabaseSet<T>.AddOrUpdate(T item)
+        {
+            var set = (IDatabaseSet<T>)this;
+            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            if (persisted == null)
+            {
+                this.Persister.Value.Add(item);
+            }
+            else
+            {
+                this.Persister.Value.Update(persisted, item);
+            }
+            return item;
+        }
+
+        IEnumerable<T> IDatabaseSet<T>.AddOrUpdate(IEnumerable<T> items)
+        {
+            var set = (IDatabaseSet<T>)this;
+            foreach (var item in items)
+            {
+                set.AddOrUpdate(item);
+            }
+            return items;
+        }
+
+        IEnumerable<T> IDatabaseSet<T>.Remove(IEnumerable<T> items)
+        {
+            var set = (IDatabaseSet<T>)this;
+            foreach (var item in items)
+            {
+                this.Persister.Value.Delete(item);
+            }
+            return items;
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
+        int ICollection<T>.Count
+        {
+            get
+            {
+                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
+                return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
+            }
+        }
+
+        void ICollection<T>.Clear()
+        {
+            var set = (IDatabaseSet<T>)this;
+            set.Remove(this);
+        }
+
+        bool ICollection<T>.Contains(T item)
+        {
+            switch (this.StateDetector.Value.GetState(item))
+            {
+                case EntityState.Exists:
+                    return true;
+            }
+            return false;
+        }
+
+        void ICollection<T>.CopyTo(T[] target, int index)
+        {
+            foreach (var element in this)
+            {
+                if (index >= target.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                target[index] = element;
+                index++;
+            }
+        }
+
+        bool ICollection<T>.IsReadOnly
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            var set = (IDatabaseSet<T>)this;
+            set.AddOrUpdate(item);
+        }
+
+        bool ICollection<T>.Remove(T item)
+        {
+            var set = (IDatabaseSet<T>)this;
+            if (!set.Contains(item))
+            {
+                return false;
+            }
+            set.Remove(new[] { item });
+            return true;
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
         IDatabaseQueryComposer IDatabaseQuerySource.Composer
         {
             get
@@ -245,38 +337,26 @@ namespace FoxDb
         {
             return this.Source.Clone();
         }
+    }
 
-        #endregion
-
-        #region ICollection<T>
-
-        /*
-         * We only implement these things so LINQ uses the Count property instead of iterating.
-         */
-
-        bool ICollection<T>.IsReadOnly
+    public partial class DatabaseSet<T>
+    {
+        public IEnumerator<T> GetEnumerator()
         {
-            get
+            using (var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction))
             {
-                return false;
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                foreach (var element in this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader))
+                {
+                    yield return element;
+                }
             }
         }
 
-        void ICollection<T>.Add(T item)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            item = this.AddOrUpdate(item);
+            return this.GetEnumerator();
         }
-
-        bool ICollection<T>.Remove(T item)
-        {
-            if (!this.Contains(item))
-            {
-                return false;
-            }
-            item = this.Remove(item);
-            return true;
-        }
-
-        #endregion
     }
 }

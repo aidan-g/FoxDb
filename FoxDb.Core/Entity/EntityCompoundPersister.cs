@@ -33,32 +33,25 @@ namespace FoxDb
 
         public ITransactionSource Transaction { get; private set; }
 
-        public EntityAction AddOrUpdate(object item, DatabaseParameterHandler parameters = null)
+        public EntityAction Add(object item, DatabaseParameterHandler parameters = null)
         {
-            if (item == null)
-            {
-                throw new ArgumentNullException("item");
-            }
-            if (parameters != null)
-            {
-                throw new ArgumentException(string.Format("{0} does not support parameters.", this.GetType().Name));
-            }
             var graph = this.GetEntityGraph(item.GetType());
-            return this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.AddOrUpdate);
+            this.Visitor.Visit(graph, null, item);
+            return EntityAction.Added;
+        }
+
+        public EntityAction Update(object persisted, object updated, DatabaseParameterHandler parameters = null)
+        {
+            var graph = this.GetEntityGraph((persisted ?? updated).GetType());
+            this.Visitor.Visit(graph, persisted, updated);
+            return EntityAction.Updated;
         }
 
         public EntityAction Delete(object item, DatabaseParameterHandler parameters = null)
         {
-            if (item == null)
-            {
-                throw new ArgumentNullException("item");
-            }
-            if (parameters != null)
-            {
-                throw new ArgumentException(string.Format("{0} does not support parameters.", this.GetType().Name));
-            }
             var graph = this.GetEntityGraph(item.GetType());
-            return this.Visitor.Visit(graph, item, Defaults.Persistence.Flags | PersistenceFlags.Delete);
+            this.Visitor.Visit(graph, item, null);
+            return EntityAction.Deleted;
         }
 
         protected virtual IEntityGraph GetEntityGraph(Type type)

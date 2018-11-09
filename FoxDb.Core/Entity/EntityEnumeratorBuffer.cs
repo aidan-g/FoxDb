@@ -1,4 +1,5 @@
-﻿using FoxDb.Interfaces;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -87,7 +88,7 @@ namespace FoxDb
         public bool HasKey(ITableConfig table, out object key)
         {
             key = this.Key(table);
-            if (EntityKey.IsKey(key))
+            if (EntityKey.IsKey(table.PrimaryKey, key))
             {
                 return true;
             }
@@ -107,7 +108,7 @@ namespace FoxDb
                 return true;
             }
             var item = this.Get(table);
-            if (!EntityKey.KeyEquals(table, item, key))
+            if (!EqualityComparerFactory.Instance.Create(table.PrimaryKey.Property.PropertyType).Equals(EntityKey.GetKey(table, item), key))
             {
                 return true;
             }

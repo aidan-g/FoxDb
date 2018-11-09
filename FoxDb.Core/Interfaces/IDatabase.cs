@@ -28,6 +28,8 @@ namespace FoxDb.Interfaces
 
         IDatabaseQuerySource Source(IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
+        IDatabaseSet Set(Type type, IDatabaseQuerySource source);
+
         IDatabaseSet<T> Set<T>(IDatabaseQuerySource source);
 
         int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);

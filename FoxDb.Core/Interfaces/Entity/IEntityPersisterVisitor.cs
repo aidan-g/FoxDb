@@ -2,6 +2,6 @@
 {
     public interface IEntityPersisterVisitor
     {
-        EntityAction Visit(IEntityGraph graph, object item, PersistenceFlags flags);
+        EntityAction Visit(IEntityGraph graph, object persisted, object updated);
     }
 }

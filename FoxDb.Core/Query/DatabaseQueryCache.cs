@@ -1,6 +1,9 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -175,6 +178,31 @@ namespace FoxDb
         public bool Equals(DatabaseQueryTableCacheKey other)
         {
             return base.Equals(other) && TableComparer.TableConfig.Equals(this.Table, other.Table);
+        }
+    }
+
+    public class DatabaseQueryColumnsCacheKey : DatabaseQueryTableCacheKey
+    {
+        public DatabaseQueryColumnsCacheKey(ITableConfig table, IEnumerable<IColumnConfig> columns, string id)
+            : base(table, id)
+        {
+            this.Columns = columns;
+        }
+
+        public IEnumerable<IColumnConfig> Columns { get; private set; }
+
+        public override bool Equals(IDatabaseQueryCacheKey other)
+        {
+            if (other is DatabaseQueryColumnsCacheKey)
+            {
+                return this.Equals(other as DatabaseQueryColumnsCacheKey);
+            }
+            return base.Equals(other);
+        }
+
+        public bool Equals(DatabaseQueryColumnsCacheKey other)
+        {
+            return base.Equals(other) && this.Columns.SequenceEqual(other.Columns, true);
         }
     }
 

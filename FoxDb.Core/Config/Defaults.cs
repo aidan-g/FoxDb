@@ -77,16 +77,6 @@ namespace FoxDb
             public static RelationFlags Flags { get; set; }
         }
 
-        public static class Persistence
-        {
-            static Persistence()
-            {
-                Flags = PersistenceFlags.Cascade;
-            }
-
-            public static PersistenceFlags Flags { get; set; }
-        }
-
         public static class Enumerator
         {
             static Enumerator()
@@ -139,15 +129,6 @@ namespace FoxDb
         AutoExpression = 32,
         EagerFetch = 64,
         AllowNull = 128
-    }
-
-    [Flags]
-    public enum PersistenceFlags
-    {
-        None = 0,
-        AddOrUpdate = 1,
-        Delete = 2,
-        Cascade = 4
     }
 
     [Flags]
