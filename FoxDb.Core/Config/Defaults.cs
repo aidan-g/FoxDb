@@ -106,8 +106,7 @@ namespace FoxDb
         None = 0,
         ValidateSchema = 1,
         Generated = 2,
-        ConcurrencyCheck = 4,
-        StateCheck = 8
+        ConcurrencyCheck = 4
     }
 
     [Flags]

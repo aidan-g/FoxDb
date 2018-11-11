@@ -129,7 +129,7 @@ namespace FoxDb
 
             public bool TryGetValue(IColumnConfig column, out object value)
             {
-                return this.TryGetValue(column.Identifier, out value);
+                return this.TryGetValue(column.Identifier, out value) || this.TryGetValue(column.ColumnName, out value);
             }
 
             public void Refresh()

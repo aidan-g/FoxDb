@@ -30,7 +30,7 @@ namespace FoxDb
                     this.Left,
                     this.Operator,
                     this.Right
-                }.ToList());
+                }.Where(expression => expression != null).ToList());
             }
         }
 
@@ -89,9 +89,18 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IBinaryExpressionBuilder>().With(builder =>
             {
-                builder.Left = this.Left.Clone();
-                builder.Operator = (IOperatorBuilder)this.Operator.Clone();
-                builder.Right = this.Right.Clone();
+                if (this.Left != null)
+                {
+                    builder.Left = this.Left.Clone();
+                }
+                if (this.Operator != null)
+                {
+                    builder.Operator = (IOperatorBuilder)this.Operator.Clone();
+                }
+                if (this.Right != null)
+                {
+                    builder.Right = this.Right.Clone();
+                }
             });
         }
 

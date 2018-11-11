@@ -11,7 +11,7 @@ namespace FoxDb
 
         public string RightColumn { get; set; }
 
-        public RelationFlags? _Flags { get; set; }
+        private RelationFlags? _Flags { get; set; }
 
         public bool IsFlagsSpecified
         {
