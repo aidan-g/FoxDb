@@ -50,7 +50,7 @@ namespace FoxDb
             }
         }
 
-        private int? _Precision { get; set; }
+        private byte? _Precision { get; set; }
 
         public bool PrecisionSpecified
         {
@@ -60,7 +60,7 @@ namespace FoxDb
             }
         }
 
-        public int Precision
+        public byte Precision
         {
             get
             {
@@ -72,7 +72,7 @@ namespace FoxDb
             }
         }
 
-        private int? _Scale { get; set; }
+        private byte? _Scale { get; set; }
 
         public bool ScaleSpecified
         {
@@ -82,7 +82,7 @@ namespace FoxDb
             }
         }
 
-        public int Scale
+        public byte Scale
         {
             get
             {

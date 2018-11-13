@@ -51,11 +51,7 @@ namespace FoxDb
         {
             get
             {
-                if (this.Property != null)
-                {
-                    return this.Property.PropertyType.DefaultValue();
-                }
-                throw new NotImplementedException();
+                return this.ColumnType.DefaultValue;
             }
         }
 

@@ -89,6 +89,7 @@
     <Compile Include="Interfaces\Entity\IEntityStateDetector.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposerFactory.cs" />
     <Compile Include="Interfaces\Utility\IEqualityComparerFactory.cs" />
+    <Compile Include="Interfaces\Utility\IPropertyIncrementorStrategy.cs" />
     <Compile Include="Utility\EqualityComparerFactory.cs" />
     <Compile Include="Utility\DatabaseParameters.cs" />
     <Compile Include="Entity\EntityCompoundEnumerator.cs" />
@@ -273,6 +274,7 @@
     <Compile Include="Utility\FastActivator.cs" />
     <Compile Include="Utility\Identifier.cs" />
     <Compile Include="Utility\LambdaPropertyAccessorStrategy.cs" />
+    <Compile Include="Utility\LambdaPropertyIncrementorStrategy.cs" />
     <Compile Include="Utility\Parameter.cs" />
     <Compile Include="Utility\ParameterCollection.cs" />
     <Compile Include="Utility\ValueGeneratorStrategy.cs" />

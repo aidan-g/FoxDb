@@ -10,9 +10,9 @@ namespace FoxDb
 
         public int? Size { get; private set; }
 
-        public int? Precision { get; private set; }
+        public byte? Precision { get; private set; }
 
-        public int? Scale { get; private set; }
+        public byte? Scale { get; private set; }
 
         public bool? IsNullable { get; private set; }
 
@@ -20,7 +20,7 @@ namespace FoxDb
 
         public TypeSelectorType SelectorType { get; private set; }
 
-        public static ITypeSelector By(DbType? type = null, int? size = null, int? precision = null, int? scale = null, bool? isNullable = null)
+        public static ITypeSelector By(DbType? type = null, int? size = null, byte? precision = null, byte? scale = null, bool? isNullable = null)
         {
             return new TypeSelector()
             {

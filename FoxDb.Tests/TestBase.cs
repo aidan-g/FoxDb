@@ -66,7 +66,13 @@ namespace FoxDb
                 }),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(typeof(Test002), TableFlags.AutoColumns | TableFlags.AutoIndexes | TableFlags.AutoRelations)
-                ),
+                ).With(table =>
+                {
+                    table.CreateColumn(ColumnConfig.By("Version", ColumnFlags.None)).With(column =>
+                    {
+                        column.ColumnType = Factories.Type.Create(TypeConfig.By(DbType.Binary, size: 8, isNullable: true));
+                    });
+                }),
                 this.Database.Config.Transient.CreateTable(
                     TableConfig.By(
                         this.Database.Config.Transient.CreateTable(

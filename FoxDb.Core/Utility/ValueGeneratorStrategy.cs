@@ -12,9 +12,8 @@ namespace FoxDb
             {
                 case DbType.Guid:
                     return SequentialGuid.New();
-                default:
-                    throw new NotImplementedException();
             }
+            return column.DefaultValue;
         }
 
         public static readonly IValueGeneratorStrategy Instance = new ValueGeneratorStrategy();

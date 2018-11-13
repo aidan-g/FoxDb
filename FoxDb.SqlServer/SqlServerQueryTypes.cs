@@ -8,7 +8,7 @@ namespace FoxDb
         static SqlServerQueryTypes()
         {
             Arguments["nvarchar"] = DatabaseQueryTypeArguments.Size;
-            Arguments["varbinary"] = DatabaseQueryTypeArguments.Size;
+            Arguments["binary"] = DatabaseQueryTypeArguments.Size;
         }
 
         public SqlServerQueryTypes(IDatabase database)
@@ -29,7 +29,7 @@ namespace FoxDb
         {
             get
             {
-                return "varbinary";
+                return "binary";
             }
         }
 

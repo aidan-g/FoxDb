@@ -331,6 +331,9 @@ namespace FoxDb
                 this.Parameters.Add(new DatabaseQueryParameter(
                     expression.Name,
                     expression.Type,
+                    expression.Size,
+                    expression.Precision,
+                    expression.Scale,
                     expression.Direction,
                     expression.IsDeclared,
                     expression.Column,

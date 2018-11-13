@@ -8,6 +8,12 @@ namespace FoxDb.Interfaces
 
         DbType Type { get; set; }
 
+        int Size { get; set; }
+
+        byte Precision { get; set; }
+
+        byte Scale { get; set; }
+
         ParameterDirection Direction { get; set; }
 
         bool IsDeclared { get; set; }

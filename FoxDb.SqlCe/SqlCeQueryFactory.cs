@@ -42,6 +42,9 @@ namespace FoxDb
                     builder.Output.AddParameter(
                         SqlCeQueryParameter.Identity,
                         DbType.Object,
+                        0,
+                        0,
+                        0,
                         ParameterDirection.Input,
                         true,
                         null,

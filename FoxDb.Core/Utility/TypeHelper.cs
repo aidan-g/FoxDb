@@ -1,10 +1,49 @@
-﻿using System;
+﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 
 namespace FoxDb
 {
     public static class TypeHelper
     {
+        public static bool IsNumeric(ITypeConfig type)
+        {
+            switch (type.Type)
+            {
+                case DbType.Byte:
+                case DbType.Single:
+                case DbType.Int16:
+                case DbType.Int32:
+                case DbType.Int64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static object GetDefaultValue(ITypeConfig type)
+        {
+            switch (type.Type)
+            {
+                case DbType.Byte:
+                    return new Byte();
+                case DbType.Single:
+                    return new Single();
+                case DbType.Int16:
+                    return new Int16();
+                case DbType.Int32:
+                    return new Int32();
+                case DbType.Int64:
+                    return new Int64();
+                case DbType.Guid:
+                    return Guid.Empty;
+                case DbType.Binary:
+                    return new byte[type.Size];
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         public static DbType GetDbType(Type type)
         {
             switch (Type.GetTypeCode(GetInterimType(type)))

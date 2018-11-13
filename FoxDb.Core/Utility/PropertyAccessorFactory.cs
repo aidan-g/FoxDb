@@ -9,31 +9,28 @@ namespace FoxDb
     {
         public PropertyAccessorFactory(bool conversionEnabled)
         {
-            this.Strategy = new LambdaPropertyAccessorStrategy(conversionEnabled);
+            this.AccessorStrategy = new LambdaPropertyAccessorStrategy(conversionEnabled);
+            this.IncrementorStrategy = new LambdaPropertyIncrementorStrategy();
         }
 
-        public IPropertyAccessorStrategy Strategy { get; private set; }
+        public IPropertyAccessorStrategy AccessorStrategy { get; private set; }
 
-        public Expression Create(PropertyInfo property)
-        {
-            var parameter = Expression.Parameter(property.DeclaringType);
-            return Expression.Lambda(Expression.Property(parameter, property), parameter);
-        }
+        public IPropertyIncrementorStrategy IncrementorStrategy { get; private set; }
 
-        public IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression)
+        public IPropertyAccessor<T, TValue> Create<T, TValue>(Expression expression, ITypeConfig type)
         {
             var property = expression.GetLambdaProperty<T>();
-            return this.Create<T, TValue>(property);
+            return this.Create<T, TValue>(property, type);
         }
 
-        public IPropertyAccessor<T, TValue> Create<T, TValue>(PropertyInfo property)
+        public IPropertyAccessor<T, TValue> Create<T, TValue>(PropertyInfo property, ITypeConfig type)
         {
             if (property.GetGetMethod() == null || property.GetSetMethod() == null)
             {
                 throw new NotImplementedException();
             }
-            var get = this.Strategy.CreateGetter<T, TValue>(property);
-            var set = this.Strategy.CreateSetter<T, TValue>(property);
+            var get = this.AccessorStrategy.CreateGetter<T, TValue>(property);
+            var set = this.AccessorStrategy.CreateSetter<T, TValue>(property);
             var increment = default(Action<T>);
             if (property.PropertyType.IsPrimitive)
             {
@@ -44,21 +41,16 @@ namespace FoxDb
                     case TypeCode.Int16:
                     case TypeCode.Int32:
                     case TypeCode.Int64:
-                        increment = this.Strategy.CreateIncrementor<T>(property);
+                        increment = this.IncrementorStrategy.CreateNumericIncrementor<T>(property);
                         break;
                 }
             }
+            //We can create binary incrementor only for byte[size] where size is <= sizeof(long).
+            else if (property.PropertyType.IsArray && typeof(byte).IsAssignableFrom(property.PropertyType.GetElementType()) && type.Size <= sizeof(long))
+            {
+                increment = this.IncrementorStrategy.CreateBinaryIncrementor<T>(property, type.Size);
+            }
             return new PropertyAccessor<T, TValue>(property, get, set, increment);
-        }
-
-        public IPropertyAccessor<T, TValue> Null<T, TValue>()
-        {
-            return new PropertyAccessor<T, TValue>(
-                null,
-                element => { throw new NotImplementedException(); },
-                (element, value) => { throw new NotImplementedException(); },
-                element => { throw new NotImplementedException(); }
-            );
         }
 
         private class PropertyAccessor<T, TValue> : IPropertyAccessor<T, TValue>

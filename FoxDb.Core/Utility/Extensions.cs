@@ -45,16 +45,19 @@ namespace FoxDb
                 {
                     continue;
                 }
-                database.CreateParameter(command, parameter.Name, parameter.Type, parameter.Direction);
+                database.CreateParameter(command, parameter.Name, parameter.Type, parameter.Size, parameter.Precision, parameter.Scale, parameter.Direction);
             }
             return new DatabaseParameters(database, query, command.Parameters);
         }
 
-        public static void CreateParameter(this IDatabase database, IDbCommand command, string name, DbType type, ParameterDirection direction)
+        public static void CreateParameter(this IDatabase database, IDbCommand command, string name, DbType type, int size, byte precision, byte scale, ParameterDirection direction)
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = name;
             parameter.DbType = database.Translation.GetRemoteType(type);
+            parameter.Size = size;
+            parameter.Precision = precision;
+            parameter.Scale = scale;
             parameter.Direction = direction;
             command.Parameters.Add(parameter);
         }

@@ -112,7 +112,7 @@ namespace FoxDb
 
         public IRelationConfig<T, TRelation> CreateOneToOne<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
-            var accessor = Factories.PropertyAccessor.Relation.Create<T, TRelation>(property);
+            var accessor = Factories.PropertyAccessor.Relation.Create<T, TRelation>(property, TypeConfig.Unknown);
             return new RelationConfig<T, TRelation>(
                 table.Config,
                 attribute.Flags.EnsureMultiplicity(RelationFlags.OneToOne),
@@ -125,7 +125,7 @@ namespace FoxDb
 
         public ICollectionRelationConfig<T, TRelation> CreateOneToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
-            var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property);
+            var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property, TypeConfig.Unknown);
             return new OneToManyRelationConfig<T, TRelation>(
                 table.Config,
                 attribute.Flags.EnsureMultiplicity(RelationFlags.OneToMany),
@@ -138,7 +138,7 @@ namespace FoxDb
 
         public ICollectionRelationConfig<T, TRelation> CreateManyToMany<T, TRelation>(ITableConfig<T> table, RelationAttribute attribute, PropertyInfo property)
         {
-            var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property);
+            var accessor = Factories.PropertyAccessor.Relation.Create<T, ICollection<TRelation>>(property, TypeConfig.Unknown);
             return new ManyToManyRelationConfig<T, TRelation>(
                 table.Config,
                 attribute.Flags.EnsureMultiplicity(RelationFlags.ManyToMany),

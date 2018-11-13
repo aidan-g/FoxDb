@@ -9,9 +9,9 @@ namespace FoxDb.Interfaces
 
         int? Size { get; }
 
-        int? Precision { get; }
+        byte? Precision { get; }
 
-        int? Scale { get; }
+        byte? Scale { get; }
 
         bool? IsNullable { get; }
 

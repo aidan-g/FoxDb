@@ -136,7 +136,7 @@ namespace FoxDb
             });
             set.AddOrUpdate(data);
             var id = data[0].Id;
-            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            IEnumerable<Test001> query = this.Database.AsQueryable<Test001>(this.Transaction);
             Assert.AreEqual(3, query.Count());
             Assert.AreEqual(2, query.Count(element => element.Id > id));
             Assert.AreEqual(0, query.Count(element => element.Id < id));

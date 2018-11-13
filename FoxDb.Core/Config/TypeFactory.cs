@@ -20,7 +20,7 @@ namespace FoxDb
             }
         }
 
-        public ITypeConfig Create(DbType? type = null, int? size = null, int? precision = null, int? scale = null, bool? isNullable = null)
+        public ITypeConfig Create(DbType? type = null, int? size = null, byte? precision = null, byte? scale = null, bool? isNullable = null)
         {
             if (!type.HasValue)
             {

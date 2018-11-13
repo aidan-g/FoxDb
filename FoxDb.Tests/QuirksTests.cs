@@ -64,6 +64,10 @@ namespace FoxDb
 
             public string Name { get; set; }
 
+            [Type(Size = 8)]
+            [Column(Flags = ColumnFlags.Generated | ColumnFlags.ConcurrencyCheck)]
+            public byte[] Version { get; set; }
+
             public Banana Banana { get; set; }
 
             public virtual ICollection<Pineapple> Pineapples { get; set; }

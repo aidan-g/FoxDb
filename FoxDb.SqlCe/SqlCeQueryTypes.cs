@@ -8,7 +8,7 @@ namespace FoxDb
         static SqlCeQueryTypes()
         {
             Arguments["nvarchar"] = DatabaseQueryTypeArguments.Size;
-            Arguments["varbinary"] = DatabaseQueryTypeArguments.Size;
+            Arguments["binary"] = DatabaseQueryTypeArguments.Size;
         }
 
         public SqlCeQueryTypes(IDatabase database)
@@ -29,7 +29,7 @@ namespace FoxDb
         {
             get
             {
-                return "varbinary";
+                return "binary";
             }
         }
 

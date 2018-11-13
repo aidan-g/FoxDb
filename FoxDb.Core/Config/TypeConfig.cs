@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 using System.Reflection;
 
@@ -6,7 +7,7 @@ namespace FoxDb
 {
     public class TypeConfig : ITypeConfig
     {
-        public TypeConfig(DbType type, int size, int precision, int scale, bool isNullable)
+        public TypeConfig(DbType type, int size, byte precision, byte scale, bool isNullable)
         {
             this.Type = type;
             this.Size = size;
@@ -19,9 +20,9 @@ namespace FoxDb
 
         public int Size { get; set; }
 
-        public int Precision { get; set; }
+        public byte Precision { get; set; }
 
-        public int Scale { get; set; }
+        public byte Scale { get; set; }
 
         public bool IsNullable { get; set; }
 
@@ -29,17 +30,15 @@ namespace FoxDb
         {
             get
             {
-                switch (this.Type)
-                {
-                    case DbType.Byte:
-                    case DbType.Single:
-                    case DbType.Int16:
-                    case DbType.Int32:
-                    case DbType.Int64:
-                        return true;
-                    default:
-                        return false;
-                }
+                return TypeHelper.IsNumeric(this);
+            }
+        }
+
+        public object DefaultValue
+        {
+            get
+            {
+                return TypeHelper.GetDefaultValue(this);
             }
         }
 
@@ -56,7 +55,15 @@ namespace FoxDb
             );
         }
 
-        public static ITypeSelector By(DbType? type = null, int? size = null, int? precision = null, int? scale = null, bool? isNullable = null)
+        public static ITypeConfig Unknown
+        {
+            get
+            {
+                return new TypeConfig(DbType.Object, 0, 0, 0, false);
+            }
+        }
+
+        public static ITypeSelector By(DbType? type = null, int? size = null, byte? precision = null, byte? scale = null, bool? isNullable = null)
         {
             return TypeSelector.By(type, size, precision, scale, isNullable);
         }

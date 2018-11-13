@@ -35,6 +35,9 @@ namespace FoxDb
             var parameter = this.CreateParameter(
                 Conventions.ParameterName(column),
                 column.ColumnType.Type,
+                column.ColumnType.Size,
+                column.ColumnType.Precision,
+                column.ColumnType.Scale,
                 ParameterDirection.Input,
                 false,
                 column,

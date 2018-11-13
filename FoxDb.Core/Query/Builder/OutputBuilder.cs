@@ -48,9 +48,9 @@ namespace FoxDb
             return this;
         }
 
-        public IParameterBuilder AddParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
+        public IParameterBuilder AddParameter(string name, DbType type, int size, byte precision, byte scale, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
         {
-            var expression = this.CreateParameter(name, type, direction, isDeclared, column, flags);
+            var expression = this.CreateParameter(name, type, size, precision, scale, direction, isDeclared, column, flags);
             this.Expressions.Add(expression);
             return expression;
         }
@@ -60,6 +60,9 @@ namespace FoxDb
             var expression = this.CreateParameter(
                 Conventions.ParameterName(column),
                 column.ColumnType.Type,
+                column.ColumnType.Size,
+                column.ColumnType.Precision,
+                column.ColumnType.Scale,
                 ParameterDirection.Input,
                 false,
                 column,

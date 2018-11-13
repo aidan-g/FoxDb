@@ -452,6 +452,9 @@ namespace FoxDb
             var parameter = this.Peek.Write(this.Peek.CreateParameter(
                 name,
                 TypeHelper.GetDbType(value.GetType()),
+                0,
+                0,
+                0,
                 ParameterDirection.Input,
                 false,
                 null,

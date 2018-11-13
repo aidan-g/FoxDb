@@ -92,7 +92,7 @@ namespace FoxDb
                     }
                 }
             }
-            var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property);
+            var accessor = Factories.PropertyAccessor.Column.Create<object, object>(property, columnType);
             return new ColumnConfig(
                 table.Config,
                 attribute.Flags,

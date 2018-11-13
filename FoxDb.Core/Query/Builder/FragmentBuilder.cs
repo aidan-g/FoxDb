@@ -165,7 +165,7 @@ namespace FoxDb
             return this.Fragment<IIndexBuilder>().With(builder => builder.Index = index);
         }
 
-        public IParameterBuilder CreateParameter(string name, DbType type, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
+        public IParameterBuilder CreateParameter(string name, DbType type, int size, byte precision, byte scale, ParameterDirection direction, bool isDeclared, IColumnConfig column, DatabaseQueryParameterFlags flags)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -175,6 +175,9 @@ namespace FoxDb
             {
                 builder.Name = name;
                 builder.Type = type;
+                builder.Size = size;
+                builder.Precision = precision;
+                builder.Scale = scale;
                 builder.Direction = direction;
                 builder.IsDeclared = isDeclared;
                 builder.Column = column;
