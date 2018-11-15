@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Linq;
 
 namespace FoxDb
@@ -35,6 +36,23 @@ namespace FoxDb
         public static IDatabaseQuerySource Source(this IDatabase database, IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             return database.Source(composer, parameters, transaction);
+        }
+
+        public static IDatabaseSet Set(this IDatabase database, Type tableType, ITransactionSource transaction = null)
+        {
+#pragma warning disable 612, 618
+            return database.Set(database.Config.Table(tableType), null, transaction);
+#pragma warning restore 612, 618
+        }
+
+        public static IDatabaseSet Set(this IDatabase database, ITableConfig table, ITransactionSource transaction = null)
+        {
+            return database.Set(table, null, transaction);
+        }
+
+        public static IDatabaseSet Set(this IDatabase database, ITableConfig table, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.Set(table.TableType, database.Source(table, parameters, transaction));
         }
 
         public static IDatabaseSet<T> Set<T>(this IDatabase database, ITransactionSource transaction = null)

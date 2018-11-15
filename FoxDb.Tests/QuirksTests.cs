@@ -3,6 +3,7 @@ using FoxDb.Interfaces;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
@@ -11,7 +12,8 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class QuirksTests : TestBase
     {
-        public QuirksTests(ProviderType providerType) : base(providerType)
+        public QuirksTests(ProviderType providerType)
+            : base(providerType)
         {
 
         }
@@ -50,6 +52,27 @@ namespace FoxDb
             });
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void CanAddUpdateDelete_DynamicSet()
+        {
+            var set = this.Database.Set(typeof(Test001), this.Transaction);
+            var data = new List<object>();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set.OfType<object>());
+            ((Test001)data[1]).Field1 = "updated";
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set.OfType<object>());
+            set.Remove(new[] { data[1] });
+            data.RemoveAt(1);
+            this.AssertSequence(data, set.OfType<object>());
         }
 
         [Table(Name = "Test002")]

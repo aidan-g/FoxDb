@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public partial class DatabaseSet<T> : IDatabaseSet<T>
+    public partial class DatabaseSet<T> : IDatabaseSet, IDatabaseSet<T>
     {
         private DatabaseSet()
         {
@@ -37,6 +37,8 @@ namespace FoxDb
         {
             this.Source = source;
         }
+
+        private readonly object SyncRoot = new object();
 
         public Lazy<IEntityStateDetector> StateDetector { get; private set; }
 
@@ -87,6 +89,15 @@ namespace FoxDb
             get
             {
                 return this.Source.Transaction;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
+                return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
             }
         }
     }
@@ -206,15 +217,39 @@ namespace FoxDb
 
     public partial class DatabaseSet<T>
     {
-        int ICollection<T>.Count
+        object ICollection.SyncRoot
         {
             get
             {
-                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
-                return this.Database.ExecuteScalar<int>(query, this.Parameters, this.Transaction);
+                return this.SyncRoot;
             }
         }
 
+        bool ICollection.IsSynchronized
+        {
+            get
+            {
+                //TODO: I don't know. Maybe true.
+                return false;
+            }
+        }
+
+        void ICollection.CopyTo(Array target, int index)
+        {
+            foreach (var element in this)
+            {
+                if (index >= target.Length)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                target.SetValue(element, index);
+                index++;
+            }
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
         void ICollection<T>.Clear()
         {
             var set = (IDatabaseSet<T>)this;

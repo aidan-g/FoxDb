@@ -4,12 +4,15 @@ using System.Collections.Generic;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseSet : IDatabaseQuerySource, IEnumerable
+    public interface IDatabaseSetBase : IDatabaseQuerySource
     {
         ITableConfig Table { get; }
 
         Type ElementType { get; }
+    }
 
+    public interface IDatabaseSet : IDatabaseSetBase, ICollection
+    {
         object Create();
 
         object Find(params object[] keys);
@@ -21,11 +24,11 @@ namespace FoxDb.Interfaces
         IEnumerable<object> Remove(IEnumerable<object> items);
     }
 
-    public interface IDatabaseSet<T> : IDatabaseSet, ICollection<T>
+    public interface IDatabaseSet<T> : IDatabaseSetBase, ICollection<T>
     {
-        new T Create();
+        T Create();
 
-        new T Find(params object[] keys);
+        T Find(params object[] keys);
 
         T AddOrUpdate(T item);
 

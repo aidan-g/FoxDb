@@ -81,7 +81,7 @@ namespace FoxDb
             {
                 set.Parameters = visitor.Parameters;
             }
-            return set;
+            return (IDatabaseSet)set;
         }
     }
 }

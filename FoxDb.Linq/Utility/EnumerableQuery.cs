@@ -12,7 +12,7 @@ namespace FoxDb
         public abstract Type ElementType { get; }
     }
 
-    public class EnumerableQuery<T> : EnumerableQuery, IEnumerableQuery<T>
+    public partial class EnumerableQuery<T> : EnumerableQuery, IEnumerableQuery<T>
     {
         public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set)
         {
@@ -73,6 +73,93 @@ namespace FoxDb
         public TResult Execute<TResult>(Expression expression)
         {
             return EnumerableExecutor<TResult>.Execute(EnumerableRewriter.Rewrite(this.Query, this.Set, expression));
+        }
+    }
+
+    public partial class EnumerableQuery<T>
+    {
+        int ICollection.Count
+        {
+            get
+            {
+                var collection = (ICollection)this.Set;
+                return collection.Count;
+            }
+        }
+
+        object ICollection.SyncRoot
+        {
+            get
+            {
+                var collection = (ICollection)this.Set;
+                return collection.SyncRoot;
+            }
+        }
+
+        bool ICollection.IsSynchronized
+        {
+            get
+            {
+                var collection = (ICollection)this.Set;
+                return collection.IsSynchronized;
+            }
+        }
+
+        void ICollection.CopyTo(Array array, int index)
+        {
+            var collection = (ICollection)this.Set;
+            collection.CopyTo(array, index);
+        }
+    }
+
+    public partial class EnumerableQuery<T>
+    {
+        void ICollection<T>.Add(T item)
+        {
+            var collection = (ICollection<T>)this.Set;
+            collection.Add(item);
+        }
+
+        void ICollection<T>.Clear()
+        {
+            var collection = (ICollection<T>)this.Set;
+            collection.Clear();
+        }
+
+        bool ICollection<T>.Contains(T item)
+        {
+            var collection = (ICollection<T>)this.Set;
+            return collection.Contains(item);
+        }
+
+        void ICollection<T>.CopyTo(T[] array, int index)
+        {
+            var collection = (ICollection<T>)this.Set;
+            collection.CopyTo(array, index);
+        }
+
+        int ICollection<T>.Count
+        {
+            get
+            {
+                var collection = (ICollection<T>)this.Set;
+                return collection.Count;
+            }
+        }
+
+        bool ICollection<T>.IsReadOnly
+        {
+            get
+            {
+                var collection = (ICollection<T>)this.Set;
+                return collection.IsReadOnly;
+            }
+        }
+
+        bool ICollection<T>.Remove(T item)
+        {
+            var collection = (ICollection<T>)this.Set;
+            return collection.Remove(item);
         }
     }
 }
