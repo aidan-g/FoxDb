@@ -9,7 +9,7 @@ namespace FoxDb
 
         public string Identifier { get; set; }
 
-        public TableFlags? _Flags { get; set; }
+        private TableFlags? _Flags { get; set; }
 
         public bool IsFlagsSpecified
         {

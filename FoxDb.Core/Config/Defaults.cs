@@ -107,7 +107,8 @@ namespace FoxDb
         AutoIndexes = 4,
         AutoRelations = 8,
         Transient = 16,
-        Extern = 32
+        Extern = 32,
+        Shared = 64
     }
 
     [Flags]

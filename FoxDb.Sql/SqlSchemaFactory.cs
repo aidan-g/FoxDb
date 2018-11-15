@@ -150,7 +150,10 @@ namespace FoxDb
                 while (queue.Count > 0)
                 {
                     table = queue.Dequeue();
-                    tables.Add(table);
+                    if (!tables.Add(table))
+                    {
+                        continue;
+                    }
                     foreach (var index in table.Indexes)
                     {
                         indexes.Add(index);
@@ -158,11 +161,11 @@ namespace FoxDb
                     foreach (var relation in table.Relations)
                     {
                         relations.Add(relation);
-                        if (relation.MappingTable != null && tables.Add(relation.MappingTable))
+                        if (relation.MappingTable != null && !relation.MappingTable.Flags.HasFlag(TableFlags.Shared))
                         {
-                            queue.Enqueue(relation.RightTable);
+                            queue.Enqueue(relation.MappingTable);
                         }
-                        if (relation.RightTable != null && tables.Add(relation.RightTable))
+                        if (relation.RightTable != null && !relation.RightTable.Flags.HasFlag(TableFlags.Shared))
                         {
                             queue.Enqueue(relation.RightTable);
                         }

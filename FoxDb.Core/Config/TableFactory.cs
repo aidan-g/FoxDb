@@ -38,11 +38,11 @@ namespace FoxDb
 
         public ITableConfig Create(IConfig config, string identifier, Type tableType, TableFlags? flags)
         {
-            var attribute = tableType.GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute()
+            var attribute = tableType.GetCustomAttribute<TableAttribute>(true) ?? new TableAttribute();
+            if (string.IsNullOrEmpty(attribute.Name))
             {
-                Name = Conventions.TableName(tableType),
-                Identifier = identifier
-            };
+                attribute.Name = Conventions.TableName(tableType);
+            }
             if (string.IsNullOrEmpty(attribute.Identifier))
             {
                 attribute.Identifier = Conventions.TableName(tableType);
