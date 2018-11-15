@@ -86,6 +86,16 @@ namespace FoxDb
 
             public static EnumeratorFlags Flags { get; set; }
         }
+
+        public static class Schema
+        {
+            static Schema()
+            {
+                Flags = SchemaFlags.Table | SchemaFlags.Index | SchemaFlags.Relation;
+            }
+
+            public static SchemaFlags Flags { get; set; }
+        }
     }
 
     [Flags]
@@ -134,5 +144,15 @@ namespace FoxDb
     public enum EnumeratorFlags
     {
         None = 0
+    }
+
+    [Flags]
+    public enum SchemaFlags : byte
+    {
+        None = 0,
+        Table = 1,
+        Index = 2,
+        Relation = 4,
+        Recursive = 8
     }
 }

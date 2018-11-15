@@ -87,6 +87,10 @@ namespace FoxDb
 
         public int Execute(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
+            if (string.IsNullOrEmpty(query.CommandText))
+            {
+                throw new InvalidOperationException("The query is empty.");
+            }
             return this.CreateCommand(
                 query,
                 DatabaseCommandFlags.None,

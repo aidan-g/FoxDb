@@ -60,6 +60,10 @@ namespace FoxDb
             var parameters = new List<IDatabaseQueryParameter>();
             foreach (var query in queries)
             {
+                if (string.IsNullOrEmpty(query.CommandText))
+                {
+                    continue;
+                }
                 if (builder.Length > 0)
                 {
                     builder.AppendFormat("{0} ", this.Dialect.BATCH);

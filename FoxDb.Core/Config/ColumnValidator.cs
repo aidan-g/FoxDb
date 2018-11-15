@@ -33,8 +33,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (table.Flags.HasFlag(TableFlags.ValidateSchema) &&
-            !column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
+            if (table.Flags.HasFlag(TableFlags.ValidateSchema) && !column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
             {
                 return false;
             }

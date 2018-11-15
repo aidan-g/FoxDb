@@ -29,34 +29,20 @@ namespace FoxDb
                 var tables = expression.Expressions.OfType<ITableBuilder>();
                 var relations = expression.Expressions.OfType<IRelationBuilder>();
                 var indexes = expression.Expressions.OfType<IIndexBuilder>();
-                var first = true;
+                var batches = new List<Action>();
                 foreach (var table in tables)
                 {
-                    if (!first)
-                    {
-                        this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.BATCH);
-                    }
-                    this.VisitTable(expression, table);
-                    first = false;
+                    batches.Add(() => this.VisitTable(expression, table));
                 }
                 foreach (var relation in relations)
                 {
-                    if (!first)
-                    {
-                        this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.BATCH);
-                    }
-                    this.VisitRelation(expression, relation);
-                    first = false;
+                    batches.Add(() => this.VisitRelation(expression, relation));
                 }
                 foreach (var index in indexes)
                 {
-                    if (!first)
-                    {
-                        this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.BATCH);
-                    }
-                    this.VisitIndex(expression, index);
-                    first = false;
+                    batches.Add(() => this.VisitIndex(expression, index));
                 }
+                this.VisitBatches(batches);
                 return fragment;
             }
             throw new NotImplementedException();

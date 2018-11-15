@@ -1,7 +1,5 @@
 ﻿using FoxDb.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FoxDb
 {
@@ -26,33 +24,62 @@ namespace FoxDb
             return new AggregateSchemaGraphBuilder(this.Database, graphs);
         }
 
-        public ISchemaGraphBuilder Add(ITableConfig table)
+        public ISchemaGraphBuilder Add(ITableConfig table, SchemaFlags flags)
         {
-            var tableFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
-            {
-                var builder = this.Build();
-                builder.Create.AddTable(element);
-                builder.Create.AddColumns(element.Columns);
-                builder.Create.AddIndexes(element.Indexes);
-                return builder;
-            });
-            var relationFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
-            {
-                var builder = this.Build();
-                builder.Create.AddRelations(element.Relations);
-                return builder;
-            });
-            if (table.Relations.Any())
-            {
-                return new AggregateSchemaGraphBuilder(
-                    this.Database,
-                    new[] { tableFactory(table), relationFactory(table) }
-                );
-            }
-            return tableFactory(table);
+            var tables = default(HashSet<ITableConfig>);
+            var indexes = default(HashSet<IIndexConfig>);
+            var relations = default(HashSet<IRelationConfig>);
+            this.GetSchema(table, out tables, out indexes, out relations, flags);
+            return this.OnAdd(tables, indexes, relations, flags);
         }
 
-        public ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable)
+        protected virtual ISchemaGraphBuilder OnAdd(IEnumerable<ITableConfig> tables, IEnumerable<IIndexConfig> indexes, IEnumerable<IRelationConfig> relations, SchemaFlags flags)
+        {
+            var queries = new List<ISchemaGraphBuilder>();
+            if (flags.HasFlag(SchemaFlags.Table))
+            {
+                queries.Add(this.OnAddTables(tables));
+            }
+            if (flags.HasFlag(SchemaFlags.Index))
+            {
+                queries.Add(this.OnAddIndexes(indexes));
+            }
+            if (flags.HasFlag(SchemaFlags.Relation))
+            {
+                queries.Add(this.OnAddRelations(relations));
+            }
+            return new AggregateSchemaGraphBuilder(
+                this.Database,
+                queries
+            );
+        }
+
+        protected virtual ISchemaGraphBuilder OnAddTables(IEnumerable<ITableConfig> tables)
+        {
+            var builder = this.Build();
+            builder.Create.AddTables(tables);
+            foreach (var table in tables)
+            {
+                builder.Create.AddColumns(table.Columns);
+            }
+            return builder;
+        }
+
+        protected virtual ISchemaGraphBuilder OnAddIndexes(IEnumerable<IIndexConfig> indexes)
+        {
+            var builder = this.Build();
+            builder.Create.AddIndexes(indexes);
+            return builder;
+        }
+
+        protected virtual ISchemaGraphBuilder OnAddRelations(IEnumerable<IRelationConfig> relations)
+        {
+            var builder = this.Build();
+            builder.Create.AddRelations(relations);
+            return builder;
+        }
+
+        public ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable, SchemaFlags flags)
         {
             var builder = this.Build();
             builder.Alter.SetLeftTable(leftTable);
@@ -60,29 +87,94 @@ namespace FoxDb
             return builder;
         }
 
-        public ISchemaGraphBuilder Delete(ITableConfig table)
+        public ISchemaGraphBuilder Delete(ITableConfig table, SchemaFlags flags)
         {
-            var tableFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
+            var tables = default(HashSet<ITableConfig>);
+            var indexes = default(HashSet<IIndexConfig>);
+            var relations = default(HashSet<IRelationConfig>);
+            this.GetSchema(table, out tables, out indexes, out relations, flags);
+            return this.OnDelete(tables, indexes, relations, flags);
+        }
+
+        protected virtual ISchemaGraphBuilder OnDelete(IEnumerable<ITableConfig> tables, IEnumerable<IIndexConfig> indexes, IEnumerable<IRelationConfig> relations, SchemaFlags flags)
+        {
+            var queries = new List<ISchemaGraphBuilder>();
+            if (flags.HasFlag(SchemaFlags.Relation))
             {
-                var builder = this.Build();
-                builder.Drop.AddTable(element);
-                builder.Drop.AddIndexes(element.Indexes);
-                return builder;
-            });
-            var relationFactory = new Func<ITableConfig, ISchemaGraphBuilder>(element =>
-            {
-                var builder = this.Build();
-                builder.Drop.AddRelations(element.Relations);
-                return builder;
-            });
-            if (table.Relations.Any())
-            {
-                return new AggregateSchemaGraphBuilder(
-                    this.Database,
-                    new[] { relationFactory(table), tableFactory(table) }
-                );
+                queries.Add(this.OnDeleteRelations(relations));
             }
-            return tableFactory(table);
+            if (flags.HasFlag(SchemaFlags.Index))
+            {
+                queries.Add(this.OnDeleteIndexes(indexes));
+            }
+            if (flags.HasFlag(SchemaFlags.Table))
+            {
+                queries.Add(this.OnDeleteTables(tables));
+            }
+            return new AggregateSchemaGraphBuilder(
+                this.Database,
+                queries
+            );
+        }
+
+        protected virtual ISchemaGraphBuilder OnDeleteTables(IEnumerable<ITableConfig> tables)
+        {
+            var builder = this.Build();
+            builder.Drop.AddTables(tables);
+            return builder;
+        }
+
+        protected virtual ISchemaGraphBuilder OnDeleteIndexes(IEnumerable<IIndexConfig> indexes)
+        {
+            var builder = this.Build();
+            builder.Drop.AddIndexes(indexes);
+            return builder;
+        }
+
+        protected virtual ISchemaGraphBuilder OnDeleteRelations(IEnumerable<IRelationConfig> relations)
+        {
+            var builder = this.Build();
+            builder.Drop.AddRelations(relations);
+            return builder;
+        }
+
+        protected virtual void GetSchema(ITableConfig table, out HashSet<ITableConfig> tables, out HashSet<IIndexConfig> indexes, out HashSet<IRelationConfig> relations, SchemaFlags flags)
+        {
+            tables = new HashSet<ITableConfig>();
+            indexes = new HashSet<IIndexConfig>();
+            relations = new HashSet<IRelationConfig>();
+            if (flags.HasFlag(SchemaFlags.Recursive))
+            {
+                var queue = new Queue<ITableConfig>();
+                queue.Enqueue(table);
+                while (queue.Count > 0)
+                {
+                    table = queue.Dequeue();
+                    tables.Add(table);
+                    foreach (var index in table.Indexes)
+                    {
+                        indexes.Add(index);
+                    }
+                    foreach (var relation in table.Relations)
+                    {
+                        relations.Add(relation);
+                        if (relation.MappingTable != null && tables.Add(relation.MappingTable))
+                        {
+                            queue.Enqueue(relation.RightTable);
+                        }
+                        if (relation.RightTable != null && tables.Add(relation.RightTable))
+                        {
+                            queue.Enqueue(relation.RightTable);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                tables.Add(table);
+                indexes.AddRange(table.Indexes);
+                relations.AddRange(table.Relations);
+            }
         }
     }
 }

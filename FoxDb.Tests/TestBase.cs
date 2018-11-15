@@ -125,7 +125,7 @@ namespace FoxDb
             };
             foreach (var table in tables)
             {
-                var query = this.Database.SchemaFactory.Add(table).Build();
+                var query = this.Database.SchemaFactory.Add(table, Defaults.Schema.Flags).Build();
                 this.Database.Execute(query);
                 this.Database.Schema.Reset();
             }
@@ -188,7 +188,7 @@ namespace FoxDb
             };
             foreach (var table in tables)
             {
-                var query = this.Database.SchemaFactory.Delete(table).Build();
+                var query = this.Database.SchemaFactory.Delete(table, Defaults.Schema.Flags).Build();
                 this.Database.Execute(query);
                 this.Database.Schema.Reset();
             }
@@ -197,13 +197,13 @@ namespace FoxDb
         }
 
         [SetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             this.Transaction = this.Database.BeginTransaction();
         }
 
         [TearDown]
-        public void TearDown()
+        public virtual void TearDown()
         {
             this.Database.Config.Reset();
             if (this.Transaction.HasTransaction)

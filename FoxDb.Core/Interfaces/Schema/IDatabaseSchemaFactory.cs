@@ -10,10 +10,10 @@ namespace FoxDb.Interfaces
 
         ISchemaGraphBuilder Combine(IEnumerable<ISchemaGraphBuilder> graphs);
 
-        ISchemaGraphBuilder Add(ITableConfig table);
+        ISchemaGraphBuilder Add(ITableConfig table, SchemaFlags flags);
 
-        ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable);
+        ISchemaGraphBuilder Update(ITableConfig leftTable, ITableConfig rightTable, SchemaFlags flags);
 
-        ISchemaGraphBuilder Delete(ITableConfig table);
+        ISchemaGraphBuilder Delete(ITableConfig table, SchemaFlags flags);
     }
 }
