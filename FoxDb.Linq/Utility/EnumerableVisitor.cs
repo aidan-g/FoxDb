@@ -230,11 +230,6 @@ namespace FoxDb
 
         protected virtual bool TryGetTable(MemberInfo member, out ITableConfig result)
         {
-            if (member.DeclaringType != this.ElementType)
-            {
-                result = default(ITableConfig);
-                return false;
-            }
             var type = this.GetMemberType(member);
             if (type.IsGenericType)
             {
@@ -245,19 +240,14 @@ namespace FoxDb
             return result != null;
         }
 
-        protected virtual bool TryGetRelation(MemberInfo member, out IRelationConfig result)
+        protected virtual bool TryGetRelation(MemberInfo member, Expression expression, out IRelationConfig result)
         {
-            if (member.DeclaringType != this.ElementType)
-            {
-                result = default(IRelationConfig);
-                return false;
-            }
             var type = this.GetMemberType(member);
             if (type.IsGenericType)
             {
                 type = type.GetGenericArguments()[0];
             }
-            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType));
+            var table = this.Database.Config.GetTable(TableConfig.By(expression.Type));
             if (table != null)
             {
                 foreach (var relation in table.Relations)
@@ -273,7 +263,7 @@ namespace FoxDb
             return false;
         }
 
-        protected virtual bool TryGetColumn(MemberInfo member, out IColumnConfig result)
+        protected virtual bool TryGetColumn(MemberInfo member, Expression expression, out IColumnConfig result)
         {
             var property = member as PropertyInfo;
             if (property == null)
@@ -281,7 +271,7 @@ namespace FoxDb
                 result = default(IColumnConfig);
                 return false;
             }
-            var table = this.Database.Config.GetTable(TableConfig.By(member.DeclaringType));
+            var table = this.Database.Config.GetTable(TableConfig.By(expression.Type));
             if (table == null)
             {
                 result = default(IColumnConfig);
@@ -407,12 +397,12 @@ namespace FoxDb
                 this.VisitTable(table);
                 return true;
             }
-            else if (this.TryGetRelation(member, out relation))
+            else if (this.TryGetRelation(member, expression, out relation))
             {
                 this.VisitRelation(relation);
                 return true;
             }
-            else if (this.TryGetColumn(member, out column))
+            else if (this.TryGetColumn(member, expression, out column))
             {
                 this.VisitColumn(column);
                 return true;

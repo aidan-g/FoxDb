@@ -75,6 +75,38 @@ namespace FoxDb
             this.AssertSequence(data, set.OfType<object>());
         }
 
+        [Test]
+        public void CanBindBaseMember()
+        {
+            var set = this.Database.Set<Salad>(this.Transaction);
+            var data = new List<Salad>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Salad() { Name = "Name_1" },
+                new Salad() { Name = "Name_2" },
+                new Salad() { Name = "Name_3" }
+            });
+            set.AddOrUpdate(data);
+            var id = data[1].Id;
+            var query = this.Database.AsQueryable<Salad>(this.Transaction);
+            this.AssertSequence(new[] { data[1] }, query.Where(element => element.Name == "Name_2"));
+        }
+
+        public class SaladBase : TestData
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+        }
+
+        [Table(Name = "Test003")]
+        public class Salad : SaladBase
+        {
+
+        }
+
+
         [Table(Name = "Test002")]
         public class Grapefruit : TestData
         {
