@@ -289,8 +289,7 @@ namespace FoxDb
 
         void ICollection<T>.Add(T item)
         {
-            var set = (IDatabaseSet<T>)this;
-            set.AddOrUpdate(item);
+            this.Persister.Value.Add(item);
         }
 
         bool ICollection<T>.Remove(T item)
