@@ -88,6 +88,7 @@
     <Compile Include="Interfaces\Entity\IEntityPersisterVisitor.cs" />
     <Compile Include="Interfaces\Entity\IEntityStateDetector.cs" />
     <Compile Include="Interfaces\Query\IDatabaseQueryComposerFactory.cs" />
+    <Compile Include="Interfaces\Utility\IAsyncEnumerable.cs" />
     <Compile Include="Interfaces\Utility\IEqualityComparerFactory.cs" />
     <Compile Include="Interfaces\Utility\IPropertyIncrementorStrategy.cs" />
     <Compile Include="Utility\EqualityComparerFactory.cs" />
@@ -260,7 +261,9 @@
     <Compile Include="System\Data\Entity\Design\PluralizationServices\ICustomPluralizationMapping.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationService.cs" />
     <Compile Include="System\Data\Entity\Design\PluralizationServices\PluralizationServiceUtil.cs" />
-    <Compile Include="Utility\Command.cs" />
+    <Compile Include="Utility\Command.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utility\Connection.cs" />
     <Compile Include="Utility\Conventions.cs" />
     <Compile Include="Utility\Converter.cs" />

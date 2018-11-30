@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabase : IDisposable
+    public partial interface IDatabase : IDisposable
     {
         IConfig Config { get; }
 
@@ -36,10 +37,20 @@ namespace FoxDb.Interfaces
 
         T ExecuteScalar<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
-        [Obsolete]
         IEnumerable<T> ExecuteEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
         IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
+    }
+
+    public partial interface IDatabase
+    {
+        Task<int> ExecuteAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
+
+        Task<T> ExecuteScalarAsync<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
+
+        Task<IEnumerable<T>> ExecuteEnumeratorAsync<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
+
+        Task<IDatabaseReader> ExecuteReaderAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
     }
 
     public enum DatabaseParameterPhase : byte

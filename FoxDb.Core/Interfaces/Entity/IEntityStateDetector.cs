@@ -1,12 +1,18 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace FoxDb.Interfaces
 {
-    public interface IEntityStateDetector
+    public partial interface IEntityStateDetector
     {
         EntityState GetState(object item);
 
         EntityState GetState(object item, out object persisted);
+    }
+
+    public partial interface IEntityStateDetector
+    {
+        Task<EntityState> GetStateAsync(object item);
     }
 
     [Flags]

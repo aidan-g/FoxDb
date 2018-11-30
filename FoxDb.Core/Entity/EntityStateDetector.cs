@@ -1,10 +1,11 @@
 ﻿#pragma warning disable 612, 618
 using FoxDb.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class EntityStateDetector : IEntityStateDetector
+    public partial class EntityStateDetector : IEntityStateDetector
     {
         private EntityStateDetector()
         {
@@ -90,5 +91,13 @@ namespace FoxDb
         public delegate EntityState EntityStateDetectorExistsStrategy(object item);
 
         public delegate EntityState EntityStateDetectorFetchStrategy(object item, out object persisted);
+    }
+
+    public partial class EntityStateDetector
+    {
+        public Task<EntityState> GetStateAsync(object item)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

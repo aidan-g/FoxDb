@@ -2,10 +2,11 @@
 using FoxDb.Interfaces;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class EntityPersister : IEntityPersister
+    public partial class EntityPersister : IEntityPersister
     {
         public EntityPersister(IDatabase database, ITableConfig table, ITransactionSource transaction = null)
         {
@@ -140,6 +141,65 @@ namespace FoxDb
                 return builder.Build();
             });
             return true;
+        }
+    }
+
+    public partial class EntityPersister
+    {
+        public async Task<EntityAction> AddAsync(object item, DatabaseParameterHandler parameters = null)
+        {
+            this.OnAdding(item);
+            var add = this.Database.QueryCache.Add(this.Table);
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
+            }
+            var key = await this.Database.ExecuteScalarAsync<object>(add, parameters, this.Transaction);
+            this.OnAdded(key, item);
+            return EntityAction.Added;
+        }
+
+        public async Task<EntityAction> UpdateAsync(object persisted, object updated, DatabaseParameterHandler parameters = null)
+        {
+            this.OnUpdating(updated);
+            var update = default(IDatabaseQuery);
+            if (!this.GetUpdateQuery(persisted, updated, out update))
+            {
+                return EntityAction.None;
+            }
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, updated).Handler;
+            }
+            var count = await this.Database.ExecuteAsync(update, parameters, this.Transaction);
+            if (count != 1)
+            {
+                this.OnConcurrencyViolation(updated);
+            }
+            else
+            {
+                this.OnUpdated(updated);
+            }
+            return EntityAction.Updated;
+        }
+
+        public async Task<EntityAction> DeleteAsync(object item, DatabaseParameterHandler parameters = null)
+        {
+            var delete = this.Database.QueryCache.Delete(this.Table);
+            if (parameters == null)
+            {
+                parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
+            }
+            var count = await this.Database.ExecuteAsync(delete, parameters, this.Transaction);
+            if (count != 1)
+            {
+                this.OnConcurrencyViolation(item);
+            }
+            else
+            {
+                this.OnDeleted(item);
+            }
+            return EntityAction.Deleted;
         }
     }
 }

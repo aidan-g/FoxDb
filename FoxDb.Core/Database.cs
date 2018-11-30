@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class Database : Disposable, IDatabase
+    public partial class Database : Disposable, IDatabase
     {
         private Database()
         {
@@ -177,6 +178,71 @@ namespace FoxDb
                 this._Connection = null;
             }
             base.Dispose(disposing);
+        }
+    }
+
+    public partial class Database
+    {
+        public Task<int> ExecuteAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            if (string.IsNullOrEmpty(query.CommandText))
+            {
+                throw new InvalidOperationException("The query is empty.");
+            }
+            return this.CreateCommand(
+                query,
+                DatabaseCommandFlags.None,
+                transaction
+            ).Using(
+                async command =>
+                {
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Fetch);
+                    }
+                    var result = await command.ExecuteNonQueryAsync();
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Store);
+                    }
+                    return result;
+                },
+                () => transaction == null
+            );
+        }
+
+        public Task<T> ExecuteScalarAsync<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return this.CreateCommand(
+                query,
+                DatabaseCommandFlags.None,
+                transaction
+            ).Using(
+                async command =>
+                {
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Fetch);
+                    }
+                    var result = Converter.ChangeType<T>(await command.ExecuteScalarAsync());
+                    if (parameters != null)
+                    {
+                        parameters(command.Parameters, DatabaseParameterPhase.Store);
+                    }
+                    return result;
+                },
+                () => transaction == null
+            );
+        }
+
+        public Task<IEnumerable<T>> ExecuteEnumeratorAsync<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IDatabaseReader> ExecuteReaderAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

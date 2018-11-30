@@ -1,10 +1,11 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class EntityCompoundPersister : IEntityPersister
+    public partial class EntityCompoundPersister : IEntityPersister
     {
         private EntityCompoundPersister()
         {
@@ -61,6 +62,30 @@ namespace FoxDb
                 var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, key));
                 return builder.Build(this.Table, this.Mapper);
             });
+        }
+    }
+
+    public partial class EntityCompoundPersister
+    {
+        public async Task<EntityAction> AddAsync(object item, DatabaseParameterHandler parameters = null)
+        {
+            var graph = this.GetEntityGraph(item.GetType());
+            await this.Visitor.VisitAsync(graph, null, item);
+            return EntityAction.Added;
+        }
+
+        public async Task<EntityAction> UpdateAsync(object persisted, object updated, DatabaseParameterHandler parameters = null)
+        {
+            var graph = this.GetEntityGraph((persisted ?? updated).GetType());
+            await this.Visitor.VisitAsync(graph, persisted, updated);
+            return EntityAction.Updated;
+        }
+
+        public async Task<EntityAction> DeleteAsync(object item, DatabaseParameterHandler parameters = null)
+        {
+            var graph = this.GetEntityGraph(item.GetType());
+            await this.Visitor.VisitAsync(graph, item, null);
+            return EntityAction.Deleted;
         }
     }
 }

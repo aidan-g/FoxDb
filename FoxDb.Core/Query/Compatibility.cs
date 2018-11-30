@@ -1,6 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
@@ -102,6 +102,21 @@ namespace FoxDb
             return database.ExecuteScalar<T>(query, null, transaction);
         }
 
+        public static Task<T> ExecuteScalarAsync<T>(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteScalarAsync<T>(query, null, transaction);
+        }
+
+        public static Task<T> ExecuteScalarAsync<T>(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteScalarAsync<T>(query.Build(), parameters, transaction);
+        }
+
+        public static Task<T> ExecuteScalarAsync<T>(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteScalarAsync<T>(query, null, transaction);
+        }
+
         public static IDatabaseReader ExecuteReader(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
         {
             return database.ExecuteReader(query, null, transaction);
@@ -115,6 +130,21 @@ namespace FoxDb
         public static IDatabaseReader ExecuteReader(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
         {
             return database.ExecuteReader(query, null, transaction);
+        }
+
+        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteReaderAsync(query, null, transaction);
+        }
+
+        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteReaderAsync(query.Build(), parameters, transaction);
+        }
+
+        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteReaderAsync(query, null, transaction);
         }
     }
 }

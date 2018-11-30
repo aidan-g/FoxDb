@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 
 namespace FoxDb
 {
     public class SqlServerCommandWrapper : Command
     {
-        public SqlServerCommandWrapper(SqlServerProvider provider, SqlServerQueryDialect dialect, IDbCommand command)
+        public SqlServerCommandWrapper(SqlServerProvider provider, SqlServerQueryDialect dialect, DbCommand command)
             : base(command)
         {
             this.Provider = provider;
@@ -83,25 +84,14 @@ namespace FoxDb
             return result;
         }
 
-        public override IDataReader ExecuteReader()
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             if (!this.HasCommandBatches)
             {
-                return base.ExecuteReader();
+                return base.ExecuteDbDataReader(behavior);
             }
-            var result = default(IDataReader);
-            this.PerformCommandBatches(() => result = base.ExecuteReader());
-            return result;
-        }
-
-        public override IDataReader ExecuteReader(CommandBehavior behavior)
-        {
-            if (!this.HasCommandBatches)
-            {
-                return base.ExecuteReader(behavior);
-            }
-            var result = default(IDataReader);
-            this.PerformCommandBatches(() => result = base.ExecuteReader(behavior));
+            var result = default(DbDataReader);
+            this.PerformCommandBatches(() => result = base.ExecuteDbDataReader(behavior));
             return result;
         }
     }

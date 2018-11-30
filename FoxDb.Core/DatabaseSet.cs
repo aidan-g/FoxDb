@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
@@ -92,6 +93,15 @@ namespace FoxDb
             }
         }
 
+        public Task<int> CountAsync
+        {
+            get
+            {
+                var query = this.Database.QueryFactory.Count(this.Table, this.Source.Fetch);
+                return this.Database.ExecuteScalarAsync<int>(query, this.Parameters, this.Transaction);
+            }
+        }
+
         public int Count
         {
             get
@@ -160,6 +170,91 @@ namespace FoxDb
 
     public partial class DatabaseSet<T>
     {
+        async Task<bool> IDatabaseSet.ContainsAsync(object item)
+        {
+            switch (await this.StateDetector.Value.GetStateAsync(item))
+            {
+                case EntityState.Exists:
+                    return true;
+            }
+            return false;
+        }
+
+        async Task<object> IDatabaseSet.FindAsync(params object[] keys)
+        {
+            var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+            var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
+            using (var reader = await this.Database.ExecuteReaderAsync(fetch, parameters.Handler, this.Transaction))
+            {
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                return this.Enumerator.Value.AsEnumerable(buffer, sink, reader).OfType<object>().FirstOrDefault();
+            }
+        }
+
+        Task IDatabaseSet.AddAsync(object item)
+        {
+            return this.Persister.Value.AddAsync(item);
+        }
+
+        async Task<object> IDatabaseSet.AddOrUpdateAsync(object item)
+        {
+            var set = (IDatabaseSet)this;
+            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            if (persisted == null)
+            {
+                await this.Persister.Value.AddAsync(item);
+            }
+            else
+            {
+                await this.Persister.Value.UpdateAsync(persisted, item);
+            }
+            return item;
+        }
+
+        async Task<IEnumerable<object>> IDatabaseSet.AddOrUpdateAsync(IEnumerable<object> items)
+        {
+            var set = (IDatabaseSet)this;
+            foreach (var item in items)
+            {
+                await set.AddOrUpdateAsync(item);
+            }
+            return items;
+        }
+
+        async Task<bool> IDatabaseSet.RemoveAsync(object item)
+        {
+            switch (await this.Persister.Value.DeleteAsync(item))
+            {
+                case EntityAction.Deleted:
+                    return true;
+            }
+            return false;
+        }
+
+        async Task<IEnumerable<object>> IDatabaseSet.RemoveAsync(IEnumerable<object> items)
+        {
+            foreach (var item in items)
+            {
+                await this.Persister.Value.DeleteAsync(item);
+            }
+            return items;
+        }
+
+        Task IDatabaseSet.ClearAsync()
+        {
+            var set = (IDatabaseSet<T>)this;
+            return set.RemoveAsync(this);
+        }
+
+        IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
         T IDatabaseSet<T>.Create()
         {
             var initializer = new EntityInitializer(this.Table);
@@ -212,6 +307,91 @@ namespace FoxDb
                 this.Persister.Value.Delete(item);
             }
             return items;
+        }
+    }
+
+    public partial class DatabaseSet<T>
+    {
+        async Task<bool> IDatabaseSet<T>.ContainsAsync(T item)
+        {
+            switch (await this.StateDetector.Value.GetStateAsync(item))
+            {
+                case EntityState.Exists:
+                    return true;
+            }
+            return false;
+        }
+
+        async Task<T> IDatabaseSet<T>.FindAsync(params object[] keys)
+        {
+            var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
+            var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
+            using (var reader = await this.Database.ExecuteReaderAsync(fetch, parameters.Handler, this.Transaction))
+            {
+                var buffer = new EntityEnumeratorBuffer(this.Database);
+                var sink = new EntityEnumeratorSink(this.Table);
+                return this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader).FirstOrDefault();
+            }
+        }
+
+        Task IDatabaseSet<T>.AddAsync(T item)
+        {
+            return this.Persister.Value.AddAsync(item);
+        }
+
+        async Task<T> IDatabaseSet<T>.AddOrUpdateAsync(T item)
+        {
+            var set = (IDatabaseSet)this;
+            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            if (persisted == null)
+            {
+                await this.Persister.Value.AddAsync(item);
+            }
+            else
+            {
+                await this.Persister.Value.UpdateAsync(persisted, item);
+            }
+            return item;
+        }
+
+        async Task<IEnumerable<T>> IDatabaseSet<T>.AddOrUpdateAsync(IEnumerable<T> items)
+        {
+            var set = (IDatabaseSet)this;
+            foreach (var item in items)
+            {
+                await set.AddOrUpdateAsync(item);
+            }
+            return items;
+        }
+
+        async Task<bool> IDatabaseSet<T>.RemoveAsync(T item)
+        {
+            switch (await this.Persister.Value.DeleteAsync(item))
+            {
+                case EntityAction.Deleted:
+                    return true;
+            }
+            return false;
+        }
+
+        async Task<IEnumerable<T>> IDatabaseSet<T>.RemoveAsync(IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                await this.Persister.Value.DeleteAsync(item);
+            }
+            return items;
+        }
+
+        Task IDatabaseSet<T>.ClearAsync()
+        {
+            var set = (IDatabaseSet<T>)this;
+            return set.RemoveAsync(this);
+        }
+
+        IAsyncEnumerator<T> IAsyncEnumerable<T>.GetAsyncEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -294,13 +474,12 @@ namespace FoxDb
 
         bool ICollection<T>.Remove(T item)
         {
-            var set = (IDatabaseSet<T>)this;
-            if (!set.Contains(item))
+            switch (this.Persister.Value.Delete(item))
             {
-                return false;
+                case EntityAction.Deleted:
+                    return true;
             }
-            set.Remove(new[] { item });
-            return true;
+            return false;
         }
     }
 

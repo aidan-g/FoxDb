@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseCommand : IDisposable
+    public partial interface IDatabaseCommand : IDisposable
     {
         IDbCommand Command { get; }
 
@@ -16,6 +17,15 @@ namespace FoxDb.Interfaces
         object ExecuteScalar();
 
         IDataReader ExecuteReader();
+    }
+
+    public partial interface IDatabaseCommand
+    {
+        Task<int> ExecuteNonQueryAsync();
+
+        Task<object> ExecuteScalarAsync();
+
+        Task<IDataReader> ExecuteReaderAsync();
     }
 
     [Flags]

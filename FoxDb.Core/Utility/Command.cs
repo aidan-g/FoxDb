@@ -1,41 +1,18 @@
 ﻿using System.Data;
+using System.Data.Common;
 
 namespace FoxDb
 {
-    public abstract class Command : IDbCommand
+    public abstract class Command : DbCommand
     {
-        public Command(IDbCommand command)
+        public Command(DbCommand command)
         {
             this.InnerCommand = command;
         }
 
-        public IDbCommand InnerCommand { get; private set; }
+        public DbCommand InnerCommand { get; private set; }
 
-        public virtual IDbConnection Connection
-        {
-            get
-            {
-                return this.InnerCommand.Connection;
-            }
-            set
-            {
-                this.InnerCommand.Connection = value;
-            }
-        }
-
-        public virtual IDbTransaction Transaction
-        {
-            get
-            {
-                return this.InnerCommand.Transaction;
-            }
-            set
-            {
-                this.InnerCommand.Transaction = value;
-            }
-        }
-
-        public virtual string CommandText
+        public override string CommandText
         {
             get
             {
@@ -47,7 +24,7 @@ namespace FoxDb
             }
         }
 
-        public virtual int CommandTimeout
+        public override int CommandTimeout
         {
             get
             {
@@ -59,7 +36,7 @@ namespace FoxDb
             }
         }
 
-        public virtual CommandType CommandType
+        public override CommandType CommandType
         {
             get
             {
@@ -71,7 +48,19 @@ namespace FoxDb
             }
         }
 
-        public virtual IDataParameterCollection Parameters
+        protected override DbConnection DbConnection
+        {
+            get
+            {
+                return this.InnerCommand.Connection;
+            }
+            set
+            {
+                this.InnerCommand.Connection = value;
+            }
+        }
+
+        protected override DbParameterCollection DbParameterCollection
         {
             get
             {
@@ -79,7 +68,31 @@ namespace FoxDb
             }
         }
 
-        public virtual UpdateRowSource UpdatedRowSource
+        protected override DbTransaction DbTransaction
+        {
+            get
+            {
+                return this.InnerCommand.Transaction;
+            }
+            set
+            {
+                this.InnerCommand.Transaction = value;
+            }
+        }
+
+        public override bool DesignTimeVisible
+        {
+            get
+            {
+                return this.InnerCommand.DesignTimeVisible;
+            }
+            set
+            {
+                this.InnerCommand.DesignTimeVisible = value;
+            }
+        }
+
+        public override UpdateRowSource UpdatedRowSource
         {
             get
             {
@@ -91,44 +104,34 @@ namespace FoxDb
             }
         }
 
-        public virtual IDbDataParameter CreateParameter()
+        protected override DbParameter CreateDbParameter()
         {
             return this.InnerCommand.CreateParameter();
         }
 
-        public virtual int ExecuteNonQuery()
+        public override int ExecuteNonQuery()
         {
             return this.InnerCommand.ExecuteNonQuery();
         }
 
-        public virtual object ExecuteScalar()
+        public override object ExecuteScalar()
         {
             return this.InnerCommand.ExecuteScalar();
         }
 
-        public virtual IDataReader ExecuteReader()
-        {
-            return this.InnerCommand.ExecuteReader();
-        }
-
-        public virtual IDataReader ExecuteReader(CommandBehavior behavior)
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             return this.InnerCommand.ExecuteReader(behavior);
         }
 
-        public virtual void Prepare()
+        public override void Prepare()
         {
             this.InnerCommand.Prepare();
         }
 
-        public virtual void Cancel()
+        public override void Cancel()
         {
             this.InnerCommand.Cancel();
-        }
-
-        public virtual void Dispose()
-        {
-            this.InnerCommand.Dispose();
         }
     }
 }

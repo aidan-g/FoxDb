@@ -1,9 +1,12 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class DatabaseCommand : Disposable, IDatabaseCommand
+    public partial class DatabaseCommand : Disposable, IDatabaseCommand
     {
         public DatabaseCommand(IDbCommand command, IDatabaseParameters parameters, DatabaseCommandFlags flags)
         {
@@ -37,6 +40,39 @@ namespace FoxDb
         {
             this.Command.Dispose();
             base.OnDisposing();
+        }
+    }
+
+    public partial class DatabaseCommand
+    {
+        public Task<int> ExecuteNonQueryAsync()
+        {
+            var command = this.Command as DbCommand;
+            if (command == null)
+            {
+                throw new NotImplementedException();
+            }
+            return command.ExecuteNonQueryAsync();
+        }
+
+        public Task<object> ExecuteScalarAsync()
+        {
+            var command = this.Command as DbCommand;
+            if (command == null)
+            {
+                throw new NotImplementedException();
+            }
+            return command.ExecuteScalarAsync();
+        }
+
+        public async Task<IDataReader> ExecuteReaderAsync()
+        {
+            var command = this.Command as DbCommand;
+            if (command == null)
+            {
+                throw new NotImplementedException();
+            }
+            return await command.ExecuteReaderAsync();
         }
     }
 }

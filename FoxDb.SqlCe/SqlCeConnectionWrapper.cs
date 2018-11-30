@@ -1,10 +1,12 @@
 ﻿using System.Data;
+using System.Data.Common;
 
 namespace FoxDb
 {
     public class SqlCeConnectionWrapper : Connection
     {
-        public SqlCeConnectionWrapper(SqlCeProvider provider, SqlCeQueryDialect dialect, IDbConnection connection) : base(connection)
+        public SqlCeConnectionWrapper(SqlCeProvider provider, SqlCeQueryDialect dialect, IDbConnection connection)
+            : base(connection)
         {
             this.Provider = provider;
             this.Dialect = dialect;
@@ -16,7 +18,7 @@ namespace FoxDb
 
         public override IDbCommand CreateCommand()
         {
-            return new SqlCeCommandWrapper(this.Provider, this.Dialect, base.CreateCommand());
+            return new SqlCeCommandWrapper(this.Provider, this.Dialect, (DbCommand)base.CreateCommand());
         }
     }
 }

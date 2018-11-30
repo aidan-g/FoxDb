@@ -1,7 +1,14 @@
-﻿namespace FoxDb.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace FoxDb.Interfaces
 {
-    public interface IEntityPersisterVisitor
+    public partial interface IEntityPersisterVisitor
     {
         EntityAction Visit(IEntityGraph graph, object persisted, object updated);
+    }
+
+    public partial interface IEntityPersisterVisitor
+    {
+        Task<EntityAction> VisitAsync(IEntityGraph graph, object persisted, object updated);
     }
 }

@@ -4,10 +4,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class EntityCompoundPersisterVisitor : IEntityPersisterVisitor
+    public partial class EntityCompoundPersisterVisitor : IEntityPersisterVisitor
     {
         private EntityCompoundPersisterVisitor()
         {
@@ -70,15 +71,6 @@ namespace FoxDb
                 return this.OnVisit(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
             }
             return EntityAction.None;
-        }
-
-        protected virtual TRelation GetChild<T, TRelation>(IRelationConfig<T, TRelation> relation, T item)
-        {
-            if (item != null)
-            {
-                return relation.Accessor.Get(item);
-            }
-            return default(TRelation);
         }
 
         protected virtual EntityAction OnVisit<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame<T> frame)
@@ -240,6 +232,114 @@ namespace FoxDb
             new public T Persisted { get; private set; }
 
             new public T Updated { get; private set; }
+        }
+    }
+
+    public partial class EntityCompoundPersisterVisitor
+    {
+        public Task<EntityAction> VisitAsync(IEntityGraph graph, object persisted, object updated)
+        {
+            return (Task<EntityAction>)this.Members.Invoke(this, "VisitAsync", (persisted ?? updated).GetType(), graph, persisted, updated);
+        }
+
+        public Task<EntityAction> VisitAsync<T>(IEntityGraph graph, T persisted, T updated)
+        {
+            return this.OnVisitAsync(graph.Root, new Frame<T>(persisted, updated));
+        }
+
+        protected virtual async Task<EntityAction> OnVisitAsync(IEntityGraphNode node, Frame frame)
+        {
+            var result = EntityAction.None;
+            var persister = this.GetPersister(node);
+            if (frame.Persisted != null && frame.Updated != null)
+            {
+                result = await persister.UpdateAsync(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation));
+                await this.CascadeAsync(node, frame);
+            }
+            else if (frame.Updated != null)
+            {
+                result = await persister.AddAsync(frame.Updated, this.GetParameters(frame, node.Relation));
+                await this.CascadeAsync(node, frame);
+            }
+            else if (frame.Persisted != null)
+            {
+                await this.CascadeAsync(node, frame);
+                result = await persister.DeleteAsync(frame.Persisted, this.GetParameters(frame, node.Relation));
+            }
+            return result;
+        }
+
+        protected virtual Task<EntityAction> OnVisitAsync<T, TRelation>(IEntityGraphNode<T, TRelation> node, Frame<T> frame)
+        {
+            var difference = EntityDiffer.Instance.GetDifference<T, TRelation>(node.Relation, frame.Persisted, frame.Updated);
+            foreach (var element in difference.All)
+            {
+                return this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+            }
+            return Task.FromResult(EntityAction.None);
+        }
+
+        protected virtual async Task<EntityAction> OnVisitAsync<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame<T> frame)
+        {
+            var result = EntityAction.None;
+            var difference = EntityDiffer.Instance.GetDifference<T, TRelation>(node.Relation, frame.Persisted, frame.Updated);
+            foreach (var element in difference.Added.Concat(difference.Updated))
+            {
+                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                if (result.HasFlag(EntityAction.Added) && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
+                {
+                    await this.AddRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                }
+            }
+            foreach (var element in difference.Deleted)
+            {
+                if (node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
+                {
+                    await this.DeleteRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                }
+                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+            }
+            return result;
+        }
+
+        protected virtual async Task CascadeAsync(IEntityGraphNode node, Frame frame)
+        {
+            foreach (var child in node.Children)
+            {
+                if (child.Relation == null)
+                {
+                    continue;
+                }
+                await (Task)this.Members.Invoke(this, "OnVisitAsync", new[] { node.EntityType, child.Relation.RelationType }, child, frame);
+            }
+        }
+
+        protected virtual Task AddRelationAsync<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame frame)
+        {
+            var query = this.Database.QueryCache.Add(node.Relation.MappingTable);
+            var parameters = this.GetParameters(frame, node.Relation);
+            return this.Database.ExecuteAsync(query, parameters, this.Transaction);
+        }
+
+        protected virtual Task DeleteRelationAsync<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame frame)
+        {
+            var query = this.Database.QueryCache.GetOrAdd(
+                new DatabaseQueryTableCacheKey(
+                    node.Relation.MappingTable,
+                    DatabaseQueryCache.DELETE
+                ),
+                () =>
+                {
+                    var builder = this.Database.QueryFactory.Build();
+                    var columns = node.Relation.Expression.GetColumnMap();
+                    builder.Delete.Touch();
+                    builder.Source.AddTable(node.Relation.MappingTable);
+                    builder.Filter.AddColumns(columns[node.Relation.MappingTable]);
+                    return builder.Build();
+                }
+            );
+            var parameters = this.GetParameters(frame, node.Relation);
+            return this.Database.ExecuteAsync(query, parameters, this.Transaction);
         }
     }
 }
