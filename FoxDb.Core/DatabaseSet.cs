@@ -184,12 +184,16 @@ namespace FoxDb
         {
             var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
             var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
-            using (var reader = await this.Database.ExecuteReaderAsync(fetch, parameters.Handler, this.Transaction))
+            var buffer = new EntityEnumeratorBuffer(this.Database);
+            var sink = new EntityEnumeratorSink(this.Table);
+            using (var sequence = this.Enumerator.Value.AsEnumerableAsync(buffer, sink, this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction)))
             {
-                var buffer = new EntityEnumeratorBuffer(this.Database);
-                var sink = new EntityEnumeratorSink(this.Table);
-                return this.Enumerator.Value.AsEnumerable(buffer, sink, reader).OfType<object>().FirstOrDefault();
+                while (await sequence.MoveNextAsync())
+                {
+                    return sequence.Current;
+                }
             }
+            return null;
         }
 
         Task IDatabaseSet.AddAsync(object item)
@@ -200,7 +204,7 @@ namespace FoxDb
         async Task<object> IDatabaseSet.AddOrUpdateAsync(object item)
         {
             var set = (IDatabaseSet)this;
-            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item));
             if (persisted == null)
             {
                 await this.Persister.Value.AddAsync(item);
@@ -241,15 +245,23 @@ namespace FoxDb
             return items;
         }
 
-        Task IDatabaseSet.ClearAsync()
+        async Task IDatabaseSet.ClearAsync()
         {
-            var set = (IDatabaseSet<T>)this;
-            return set.RemoveAsync(this);
+            var set = (IDatabaseSet)this;
+            using (var sequence = set.GetAsyncEnumerator())
+            {
+                while (await sequence.MoveNextAsync())
+                {
+                    await set.RemoveAsync(sequence.Current);
+                }
+            }
         }
 
         IAsyncEnumerator IAsyncEnumerable.GetAsyncEnumerator()
         {
-            throw new NotImplementedException();
+            var buffer = new EntityEnumeratorBuffer(this.Database);
+            var sink = new EntityEnumeratorSink(this.Table);
+            return this.Enumerator.Value.AsEnumerableAsync(buffer, sink, this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction));
         }
     }
 
@@ -326,12 +338,16 @@ namespace FoxDb
         {
             var fetch = this.Source.Composer.Fetch.With(query => query.Filter.AddColumns(this.Table.PrimaryKeys));
             var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
-            using (var reader = await this.Database.ExecuteReaderAsync(fetch, parameters.Handler, this.Transaction))
+            var buffer = new EntityEnumeratorBuffer(this.Database);
+            var sink = new EntityEnumeratorSink(this.Table);
+            using (var sequence = this.Enumerator.Value.AsEnumerableAsync<T>(buffer, sink, this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction)))
             {
-                var buffer = new EntityEnumeratorBuffer(this.Database);
-                var sink = new EntityEnumeratorSink(this.Table);
-                return this.Enumerator.Value.AsEnumerable<T>(buffer, sink, reader).FirstOrDefault();
+                while (await sequence.MoveNextAsync())
+                {
+                    return sequence.Current;
+                }
             }
+            return default(T);
         }
 
         Task IDatabaseSet<T>.AddAsync(T item)
@@ -342,7 +358,7 @@ namespace FoxDb
         async Task<T> IDatabaseSet<T>.AddOrUpdateAsync(T item)
         {
             var set = (IDatabaseSet)this;
-            var persisted = set.Find(EntityKey.GetKey(this.Table, item));
+            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item));
             if (persisted == null)
             {
                 await this.Persister.Value.AddAsync(item);
@@ -383,15 +399,23 @@ namespace FoxDb
             return items;
         }
 
-        Task IDatabaseSet<T>.ClearAsync()
+        async Task IDatabaseSet<T>.ClearAsync()
         {
             var set = (IDatabaseSet<T>)this;
-            return set.RemoveAsync(this);
+            using (var sequence = set.GetAsyncEnumerator())
+            {
+                while (await sequence.MoveNextAsync())
+                {
+                    await set.RemoveAsync(sequence.Current);
+                }
+            }
         }
 
         IAsyncEnumerator<T> IAsyncEnumerable<T>.GetAsyncEnumerator()
         {
-            throw new NotImplementedException();
+            var buffer = new EntityEnumeratorBuffer(this.Database);
+            var sink = new EntityEnumeratorSink(this.Table);
+            return this.Enumerator.Value.AsEnumerableAsync<T>(buffer, sink, this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction));
         }
     }
 

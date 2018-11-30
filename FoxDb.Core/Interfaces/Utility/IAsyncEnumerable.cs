@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace FoxDb.Interfaces
 {
@@ -7,16 +8,11 @@ namespace FoxDb.Interfaces
         IAsyncEnumerator GetAsyncEnumerator();
     }
 
-    public interface IAsyncEnumerator : IAsyncDisposable
+    public interface IAsyncEnumerator : IDisposable
     {
         object Current { get; }
 
         Task<bool> MoveNextAsync();
-    }
-
-    public interface IAsyncDisposable
-    {
-        Task DisposeAsync();
     }
 
     public interface IAsyncEnumerable<out T>
@@ -24,10 +20,8 @@ namespace FoxDb.Interfaces
         IAsyncEnumerator<T> GetAsyncEnumerator();
     }
 
-    public interface IAsyncEnumerator<out T> : IAsyncDisposable
+    public interface IAsyncEnumerator<out T> : IAsyncEnumerator
     {
-        T Current { get; }
-
-        Task<bool> MoveNextAsync();
+        new T Current { get; }
     }
 }

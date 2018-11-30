@@ -239,10 +239,5 @@ namespace FoxDb
         {
             throw new NotImplementedException();
         }
-
-        public Task<IDatabaseReader> ExecuteReaderAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

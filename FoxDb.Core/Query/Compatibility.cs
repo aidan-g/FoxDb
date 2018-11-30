@@ -131,20 +131,5 @@ namespace FoxDb
         {
             return database.ExecuteReader(query, null, transaction);
         }
-
-        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
-        {
-            return database.ExecuteReaderAsync(query, null, transaction);
-        }
-
-        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
-        {
-            return database.ExecuteReaderAsync(query.Build(), parameters, transaction);
-        }
-
-        public static Task<IDatabaseReader> ExecuteReaderAsync(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
-        {
-            return database.ExecuteReaderAsync(query, null, transaction);
-        }
     }
 }

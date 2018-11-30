@@ -3,10 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class EntityCompoundEnumerator : IEntityEnumerator
+    public partial class EntityCompoundEnumerator : IEntityEnumerator
     {
         private EntityCompoundEnumerator()
         {
@@ -73,6 +74,100 @@ namespace FoxDb
                 var builder = new EntityGraphBuilder(new EntityGraphMapping(this.Table, key));
                 return builder.Build(this.Table, this.Mapper);
             });
+        }
+    }
+
+    public partial class EntityCompoundEnumerator
+    {
+        public IAsyncEnumerator AsEnumerableAsync(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
+        {
+            return (IAsyncEnumerator)this.Members.Invoke(this, "AsEnumerableAsync", this.Table.TableType, buffer, sink, reader);
+        }
+
+        public IAsyncEnumerator<T> AsEnumerableAsync<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
+        {
+            var graph = this.GetEntityGraph(typeof(T));
+            return new AsyncEnumerator<T>(this.Visitor, graph, buffer, sink, reader);
+        }
+
+        private class AsyncEnumerator<T> : Disposable, IAsyncEnumerator<T>
+        {
+            public AsyncEnumerator(IEntityEnumeratorVisitor visitor, IEntityGraph graph, IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
+            {
+                this.Visitor = visitor;
+                this.Graph = graph;
+                this.Buffer = buffer;
+                this.Sink = sink;
+                this.Reader = reader;
+            }
+
+            public IEntityEnumeratorVisitor Visitor { get; private set; }
+
+            public IEntityGraph Graph { get; private set; }
+
+            public IEntityEnumeratorBuffer Buffer { get; private set; }
+
+            public IEntityEnumeratorSink Sink { get; private set; }
+
+            public IDatabaseReader Reader { get; private set; }
+
+            public IAsyncEnumerator<IDatabaseReaderRecord> ReaderEnumerator { get; private set; }
+
+            public IEnumerator<object> SinkEnumerator { get; private set; }
+
+            object IAsyncEnumerator.Current
+            {
+                get
+                {
+                    return this.SinkEnumerator.Current;
+                }
+            }
+
+            T IAsyncEnumerator<T>.Current
+            {
+                get
+                {
+                    return (T)this.SinkEnumerator.Current;
+                }
+            }
+
+            public async Task<bool> MoveNextAsync()
+            {
+                if (this.SinkEnumerator != null && this.SinkEnumerator.MoveNext())
+                {
+                    return true;
+                }
+                else
+                {
+                    this.Sink.Clear();
+                }
+                if (this.ReaderEnumerator == null)
+                {
+                    this.ReaderEnumerator = this.Reader.GetAsyncEnumerator();
+                }
+                while (await this.ReaderEnumerator.MoveNextAsync())
+                {
+                    this.Visitor.Visit(this.Graph, this.Buffer, this.Sink, this.ReaderEnumerator.Current, Defaults.Enumerator.Flags);
+                    if (this.Sink.Count > 0)
+                    {
+                        this.SinkEnumerator = this.Sink.GetEnumerator();
+                        return this.SinkEnumerator.MoveNext();
+                    }
+                }
+                this.Visitor.Flush(this.Buffer, this.Sink);
+                if (this.Sink.Count > 0)
+                {
+                    this.SinkEnumerator = this.Sink.GetEnumerator();
+                    return this.SinkEnumerator.MoveNext();
+                }
+                return false;
+            }
+
+            protected override void OnDisposing()
+            {
+                this.ReaderEnumerator.Dispose();
+                base.OnDisposing();
+            }
         }
     }
 }

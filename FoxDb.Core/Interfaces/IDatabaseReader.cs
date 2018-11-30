@@ -3,8 +3,13 @@ using System.Collections.Generic;
 
 namespace FoxDb.Interfaces
 {
-    public interface IDatabaseReader : IEnumerable<IDatabaseReaderRecord>, IDisposable
+    public partial interface IDatabaseReader : IEnumerable<IDatabaseReaderRecord>, IDisposable
     {
+    }
+
+    public partial interface IDatabaseReader : IAsyncEnumerable<IDatabaseReaderRecord>
+    {
+
     }
 
     public interface IDatabaseReaderRecord

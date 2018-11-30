@@ -3,10 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
-    public class DatabaseReader : Disposable, IDatabaseReader
+    public partial class DatabaseReader : Disposable, IDatabaseReader
     {
         public DatabaseReader(IDbCommand command, bool ownsCommand)
         {
@@ -141,6 +143,64 @@ namespace FoxDb
                     var value = this.Reader.GetValue(a);
                     this.Data.Add(name, value);
                 }
+            }
+        }
+    }
+
+    public partial class DatabaseReader
+    {
+        public IAsyncEnumerator<IDatabaseReaderRecord> GetAsyncEnumerator()
+        {
+            return new AsyncEnumerator(this);
+        }
+
+        private class AsyncEnumerator : Disposable, IAsyncEnumerator<IDatabaseReaderRecord>
+        {
+            public AsyncEnumerator(DatabaseReader reader)
+            {
+                this.Reader = reader;
+            }
+
+            public DatabaseReader Reader { get; private set; }
+
+            public IDatabaseReaderRecord Current { get; private set; }
+
+            object IAsyncEnumerator.Current
+            {
+                get
+                {
+                    return this.Current;
+                }
+            }
+
+            IDatabaseReaderRecord IAsyncEnumerator<IDatabaseReaderRecord>.Current
+            {
+                get
+                {
+                    return this.Current;
+                }
+            }
+
+            public async Task<bool> MoveNextAsync()
+            {
+                var reader = this.Reader.Reader as DbDataReader;
+                if (reader == null)
+                {
+                    throw new NotImplementedException();
+                }
+                if (await reader.ReadAsync())
+                {
+                    this.Current = new DatabaseReaderRecord(this.Reader.Reader);
+                    return true;
+                }
+                this.Current = null;
+                return false;
+            }
+
+            protected override void OnDisposing()
+            {
+                this.Reader.Dispose();
+                base.OnDisposing();
             }
         }
     }

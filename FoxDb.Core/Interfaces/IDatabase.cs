@@ -47,10 +47,6 @@ namespace FoxDb.Interfaces
         Task<int> ExecuteAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
 
         Task<T> ExecuteScalarAsync<T>(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
-
-        Task<IEnumerable<T>> ExecuteEnumeratorAsync<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
-
-        Task<IDatabaseReader> ExecuteReaderAsync(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null);
     }
 
     public enum DatabaseParameterPhase : byte

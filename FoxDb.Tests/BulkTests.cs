@@ -49,7 +49,7 @@ namespace FoxDb
             stopwatch.Start();
             foreach (var element in set)
             {
-                Assert.AreEqual(element.Field1, "updated");
+                Assert.AreEqual("updated", element.Field1);
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -112,9 +112,9 @@ namespace FoxDb
             stopwatch.Start();
             foreach (var element in set)
             {
-                Assert.AreEqual(element.Name, "updated");
-                Assert.AreEqual(element.Test003.Name, "updated");
-                Assert.AreEqual(element.Test004.First().Name, "updated");
+                Assert.AreEqual("updated", element.Name);
+                Assert.AreEqual("updated", element.Test003.Name);
+                Assert.AreEqual("updated", element.Test004.First().Name);
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -146,17 +146,23 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            foreach (var element in set)
+            using (var sequence = set.GetAsyncEnumerator())
             {
-                element.Field1 = "updated";
-                await set.AddOrUpdateAsync(element);
+                while (await sequence.MoveNextAsync())
+                {
+                    sequence.Current.Field1 = "updated";
+                    await set.AddOrUpdateAsync(sequence.Current);
+                }
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Updated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            foreach (var element in set)
+            using (var sequence = set.GetAsyncEnumerator())
             {
-                Assert.AreEqual(element.Field1, "updated");
+                while (await sequence.MoveNextAsync())
+                {
+                    Assert.AreEqual("updated", sequence.Current.Field1);
+                }
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -207,21 +213,27 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            foreach (var element in set)
+            using (var sequence = set.GetAsyncEnumerator())
             {
-                element.Name = "updated";
-                element.Test003.Name = "updated";
-                element.Test004.First().Name = "updated";
-                await set.AddOrUpdateAsync(element);
+                while (await sequence.MoveNextAsync())
+                {
+                    sequence.Current.Name = "updated";
+                    sequence.Current.Test003.Name = "updated";
+                    sequence.Current.Test004.First().Name = "updated";
+                    await set.AddOrUpdateAsync(sequence.Current);
+                }
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Updated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            foreach (var element in set)
+            using (var sequence = set.GetAsyncEnumerator())
             {
-                Assert.AreEqual(element.Name, "updated");
-                Assert.AreEqual(element.Test003.Name, "updated");
-                Assert.AreEqual(element.Test004.First().Name, "updated");
+                while (await sequence.MoveNextAsync())
+                {
+                    Assert.AreEqual("updated", sequence.Current.Name);
+                    Assert.AreEqual("updated", sequence.Current.Test003.Name);
+                    Assert.AreEqual("updated", sequence.Current.Test004.First().Name);
+                }
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
