@@ -6,8 +6,8 @@ namespace FoxDb
     {
         protected virtual void VisitSelect(MethodCallExpression node)
         {
-            this.Query.Output.Expressions.Clear();
             this.Visit(node.Arguments[0]);
+            this.Query.Output.Expressions.Clear();
             this.Push(this.Query.Output);
             try
             {

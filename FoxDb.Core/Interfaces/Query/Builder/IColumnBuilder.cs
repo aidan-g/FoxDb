@@ -2,6 +2,8 @@
 {
     public interface IColumnBuilder : IExpressionBuilder
     {
+        ITableConfig Table { get; }
+
         IColumnConfig Column { get; set; }
 
         OrderByDirection Direction { get; set; }

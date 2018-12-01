@@ -91,6 +91,7 @@
     <Compile Include="Interfaces\Utility\IAsyncEnumerable.cs" />
     <Compile Include="Interfaces\Utility\IEqualityComparerFactory.cs" />
     <Compile Include="Interfaces\Utility\IPropertyIncrementorStrategy.cs" />
+    <Compile Include="Utility\AsyncEnumerable.cs" />
     <Compile Include="Utility\EqualityComparerFactory.cs" />
     <Compile Include="Utility\DatabaseParameters.cs" />
     <Compile Include="Entity\EntityCompoundEnumerator.cs" />

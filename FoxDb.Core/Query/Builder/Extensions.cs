@@ -85,6 +85,11 @@ namespace FoxDb
             return container.Expressions.OfType<T>().FirstOrDefault(predicate);
         }
 
+        public static IEnumerable<T> GetExpressions<T>(this IFragmentContainer container, Func<T, bool> predicate) where T : IFragmentBuilder
+        {
+            return container.Expressions.OfType<T>().Where(predicate);
+        }
+
         public static IEnumerable<T> Flatten<T>(this IFragmentContainer container) where T : IFragmentBuilder
         {
             var result = new HashSet<T>();

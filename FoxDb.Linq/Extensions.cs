@@ -1,5 +1,7 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
@@ -20,6 +22,24 @@ namespace FoxDb
         public static IQueryable<T> AsQueryable<T>(this IDatabase database, IDatabaseQuerySource source)
         {
             return new DatabaseSetQuery<T>(database, source);
+        }
+
+        public static IAsyncEnumerator<T> GetAsyncEnumerator<T>(this IQueryable<T> sequence)
+        {
+            var query = sequence as IEnumerableQuery<T>;
+            if (query == null)
+            {
+                throw new NotImplementedException();
+            }
+            return query.GetAsyncEnumerator();
+        }
+
+        public static async Task<T> WithAsyncEnumerator<T>(this IQueryable<T> sequence, Func<IAsyncEnumerator<T>, Task<T>> func)
+        {
+            using (var enumerator = sequence.GetAsyncEnumerator<T>())
+            {
+                return await func(enumerator);
+            }
         }
     }
 }

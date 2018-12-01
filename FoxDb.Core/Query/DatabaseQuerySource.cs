@@ -13,6 +13,14 @@ namespace FoxDb
             this.Reset();
         }
 
+        public DatabaseQuerySource(IDatabase database, IDatabaseQueryComposer composer, DatabaseParameterHandler parameters, IQueryGraphBuilder fetch, IQueryGraphBuilder add, IQueryGraphBuilder update, IQueryGraphBuilder delete, ITransactionSource transaction = null) : this(database, composer, parameters, transaction)
+        {
+            this.Fetch = fetch;
+            this.Add = add;
+            this.Update = update;
+            this.Delete = delete;
+        }
+
         public IDatabase Database { get; private set; }
 
         public IDatabaseQueryComposer Composer { get; private set; }

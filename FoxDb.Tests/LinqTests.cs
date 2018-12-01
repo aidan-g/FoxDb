@@ -3,6 +3,7 @@ using FoxDb.Interfaces;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FoxDb
 {
@@ -343,6 +344,71 @@ namespace FoxDb
         }
 
         [Test]
+        public void Where_Skip()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlServer:
+                    Assert.Ignore("The provider's paging mechanism makes this awkward.");
+                    return;
+            }
+
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[1] }, query.Where(item => item.Id == data[0].Id || item.Id == data[1].Id).Skip(1));
+        }
+
+        [Test]
+        public void OrderBy_Skip()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[1], data[2] }, query.OrderBy(item => item.Id).Skip(1));
+        }
+
+        [Test]
+        public void OrderByDescending_Skip()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlServer:
+                    Assert.Ignore("The provider's paging mechanism makes this awkward.");
+                    return;
+            }
+
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[1], data[0] }, query.OrderByDescending(item => item.Id).Skip(1));
+        }
+
+        [Test]
         public void Take()
         {
             var set = this.Database.Set<Test001>(this.Transaction);
@@ -360,6 +426,64 @@ namespace FoxDb
             this.AssertSequence(new[] { data[0], data[1] }, query.Take(2));
             this.AssertSequence(new[] { data[0] }, query.Take(1));
             this.AssertSequence(Enumerable.Empty<Test001>(), query.Take(0));
+        }
+
+        [Test]
+        public void Where_Take()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0] }, query.Where(item => item.Id == data[0].Id || item.Id == data[1].Id).Take(1));
+        }
+
+        [Test]
+        public void OrderBy_Take()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[0] }, query.OrderBy(item => item.Id).Take(1));
+        }
+
+        [Test]
+        public void OrderByDescending_Take()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlServer:
+                    Assert.Ignore("The provider's paging mechanism makes this awkward.");
+                    return;
+            }
+
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1", Field2 = "3", Field3 = "A" },
+                new Test001() { Field1 = "2", Field2 = "2", Field3 = "B" },
+                new Test001() { Field1 = "3", Field2 = "1", Field3 = "C" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[2] }, query.OrderByDescending(item => item.Id).Take(1));
         }
 
         [Test]
@@ -404,7 +528,7 @@ namespace FoxDb
         }
 
         [Test]
-        public void Composite_A()
+        public void Where_OrderByDescending()
         {
             var set = this.Database.Set<Test001>(this.Transaction);
             var data = new List<Test001>();
@@ -417,14 +541,14 @@ namespace FoxDb
             });
             set.AddOrUpdate(data);
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
-            this.AssertSequence(new[] { data[0] }, query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_1" || element.Field3 == "3_1").OrderByDescending(element => element.Field1));
+            this.AssertSequence(new[] { data[2], data[1], data[0] }, query.Where(element => element.Field1 == "1_1" || element.Field2 == "2_2" || element.Field3 == "3_3").OrderByDescending(element => element.Field1));
         }
 
         [TestCase(0, 3)]
         [TestCase(1, 2)]
         [TestCase(2, 1)]
         [TestCase(3, 0)]
-        public void Composite_B(int offset, int expected)
+        public void Where_OrderBy_Count(int offset, int expected)
         {
             var set = this.Database.Set<Test001>(this.Transaction);
             var data = new List<Test001>();
@@ -446,7 +570,7 @@ namespace FoxDb
 
         [TestCase(RelationFlags.OneToMany)]
         [TestCase(RelationFlags.ManyToMany)]
-        public void Composite_C(RelationFlags flags)
+        public void Where_OrderByDescending_FirstOrDefault(RelationFlags flags)
         {
             this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);
@@ -518,6 +642,29 @@ namespace FoxDb
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             var actual = query.Select(element => new { element.Id, Value = element.Field1 });
             Assert.AreEqual(new[] { new { data[0].Id, Value = data[0].Field1 }, new { data[1].Id, Value = data[1].Field1 }, new { data[2].Id, Value = data[2].Field1 } }, actual);
+        }
+
+        [Test]
+        public async Task Queryable_GetAsyncEnumerator()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            using (var sequence = query.Where(element => element.Field1 == "2_1").GetAsyncEnumerator())
+            {
+                while (await sequence.MoveNextAsync())
+                {
+                    Assert.AreEqual(data[1].Id, sequence.Current.Id);
+                }
+            }
         }
     }
 }

@@ -87,6 +87,21 @@ namespace FoxDb
             return database.Execute(query, null, transaction);
         }
 
+        public static Task<int> ExecuteAsync(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsync(query, null, transaction);
+        }
+
+        public static Task<int> ExecuteAsync(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsync(query.Build(), parameters, transaction);
+        }
+
+        public static Task<int> ExecuteAsync(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsync(query, null, transaction);
+        }
+
         public static T ExecuteScalar<T>(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
         {
             return database.ExecuteScalar<T>(query, null, transaction);

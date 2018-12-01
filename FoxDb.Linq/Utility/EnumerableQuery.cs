@@ -14,18 +14,25 @@ namespace FoxDb
 
     public partial class EnumerableQuery<T> : EnumerableQuery, IEnumerableQuery<T>
     {
-        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set)
+        private EnumerableQuery()
+        {
+            this.Members = new DynamicMethod<EnumerableQuery<T>>();
+        }
+
+        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set) : this()
         {
             this.Query = query;
             this.Set = set;
         }
 
-        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set, Expression expression)
+        public EnumerableQuery(IDatabaseSetQuery query, IDatabaseSet set, Expression expression) : this()
         {
             this.Query = query;
             this.Set = set;
             this.Expression = expression;
         }
+
+        protected DynamicMethod<EnumerableQuery<T>> Members { get; private set; }
 
         public override Type ElementType
         {
@@ -160,6 +167,18 @@ namespace FoxDb
         {
             var collection = (ICollection<T>)this.Set;
             return collection.Remove(item);
+        }
+    }
+
+    public partial class EnumerableQuery<T>
+    {
+        IAsyncEnumerator<T> IAsyncEnumerable<T>.GetAsyncEnumerator()
+        {
+            if (!this.Set.ElementType.IsAssignableFrom(typeof(T)))
+            {
+                throw new NotImplementedException();
+            }
+            return (IAsyncEnumerator<T>)this.Set.GetAsyncEnumerator();
         }
     }
 }

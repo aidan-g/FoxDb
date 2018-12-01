@@ -19,6 +19,14 @@ namespace FoxDb
 
         }
 
+        protected override void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression)
+        {
+            if (EnsureOrderBy.Predicate(parent, graph, expression))
+            {
+                new EnsureOrderBy(this.Database).Visit(parent, graph, expression);
+            }
+        }
+
         protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
             if (EnsureLimit.Predicate(parent, graph, expression))

@@ -31,6 +31,11 @@ namespace FoxDb
             return this.GetExpression<IColumnBuilder>(builder => ColumnComparer.ColumnConfig.Equals(builder.Column, column));
         }
 
+        public IEnumerable<IColumnBuilder> GetColumns(ITableConfig table)
+        {
+            return this.GetExpressions<IColumnBuilder>(builder => TableComparer.TableConfig.Equals(builder.Table, table));
+        }
+
         public IColumnBuilder AddColumn(IColumnConfig column)
         {
             var builder = this.CreateColumn(column);

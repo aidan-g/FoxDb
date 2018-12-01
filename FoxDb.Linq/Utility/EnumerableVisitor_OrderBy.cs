@@ -9,6 +9,7 @@ namespace FoxDb
 
         protected virtual void VisitOrderBy(MethodCallExpression node)
         {
+            this.Visit(node.Arguments[0]);
             this.Query.Sort.Expressions.Clear();
             this.Direction = OrderByDirection.None;
             this.Visit(node.Arguments[0]);
@@ -28,6 +29,7 @@ namespace FoxDb
 
         protected virtual void VisitOrderByDescending(MethodCallExpression node)
         {
+            this.Visit(node.Arguments[0]);
             this.Query.Sort.Expressions.Clear();
             this.Direction = OrderByDirection.Descending;
             this.Visit(node.Arguments[0]);

@@ -49,6 +49,7 @@
     <Compile Include="Query\Builder\OffsetBuilder.cs" />
     <Compile Include="Query\Builder\LimitBuilder.cs" />
     <Compile Include="Rewriters\EnsureLimit.cs" />
+    <Compile Include="Rewriters\EnsureOrderBy.cs" />
     <Compile Include="SQLiteProvider.cs" />
     <Compile Include="SQLiteQuery.cs" />
     <Compile Include="SQLiteQueryBuilder.cs" />

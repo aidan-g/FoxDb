@@ -17,6 +17,30 @@ namespace FoxDb
             }
         }
 
+        public ITableConfig LeftTable
+        {
+            get
+            {
+                if (this.Relation == null)
+                {
+                    return null;
+                }
+                return this.Relation.LeftTable;
+            }
+        }
+
+        public ITableConfig RightTable
+        {
+            get
+            {
+                if (this.Relation == null)
+                {
+                    return null;
+                }
+                return this.Relation.RightTable;
+            }
+        }
+
         public IRelationConfig Relation { get; set; }
 
         public override IFragmentBuilder Clone()

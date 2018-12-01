@@ -9,7 +9,7 @@ namespace FoxDb.Interfaces
 
     }
 
-    public interface IEnumerableQuery<T> : IEnumerableQuery, ICollection<T>, IOrderedQueryable<T>, IQueryable<T>
+    public interface IEnumerableQuery<T> : IEnumerableQuery, ICollection<T>, IOrderedQueryable<T>, IQueryable<T>, IAsyncEnumerable<T>
     {
     }
 }

@@ -20,6 +20,18 @@ namespace FoxDb
 
         public OrderByDirection Direction { get; set; }
 
+        public ITableConfig Table
+        {
+            get
+            {
+                if (this.Column == null)
+                {
+                    return null;
+                }
+                return this.Column.Table;
+            }
+        }
+
         public IColumnConfig Column { get; set; }
 
         public bool UseIdentifier { get; set; }
@@ -30,6 +42,7 @@ namespace FoxDb
         {
             return this.Parent.Fragment<IColumnBuilder>().With(builder =>
             {
+                builder.Direction = this.Direction;
                 builder.Column = this.Column;
                 builder.Alias = this.Alias;
             });

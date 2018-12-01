@@ -39,6 +39,10 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
+            Assert.AreEqual(COUNT, set.Count);
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Counted {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
             foreach (var element in set)
             {
                 element.Field1 = "updated";
@@ -100,6 +104,10 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
+            Assert.AreEqual(COUNT, set.Count);
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Counted {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
             foreach (var element in set)
             {
                 element.Name = "updated";
@@ -145,6 +153,10 @@ namespace FoxDb
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
+            Assert.AreEqual(COUNT, await set.CountAsync);
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Counted {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {
@@ -212,6 +224,10 @@ namespace FoxDb
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
+            stopwatch.Start();
+            Assert.AreEqual(COUNT, await set.CountAsync);
+            stopwatch.Stop();
+            TestContext.Out.WriteLine("Counted {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {

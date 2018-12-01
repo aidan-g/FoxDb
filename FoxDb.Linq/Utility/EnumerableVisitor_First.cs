@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace FoxDb
 {
@@ -11,6 +6,7 @@ namespace FoxDb
     {
         protected virtual void VisitFirst(MethodCallExpression node)
         {
+            this.Visit(node.Arguments[0]);
             if (this.Table.TableType == node.Type)
             {
                 var filter = this.Query.Source.GetTable(this.Table).Filter;

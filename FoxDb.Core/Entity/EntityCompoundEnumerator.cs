@@ -47,16 +47,20 @@ namespace FoxDb
             foreach (var record in reader)
             {
                 this.Visitor.Visit(graph, buffer, sink, record, Defaults.Enumerator.Flags);
-                if (sink.Count > 0)
+                foreach (var item in this.Drain<T>(sink))
                 {
-                    foreach (var item in sink)
-                    {
-                        yield return (T)item;
-                    }
-                    sink.Clear();
+                    yield return item;
                 }
             }
             this.Visitor.Flush(buffer, sink);
+            foreach (var item in this.Drain<T>(sink))
+            {
+                yield return item;
+            }
+        }
+
+        protected virtual IEnumerable<T> Drain<T>(IEntityEnumeratorSink sink)
+        {
             if (sink.Count > 0)
             {
                 foreach (var item in sink)
@@ -98,7 +102,7 @@ namespace FoxDb
                 this.Graph = graph;
                 this.Buffer = buffer;
                 this.Sink = sink;
-                this.Reader = reader;
+                this.ReaderEnumerator = reader.GetAsyncEnumerator();
             }
 
             public IEntityEnumeratorVisitor Visitor { get; private set; }
@@ -108,8 +112,6 @@ namespace FoxDb
             public IEntityEnumeratorBuffer Buffer { get; private set; }
 
             public IEntityEnumeratorSink Sink { get; private set; }
-
-            public IDatabaseReader Reader { get; private set; }
 
             public IAsyncEnumerator<IDatabaseReaderRecord> ReaderEnumerator { get; private set; }
 
@@ -141,20 +143,20 @@ namespace FoxDb
                 {
                     this.Sink.Clear();
                 }
-                if (this.ReaderEnumerator == null)
-                {
-                    this.ReaderEnumerator = this.Reader.GetAsyncEnumerator();
-                }
                 while (await this.ReaderEnumerator.MoveNextAsync())
                 {
                     this.Visitor.Visit(this.Graph, this.Buffer, this.Sink, this.ReaderEnumerator.Current, Defaults.Enumerator.Flags);
-                    if (this.Sink.Count > 0)
+                    if (this.Drain())
                     {
-                        this.SinkEnumerator = this.Sink.GetEnumerator();
-                        return this.SinkEnumerator.MoveNext();
+                        return true;
                     }
                 }
                 this.Visitor.Flush(this.Buffer, this.Sink);
+                return this.Drain();
+            }
+
+            protected virtual bool Drain()
+            {
                 if (this.Sink.Count > 0)
                 {
                     this.SinkEnumerator = this.Sink.GetEnumerator();

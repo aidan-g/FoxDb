@@ -10,6 +10,7 @@ namespace FoxDb
         protected virtual void VisitTake(MethodCallExpression node)
         {
             var table = default(ITableConfig);
+            this.Visit(node.Arguments[0]);
             if (this.TryGetTable(node.Arguments.First(), out table))
             {
                 var parameter = default(IParameterBuilder);
