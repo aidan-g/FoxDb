@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.Core", "FoxDb.Core\FoxDb.Core.csproj", "{9CDD4861-9938-41C1-88FE-9E4054BF164A}"
 EndProject
@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SqlServer", "FoxDb.SqlServer\FoxDb.SqlServer.csproj", "{A1DD7844-218C-4D5A-A2F9-ED69EADBA386}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxDb.SqlServer.2012", "FoxDb.SqlServer.2012\FoxDb.SqlServer.2012.csproj", "{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,14 @@ Global
 		{A1DD7844-218C-4D5A-A2F9-ED69EADBA386}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1DD7844-218C-4D5A-A2F9-ED69EADBA386}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A1DD7844-218C-4D5A-A2F9-ED69EADBA386}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

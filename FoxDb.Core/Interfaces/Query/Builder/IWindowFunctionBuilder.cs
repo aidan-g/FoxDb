@@ -13,7 +13,6 @@ namespace FoxDb.Interfaces
 
     public enum QueryWindowFunction : byte
     {
-        None,
-        RowNumber
+        None
     }
 }

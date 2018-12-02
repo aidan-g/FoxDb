@@ -219,10 +219,7 @@ namespace FoxDb
 
         protected virtual IDictionary<QueryWindowFunction, SqlQueryWriterVisitorHandler> GetWindowFunctions()
         {
-            return new Dictionary<QueryWindowFunction, SqlQueryWriterVisitorHandler>()
-            {
-                { QueryWindowFunction.RowNumber, (writer, fragment) => writer.VisitRowNumber(fragment as IWindowFunctionBuilder) }
-            };
+            return new Dictionary<QueryWindowFunction, SqlQueryWriterVisitorHandler>();
         }
 
         public T Write<T>(T fragment) where T : IFragmentBuilder
@@ -374,34 +371,6 @@ namespace FoxDb
                 throw new NotImplementedException();
             }
             handler(this, expression);
-        }
-
-        protected virtual void VisitRowNumber(IWindowFunctionBuilder expression)
-        {
-            this.Builder.AppendFormat(
-                "{0}{1}{2} ",
-                this.Database.QueryFactory.Dialect.ROW_NUMBER,
-                this.Database.QueryFactory.Dialect.OPEN_PARENTHESES,
-                this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES
-            );
-            this.Builder.AppendFormat(
-                "{0}{1} ",
-                this.Database.QueryFactory.Dialect.OVER,
-                this.Database.QueryFactory.Dialect.OPEN_PARENTHESES
-            );
-            if (expression.Expressions.Any())
-            {
-                this.AddRenderContext(RenderHints.FunctionArgument);
-                try
-                {
-                    this.Visit(expression.Expressions);
-                }
-                finally
-                {
-                    this.RemoveRenderContext();
-                }
-            }
-            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected virtual void VisitOperator(IOperatorBuilder expression)

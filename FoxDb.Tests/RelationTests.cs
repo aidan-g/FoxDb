@@ -8,6 +8,7 @@ namespace FoxDb
 {
     [TestFixture(ProviderType.SqlCe)]
     [TestFixture(ProviderType.SqlServer)]
+    [TestFixture(ProviderType.SqlServer2012)]
     [TestFixture(ProviderType.SQLite)]
     public class RelationTests : TestBase
     {

@@ -10,6 +10,7 @@ namespace FoxDb
 {
     //[TestFixture(ProviderType.SqlCe)]
     [TestFixture(ProviderType.SqlServer)]
+    [TestFixture(ProviderType.SqlServer2012)]
     //[TestFixture(ProviderType.SQLite)]
     public class WindowFunctionTests : TestBase
     {
@@ -32,7 +33,7 @@ namespace FoxDb
             var query = this.Database.QueryFactory.Build();
             query.Output.AddOperator(QueryOperator.Star);
             query.Output.AddWindowFunction(
-                QueryWindowFunction.RowNumber,
+                SqlServerWindowFunction.RowNumber,
                 query.Output.CreateSubQuery(
                     this.Database.QueryFactory.Build().With(over => over.Sort.AddColumns(set.Table.PrimaryKeys))
                 )

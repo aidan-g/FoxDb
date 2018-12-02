@@ -503,22 +503,6 @@ namespace FoxDb
             }
         }
 
-        public string ROW_NUMBER
-        {
-            get
-            {
-                return "ROW_NUMBER";
-            }
-        }
-
-        public string OVER
-        {
-            get
-            {
-                return "OVER";
-            }
-        }
-
         public string CONSTRAINT
         {
             get

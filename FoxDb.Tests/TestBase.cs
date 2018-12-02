@@ -228,6 +228,8 @@ namespace FoxDb
                     return new SqlCeProvider(this.FileName);
                 case ProviderType.SqlServer:
                     return new SqlServerProvider(this.DataSource, this.InitialCatalog);
+                case ProviderType.SqlServer2012:
+                    return new SqlServer2012Provider(this.DataSource, this.InitialCatalog);
                 case ProviderType.SQLite:
                     return new SQLiteProvider(this.FileName);
             }
@@ -303,6 +305,7 @@ namespace FoxDb
         None,
         SqlCe,
         SqlServer,
+        SqlServer2012,
         SQLite
     }
 }

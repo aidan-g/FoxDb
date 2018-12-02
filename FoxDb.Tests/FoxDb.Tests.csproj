@@ -86,6 +86,10 @@
       <Project>{516e910d-80c2-4bfe-9591-491bdf5fe98f}</Project>
       <Name>FoxDb.SQLite</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FoxDb.SqlServer.2012\FoxDb.SqlServer.2012.csproj">
+      <Project>{ba223dd8-b384-4f7d-afd6-9e7eb0d1ec4a}</Project>
+      <Name>FoxDb.SqlServer.2012</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FoxDb.SqlServer\FoxDb.SqlServer.csproj">
       <Project>{a1dd7844-218c-4d5a-a2f9-ed69eadba386}</Project>
       <Name>FoxDb.SqlServer</Name>

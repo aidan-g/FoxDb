@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace FoxDb
 {
-    public class SqlCeQueryRewriter : SqlQueryRewriter
+    public class SqlServer2012QueryRewriter : SqlQueryRewriter
     {
-        public SqlCeQueryRewriter(IDatabase database)
-            : base(database)
+        public SqlServer2012QueryRewriter(IDatabase database)
+                    : base(database)
         {
         }
 
         protected override IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             var handlers = base.GetHandlers();
-            handlers[SqlCeQueryFragment.Limit] = (visitor, parent, graph, fragment) => (visitor as SqlCeQueryRewriter).VisitLimit(parent, graph, fragment as ILimitBuilder);
-            handlers[SqlCeQueryFragment.Offset] = (visitor, parent, graph, fragment) => (visitor as SqlCeQueryRewriter).VisitOffset(parent, graph, fragment as IOffsetBuilder);
+            handlers[SqlServer2012QueryFragment.Limit] = (visitor, parent, graph, fragment) => (visitor as SqlServer2012QueryRewriter).VisitLimit(parent, graph, fragment as ILimitBuilder);
+            handlers[SqlServer2012QueryFragment.Offset] = (visitor, parent, graph, fragment) => (visitor as SqlServer2012QueryRewriter).VisitOffset(parent, graph, fragment as IOffsetBuilder);
             return handlers;
         }
 

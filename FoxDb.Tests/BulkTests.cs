@@ -10,6 +10,7 @@ namespace FoxDb
     [Explicit]
     [TestFixture(ProviderType.SqlCe)]
     [TestFixture(ProviderType.SqlServer)]
+    [TestFixture(ProviderType.SqlServer2012)]
     [TestFixture(ProviderType.SQLite)]
     public class BulkTests : TestBase
     {

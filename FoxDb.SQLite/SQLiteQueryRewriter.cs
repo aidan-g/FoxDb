@@ -5,18 +5,18 @@ namespace FoxDb
 {
     public class SQLiteQueryRewriter : SqlQueryRewriter
     {
+        public SQLiteQueryRewriter(IDatabase database)
+            : base(database)
+        {
+
+        }
+
         protected override IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
             var handlers = base.GetHandlers();
             handlers[SQLiteQueryFragment.Limit] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryRewriter).VisitLimit(parent, graph, fragment as ILimitBuilder);
             handlers[SQLiteQueryFragment.Offset] = (visitor, parent, graph, fragment) => (visitor as SQLiteQueryRewriter).VisitOffset(parent, graph, fragment as IOffsetBuilder);
             return handlers;
-        }
-
-        public SQLiteQueryRewriter(IDatabase database)
-            : base(database)
-        {
-
         }
 
         protected override void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression)

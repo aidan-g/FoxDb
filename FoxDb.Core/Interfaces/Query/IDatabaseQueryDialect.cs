@@ -124,10 +124,6 @@
 
         string END { get; }
 
-        string ROW_NUMBER { get; }
-
-        string OVER { get; }
-
         string CONSTRAINT { get; }
 
         string REFERENCES { get; }

@@ -44,7 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\Builder\LimitBuilder.cs" />
     <Compile Include="Query\Builder\OffsetBuilder.cs" />
-    <Compile Include="Rewriters\EnsureOffset.cs" />
     <Compile Include="Rewriters\EnsureOrderBy.cs" />
     <Compile Include="SqlCeCommandWrapper.cs" />
     <Compile Include="SqlCeConnectionWrapper.cs" />

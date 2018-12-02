@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A1DD7844-218C-4D5A-A2F9-ED69EADBA386}</ProjectGuid>
+    <ProjectGuid>{BA223DD8-B384-4F7D-AFD6-9E7EB0D1EC4A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FoxDb</RootNamespace>
-    <AssemblyName>FoxDb.SqlServer</AssemblyName>
+    <AssemblyName>FoxDb.SqlServer.2012</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,34 +37,36 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Rewriters\EnsureRowNumber.cs" />
-    <Compile Include="Rewriters\FilterRowNumber.cs" />
-    <Compile Include="SqlServerQuery.cs" />
-    <Compile Include="SqlServerQueryBuilder.cs" />
-    <Compile Include="SqlServerQueryFragment.cs" />
-    <Compile Include="SqlServerQueryRenderer.cs" />
-    <Compile Include="SqlServerQueryParameter.cs" />
-    <Compile Include="SqlServerQueryRewriter.cs" />
-    <Compile Include="SqlServerQueryTypes.cs" />
-    <Compile Include="SqlServerCommandWrapper.cs" />
-    <Compile Include="SqlServerConnectionWrapper.cs" />
-    <Compile Include="SqlServerProvider.cs" />
+    <Compile Include="Interfaces\Query\Builder\ILimitBuilder.cs" />
+    <Compile Include="Interfaces\Query\Builder\IOffsetBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlServerQueryDialect.cs" />
-    <Compile Include="SqlServerQueryFactory.cs" />
-    <Compile Include="SqlServerSchema.cs" />
-    <Compile Include="SqlServerSchemaFactory.cs" />
-    <Compile Include="SqlServerWindowFunction.cs" />
-    <Compile Include="Writers\SqlServerCreateWriter.cs" />
-    <Compile Include="Writers\SqlServerSelectWriter.cs" />
+    <Compile Include="Query\Builder\LimitBuilder.cs" />
+    <Compile Include="Query\Builder\OffsetBuilder.cs" />
+    <Compile Include="Rewriters\EnsureOrderBy.cs" />
+    <Compile Include="SqlServer2012QueryFactory.cs" />
+    <Compile Include="SqlServer2012QueryBuilder.cs" />
+    <Compile Include="SqlServer2012QueryFragment.cs" />
+    <Compile Include="SqlServer2012Dialect.cs" />
+    <Compile Include="SqlServer2012Provider.cs" />
+    <Compile Include="SqlServer2012QueryRenderer.cs" />
+    <Compile Include="SqlServer2012QueryRewriter.cs" />
+    <Compile Include="Writers\SqlServer2012WhereWriter.cs" />
+    <Compile Include="Writers\SqlServer2012LimitWriter.cs" />
+    <Compile Include="Writers\SqlServer2012OffsetWriter.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">
       <Project>{9cdd4861-9938-41c1-88fe-9e4054bf164a}</Project>
       <Name>FoxDb.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FoxDb.SqlServer\FoxDb.SqlServer.csproj">
+      <Project>{a1dd7844-218c-4d5a-a2f9-ed69eadba386}</Project>
+      <Name>FoxDb.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\FoxDb.Sql\FoxDb.Sql.csproj">
       <Project>{9c50f9dd-4a7f-449a-aa52-2e734456b977}</Project>
@@ -71,11 +74,4 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
