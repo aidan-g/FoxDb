@@ -26,6 +26,16 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
+        public override void CreateDatabase(string name)
+        {
+            SQLiteConnection.CreateFile(this.FileName);
+        }
+
+        public override void DeleteDatabase(string name)
+        {
+            File.Delete(this.FileName);
+        }
+
         public override IDbConnection CreateConnection(IDatabase database)
         {
             if (!File.Exists(this.FileName))

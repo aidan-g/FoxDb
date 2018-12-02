@@ -5,6 +5,10 @@ namespace FoxDb
 {
     public abstract class Provider : IProvider
     {
+        public abstract void CreateDatabase(string name);
+
+        public abstract void DeleteDatabase(string name);
+
         public abstract IDbConnection CreateConnection(IDatabase database);
 
         public virtual IDatabaseTranslation CreateTranslation(IDatabase database)

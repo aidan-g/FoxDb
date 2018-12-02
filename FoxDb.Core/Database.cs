@@ -39,6 +39,10 @@ namespace FoxDb
             {
                 if (this._Connection == null)
                 {
+                    if (this.IsDisposed)
+                    {
+                        throw new ObjectDisposedException(this.GetType().FullName);
+                    }
                     this._Connection = this.Provider.CreateConnection(this);
                 }
                 switch (this._Connection.State)

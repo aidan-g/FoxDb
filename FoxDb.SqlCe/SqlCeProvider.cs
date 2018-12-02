@@ -23,15 +23,21 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
+        public override void CreateDatabase(string name)
+        {
+            using (var engine = new SqlCeEngine(this.ConnectionString))
+            {
+                engine.CreateDatabase();
+            }
+        }
+
+        public override void DeleteDatabase(string name)
+        {
+            File.Delete(this.FileName);
+        }
+
         public override IDbConnection CreateConnection(IDatabase database)
         {
-            if (!File.Exists(this.FileName))
-            {
-                using (var engine = new SqlCeEngine(this.ConnectionString))
-                {
-                    engine.CreateDatabase();
-                }
-            }
             return new SqlCeConnectionWrapper(this, new SqlCeQueryDialect(database), new SqlCeConnection(this.ConnectionString));
         }
 

@@ -9,27 +9,26 @@ using System.Linq;
 
 namespace FoxDb
 {
-    public abstract class TestBase
+    public abstract class TestBase : Disposable
     {
         protected TestBase(ProviderType providerType)
         {
             this.ProviderType = providerType;
-            try
-            {
-                if (File.Exists(this.FileName))
-                {
-                    File.Delete(this.FileName);
-                }
-            }
-            catch (NotImplementedException)
-            {
-
-            }
         }
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            var provider = this.CreateProvider();
+            try
+            {
+                provider.DeleteDatabase(this.InitialCatalog);
+            }
+            catch
+            {
+                //Nothing to do.
+            }
+            provider.CreateDatabase(this.InitialCatalog);
             this.Database = this.CreateDatabase();
             var tables = new[]
             {
@@ -297,6 +296,16 @@ namespace FoxDb
                     Assert.AreNotEqual(a[c], b[c]);
                 }
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (this.Database != null)
+            {
+                this.Database.Dispose();
+                this.Database = null;
+            }
+            base.Dispose(disposing);
         }
     }
 
