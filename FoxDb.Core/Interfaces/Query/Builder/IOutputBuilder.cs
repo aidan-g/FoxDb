@@ -24,5 +24,7 @@ namespace FoxDb.Interfaces
         IOperatorBuilder AddOperator(QueryOperator @operator);
 
         ISubQueryBuilder AddSubQuery(IQueryGraphBuilder query);
+
+        ICaseBuilder AddCase(params ICaseConditionBuilder[] conditions);
     }
 }

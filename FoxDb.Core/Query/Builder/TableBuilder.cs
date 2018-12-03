@@ -1,4 +1,6 @@
 ﻿using FoxDb.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FoxDb
@@ -8,8 +10,11 @@ namespace FoxDb
         public TableBuilder(IFragmentBuilder parent, IQueryGraphBuilder graph)
             : base(parent, graph)
         {
+            this.Expressions = new List<IFragmentBuilder>();
+            this.Constants = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Filter = this.Fragment<IFilterBuilder>();
             this.Sort = this.Fragment<ISortBuilder>();
+            this.LockHints = LockHints.None;
         }
 
         public override FragmentType FragmentType
@@ -20,6 +25,10 @@ namespace FoxDb
             }
         }
 
+        public ICollection<IFragmentBuilder> Expressions { get; private set; }
+
+        public IDictionary<string, object> Constants { get; private set; }
+
         public ITableConfig Table { get; set; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -27,6 +36,14 @@ namespace FoxDb
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public ISortBuilder Sort { get; set; }
+
+        public LockHints LockHints { get; set; }
+
+        public T Write<T>(T fragment) where T : IFragmentBuilder
+        {
+            this.Expressions.Add(fragment);
+            return fragment;
+        }
 
         public override IFragmentBuilder Clone()
         {
@@ -40,6 +57,15 @@ namespace FoxDb
                 if (this.Sort != null)
                 {
                     builder.Sort = (ISortBuilder)this.Sort.Clone();
+                }
+                builder.LockHints = this.LockHints;
+                foreach (var constant in this.Constants)
+                {
+                    builder.Constants.Add(constant.Key, constant.Value);
+                }
+                foreach (var constant in this.Constants)
+                {
+                    builder.Constants.Add(constant.Key, constant.Value);
                 }
             });
         }

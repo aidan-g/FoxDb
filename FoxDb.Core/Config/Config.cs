@@ -103,5 +103,14 @@ namespace FoxDb
         {
             this.Tables = new ConcurrentDictionary<string, ITableConfig>(StringComparer.OrdinalIgnoreCase);
         }
+
+        public void CopyTo(IConfig config)
+        {
+            if (!(config is Config))
+            {
+                throw new NotImplementedException();
+            }
+            (config as Config).Tables = this.Tables;
+        }
     }
 }

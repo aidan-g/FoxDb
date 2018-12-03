@@ -8,6 +8,8 @@ namespace FoxDb
 
         public const FragmentType Limit = (FragmentType)102;
 
+        public const FragmentType TableHint = (FragmentType)103;
+
         static SqlCeQueryFragment()
         {
             Priorities[Offset] = 100;

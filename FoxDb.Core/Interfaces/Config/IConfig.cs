@@ -13,5 +13,7 @@
         bool TryCreateTable(ITableSelector selector, out ITableConfig table);
 
         void Reset();
+
+        void CopyTo(IConfig config);
     }
 }

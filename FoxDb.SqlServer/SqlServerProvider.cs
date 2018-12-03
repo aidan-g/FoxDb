@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -38,33 +39,88 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
-        public override void CreateDatabase(string name)
+        public override bool CheckDatabase()
         {
             using (var connection = new SqlConnection(this.ConnectionString))
             {
-                this.ChangeDatabase(connection, "master");
-                connection.Open();
-                using (var command = connection.CreateCommand())
+                try
                 {
-                    command.CommandText = string.Format("CREATE DATABASE \"{0}\"", name);
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    return true;
+                }
+                catch
+                {
+                    return false;
                 }
             }
         }
 
+        public override void CreateDatabase(string name)
+        {
+            //I don't know why but this fails silently sometimes (all the time actually).
+            //We shouldn' need "attempts" here. Feels like a SQL Server bug.
+            var attempt = 0;
+            var attempts = 3;
+            do
+            {
+                try
+                {
+                    using (var connection = new SqlConnection(this.ConnectionString))
+                    {
+                        SqlConnection.ClearPool(connection);
+                        this.ChangeDatabase(connection, "master");
+                        SqlConnection.ClearPool(connection);
+                        connection.Open();
+                        using (var command = connection.CreateCommand())
+                        {
+                            command.CommandText = string.Format("CREATE DATABASE \"{0}\"", name);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch
+                {
+                    //Nothing can be done.
+                }
+                if (attempt++ > attempts)
+                {
+                    throw new InvalidOperationException(string.Format("Failed to create the database after {0} attempts.", attempts));
+                }
+            } while (!this.CheckDatabase());
+        }
+
         public override void DeleteDatabase(string name)
         {
-            using (var connection = new SqlConnection(this.ConnectionString))
+            //I don't know why but this fails silently sometimes (all the time actually).
+            //We shouldn' need "attempts" here. Feels like a SQL Server bug.
+            var attempt = 0;
+            var attempts = 3;
+            do
             {
-                SqlConnection.ClearPool(connection);
-                this.ChangeDatabase(connection, "master");
-                connection.Open();
-                using (var command = connection.CreateCommand())
+                try
                 {
-                    command.CommandText = string.Format("DROP DATABASE \"{0}\"", name);
-                    command.ExecuteNonQuery();
+                    using (var connection = new SqlConnection(this.ConnectionString))
+                    {
+                        SqlConnection.ClearPool(connection);
+                        this.ChangeDatabase(connection, "master");
+                        SqlConnection.ClearPool(connection);
+                        connection.Open();
+                        using (var command = connection.CreateCommand())
+                        {
+                            command.CommandText = string.Format("DROP DATABASE \"{0}\"", name);
+                            command.ExecuteNonQuery();
+                        }
+                    }
                 }
-            }
+                catch
+                {
+                    //Nothing can be done.
+                }
+                if (attempt++ > attempts)
+                {
+                    throw new InvalidOperationException(string.Format("Failed to delete the database after {0} attempts.", attempts));
+                }
+            } while (this.CheckDatabase());
         }
 
         protected virtual void ChangeDatabase(IDbConnection connection, string name)

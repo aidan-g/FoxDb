@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -54,7 +55,12 @@ namespace FoxDb
             return true;
         }
 
-        public static bool Validate(IDatabase database, bool strict, params IRelationConfig[] relations)
+        public static bool Validate(IDatabase database, bool strict, IRelationConfig relation, ITransactionSource transaction = null)
+        {
+            return Validate(database, strict, new[] { relation }, transaction);
+        }
+
+        public static bool Validate(IDatabase database, bool strict, IEnumerable<IRelationConfig> relations, ITransactionSource transaction = null)
         {
             foreach (var relation in relations)
             {
@@ -83,7 +89,7 @@ namespace FoxDb
                 }
                 foreach (var column in columns)
                 {
-                    if (!ColumnValidator.Validate(database, column.Column.Table, column.Column))
+                    if (!ColumnValidator.Validate(database, column.Column.Table, column.Column, transaction))
                     {
                         return false;
                     }

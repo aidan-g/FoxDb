@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace FoxDb.Interfaces
 {
     public partial interface IDatabaseReader : IEnumerable<IDatabaseReaderRecord>, IDisposable
     {
+        IDbCommand Command { get; }
+
+        bool OwnsCommand { get; }
+
+        IDataReader Reader { get; }
     }
 
     public partial interface IDatabaseReader : IAsyncEnumerable<IDatabaseReaderRecord>

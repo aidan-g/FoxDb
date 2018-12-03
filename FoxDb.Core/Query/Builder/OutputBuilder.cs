@@ -109,6 +109,13 @@ namespace FoxDb
             return builder;
         }
 
+        public ICaseBuilder AddCase(params ICaseConditionBuilder[] conditions)
+        {
+            var builder = this.CreateCase(conditions);
+            this.Expressions.Add(builder);
+            return builder;
+        }
+
         public T Write<T>(T fragment) where T : IFragmentBuilder
         {
             this.Expressions.Add(fragment);
@@ -122,6 +129,10 @@ namespace FoxDb
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());
+                }
+                foreach (var constant in this.Constants)
+                {
+                    builder.Constants.Add(constant.Key, constant.Value);
                 }
             });
         }

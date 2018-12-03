@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace FoxDb.Interfaces
 {
     public interface ISqlQueryWriter : IFragmentTarget, IFragmentBuilder
     {
+        StringBuilder Builder { get; }
+
         IReadOnlyCollection<IFragmentBuilder> FragmentContext { get; }
 
         T GetFragmentContext<T>() where T : IFragmentBuilder;

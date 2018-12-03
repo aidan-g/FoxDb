@@ -101,6 +101,10 @@ namespace FoxDb
                 {
                     builder.Right = this.Right.Clone();
                 }
+                foreach (var constant in this.Constants)
+                {
+                    builder.Constants.Add(constant.Key, constant.Value);
+                }
             });
         }
 

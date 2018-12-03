@@ -87,7 +87,7 @@ namespace FoxDb
 
         #endregion
 
-        protected StringBuilder Builder { get; private set; }
+        public StringBuilder Builder { get; private set; }
 
         protected IDictionary<FragmentType, SqlQueryWriterVisitorHandler> Handlers { get; private set; }
 
@@ -503,6 +503,7 @@ namespace FoxDb
     public enum RenderHints : byte
     {
         None = 0,
-        FunctionArgument = 1
+        FunctionArgument = 1,
+        AssociativeExpression = 2
     }
 }

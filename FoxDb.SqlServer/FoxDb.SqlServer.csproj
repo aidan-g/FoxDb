@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\Builder\ITableHintBuilder.cs" />
+    <Compile Include="Query\Builder\TableHintBuilder.cs" />
     <Compile Include="Rewriters\EnsureRowNumber.cs" />
     <Compile Include="Rewriters\FilterRowNumber.cs" />
     <Compile Include="SqlServerQuery.cs" />
@@ -57,6 +59,8 @@
     <Compile Include="SqlServerSchema.cs" />
     <Compile Include="SqlServerSchemaFactory.cs" />
     <Compile Include="SqlServerWindowFunction.cs" />
+    <Compile Include="Writers\SqlServerTableHintWriter.cs" />
+    <Compile Include="Writers\SqlServerFromWriter.cs" />
     <Compile Include="Writers\SqlServerCreateWriter.cs" />
     <Compile Include="Writers\SqlServerSelectWriter.cs" />
   </ItemGroup>

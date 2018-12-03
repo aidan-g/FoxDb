@@ -75,6 +75,10 @@ namespace FoxDb
                 {
                     builder.Expressions.Add(expression.Clone());
                 }
+                foreach (var constant in this.Constants)
+                {
+                    builder.Constants.Add(constant.Key, constant.Value);
+                }
             });
         }
     }

@@ -5,6 +5,8 @@ namespace FoxDb
 {
     public abstract class Provider : IProvider
     {
+        public abstract bool CheckDatabase();
+
         public abstract void CreateDatabase(string name);
 
         public abstract void DeleteDatabase(string name);

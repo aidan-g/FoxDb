@@ -273,6 +273,11 @@ namespace FoxDb
             });
         }
 
+        public ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder result)
+        {
+            return this.CreateCaseCondition(null, result);
+        }
+
         public ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder condition, IFragmentBuilder result)
         {
             return this.Fragment<ICaseConditionBuilder>().With(builder =>

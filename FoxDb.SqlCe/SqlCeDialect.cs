@@ -81,5 +81,77 @@ namespace FoxDb
                 return "ONLY";
             }
         }
+
+        public string WITH
+        {
+            get
+            {
+                return "WITH";
+            }
+        }
+
+        public string ROWLOCK
+        {
+            get
+            {
+                return "ROWLOCK";
+            }
+        }
+
+        public string PAGLOCK
+        {
+            get
+            {
+                return "PAGLOCK";
+            }
+        }
+
+        public string TABLOCK
+        {
+            get
+            {
+                return "TABLOCK";
+            }
+        }
+
+        public string DBLOCK
+        {
+            get
+            {
+                return "DBLOCK";
+            }
+        }
+
+        public string UPDLOCK
+        {
+            get
+            {
+                return "UPDLOCK";
+            }
+        }
+
+        public string XLOCK
+        {
+            get
+            {
+                return "XLOCK";
+            }
+        }
+
+        public string HOLDLOCK
+        {
+            get
+            {
+                return "HOLDLOCK";
+            }
+        }
+
+        public string NOLOCK
+        {
+            get
+            {
+                return "NOLOCK";
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -26,8 +27,28 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
+        public override bool CheckDatabase()
+        {
+            using (var connection = new SQLiteConnection(this.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         public override void CreateDatabase(string name)
         {
+            if (File.Exists(this.FileName))
+            {
+                throw new InvalidOperationException("The database already exists.");
+            }
             SQLiteConnection.CreateFile(this.FileName);
         }
 

@@ -50,6 +50,8 @@ namespace FoxDb.Interfaces
 
         ICaseBuilder CreateCase(params ICaseConditionBuilder[] expressions);
 
+        ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder result);
+
         ICaseConditionBuilder CreateCaseCondition(IFragmentBuilder condition, IFragmentBuilder result);
 
         ISequenceBuilder CreateSequence(params IExpressionBuilder[] expressions);

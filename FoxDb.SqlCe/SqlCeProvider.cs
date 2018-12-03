@@ -1,4 +1,5 @@
 ﻿using FoxDb.Interfaces;
+using System;
 using System.Data;
 using System.Data.SqlServerCe;
 using System.IO;
@@ -23,8 +24,28 @@ namespace FoxDb
 
         public string ConnectionString { get; private set; }
 
+        public override bool CheckDatabase()
+        {
+            using (var connection = new SqlCeConnection(this.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         public override void CreateDatabase(string name)
         {
+            if (File.Exists(this.FileName))
+            {
+                throw new InvalidOperationException("The database already exists.");
+            }
             using (var engine = new SqlCeEngine(this.ConnectionString))
             {
                 engine.CreateDatabase();

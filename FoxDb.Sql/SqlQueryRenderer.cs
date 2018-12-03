@@ -78,9 +78,36 @@ namespace FoxDb
             var target = this.Targets.Pop();
             if (!string.IsNullOrEmpty(target.CommandText))
             {
-                this.Fragments.Add(this.CreateQueryFragment(target));
+                if (this.IsAssociativeExpression(target))
+                {
+                    this.WriteAssociativeExpression(target);
+                }
+                else
+                {
+                    this.Fragments.Add(this.CreateQueryFragment(target));
+                }
             }
             return target;
+        }
+
+        protected virtual bool IsAssociativeExpression(IFragmentTarget target)
+        {
+            var writer = target as ISqlQueryWriter;
+            if (writer == null)
+            {
+                return false;
+            }
+            return writer.GetRenderContext().HasFlag(RenderHints.AssociativeExpression);
+        }
+
+        protected virtual void WriteAssociativeExpression(IFragmentTarget target)
+        {
+            var writer = this.Peek as ISqlQueryWriter;
+            if (writer == null)
+            {
+                throw new NotImplementedException();
+            }
+            writer.Builder.Append(target.CommandText);
         }
 
         protected override void VisitAdd(IFragmentBuilder parent, IQueryGraphBuilder graph, IAddBuilder expression)

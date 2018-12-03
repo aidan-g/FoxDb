@@ -27,13 +27,13 @@ namespace FoxDb
             return true;
         }
 
-        public static bool Validate(IDatabase database, ITableConfig table, IColumnConfig column)
+        public static bool Validate(IDatabase database, ITableConfig table, IColumnConfig column, ITransactionSource transaction = null)
         {
             if (string.IsNullOrEmpty(column.Identifier))
             {
                 return false;
             }
-            if (table.Flags.HasFlag(TableFlags.ValidateSchema) && !column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName))
+            if (table.Flags.HasFlag(TableFlags.ValidateSchema) && !column.Table.Config.Database.Schema.ColumnExists(column.Table.TableName, column.ColumnName, transaction))
             {
                 return false;
             }
