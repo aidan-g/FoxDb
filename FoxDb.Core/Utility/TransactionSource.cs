@@ -43,7 +43,7 @@ namespace FoxDb
             command.Transaction = this.Transaction;
         }
 
-        public void Begin()
+        public virtual void Begin()
         {
             if (this.IsolationLevel.HasValue)
             {
@@ -55,7 +55,7 @@ namespace FoxDb
             }
         }
 
-        public void Commit()
+        public virtual void Commit()
         {
             if (!this.HasTransaction)
             {
@@ -65,7 +65,7 @@ namespace FoxDb
             this.Reset();
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
             if (!this.HasTransaction)
             {
@@ -75,7 +75,7 @@ namespace FoxDb
             this.Reset();
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             this.CommandCache.Clear();
             if (this.Transaction != null)

@@ -70,12 +70,12 @@ namespace FoxDb
             return new DatabaseQuerySource(this, composer, parameters, transaction);
         }
 
-        public ITransactionSource BeginTransaction()
+        public virtual ITransactionSource BeginTransaction()
         {
             return new TransactionSource(this);
         }
 
-        public ITransactionSource BeginTransaction(IsolationLevel isolationLevel)
+        public virtual ITransactionSource BeginTransaction(IsolationLevel isolationLevel)
         {
             return new TransactionSource(this, isolationLevel);
         }
