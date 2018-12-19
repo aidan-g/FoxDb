@@ -1,20 +1,34 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 
 namespace FoxDb
 {
     public class TransactionSource : Disposable, ITransactionSource
     {
-        public TransactionSource(IDatabase database) : this(database, null)
+#if DEBUG
+        static TransactionSource()
         {
-
+            Transactions = new ConditionalWeakTable<IDatabase, Stack<ITransactionSource>>();
         }
 
-        public TransactionSource(IDatabase database, IsolationLevel? isolationLevel)
+        private static ConditionalWeakTable<IDatabase, Stack<ITransactionSource>> Transactions { get; set; }
+#endif
+
+        public TransactionSource(IDatabase database)
         {
             this.Database = database;
             this.CommandCache = new DatabaseCommandCache(database);
+#if DEBUG
+            Transactions.GetOrCreateValue(database).Push(this);
+#endif
+        }
+
+        public TransactionSource(IDatabase database, IsolationLevel? isolationLevel)
+            : this(database)
+        {
             this.IsolationLevel = isolationLevel;
         }
 
@@ -85,10 +99,21 @@ namespace FoxDb
             }
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void OnDisposing()
         {
+#if DEBUG
+            var transactions = default(Stack<ITransactionSource>);
+            if (Transactions.TryGetValue(this.Database, out transactions))
+            {
+                if (!object.ReferenceEquals(this, transactions.Pop()))
+                {
+                    Transactions.Remove(this.Database);
+                    throw new InvalidOperationException(string.Format("{0} was disposed out of sequence.", this.GetType().Name));
+                }
+            }
+#endif
             this.Reset();
-            base.Dispose(disposing);
+            base.OnDisposing();
         }
     }
 }

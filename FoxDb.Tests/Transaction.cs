@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -9,11 +10,25 @@ namespace FoxDb
     [TestFixture(ProviderType.SQLite)]
     public class Transaction : TestBase
     {
-        public Transaction(ProviderType providerType) : base(providerType)
+        public Transaction(ProviderType providerType)
+            : base(providerType)
         {
 
         }
 
+#if DEBUG
+        [Test]
+        public void CanDetectTransactionMisuse()
+        {
+            var transaction1 = this.Database.BeginTransaction();
+            var transaction2 = this.Database.BeginTransaction();
+            Assert.Throws<InvalidOperationException>(() => transaction1.Dispose());
+            transaction2.Dispose();
+            transaction1.Dispose();
+        }
+#endif
+
+        [Test]
         public void CanReuseTransaction()
         {
             var set = this.Database.Set<Test001>(this.Transaction);
