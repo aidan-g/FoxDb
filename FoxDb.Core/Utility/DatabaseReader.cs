@@ -181,20 +181,36 @@ namespace FoxDb
                 }
             }
 
+#if NET40
+            public Task<bool> MoveNextAsync()
+#else
             public async Task<bool> MoveNextAsync()
+#endif
             {
                 var reader = this.Reader.Reader as DbDataReader;
                 if (reader == null)
                 {
                     throw new NotImplementedException();
                 }
+#if NET40
+                if (reader.Read())
+#else
                 if (await reader.ReadAsync())
+#endif
                 {
                     this.Current = new DatabaseReaderRecord(this.Reader.Reader);
+#if NET40
+                    return TaskEx.FromResult(true);
+#else
                     return true;
+#endif
                 }
                 this.Current = null;
+#if NET40
+                return TaskEx.FromResult(false);
+#else
                 return false;
+#endif
             }
 
             protected override void OnDisposing()

@@ -276,7 +276,11 @@ namespace FoxDb
             {
                 return this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
             }
+#if NET40
+            return TaskEx.FromResult(EntityAction.None);
+#else
             return Task.FromResult(EntityAction.None);
+#endif
         }
 
         protected virtual async Task<EntityAction> OnVisitAsync<T, TRelation>(ICollectionEntityGraphNode<T, TRelation> node, Frame<T> frame)

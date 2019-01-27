@@ -33,6 +33,10 @@ namespace FoxDb
             {
                 identifier = tableName;
             }
+            if (!flags.HasValue)
+            {
+                flags = Defaults.Table.Flags;
+            }
             return (ITableConfig)this.Members.Invoke(this, "Create", typeof(EntityPlaceholder), config, identifier, tableName, flags);
         }
 

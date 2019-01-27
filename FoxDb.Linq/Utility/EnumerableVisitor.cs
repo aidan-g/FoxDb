@@ -32,7 +32,7 @@ namespace FoxDb
                 { new MethodVisitorKey(typeof(Enumerable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
                 { new MethodVisitorKey(typeof(Enumerable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
                 { new MethodVisitorKey(typeof(Enumerable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
-                { new MethodVisitorKey(typeof(Enumerable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },                
+                { new MethodVisitorKey(typeof(Enumerable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },
                 { new MethodVisitorKey(typeof(Enumerable), "Take"), (visitor, node) => visitor.VisitTake(node) },
                 //Queryable
                 { new MethodVisitorKey(typeof(Queryable), "Count"), (visitor, node) => visitor.VisitCount(node) },
@@ -45,7 +45,7 @@ namespace FoxDb
                 { new MethodVisitorKey(typeof(Queryable), "OrderBy"), (visitor, node) => visitor.VisitOrderBy(node) },
                 { new MethodVisitorKey(typeof(Queryable), "OrderByDescending"), (visitor, node) => visitor.VisitOrderByDescending(node) },
                 { new MethodVisitorKey(typeof(Queryable), "Contains"), (visitor, node) => visitor.VisitContains(node) },
-                { new MethodVisitorKey(typeof(Queryable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },                
+                { new MethodVisitorKey(typeof(Queryable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },
                 { new MethodVisitorKey(typeof(Queryable), "Take"), (visitor, node) => visitor.VisitTake(node) },
                 //Collection
                 { new MethodVisitorKey(typeof(ICollection<>), "Contains"), (visitor, node) => visitor.VisitContains(node) }
@@ -606,7 +606,7 @@ namespace FoxDb
             }
             else if (member is PropertyInfo)
             {
-                return (member as PropertyInfo).GetValue(value);
+                return (member as PropertyInfo).GetValue(value, null);
             }
             else
             {

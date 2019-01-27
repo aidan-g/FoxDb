@@ -190,7 +190,8 @@ namespace FoxDb
 
         public static T CreateDelegate<T>(this MethodInfo method)
         {
-            return (T)(object)method.CreateDelegate(typeof(T));
+            //return (T)(object)method.CreateDelegate(typeof(T));
+            throw new NotImplementedException();
         }
 
         public static PropertyInfo GetLambdaProperty<T>(this Expression expression)

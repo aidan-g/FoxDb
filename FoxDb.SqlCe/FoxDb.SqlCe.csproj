@@ -1,94 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{31C9764D-B1A2-4646-A1C4-A7AB3F15D19D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FoxDb</RootNamespace>
+    <TargetFrameworks>net40;net461</TargetFrameworks>
     <AssemblyName>FoxDb.SqlCe</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <OutputPath>..\distribution\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\distribution\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.SqlServer.Compact.4.0.8876.1\lib\net40\System.Data.SqlServerCe.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
+    <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" Condition="'$(TargetFramework)' == 'net40'" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Interfaces\Query\Builder\ITableHintBuilder.cs" />
-    <Compile Include="Interfaces\Query\Builder\ILimitBuilder.cs" />
-    <Compile Include="Interfaces\Query\Builder\IOffsetBuilder.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Query\Builder\TableHintBuilder.cs" />
-    <Compile Include="Query\Builder\LimitBuilder.cs" />
-    <Compile Include="Query\Builder\OffsetBuilder.cs" />
-    <Compile Include="Rewriters\EnsureOrderBy.cs" />
-    <Compile Include="SqlCeCommandWrapper.cs" />
-    <Compile Include="SqlCeConnectionWrapper.cs" />
-    <Compile Include="SqlCeDialect.cs" />
-    <Compile Include="SqlCeProvider.cs" />
-    <Compile Include="SqlCeQuery.cs" />
-    <Compile Include="SqlCeQueryBuilder.cs" />
-    <Compile Include="SqlCeQueryRenderer.cs" />
-    <Compile Include="SqlCeQueryFactory.cs" />
-    <Compile Include="SqlCeQueryFragment.cs" />
-    <Compile Include="SqlCeQueryParameter.cs" />
-    <Compile Include="SqlCeQueryRewriter.cs" />
-    <Compile Include="SqlCeQueryTypes.cs" />
-    <Compile Include="SqlCeSchema.cs" />
-    <Compile Include="SqlCeSchemaFactory.cs" />
-    <Compile Include="Writers\SqlCeFromWriter.cs" />
-    <Compile Include="Writers\SqlCeTableHintWriter.cs" />
-    <Compile Include="Writers\SqlCeLimitWriter.cs" />
-    <Compile Include="Writers\SqlCeOffsetWriter.cs" />
-    <Compile Include="Writers\SqlCeSelectWriter.cs" />
-    <Compile Include="Writers\SqlCeCreateWriter.cs" />
-    <Compile Include="Writers\SqlCeWhereWriter.cs" />
+    <PackageReference Include="Microsoft.SqlServer.Compact" Version="4.0.8876.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="packages.config" />
+    <Folder Include="Properties\" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj">
-      <Project>{9cdd4861-9938-41c1-88fe-9e4054bf164a}</Project>
-      <Name>FoxDb.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FoxDb.Sql\FoxDb.Sql.csproj">
-      <Project>{9c50f9dd-4a7f-449a-aa52-2e734456b977}</Project>
-      <Name>FoxDb.Sql</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\FoxDb.Core\FoxDb.Core.csproj" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\FoxDb.Sql\FoxDb.Sql.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="'$(TargetFramework)' == 'net40'" />
+
   <PropertyGroup>
     <PostBuildEvent>
-    if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
-    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
-    if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
-    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+      if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
+      xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
+      if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
+      xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"
+    </PostBuildEvent>
   </PropertyGroup>
+
 </Project>

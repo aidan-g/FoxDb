@@ -59,6 +59,14 @@ namespace FoxDb
 
         public virtual void Begin()
         {
+            if (this.IsDisposed)
+            {
+                throw new ObjectDisposedException(this.GetType().FullName);
+            }
+            if (this.HasTransaction)
+            {
+                throw new InvalidOperationException("Transaction has clready been created.");
+            }
             if (this.IsolationLevel.HasValue)
             {
                 this.Transaction = this.Database.Connection.BeginTransaction(this.IsolationLevel.Value);

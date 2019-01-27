@@ -52,7 +52,11 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
+#if NET40
+            return TaskEx.FromResult<int>(command.ExecuteNonQuery());
+#else
             return command.ExecuteNonQueryAsync();
+#endif
         }
 
         public Task<object> ExecuteScalarAsync()
@@ -62,17 +66,29 @@ namespace FoxDb
             {
                 throw new NotImplementedException();
             }
+#if NET40
+            return TaskEx.FromResult<object>(command.ExecuteScalar());
+#else
             return command.ExecuteScalarAsync();
+#endif
         }
 
+#if NET40
+        public Task<IDataReader> ExecuteReaderAsync()
+#else
         public async Task<IDataReader> ExecuteReaderAsync()
+#endif
         {
             var command = this.Command as DbCommand;
             if (command == null)
             {
                 throw new NotImplementedException();
             }
+#if NET40
+            return TaskEx.FromResult<IDataReader>(command.ExecuteReader());
+#else
             return await command.ExecuteReaderAsync();
+#endif
         }
     }
 }

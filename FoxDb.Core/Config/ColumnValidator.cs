@@ -42,7 +42,7 @@ namespace FoxDb
 
         public static bool IsIgnored(PropertyInfo property)
         {
-            return property.GetCustomAttribute<IgnoreAttribute>() != null;
+            return property.GetCustomAttribute<IgnoreAttribute>(false) != null;
         }
     }
 }

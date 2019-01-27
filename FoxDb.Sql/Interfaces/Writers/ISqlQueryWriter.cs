@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace FoxDb.Interfaces
@@ -7,7 +8,11 @@ namespace FoxDb.Interfaces
     {
         StringBuilder Builder { get; }
 
+#if NET40
+        ReadOnlyCollection<IFragmentBuilder> FragmentContext { get; }
+#else 
         IReadOnlyCollection<IFragmentBuilder> FragmentContext { get; }
+#endif
 
         T GetFragmentContext<T>() where T : IFragmentBuilder;
 
@@ -19,7 +24,11 @@ namespace FoxDb.Interfaces
 
         IFragmentBuilder RemoveFragmentContext();
 
+#if NET40
+        ReadOnlyCollection<RenderHints> RenderContext { get; }
+#else 
         IReadOnlyCollection<RenderHints> RenderContext { get; }
+#endif
 
         RenderHints GetRenderContext();
 

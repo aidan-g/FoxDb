@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -14,11 +15,19 @@ namespace FoxDb
 
         #region ISqlQueryWriter
 
+#if NET40
+        ReadOnlyCollection<IFragmentBuilder> ISqlQueryWriter.FragmentContext
+#else
         IReadOnlyCollection<IFragmentBuilder> ISqlQueryWriter.FragmentContext
+#endif
         {
             get
             {
+#if NET40
+                return new ReadOnlyCollection<IFragmentBuilder>(this.FragmentContext.ToList());
+#else
                 return this.FragmentContext;
+#endif
             }
         }
 
@@ -57,11 +66,20 @@ namespace FoxDb
             return this.FragmentContext.Pop();
         }
 
+#if NET40
+        ReadOnlyCollection<RenderHints> ISqlQueryWriter.RenderContext
+
+#else
         IReadOnlyCollection<RenderHints> ISqlQueryWriter.RenderContext
+#endif
         {
             get
             {
+#if NET40
+                return new ReadOnlyCollection<RenderHints>(this.RenderContext.ToList());
+#else
                 return this.RenderContext;
+#endif
             }
         }
 
