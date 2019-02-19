@@ -44,6 +44,8 @@
 
         string STAR { get; }
 
+        string CONCAT { get; }
+
         string NULL { get; }
 
         string AS { get; }
@@ -77,6 +79,8 @@
         string LESS { get; }
 
         string LESS_OR_EQUAL { get; }
+
+        string LIKE { get; }
 
         string OPEN_PARENTHESES { get; }
 

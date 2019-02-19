@@ -47,18 +47,27 @@ namespace FoxDb
             var persister = this.GetPersister(node);
             if (frame.Persisted != null && frame.Updated != null)
             {
-                result = persister.Update(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation));
-                this.Cascade(node, frame);
+                if (node.Relation == null || node.Relation.Flags.HasFlag(RelationFlags.CascadeUpdate))
+                {
+                    result = persister.Update(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation));
+                    this.Cascade(node, frame);
+                }
             }
             else if (frame.Updated != null)
             {
-                result = persister.Add(frame.Updated, this.GetParameters(frame, node.Relation));
-                this.Cascade(node, frame);
+                if (node.Relation == null || node.Relation.Flags.HasFlag(RelationFlags.CascadeAdd))
+                {
+                    result = persister.Add(frame.Updated, this.GetParameters(frame, node.Relation));
+                    this.Cascade(node, frame);
+                }
             }
             else if (frame.Persisted != null)
             {
-                this.Cascade(node, frame);
-                result = persister.Delete(frame.Persisted, this.GetParameters(frame, node.Relation));
+                if (node.Relation == null || node.Relation.Flags.HasFlag(RelationFlags.CascadeDelete))
+                {
+                    this.Cascade(node, frame);
+                    result = persister.Delete(frame.Persisted, this.GetParameters(frame, node.Relation));
+                }
             }
             return result;
         }

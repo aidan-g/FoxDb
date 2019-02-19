@@ -71,7 +71,7 @@ namespace FoxDb
         {
             static Relation()
             {
-                Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.AllowNull;
+                Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.Cascade | RelationFlags.AllowNull;
             }
 
             public static RelationFlags Flags { get; set; }
@@ -128,7 +128,7 @@ namespace FoxDb
     }
 
     [Flags]
-    public enum RelationFlags : byte
+    public enum RelationFlags : short
     {
         None = 0,
         //Multiplicity.
@@ -138,7 +138,11 @@ namespace FoxDb
         //Behaviour.
         AutoExpression = 32,
         EagerFetch = 64,
-        AllowNull = 128
+        CascadeAdd = 128,
+        CascadeUpdate = 256,
+        CascadeDelete = 512,
+        Cascade = CascadeAdd | CascadeUpdate | CascadeDelete,
+        AllowNull = 1024
     }
 
     [Flags]

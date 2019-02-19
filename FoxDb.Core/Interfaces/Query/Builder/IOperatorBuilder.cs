@@ -18,6 +18,7 @@
         GreaterOrEqual,
         Less,
         LessOrEqual,
+        Match,
         And,
         AndAlso,
         Or,
@@ -30,6 +31,7 @@
         Minus,
         //Other
         Null,
-        Star
+        Star,
+        Concat
     }
 }

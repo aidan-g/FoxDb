@@ -210,6 +210,7 @@ namespace FoxDb
                 { QueryOperator.GreaterOrEqual, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.GREATER_OR_EQUAL) },
                 { QueryOperator.Less, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.LESS) },
                 { QueryOperator.LessOrEqual, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.LESS_OR_EQUAL) },
+                { QueryOperator.Match, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.LIKE) },
                 { QueryOperator.And, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.AND) },
                 { QueryOperator.AndAlso, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.AND_ALSO) },
                 { QueryOperator.Or, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.OR) },
@@ -222,7 +223,8 @@ namespace FoxDb
                 { QueryOperator.Minus, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.MINUS) },
                 //Other
                 { QueryOperator.Null, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.NULL) },
-                { QueryOperator.Star, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.STAR) }
+                { QueryOperator.Star, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.STAR) },
+                { QueryOperator.Concat, (writer, fragment) => this.Builder.AppendFormat("{0} ", writer.Database.QueryFactory.Dialect.CONCAT) }
             };
         }
 

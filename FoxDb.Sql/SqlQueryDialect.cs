@@ -173,6 +173,8 @@ namespace FoxDb
             }
         }
 
+        public abstract string CONCAT { get; }
+
         public virtual string NULL
         {
             get
@@ -322,6 +324,14 @@ namespace FoxDb
             get
             {
                 return "<=";
+            }
+        }
+
+        public virtual string LIKE
+        {
+            get
+            {
+                return "LIKE";
             }
         }
 

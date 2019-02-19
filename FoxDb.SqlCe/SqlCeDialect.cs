@@ -34,6 +34,14 @@ namespace FoxDb
             }
         }
 
+        public override string CONCAT
+        {
+            get
+            {
+                return "+";
+            }
+        }
+
         public string IDENTITY
         {
             get

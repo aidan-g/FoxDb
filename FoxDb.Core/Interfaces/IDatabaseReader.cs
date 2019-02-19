@@ -42,6 +42,10 @@ namespace FoxDb.Interfaces
 
         bool TryGetValue(IColumnConfig column, out object value);
 
+        bool IsNull(string name);
+
+        bool IsNull(IColumnConfig column);
+
         void Refresh();
     }
 }

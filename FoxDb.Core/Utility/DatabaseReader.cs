@@ -134,6 +134,21 @@ namespace FoxDb
                 return this.TryGetValue(column.Identifier, out value) || this.TryGetValue(column.ColumnName, out value);
             }
 
+            public bool IsNull(string name)
+            {
+                var value = default(object);
+                if (!this.TryGetValue(name, out value))
+                {
+                    return true;
+                }
+                return DBNull.Value.Equals(value);
+            }
+
+            public bool IsNull(IColumnConfig column)
+            {
+                return this.IsNull(column.Identifier);
+            }
+
             public void Refresh()
             {
                 this.Data = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);

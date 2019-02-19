@@ -93,16 +93,19 @@ namespace FoxDb
             if (item != null)
             {
                 var children = relation.Accessor.Get(item);
-                foreach (var child in children)
+                if (children != null)
                 {
-                    var key = default(object);
-                    if (EntityKey.HasKey(relation.RightTable, child, out key))
+                    foreach (var child in children)
                     {
-                        mapped.Add(key, child);
-                    }
-                    else
-                    {
-                        unmapped.Add(child);
+                        var key = default(object);
+                        if (EntityKey.HasKey(relation.RightTable, child, out key))
+                        {
+                            mapped.Add(key, child);
+                        }
+                        else
+                        {
+                            unmapped.Add(child);
+                        }
                     }
                 }
             }

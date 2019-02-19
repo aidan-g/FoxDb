@@ -27,11 +27,35 @@ namespace FoxDb
             }
         }
 
+        public override string CONCAT
+        {
+            get
+            {
+                return "||";
+            }
+        }
+
         public override string BATCH
         {
             get
             {
                 return string.Format("{0};", Environment.NewLine);
+            }
+        }
+
+        public string ROW_NUMBER
+        {
+            get
+            {
+                return "ROW_NUMBER";
+            }
+        }
+
+        public string OVER
+        {
+            get
+            {
+                return "OVER";
             }
         }
     }
