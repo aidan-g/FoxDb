@@ -84,6 +84,11 @@ namespace FoxDb
             }
         }
 
+        protected override void VisitTable(ITableBuilder expression)
+        {
+            this.Visit(expression.CreateColumn(expression.Table.PrimaryKey));
+        }
+
         protected override void VisitSubQuery(ISubQueryBuilder expression)
         {
             if (this.GetRenderContext().HasFlag(RenderHints.FunctionArgument))

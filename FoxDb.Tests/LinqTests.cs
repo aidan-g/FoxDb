@@ -667,5 +667,41 @@ namespace FoxDb
                 }
             }
         }
+
+        [Test]
+        public void Where_Relation_IsNull()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1_1", Test003 = new Test003() { Name = "1_2" } },
+                new Test002() { Name = "2_1" },
+                new Test002() { Name = "3_1", Test003 = new Test003() { Name = "3_2" } }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test002>(this.Transaction);
+            var actual = query.Where(element => element.Test003 == null);
+            Assert.AreEqual(new[] { data[1] }, actual);
+        }
+
+        [Test]
+        public void Where_Relation_IsNotNull()
+        {
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test002() { Name = "1_1", Test003 = new Test003() { Name = "1_2" } },
+                new Test002() { Name = "2_1" },
+                new Test002() { Name = "3_1", Test003 = new Test003() { Name = "3_2" } }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test002>(this.Transaction);
+            var actual = query.Where(element => element.Test003 != null);
+            Assert.AreEqual(new[] { data[0], data[2] }, actual);
+        }
     }
 }

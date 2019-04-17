@@ -301,8 +301,50 @@ namespace FoxDb
         protected virtual void VisitBinary(IBinaryExpressionBuilder expression)
         {
             this.Visit(expression.Left);
-            this.Visit(expression.Operator);
-            this.Visit(expression.Right);
+            if (this.IsNull(expression))
+            {
+                this.Visit(this.CreateOperator(QueryOperator.Is));
+                this.Visit(this.CreateOperator(QueryOperator.Null));
+            }
+            else if (this.IsNotNull(expression))
+            {
+                this.Visit(this.CreateOperator(QueryOperator.Is));
+                this.Visit(this.CreateOperator(QueryOperator.Not));
+                this.Visit(this.CreateOperator(QueryOperator.Null));
+            }
+            else
+            {
+                this.Visit(expression.Operator);
+                this.Visit(expression.Right);
+            }
+        }
+
+        protected virtual bool IsNull(IBinaryExpressionBuilder expression)
+        {
+            var right = expression.Right as IOperatorBuilder;
+            if (expression.Operator == null || right == null)
+            {
+                return false;
+            }
+            if (expression.Operator.Operator != QueryOperator.Equal || right.Operator != QueryOperator.Null)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected virtual bool IsNotNull(IBinaryExpressionBuilder expression)
+        {
+            var right = expression.Right as IOperatorBuilder;
+            if (expression.Operator == null || right == null)
+            {
+                return false;
+            }
+            if (expression.Operator.Operator != QueryOperator.NotEqual || right.Operator != QueryOperator.Null)
+            {
+                return false;
+            }
+            return true;
         }
 
         protected virtual void VisitColumn(IColumnBuilder expression)
