@@ -129,7 +129,7 @@ namespace FoxDb
 
             public string Name { get; set; }
 
-            [Relation(Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.ManyToMany)]
+            [Relation(Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.Cascade | RelationFlags.ManyToMany)]
             public IList<Topping> Toppings { get; set; }
         }
 
@@ -139,7 +139,7 @@ namespace FoxDb
 
             public string Name { get; set; }
 
-            [Relation(Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.ManyToMany)]
+            [Relation(Flags = RelationFlags.AutoExpression | RelationFlags.EagerFetch | RelationFlags.Cascade | RelationFlags.ManyToMany)]
             public IList<Topping> Toppings { get; set; }
         }
 

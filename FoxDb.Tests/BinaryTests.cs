@@ -39,31 +39,5 @@ namespace FoxDb
             data.RemoveAt(1);
             this.AssertSequence(data, set);
         }
-
-        [Test]
-        public void CannotAdd_InvalidLength()
-        {
-            switch (this.ProviderType)
-            {
-                case ProviderType.SQLite:
-                    Assert.Ignore("The provider does not support length limits.");
-                    return;
-            }
-
-            var set = this.Database.Set<Test007>(this.Transaction);
-            try
-            {
-                set.Add(new Test007()
-                {
-                    Name = "Name",
-                    Value = Encoding.Default.GetBytes("07656178-A362-47E5-9428-AA33EF1C5C49")
-                });
-                Assert.Fail("Expected exception.");
-            }
-            catch
-            {
-
-            }
-        }
     }
 }
