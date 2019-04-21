@@ -36,6 +36,8 @@
       if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
       xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"
     </PostBuildEvent>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
 </Project>

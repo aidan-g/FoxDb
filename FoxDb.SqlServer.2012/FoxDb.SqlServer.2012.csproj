@@ -5,6 +5,8 @@
     <AssemblyName>FoxDb.SqlServer.2012</AssemblyName>
     <OutputPath>..\distribution\</OutputPath>
     <SkipEnsureBindingRedirects>true</SkipEnsureBindingRedirects>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
