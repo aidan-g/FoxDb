@@ -89,7 +89,7 @@ namespace FoxDb
             {
                 return false;
             }
-            if (this.Operator != other.Operator || this.Expressions != other.Expressions)
+            if (this.Operator != other.Operator || this.Expression != other.Expression)
             {
                 return false;
             }

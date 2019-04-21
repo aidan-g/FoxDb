@@ -12,18 +12,14 @@ namespace FoxDb
 
         protected override void VisitSource(IFragmentBuilder parent, IQueryGraphBuilder graph, ISourceBuilder expression)
         {
-            if (EnsureRowNumber.Predicate(parent, graph, expression))
-            {
-                new EnsureRowNumber(this.Database).Visit(parent, graph, expression);
-            }
+            new EnsureRowNumber(this.Database).Visit(parent, graph, expression);
+            base.VisitSource(parent, graph, expression);
         }
 
         protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
-            if (FilterRowNumber.Predicate(parent, graph, expression))
-            {
-                new FilterRowNumber(this.Database).Visit(parent, graph, expression);
-            }
+            new FilterRowNumber(this.Database).Visit(parent, graph, expression);
+            base.VisitFilter(parent, graph, expression);
         }
     }
 }

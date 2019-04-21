@@ -52,7 +52,7 @@ namespace FoxDb
 
         protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
-            //Nothing to do.
+            new SqlWhereRewriter(this.Database).Visit(parent, graph, expression);
         }
 
         protected override void VisitAggregate(IFragmentBuilder parent, IQueryGraphBuilder graph, IAggregateBuilder expression)

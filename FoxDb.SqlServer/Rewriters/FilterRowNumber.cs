@@ -5,11 +5,6 @@ namespace FoxDb
 {
     public class FilterRowNumber : SqlWhereRewriter
     {
-        public static Func<IFragmentBuilder, IQueryGraphBuilder, IFilterBuilder, bool> Predicate = (parent, graph, expression) =>
-        {
-            return expression.Offset.HasValue;
-        };
-
         public FilterRowNumber(IDatabase database)
             : base(database)
         {
@@ -17,6 +12,10 @@ namespace FoxDb
 
         protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
+            if (!expression.Offset.HasValue)
+            {
+                return;
+            }
             var offset = expression.Offset.Value + 1;
             expression.Add().With(filter =>
             {

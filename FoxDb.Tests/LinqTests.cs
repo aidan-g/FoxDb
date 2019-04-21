@@ -703,5 +703,41 @@ namespace FoxDb
             var actual = query.Where(element => element.Test003 != null);
             Assert.AreEqual(new[] { data[0], data[2] }, actual);
         }
+
+        [Test]
+        public void Where_Boolean_True()
+        {
+            var set = this.Database.Set<Test005>(this.Transaction);
+            var data = new List<Test005>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test005() { Value = false },
+                new Test005() { Value = true },
+                new Test005() { Value = false }
+             });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test005>(this.Transaction);
+            var actual = query.Where(element => element.Value);
+            Assert.AreEqual(new[] { data[1] }, actual);
+        }
+
+        [Test]
+        public void Where_Boolean_Not_True()
+        {
+            var set = this.Database.Set<Test005>(this.Transaction);
+            var data = new List<Test005>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test005() { Value = false },
+                new Test005() { Value = true },
+                new Test005() { Value = false }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test005>(this.Transaction);
+            var actual = query.Where(element => !element.Value);
+            Assert.AreEqual(new[] { data[0], data[2] }, actual);
+        }
     }
 }

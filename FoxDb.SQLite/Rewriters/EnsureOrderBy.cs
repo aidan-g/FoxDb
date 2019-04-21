@@ -6,16 +6,6 @@ namespace FoxDb
 {
     public class EnsureOrderBy : SqlOrderByRewriter
     {
-        public static Func<IFragmentBuilder, IQueryGraphBuilder, ISortBuilder, bool> Predicate = (parent, graph, expression) =>
-        {
-            if (expression.Expressions.Any())
-            {
-                return false;
-            }
-            var filter = graph.Fragment<IFilterBuilder>();
-            return filter.Limit.HasValue || filter.Offset.HasValue;
-        };
-
         public EnsureOrderBy(IDatabase database)
             : base(database)
         {
@@ -24,6 +14,15 @@ namespace FoxDb
 
         protected override void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression)
         {
+            if (expression.Expressions.Any())
+            {
+                return;
+            }
+            var filter = graph.Fragment<IFilterBuilder>();
+            if (!filter.Limit.HasValue && !filter.Offset.HasValue)
+            {
+                return;
+            }
             var table = graph.Source.Tables.FirstOrDefault();
             if (table == null)
             {
