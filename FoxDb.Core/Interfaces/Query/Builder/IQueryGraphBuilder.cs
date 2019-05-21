@@ -33,6 +33,9 @@ namespace FoxDb.Interfaces
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         ISortBuilder Sort { get; }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        IWithBuilder With { get; }
+
         ICollection<IFragmentBuilder> Fragments { get; }
 
         T Fragment<T>(T fragment) where T : IFragmentBuilder;

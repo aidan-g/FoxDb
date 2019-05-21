@@ -26,6 +26,7 @@ namespace FoxDb
                 { typeof(IFilterBuilder), (parent, graph) => new FilterBuilder(parent, graph) },
                 { typeof(IAggregateBuilder), (parent, graph) => new AggregateBuilder(parent, graph) },
                 { typeof(ISortBuilder), (parent, graph) => new SortBuilder(parent, graph) },
+                { typeof(IWithBuilder), (parent, graph) => new WithBuilder(parent, graph) },
                 //Fragments.
                 { typeof(IUnaryExpressionBuilder), (parent, graph) => new UnaryExpressionBuilder(parent, graph) },
                 { typeof(IBinaryExpressionBuilder), (parent, graph) => new BinaryExpressionBuilder(parent, graph) },
@@ -42,7 +43,8 @@ namespace FoxDb
                 { typeof(ISequenceBuilder), (parent, graph) => new SequenceBuilder(parent, graph) },
                 { typeof(IIdentifierBuilder), (parent, graph) => new IdentifierBuilder(parent, graph) },
                 { typeof(ICaseBuilder), (parent, graph) => new CaseBuilder(parent, graph) },
-                { typeof(ICaseConditionBuilder), (parent, graph) => new CaseConditionBuilder(parent, graph) }
+                { typeof(ICaseConditionBuilder), (parent, graph) => new CaseConditionBuilder(parent, graph) },
+                { typeof(ICommonTableExpressionBuilder), (parent, graph) => new CommonTableExpressionBuilder(parent, graph) }
             };
         }
 
@@ -284,6 +286,17 @@ namespace FoxDb
             {
                 builder.Condition = condition;
                 builder.Result = result;
+            });
+        }
+
+        public ICommonTableExpressionBuilder CreateCommonTableExpression(params IQueryGraphBuilder[] expressions)
+        {
+            return this.Fragment<ICommonTableExpressionBuilder>().With(builder =>
+            {
+                foreach (var expression in expressions)
+                {
+                    builder.Write(this.CreateSubQuery(expression));
+                }
             });
         }
 

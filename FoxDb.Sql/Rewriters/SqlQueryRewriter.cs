@@ -79,5 +79,10 @@ namespace FoxDb
         {
             //Nothing to do.
         }
+
+        protected override void VisitWith(IFragmentBuilder parent, IQueryGraphBuilder graph, IWithBuilder expression)
+        {
+            //Nothing to do.
+        }
     }
 }

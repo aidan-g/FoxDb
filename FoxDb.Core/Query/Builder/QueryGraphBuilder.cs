@@ -102,6 +102,15 @@ namespace FoxDb
             }
         }
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        public IWithBuilder With
+        {
+            get
+            {
+                return this.Fragment<IWithBuilder>();
+            }
+        }
+
         public virtual T Fragment<T>(T fragment) where T : IFragmentBuilder
         {
             this.Fragments.Add(fragment);
@@ -263,6 +272,13 @@ namespace FoxDb
             }
         }
 
+        IWithBuilder IQueryGraphBuilder.With
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         ICollection<IFragmentBuilder> IQueryGraphBuilder.Fragments
         {

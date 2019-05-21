@@ -17,7 +17,14 @@ namespace FoxDb
 
         public static string String(this IDatabaseQueryDialect dialect, string value)
         {
-            return string.Format(dialect.STRING_FORMAT, value);
+            if (!string.IsNullOrEmpty(value))
+            {
+                value = value.Replace("'", "''");
+            }
+            return string.Format(
+                dialect.STRING_FORMAT,
+                value
+            );
         }
     }
 }

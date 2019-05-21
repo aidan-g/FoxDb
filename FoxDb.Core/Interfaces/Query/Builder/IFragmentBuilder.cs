@@ -88,6 +88,8 @@ namespace FoxDb.Interfaces
         Drop,
         Identifier,
         Case,
-        CaseCondition
+        CaseCondition,
+        With,
+        CommonTableExpression
     }
 }

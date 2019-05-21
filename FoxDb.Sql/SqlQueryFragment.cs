@@ -11,6 +11,7 @@ namespace FoxDb
         protected static IDictionary<FragmentType, byte> Priorities = new Dictionary<FragmentType, byte>()
         {
             //Query.
+            { FragmentType.With, 5 },
             { FragmentType.Add, 10 },
             { FragmentType.Update, 20 },
             { FragmentType.Delete, 30 },

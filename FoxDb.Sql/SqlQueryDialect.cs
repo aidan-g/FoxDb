@@ -528,5 +528,29 @@ namespace FoxDb
                 return "REFERENCES";
             }
         }
+
+        public string WITH
+        {
+            get
+            {
+                return "WITH";
+            }
+        }
+
+        public string UNION
+        {
+            get
+            {
+                return "UNION";
+            }
+        }
+
+        public string ALL
+        {
+            get
+            {
+                return "ALL";
+            }
+        }
     }
 }

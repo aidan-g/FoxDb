@@ -131,5 +131,11 @@
         string CONSTRAINT { get; }
 
         string REFERENCES { get; }
+
+        string WITH { get; }
+
+        string UNION { get; }
+
+        string ALL { get; }
     }
 }

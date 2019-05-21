@@ -26,6 +26,7 @@ namespace FoxDb
                  { FragmentType.Filter, (visitor, parent, graph, fragment) => visitor.VisitFilter(parent, graph, fragment as IFilterBuilder) },
                  { FragmentType.Aggregate, (visitor, parent, graph, fragment) => visitor.VisitAggregate(parent, graph, fragment as IAggregateBuilder) },
                  { FragmentType.Sort, (visitor, parent, graph, fragment) => visitor.VisitSort(parent, graph, fragment as ISortBuilder) },
+                 { FragmentType.With, (visitor, parent, graph, fragment) => visitor.VisitWith(parent, graph, fragment as IWithBuilder) },
                  //Schema.
                  { FragmentType.Create, (visitor, parent, graph, fragment) => visitor.VisitCreate(parent, graph, fragment as ICreateBuilder) },
                  { FragmentType.Alter, (visitor, parent, graph, fragment) => visitor.VisitAlter(parent, graph, fragment as IAlterBuilder) },
@@ -66,6 +67,8 @@ namespace FoxDb
         protected abstract void VisitAggregate(IFragmentBuilder parent, IQueryGraphBuilder graph, IAggregateBuilder expression);
 
         protected abstract void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression);
+
+        protected abstract void VisitWith(IFragmentBuilder parent, IQueryGraphBuilder graph, IWithBuilder expression);
 
         protected abstract void VisitCreate(IFragmentBuilder parent, IQueryGraphBuilder graph, ICreateBuilder expression);
 

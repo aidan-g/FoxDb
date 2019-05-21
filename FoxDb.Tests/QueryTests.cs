@@ -368,5 +368,46 @@ namespace FoxDb
                 this.AssertSequence(new[] { data[a] }, set);
             }
         }
+
+        [Test]
+        public void CommonTableExpression_1()
+        {
+            switch (this.ProviderType)
+            {
+                case ProviderType.SqlCe:
+                    Assert.Ignore("The provider does not support common table expressions.");
+                    return;
+            }
+
+            var set = this.Database.Set<Test002>(this.Transaction);
+            var data = new List<Test002>();
+            set.Clear();
+            set.AddRange(new[]
+            {
+                new Test002() { Name = "1" },
+                new Test002() { Name = "2" },
+                new Test002() { Name = "3" }
+            });
+            var query = this.Database.QueryFactory.Build();
+            query.With.AddCommonTableExpression(this.Database.QueryFactory.Build().With(subQuery =>
+            {
+                subQuery.Output.AddOperator(QueryOperator.Star);
+                subQuery.Source.AddTable(set.Table);
+                subQuery.Filter.AddColumn(
+                    set.Table.GetColumn(ColumnConfig.By("Name"))
+                ).Right = query.Filter.CreateConstant("2");
+            })).Alias = "Extent1";
+            query.Output.AddOperator(QueryOperator.Star);
+            query.Source.AddTable(
+                this.Database.Config.Transient.CreateTable(
+                    TableConfig.By("Extent1", TableFlags.None)
+                )
+            );
+            set.Fetch = query;
+            foreach (var item in set)
+            {
+                Assert.AreEqual("2", item.Name);
+            }
+        }
     }
 }

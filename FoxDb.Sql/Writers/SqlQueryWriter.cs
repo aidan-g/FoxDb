@@ -193,6 +193,7 @@ namespace FoxDb
                 { FragmentType.Identifier, (writer, fragment) => writer.VisitIdentifier(fragment as IIdentifierBuilder) },
                 { FragmentType.Case,  (writer, fragment) => writer.VisitCase(fragment as ICaseBuilder) },
                 { FragmentType.CaseCondition,  (writer, fragment) => writer.VisitCaseCondition(fragment as ICaseConditionBuilder) },
+                { FragmentType.CommonTableExpression,  (writer, fragment) => writer.VisitCommonTableExpression(fragment as ICommonTableExpressionBuilder) }
             };
         }
 
@@ -464,6 +465,9 @@ namespace FoxDb
                     case TypeCode.UInt64:
                         this.Builder.AppendFormat("{0} ", expression.Value);
                         break;
+                    case TypeCode.String:
+                        this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.String((string)expression.Value));
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -519,6 +523,49 @@ namespace FoxDb
                 this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ELSE);
             }
             this.Visit(expression.Result);
+        }
+
+        protected virtual void VisitCommonTableExpression(ICommonTableExpressionBuilder expression)
+        {
+            if (string.IsNullOrEmpty(expression.Alias))
+            {
+                throw new NotImplementedException();
+            }
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(expression.Alias));
+            if (expression.ColumnNames.Any())
+            {
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+                foreach (var columnName in expression.ColumnNames)
+                {
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.Identifier(columnName));
+                }
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
+            }
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.AS);
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+            var first = true;
+            foreach (var subQuery in expression.SubQueries)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.UNION);
+                    this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.ALL);
+                }
+                this.AddRenderContext(RenderHints.FunctionArgument);
+                try
+                {
+                    this.Visit(subQuery);
+                }
+                finally
+                {
+                    this.RemoveRenderContext();
+                }
+            }
+            this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
         protected virtual void VisitType(ITypeConfig type)
