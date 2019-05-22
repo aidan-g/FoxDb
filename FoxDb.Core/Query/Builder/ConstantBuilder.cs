@@ -21,7 +21,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<IConstantBuilder>().With(builder => builder.Value = this.Value);
+            return this.Parent.Fragment<IConstantBuilder>().With(builder =>
+            {
+                builder.Value = this.Value;
+                builder.Alias = this.Alias;
+            });
         }
     }
 }

@@ -71,6 +71,7 @@ namespace FoxDb
             {
                 builder.Operator = (IOperatorBuilder)this.Operator.Clone();
                 builder.Expression = this.Expression.Clone();
+                builder.Alias = this.Alias;
                 foreach (var constant in this.Constants)
                 {
                     builder.Constants.Add(constant.Key, constant.Value);

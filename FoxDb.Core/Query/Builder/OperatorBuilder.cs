@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 
 namespace FoxDb
 {
@@ -22,7 +21,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<IOperatorBuilder>().With(builder => builder.Operator = this.Operator);
+            return this.Parent.Fragment<IOperatorBuilder>().With(builder =>
+            {
+                builder.Operator = this.Operator;
+                builder.Alias = this.Alias;
+            });
         }
     }
 }

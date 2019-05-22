@@ -45,7 +45,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<IRelationBuilder>().With(builder => builder.Relation = this.Relation);
+            return this.Parent.Fragment<IRelationBuilder>().With(builder =>
+            {
+                builder.Relation = this.Relation;
+                builder.Alias = this.Alias;
+            });
         }
     }
 }

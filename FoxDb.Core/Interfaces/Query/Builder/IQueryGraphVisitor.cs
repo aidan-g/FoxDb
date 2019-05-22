@@ -1,4 +1,6 @@
-﻿namespace FoxDb.Interfaces
+﻿using System;
+
+namespace FoxDb.Interfaces
 {
     public interface IQueryGraphVisitor
     {
@@ -10,5 +12,11 @@
     public interface IQueryGraphVisitor<T> : IQueryGraphVisitor
     {
         T Result { get; }
+    }
+
+    [Flags]
+    public enum QueryGraphVisitorFlags : byte
+    {
+        None = 0
     }
 }

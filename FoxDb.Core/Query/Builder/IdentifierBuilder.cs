@@ -25,6 +25,7 @@ namespace FoxDb
             return this.Parent.Fragment<IIdentifierBuilder>().With(builder =>
             {
                 builder.Identifier = this.Identifier;
+                builder.Alias = this.Alias;
             });
         }
 

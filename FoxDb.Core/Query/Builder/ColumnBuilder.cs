@@ -34,8 +34,6 @@ namespace FoxDb
 
         public IColumnConfig Column { get; set; }
 
-        public bool UseIdentifier { get; set; }
-
         public ColumnBuilderFlags Flags { get; set; }
 
         public override IFragmentBuilder Clone()
@@ -44,6 +42,7 @@ namespace FoxDb
             {
                 builder.Direction = this.Direction;
                 builder.Column = this.Column;
+                builder.Flags = this.Flags;
                 builder.Alias = this.Alias;
             });
         }

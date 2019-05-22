@@ -1,6 +1,7 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -135,6 +136,10 @@ namespace FoxDb
         public IQueryGraphBuilder Clone()
         {
             var builder = this.Database.QueryFactory.Build();
+            if (this.Parent != null)
+            {
+                builder.Parent = this.Parent;
+            }
             foreach (var relation in this.RelationManager.Relations)
             {
                 builder.RelationManager.AddRelation(relation);

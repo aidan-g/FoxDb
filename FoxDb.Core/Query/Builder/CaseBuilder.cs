@@ -53,6 +53,7 @@ namespace FoxDb
         {
             return this.Parent.Fragment<ICaseBuilder>().With(builder =>
             {
+                builder.Alias = this.Alias;
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

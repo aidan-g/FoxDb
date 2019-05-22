@@ -1,5 +1,6 @@
 ﻿using FoxDb.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -323,6 +324,12 @@ namespace FoxDb
                 }
                 yield return element.Trim();
             }
+        }
+
+        public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> sequence, TKey key)
+        {
+            var value = default(TValue);
+            return sequence.TryRemove(key, out value);
         }
     }
 }

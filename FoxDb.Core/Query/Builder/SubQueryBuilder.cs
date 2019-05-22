@@ -44,7 +44,11 @@ namespace FoxDb
 
         public override IFragmentBuilder Clone()
         {
-            return this.Parent.Fragment<ISubQueryBuilder>().With(builder => builder.Query = this.Query.Clone());
+            return this.Parent.Fragment<ISubQueryBuilder>().With(builder =>
+            {
+                builder.Query = this.Query.Clone();
+                builder.Alias = this.Alias;
+            });
         }
     }
 }

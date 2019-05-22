@@ -53,6 +53,7 @@ namespace FoxDb
             return this.Parent.Fragment<IWindowFunctionBuilder>().With(builder =>
             {
                 builder.Function = this.Function;
+                builder.Alias = this.Alias;
                 foreach (var expression in this.Expressions)
                 {
                     builder.Expressions.Add(expression.Clone());

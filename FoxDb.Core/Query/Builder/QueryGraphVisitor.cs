@@ -1,17 +1,25 @@
 ﻿using FoxDb.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FoxDb
 {
     public abstract class QueryGraphVisitor : IQueryGraphVisitor
     {
-        protected QueryGraphVisitor()
+        private QueryGraphVisitor()
         {
             this.Handlers = this.GetHandlers();
         }
 
+        protected QueryGraphVisitor(QueryGraphVisitorFlags flags) : this()
+        {
+            this.Flags = flags;
+        }
+
         protected IDictionary<FragmentType, QueryGraphVisitorHandler> Handlers { get; private set; }
+
+        public QueryGraphVisitorFlags Flags { get; private set; }
 
         protected virtual IDictionary<FragmentType, QueryGraphVisitorHandler> GetHandlers()
         {
@@ -79,7 +87,7 @@ namespace FoxDb
 
     public abstract class QueryGraphVisitor<T> : QueryGraphVisitor, IQueryGraphVisitor<T>
     {
-        protected QueryGraphVisitor()
+        protected QueryGraphVisitor(QueryGraphVisitorFlags flags) : base(flags)
         {
 
         }

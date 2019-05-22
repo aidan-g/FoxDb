@@ -45,6 +45,7 @@ namespace FoxDb
                 builder.Type = this.Type;
                 builder.Direction = this.Direction;
                 builder.IsDeclared = this.IsDeclared;
+                builder.Column = this.Column;
                 builder.Flags = this.Flags;
             });
         }

@@ -8,7 +8,7 @@ namespace FoxDb
 {
     public abstract class SqlQueryRenderer : QueryGraphVisitor<IDatabaseQuery>
     {
-        private SqlQueryRenderer()
+        private SqlQueryRenderer() : base(QueryGraphVisitorFlags.None)
         {
             this.Parameters = new List<IDatabaseQueryParameter>();
             this.Targets = new Stack<IFragmentTarget>();

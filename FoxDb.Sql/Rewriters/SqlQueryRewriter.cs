@@ -4,13 +4,7 @@ namespace FoxDb
 {
     public abstract class SqlQueryRewriter : QueryGraphVisitor<IQueryGraphBuilder>
     {
-        private SqlQueryRewriter()
-        {
-
-        }
-
-        public SqlQueryRewriter(IDatabase database)
-            : this()
+        public SqlQueryRewriter(IDatabase database) : base(QueryGraphVisitorFlags.None)
         {
             this.Database = database;
         }
@@ -21,8 +15,8 @@ namespace FoxDb
 
         public override void Visit(IQueryGraphBuilder graph)
         {
-            this.Result = graph;
             base.Visit(graph);
+            this.Result = graph;
         }
 
         protected override void VisitAdd(IFragmentBuilder parent, IQueryGraphBuilder graph, IAddBuilder expression)

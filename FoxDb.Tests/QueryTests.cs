@@ -389,14 +389,13 @@ namespace FoxDb
                 new Test002() { Name = "3" }
             });
             var query = this.Database.QueryFactory.Build();
-            query.With.AddCommonTableExpression(this.Database.QueryFactory.Build().With(subQuery =>
-            {
-                subQuery.Output.AddOperator(QueryOperator.Star);
-                subQuery.Source.AddTable(set.Table);
-                subQuery.Filter.AddColumn(
-                    set.Table.GetColumn(ColumnConfig.By("Name"))
-                ).Right = query.Filter.CreateConstant("2");
-            })).Alias = "Extent1";
+            var subQuery = this.Database.QueryFactory.Build();
+            subQuery.Output.AddOperator(QueryOperator.Star);
+            subQuery.Source.AddTable(set.Table);
+            subQuery.Filter.AddColumn(
+                set.Table.GetColumn(ColumnConfig.By("Name"))
+            ).Right = query.Filter.CreateConstant("2");
+            query.With.AddCommonTableExpression(new[] { subQuery, subQuery }).Alias = "Extent1";
             query.Output.AddOperator(QueryOperator.Star);
             query.Source.AddTable(
                 this.Database.Config.Transient.CreateTable(

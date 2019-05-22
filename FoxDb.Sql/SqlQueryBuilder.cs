@@ -1,5 +1,4 @@
 ﻿using FoxDb.Interfaces;
-using System;
 
 namespace FoxDb
 {

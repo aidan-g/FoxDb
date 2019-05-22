@@ -60,6 +60,7 @@ namespace FoxDb
             {
                 builder.Condition = this.Condition;
                 builder.Result = this.Result;
+                builder.Alias = this.Alias;
                 foreach (var constant in this.Constants)
                 {
                     builder.Constants.Add(constant.Key, constant.Value);
