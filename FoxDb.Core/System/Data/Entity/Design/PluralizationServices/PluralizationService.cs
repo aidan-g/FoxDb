@@ -29,14 +29,7 @@ namespace System.Data.Entity.Design.PluralizationServices
         /// <returns>PluralizationService</returns>
         public static PluralizationService CreateService(CultureInfo culture)
         {
-            if (culture.TwoLetterISOLanguageName == "en")
-            {
-                return new EnglishPluralizationService();
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return new EnglishPluralizationService();
         }
     }
 }
