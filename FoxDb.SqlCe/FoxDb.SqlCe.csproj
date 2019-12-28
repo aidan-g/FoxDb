@@ -27,14 +27,14 @@
     <ProjectReference Include="..\FoxDb.Sql\FoxDb.Sql.csproj" />
   </ItemGroup>
 
-  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="'$(TargetFramework)' == 'net40'" />
+  <Import Project="$(UserProfile)\.nuget\packages\Microsoft.Bcl.Build\1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="'$(TargetFramework)' == 'net40'" />
 
   <PropertyGroup>
     <PostBuildEvent>
       if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
-      xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
+      xcopy /s /y "$(UserProfile)\.nuget\packages\Microsoft.SqlServer.Compact\4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
       if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
-      xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"
+      xcopy /s /y "$(UserProfile)\.nuget\packages\Microsoft.SqlServer.Compact\4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"
     </PostBuildEvent>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.3.0</Version>
