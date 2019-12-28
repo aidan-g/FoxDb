@@ -116,5 +116,14 @@ namespace FoxDb
             interimType = default(Type);
             return false;
         }
+
+        public static bool GetIsNullable(Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

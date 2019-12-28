@@ -718,8 +718,14 @@ namespace FoxDb
              });
             set.AddOrUpdate(data);
             var query = this.Database.AsQueryable<Test005>(this.Transaction);
-            var actual = query.Where(element => element.Value);
-            Assert.AreEqual(new[] { data[1] }, actual);
+            {
+                var actual = query.Where(element => element.Value);
+                Assert.AreEqual(new[] { data[1] }, actual);
+            }
+            {
+                var actual = query.Where(element => element.Id > 0 && element.Value);
+                Assert.AreEqual(new[] { data[1] }, actual);
+            }
         }
 
         [Test]
@@ -736,8 +742,43 @@ namespace FoxDb
             });
             set.AddOrUpdate(data);
             var query = this.Database.AsQueryable<Test005>(this.Transaction);
-            var actual = query.Where(element => !element.Value);
-            Assert.AreEqual(new[] { data[0], data[2] }, actual);
+            {
+                var actual = query.Where(element => !element.Value);
+                Assert.AreEqual(new[] { data[0], data[2] }, actual);
+            }
+            {
+                var actual = query.Where(element => element.Id > 0 && !element.Value);
+                Assert.AreEqual(new[] { data[0], data[2] }, actual);
+            }
+        }
+
+        [Test]
+        public void Where_Nullable_Equals()
+        {
+            var set = this.Database.Set<Orange>(this.Transaction);
+            var data = new List<Orange>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Orange() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1, Field5 = 1 },
+                new Orange() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = null, Field5 = null },
+                new Orange() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3, Field5 = 3 }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Orange>(this.Transaction);
+            var field4 = (int?)null;
+            var field5 = (double?)null;
+            var actual = query.Where(element => element.Field4 == field4 && element.Field5 == field5);
+            Assert.AreEqual(new[] { data[1] }, actual);
+        }
+
+        [Table(Name = "Test001")]
+        public class Orange : Test001
+        {
+            public virtual int? Field4 { get; set; }
+
+            public virtual double? Field5 { get; set; }
         }
     }
 }

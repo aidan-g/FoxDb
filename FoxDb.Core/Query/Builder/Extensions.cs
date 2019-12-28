@@ -80,6 +80,11 @@ namespace FoxDb
             }
         }
 
+        public static T GetExpression<T>(this IFragmentContainer container) where T : IFragmentBuilder
+        {
+            return container.Expressions.OfType<T>().FirstOrDefault();
+        }
+
         public static T GetExpression<T>(this IFragmentContainer container, Func<T, bool> predicate) where T : IFragmentBuilder
         {
             return container.Expressions.OfType<T>().FirstOrDefault(predicate);

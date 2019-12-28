@@ -110,6 +110,77 @@ namespace FoxDb
             this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
         }
 
+        protected override void VisitBinary(IBinaryExpressionBuilder expression)
+        {
+            var column = expression.GetExpression<IColumnBuilder>();
+            var parameter = expression.GetExpression<IParameterBuilder>();
+            //TODO: This should be done in the re-writer phase but don't have anything to emit the parentheses with.
+            //column = @param for a nullable type. We need to create the appropriate filter as null cannot be directly compared.
+            if (column != null && column.Column.ColumnType.IsNullable && expression.Operator != null && expression.Operator.Operator == QueryOperator.Equal && parameter != null)
+            {
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OPEN_PARENTHESES);
+                this.Visit(parameter);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.IS);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.NULL);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.AND_ALSO);
+                this.Visit(column);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.IS);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.NULL);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.OR_ELSE);
+                base.VisitBinary(expression);
+                this.Builder.AppendFormat("{0} ", this.Database.QueryFactory.Dialect.CLOSE_PARENTHESES);
+            }
+            else
+            {
+                base.VisitBinary(expression);
+            }
+        }
+
+        protected override void VisitColumn(IColumnBuilder expression)
+        {
+            var parent = this.FragmentContext.Skip(1).FirstOrDefault();
+            if (parent != null)
+            {
+                var enforceBinary = false;
+                switch (parent.FragmentType)
+                {
+                    case FragmentType.Unary:
+                        enforceBinary = true;
+                        break;
+                    case FragmentType.Binary:
+                        var binary = parent as IBinaryExpressionBuilder;
+                        if (binary.Operator != null)
+                        {
+                            switch (binary.Operator.Operator)
+                            {
+                                case QueryOperator.AndAlso:
+                                case QueryOperator.OrElse:
+                                    enforceBinary = true;
+                                    break;
+                            }
+                        }
+                        break;
+                    case FragmentType.Filter:
+                        enforceBinary = true;
+                        break;
+                }
+                if (enforceBinary)
+                {
+                    this.Visit(
+                        this.CreateBinary(
+                            expression,
+                            this.CreateOperator(QueryOperator.Equal),
+                            this.CreateConstant(1)
+                        )
+                    );
+                    return;
+                }
+            }
+            base.VisitColumn(expression);
+        }
+
         public override IFragmentBuilder Clone()
         {
             throw new NotImplementedException();

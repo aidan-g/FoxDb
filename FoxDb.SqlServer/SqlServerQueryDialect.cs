@@ -82,14 +82,6 @@ namespace FoxDb
             }
         }
 
-        public string WITH
-        {
-            get
-            {
-                return "WITH";
-            }
-        }
-
         public string ROWLOCK
         {
             get

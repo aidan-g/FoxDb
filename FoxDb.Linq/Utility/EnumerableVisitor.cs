@@ -317,7 +317,7 @@ namespace FoxDb
                 {
                     throw e.InnerException;
                 }
-                this.VisitParameter(value);
+                this.VisitParameter(node.Method.ReturnType, value);
             }
             catch (Exception e)
             {
@@ -351,12 +351,12 @@ namespace FoxDb
                 var success = false;
                 foreach (var element in enumerable)
                 {
-                    this.VisitParameter(this.Table.PrimaryKey.Getter(element));
+                    this.VisitParameter(this.Table.PrimaryKey.ColumnType.Type, this.Table.PrimaryKey.Getter(element));
                     success = true;
                 }
                 if (!success)
                 {
-                    this.VisitParameter(this.Table.PrimaryKey.DefaultValue);
+                    this.VisitParameter(this.Table.PrimaryKey.ColumnType.Type, this.Table.PrimaryKey.DefaultValue);
                 }
             }
             finally
@@ -432,16 +432,17 @@ namespace FoxDb
             }));
         }
 
-        protected virtual IParameterBuilder VisitParameter(object value)
+        protected virtual IParameterBuilder VisitParameter(Type type, object value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+            return this.VisitParameter(TypeHelper.GetDbType(type), value);
+        }
+
+        protected virtual IParameterBuilder VisitParameter(DbType type, object value)
+        {
             var name = this.GetParameterName();
             var parameter = this.Peek.Write(this.Peek.CreateParameter(
                 name,
-                TypeHelper.GetDbType(value.GetType()),
+                type,
                 0,
                 0,
                 0,
@@ -555,7 +556,7 @@ namespace FoxDb
                 }
                 else if (this.TryPeek())
                 {
-                    this.VisitParameter(node.Value);
+                    this.VisitParameter(node.Type, node.Value);
                 }
             }
             return base.VisitConstant(node);
@@ -576,7 +577,7 @@ namespace FoxDb
                 {
                     continue;
                 }
-                this.VisitParameter(this.GetMemberValue(member, value));
+                this.VisitParameter(this.GetMemberType(member), this.GetMemberValue(member, value));
                 return true;
             }
             return false;

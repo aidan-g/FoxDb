@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿#pragma warning disable 612, 618
+using FoxDb.Interfaces;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace FoxDb
@@ -33,6 +36,41 @@ namespace FoxDb
             data[1].Field5 = null;
             set.AddOrUpdate(data);
             this.AssertSequence(data, set);
+        }
+
+        [Test]
+        public void NullableColumns_Lookup()
+        {
+            var set = this.Database.Set<Orange>(this.Transaction);
+            var data = new List<Orange>();
+            set.Clear();
+            this.AssertSequence(data, set);
+            data.AddRange(new[]
+            {
+                new Orange() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3", Field4 = 1, Field5 = 1 },
+                new Orange() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3", Field4 = null, Field5 = null },
+                new Orange() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3", Field4 = 3, Field5 = 3 }
+            });
+            set.AddOrUpdate(data);
+            this.AssertSequence(data, set);
+            var builder = this.Database.QueryFactory.Build();
+            builder.Output.AddColumn(set.Table.Column("Field1"));
+            builder.Source.AddTable(set.Table);
+            builder.Filter.AddColumn(set.Table.Column("Field4"));
+            builder.Filter.AddColumn(set.Table.Column("Field5"));
+            var command = this.Database.CreateCommand(builder.Build(), this.Transaction);
+            command.Parameters["Field4"] = 3;
+            command.Parameters["Field5"] = 3;
+            {
+                var field1 = Convert.ToString(command.ExecuteScalar());
+                Assert.AreEqual("3_1", field1);
+            }
+            command.Parameters["Field4"] = null;
+            command.Parameters["Field5"] = null;
+            {
+                var field1 = Convert.ToString(command.ExecuteScalar());
+                Assert.AreEqual("2_1", field1);
+            }
         }
 
         [Test]

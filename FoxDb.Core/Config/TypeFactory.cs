@@ -52,6 +52,10 @@ namespace FoxDb
             {
                 attribute.Type = TypeHelper.GetDbType(property.PropertyType);
             }
+            if (!attribute.IsNullableSpecified)
+            {
+                attribute.IsNullable = TypeHelper.GetIsNullable(property.PropertyType);
+            }
             return new TypeConfig(
                 attribute.Type,
                 attribute.Size,

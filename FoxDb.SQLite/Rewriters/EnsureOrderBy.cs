@@ -37,7 +37,6 @@ namespace FoxDb
             {
                 expression.AddColumns(table.Table.PrimaryKeys);
             }
-            base.VisitSort(parent, graph, expression);
         }
     }
 }

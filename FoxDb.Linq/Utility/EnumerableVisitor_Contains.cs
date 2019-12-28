@@ -44,13 +44,13 @@ namespace FoxDb
                     this.Push(this.Peek.CreateBinary(
                         this.Peek.CreateColumn(this.Table.PrimaryKey),
                         QueryOperator.Equal,
-                    //Leave the right expression null, we will write to this later.
+                        //Leave the right expression null, we will write to this later.
                         null
                     )).With(binary =>
                     {
                         try
                         {
-                            this.VisitParameter(this.Table.PrimaryKey.Getter(element));
+                            this.VisitParameter(this.Table.PrimaryKey.ColumnType.Type, this.Table.PrimaryKey.Getter(element));
                         }
                         finally
                         {
@@ -91,13 +91,13 @@ namespace FoxDb
                     this.Push(this.Peek.CreateBinary(
                         this.Peek.CreateColumn(relation.RightTable.PrimaryKey),
                         QueryOperator.Equal,
-                    //Leave the right expression null, we will write to this later.
+                        //Leave the right expression null, we will write to this later.
                         null
                     )).With(binary =>
                     {
                         try
                         {
-                            this.VisitParameter(relation.RightTable.PrimaryKey.Getter(element));
+                            this.VisitParameter(relation.RightTable.PrimaryKey.ColumnType.Type, relation.RightTable.PrimaryKey.Getter(element));
                         }
                         finally
                         {

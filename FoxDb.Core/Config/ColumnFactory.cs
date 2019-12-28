@@ -99,7 +99,7 @@ namespace FoxDb
                 attribute.Identifier,
                 table,
                 attribute.Name,
-                Factories.Type.Create(TypeConfig.By(property)),
+                columnType,
                 property,
                 accessor.Get,
                 accessor.Set,

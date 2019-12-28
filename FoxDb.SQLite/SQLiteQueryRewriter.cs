@@ -22,11 +22,13 @@ namespace FoxDb
         protected override void VisitSort(IFragmentBuilder parent, IQueryGraphBuilder graph, ISortBuilder expression)
         {
             new EnsureOrderBy(this.Database).Visit(parent, graph, expression);
+            base.VisitSort(parent, graph, expression);
         }
 
         protected override void VisitFilter(IFragmentBuilder parent, IQueryGraphBuilder graph, IFilterBuilder expression)
         {
             new EnsureLimit(this.Database).Visit(parent, graph, expression);
+            base.VisitFilter(parent, graph, expression);
         }
 
         protected virtual void VisitLimit(IFragmentBuilder parent, IQueryGraphBuilder graph, ILimitBuilder expression)

@@ -16,7 +16,9 @@ namespace FoxDb
 
         public override bool Equals(object obj)
         {
+#pragma warning disable 0436
             return Utility.Equals(this, obj);
+#pragma warning restore 0436
         }
     }
 
