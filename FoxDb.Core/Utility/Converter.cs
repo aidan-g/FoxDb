@@ -14,6 +14,11 @@ namespace FoxDb
             {
                 return (T)value;
             }
+            var type = default(Type);
+            if (TypeHelper.TryGetInterimType(typeof(T), out type))
+            {
+                return (T)Convert.ChangeType(value, type);
+            }
             return (T)Convert.ChangeType(value, typeof(T));
         }
     }
