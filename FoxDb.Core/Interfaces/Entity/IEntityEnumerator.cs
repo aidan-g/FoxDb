@@ -14,6 +14,10 @@ namespace FoxDb.Interfaces
     {
         IAsyncEnumerator AsEnumerableAsync(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader);
 
+        IAsyncEnumerator AsEnumerableAsync(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader, bool ownsReader);
+
         IAsyncEnumerator<T> AsEnumerableAsync<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader);
+
+        IAsyncEnumerator<T> AsEnumerableAsync<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader, bool ownsReader);
     }
 }

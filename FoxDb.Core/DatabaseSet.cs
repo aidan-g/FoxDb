@@ -186,11 +186,14 @@ namespace FoxDb
             var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
             var buffer = new EntityEnumeratorBuffer(this.Database);
             var sink = new EntityEnumeratorSink(this.Table);
-            using (var sequence = this.Enumerator.Value.AsEnumerableAsync(buffer, sink, this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction)))
+            using (var reader = this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction))
             {
-                while (await sequence.MoveNextAsync())
+                using (var sequence = this.Enumerator.Value.AsEnumerableAsync(buffer, sink, reader))
                 {
-                    return sequence.Current;
+                    while (await sequence.MoveNextAsync())
+                    {
+                        return sequence.Current;
+                    }
                 }
             }
             return null;
@@ -261,7 +264,8 @@ namespace FoxDb
         {
             var buffer = new EntityEnumeratorBuffer(this.Database);
             var sink = new EntityEnumeratorSink(this.Table);
-            return this.Enumerator.Value.AsEnumerableAsync(buffer, sink, this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction));
+            var reader = this.Database.ExecuteReader(this.Source.Fetch, this.Parameters, this.Transaction);
+            return this.Enumerator.Value.AsEnumerableAsync(buffer, sink, reader, true);
         }
     }
 
@@ -340,11 +344,14 @@ namespace FoxDb
             var parameters = new PrimaryKeysParameterHandlerStrategy(this.Table, keys);
             var buffer = new EntityEnumeratorBuffer(this.Database);
             var sink = new EntityEnumeratorSink(this.Table);
-            using (var sequence = this.Enumerator.Value.AsEnumerableAsync<T>(buffer, sink, this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction)))
+            using (var reader = this.Database.ExecuteReader(fetch, parameters.Handler, this.Transaction))
             {
-                while (await sequence.MoveNextAsync())
+                using (var sequence = this.Enumerator.Value.AsEnumerableAsync<T>(buffer, sink, reader))
                 {
-                    return sequence.Current;
+                    while (await sequence.MoveNextAsync())
+                    {
+                        return sequence.Current;
+                    }
                 }
             }
             return default(T);

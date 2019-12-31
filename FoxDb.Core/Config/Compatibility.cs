@@ -167,5 +167,47 @@ namespace FoxDb
         {
             return database.ExecuteEnumerator<T>(table, query, null, transaction);
         }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(database.Config.Table<T>(), query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(database.Config.Table<T>(), query.Build(), parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(database.Config.Table<T>(), query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(database.Config.Table<T>(), query, parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, ITableConfig table, IQueryGraphBuilder query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(table, query, null, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, ITableConfig table, IQueryGraphBuilder query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(table, query.Build(), parameters, transaction);
+        }
+
+        [Obsolete]
+        public static IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(this IDatabase database, ITableConfig table, IDatabaseQuery query, ITransactionSource transaction = null)
+        {
+            return database.ExecuteAsyncEnumerator<T>(table, query, null, transaction);
+        }
     }
 }

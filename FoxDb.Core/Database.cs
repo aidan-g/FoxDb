@@ -159,6 +159,18 @@ namespace FoxDb
             }
         }
 
+        [Obsolete]
+        public IAsyncEnumerator<T> ExecuteAsyncEnumerator<T>(ITableConfig table, IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
+        {
+            var reader = this.ExecuteReader(query, parameters, transaction);
+            var mapper = new EntityMapper(table);
+            var visitor = new EntityCompoundEnumeratorVisitor();
+            var enumerable = new EntityCompoundEnumerator(this, table, mapper, visitor);
+            var buffer = new EntityEnumeratorBuffer(this);
+            var sink = new EntityEnumeratorSink(table);
+            return enumerable.AsEnumerableAsync<T>(buffer, sink, reader, true);
+        }
+
         public IDatabaseReader ExecuteReader(IDatabaseQuery query, DatabaseParameterHandler parameters, ITransactionSource transaction = null)
         {
             var command = this.CreateCommand(query, DatabaseCommandFlags.None, transaction);

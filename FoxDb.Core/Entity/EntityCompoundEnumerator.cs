@@ -85,24 +85,36 @@ namespace FoxDb
     {
         public IAsyncEnumerator AsEnumerableAsync(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
         {
-            return (IAsyncEnumerator)this.Members.Invoke(this, "AsEnumerableAsync", this.Table.TableType, buffer, sink, reader);
+            return this.AsEnumerableAsync(buffer, sink, reader, false);
+        }
+
+        public IAsyncEnumerator AsEnumerableAsync(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader, bool ownsReader)
+        {
+            return (IAsyncEnumerator)this.Members.Invoke(this, "AsEnumerableAsync", this.Table.TableType, buffer, sink, reader, ownsReader);
         }
 
         public IAsyncEnumerator<T> AsEnumerableAsync<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
         {
+            return this.AsEnumerableAsync<T>(buffer, sink, reader, false);
+        }
+
+        public IAsyncEnumerator<T> AsEnumerableAsync<T>(IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader, bool ownsReader)
+        {
             var graph = this.GetEntityGraph(typeof(T));
-            return new AsyncEnumerator<T>(this.Visitor, graph, buffer, sink, reader);
+            return new AsyncEnumerator<T>(this.Visitor, graph, buffer, sink, reader, ownsReader);
         }
 
         private class AsyncEnumerator<T> : Disposable, IAsyncEnumerator<T>
         {
-            public AsyncEnumerator(IEntityEnumeratorVisitor visitor, IEntityGraph graph, IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader)
+            public AsyncEnumerator(IEntityEnumeratorVisitor visitor, IEntityGraph graph, IEntityEnumeratorBuffer buffer, IEntityEnumeratorSink sink, IDatabaseReader reader, bool ownsReader)
             {
                 this.Visitor = visitor;
                 this.Graph = graph;
                 this.Buffer = buffer;
                 this.Sink = sink;
+                this.Reader = reader;
                 this.ReaderEnumerator = reader.GetAsyncEnumerator();
+                this.OwnsReader = ownsReader;
             }
 
             public IEntityEnumeratorVisitor Visitor { get; private set; }
@@ -113,7 +125,11 @@ namespace FoxDb
 
             public IEntityEnumeratorSink Sink { get; private set; }
 
+            public IDatabaseReader Reader { get; private set; }
+
             public IAsyncEnumerator<IDatabaseReaderRecord> ReaderEnumerator { get; private set; }
+
+            public bool OwnsReader { get; private set; }
 
             public IEnumerator<object> SinkEnumerator { get; private set; }
 
@@ -168,6 +184,10 @@ namespace FoxDb
             protected override void OnDisposing()
             {
                 this.ReaderEnumerator.Dispose();
+                if (this.OwnsReader)
+                {
+                    this.Reader.Dispose();
+                }
                 base.OnDisposing();
             }
         }
