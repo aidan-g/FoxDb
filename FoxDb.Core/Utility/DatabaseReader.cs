@@ -210,7 +210,7 @@ namespace FoxDb
 #if NET40
                 if (reader.Read())
 #else
-                if (await reader.ReadAsync())
+                if (await reader.ReadAsync().ConfigureAwait(false))
 #endif
                 {
                     this.Current = new DatabaseReaderRecord(this.Reader.Reader);

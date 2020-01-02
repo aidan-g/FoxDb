@@ -159,7 +159,7 @@ namespace FoxDb
                 {
                     this.Sink.Clear();
                 }
-                while (await this.ReaderEnumerator.MoveNextAsync())
+                while (await this.ReaderEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     this.Visitor.Visit(this.Graph, this.Buffer, this.Sink, this.ReaderEnumerator.Current, Defaults.Enumerator.Flags);
                     if (this.Drain())

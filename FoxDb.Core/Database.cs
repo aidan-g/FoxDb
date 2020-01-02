@@ -216,7 +216,7 @@ namespace FoxDb
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
-                    var result = await command.ExecuteNonQueryAsync();
+                    var result = await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Store);
@@ -240,7 +240,7 @@ namespace FoxDb
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Fetch);
                     }
-                    var result = Converter.ChangeType<T>(await command.ExecuteScalarAsync());
+                    var result = Converter.ChangeType<T>(await command.ExecuteScalarAsync().ConfigureAwait(false));
                     if (parameters != null)
                     {
                         parameters(command.Parameters, DatabaseParameterPhase.Store);

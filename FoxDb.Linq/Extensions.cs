@@ -38,7 +38,7 @@ namespace FoxDb
         {
             using (var enumerator = sequence.GetAsyncEnumerator<T>())
             {
-                return await func(enumerator);
+                return await func(enumerator).ConfigureAwait(false);
             }
         }
     }

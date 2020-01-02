@@ -262,18 +262,18 @@ namespace FoxDb
             var persister = this.GetPersister(node);
             if (frame.Persisted != null && frame.Updated != null)
             {
-                result = await persister.UpdateAsync(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation));
-                await this.CascadeAsync(node, frame);
+                result = await persister.UpdateAsync(frame.Persisted, frame.Updated, this.GetParameters(frame, node.Relation)).ConfigureAwait(false);
+                await this.CascadeAsync(node, frame).ConfigureAwait(false);
             }
             else if (frame.Updated != null)
             {
-                result = await persister.AddAsync(frame.Updated, this.GetParameters(frame, node.Relation));
-                await this.CascadeAsync(node, frame);
+                result = await persister.AddAsync(frame.Updated, this.GetParameters(frame, node.Relation)).ConfigureAwait(false);
+                await this.CascadeAsync(node, frame).ConfigureAwait(false);
             }
             else if (frame.Persisted != null)
             {
-                await this.CascadeAsync(node, frame);
-                result = await persister.DeleteAsync(frame.Persisted, this.GetParameters(frame, node.Relation));
+                await this.CascadeAsync(node, frame).ConfigureAwait(false);
+                result = await persister.DeleteAsync(frame.Persisted, this.GetParameters(frame, node.Relation)).ConfigureAwait(false);
             }
             return result;
         }
@@ -298,19 +298,19 @@ namespace FoxDb
             var difference = EntityDiffer.Instance.GetDifference<T, TRelation>(node.Relation, frame.Persisted, frame.Updated);
             foreach (var element in difference.Added.Concat(difference.Updated))
             {
-                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated)).ConfigureAwait(false);
                 if (result.HasFlag(EntityAction.Added) && node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
                 {
-                    await this.AddRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                    await this.AddRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated)).ConfigureAwait(false);
                 }
             }
             foreach (var element in difference.Deleted)
             {
                 if (node.Relation.Flags.GetMultiplicity() == RelationFlags.ManyToMany)
                 {
-                    await this.DeleteRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                    await this.DeleteRelationAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated)).ConfigureAwait(false);
                 }
-                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated));
+                result |= await this.OnVisitAsync(node, new Frame<TRelation>(frame, element.Persisted, element.Updated)).ConfigureAwait(false);
             }
             return result;
         }
@@ -323,7 +323,8 @@ namespace FoxDb
                 {
                     continue;
                 }
-                await (Task)this.Members.Invoke(this, "OnVisitAsync", new[] { node.EntityType, child.Relation.RelationType }, child, frame);
+                var task = (Task)this.Members.Invoke(this, "OnVisitAsync", new[] { node.EntityType, child.Relation.RelationType }, child, frame);
+                await task.ConfigureAwait(false);
             }
         }
 

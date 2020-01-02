@@ -154,7 +154,7 @@ namespace FoxDb
             {
                 parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
             }
-            var key = await this.Database.ExecuteScalarAsync<object>(add, parameters, this.Transaction);
+            var key = await this.Database.ExecuteScalarAsync<object>(add, parameters, this.Transaction).ConfigureAwait(false);
             this.OnAdded(key, item);
             return EntityAction.Added;
         }
@@ -171,7 +171,7 @@ namespace FoxDb
             {
                 parameters = new ParameterHandlerStrategy(this.Table, updated).Handler;
             }
-            var count = await this.Database.ExecuteAsync(update, parameters, this.Transaction);
+            var count = await this.Database.ExecuteAsync(update, parameters, this.Transaction).ConfigureAwait(false);
             if (count != 1)
             {
                 this.OnConcurrencyViolation(updated);
@@ -190,7 +190,7 @@ namespace FoxDb
             {
                 parameters = new ParameterHandlerStrategy(this.Table, item).Handler;
             }
-            var count = await this.Database.ExecuteAsync(delete, parameters, this.Transaction);
+            var count = await this.Database.ExecuteAsync(delete, parameters, this.Transaction).ConfigureAwait(false);
             if (count != 1)
             {
                 this.OnConcurrencyViolation(item);

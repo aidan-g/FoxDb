@@ -661,7 +661,7 @@ namespace FoxDb
             var query = this.Database.AsQueryable<Test001>(this.Transaction);
             using (var sequence = query.Where(element => element.Field1 == "2_1").GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
                     Assert.AreEqual(data[1].Id, sequence.Current.Id);
                 }

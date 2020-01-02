@@ -141,7 +141,7 @@ namespace FoxDb
             const int COUNT = 10240;
             var stopwatch = new Stopwatch();
             var set = this.Database.Set<Test001>(this.Transaction);
-            await set.ClearAsync();
+            await set.ClearAsync().ConfigureAwait(false);
             stopwatch.Start();
             for (var a = 0; a < COUNT; a++)
             {
@@ -150,7 +150,7 @@ namespace FoxDb
                     Field1 = "Field1_" + a,
                     Field2 = "Field2_" + a,
                     Field3 = "Field3_" + a,
-                });
+                }).ConfigureAwait(false);
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -161,10 +161,10 @@ namespace FoxDb
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
                     sequence.Current.Field1 = "updated";
-                    await set.AddOrUpdateAsync(sequence.Current);
+                    await set.AddOrUpdateAsync(sequence.Current).ConfigureAwait(false);
                 }
             }
             stopwatch.Stop();
@@ -172,7 +172,7 @@ namespace FoxDb
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
                     Assert.AreEqual("updated", sequence.Current.Field1);
                 }
@@ -180,7 +180,7 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            await set.ClearAsync();
+            await set.ClearAsync().ConfigureAwait(false);
             stopwatch.Stop();
             TestContext.Out.WriteLine("Removed {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             Assert.AreEqual(0, await set.CountAsync);
@@ -195,7 +195,7 @@ namespace FoxDb
             var relation = this.Database.Config.Table<Test002>().Relation(item => item.Test004, Defaults.Relation.Flags | flags);
             var set = this.Database.Set<Test002>(this.Transaction);
             var data = new List<Test002>();
-            await set.ClearAsync();
+            await set.ClearAsync().ConfigureAwait(false);
             stopwatch.Start();
             for (var a = 0; a < COUNT; a++)
             {
@@ -221,7 +221,7 @@ namespace FoxDb
                             Name = "Name_" + a
                         }
                     }
-                });
+                }).ConfigureAwait(false);
             }
             stopwatch.Stop();
             TestContext.Out.WriteLine("Added {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
@@ -232,12 +232,12 @@ namespace FoxDb
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
                     sequence.Current.Name = "updated";
                     sequence.Current.Test003.Name = "updated";
                     sequence.Current.Test004.First().Name = "updated";
-                    await set.AddOrUpdateAsync(sequence.Current);
+                    await set.AddOrUpdateAsync(sequence.Current).ConfigureAwait(false);
                 }
             }
             stopwatch.Stop();
@@ -245,7 +245,7 @@ namespace FoxDb
             stopwatch.Start();
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
                     Assert.AreEqual("updated", sequence.Current.Name);
                     Assert.AreEqual("updated", sequence.Current.Test003.Name);
@@ -255,7 +255,7 @@ namespace FoxDb
             stopwatch.Stop();
             TestContext.Out.WriteLine("Enumerated {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             stopwatch.Start();
-            await set.ClearAsync();
+            await set.ClearAsync().ConfigureAwait(false);
             stopwatch.Stop();
             TestContext.Out.WriteLine("Removed {0} records: {1:0.00} per second.", COUNT, COUNT / stopwatch.Elapsed.TotalSeconds);
             Assert.AreEqual(0, await set.CountAsync);

@@ -70,21 +70,21 @@ namespace FoxDb
         public async Task<EntityAction> AddAsync(object item, DatabaseParameterHandler parameters = null)
         {
             var graph = this.GetEntityGraph(item.GetType());
-            await this.Visitor.VisitAsync(graph, null, item);
+            await this.Visitor.VisitAsync(graph, null, item).ConfigureAwait(false);
             return EntityAction.Added;
         }
 
         public async Task<EntityAction> UpdateAsync(object persisted, object updated, DatabaseParameterHandler parameters = null)
         {
             var graph = this.GetEntityGraph((persisted ?? updated).GetType());
-            await this.Visitor.VisitAsync(graph, persisted, updated);
+            await this.Visitor.VisitAsync(graph, persisted, updated).ConfigureAwait(false);
             return EntityAction.Updated;
         }
 
         public async Task<EntityAction> DeleteAsync(object item, DatabaseParameterHandler parameters = null)
         {
             var graph = this.GetEntityGraph(item.GetType());
-            await this.Visitor.VisitAsync(graph, item, null);
+            await this.Visitor.VisitAsync(graph, item, null).ConfigureAwait(false);
             return EntityAction.Deleted;
         }
     }

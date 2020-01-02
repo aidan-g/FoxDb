@@ -7,7 +7,7 @@ namespace FoxDb
     {
         public static async Task<T> FirstOrDefault<T>(this IAsyncEnumerator<T> sequence)
         {
-            if (!await sequence.MoveNextAsync())
+            if (!await sequence.MoveNextAsync().ConfigureAwait(false))
             {
                 return default(T);
             }

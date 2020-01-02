@@ -172,7 +172,7 @@ namespace FoxDb
     {
         async Task<bool> IDatabaseSet.ContainsAsync(object item)
         {
-            switch (await this.StateDetector.Value.GetStateAsync(item))
+            switch (await this.StateDetector.Value.GetStateAsync(item).ConfigureAwait(false))
             {
                 case EntityState.Exists:
                     return true;
@@ -190,7 +190,7 @@ namespace FoxDb
             {
                 using (var sequence = this.Enumerator.Value.AsEnumerableAsync(buffer, sink, reader))
                 {
-                    while (await sequence.MoveNextAsync())
+                    while (await sequence.MoveNextAsync().ConfigureAwait(false))
                     {
                         return sequence.Current;
                     }
@@ -207,14 +207,14 @@ namespace FoxDb
         async Task<object> IDatabaseSet.AddOrUpdateAsync(object item)
         {
             var set = (IDatabaseSet)this;
-            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item));
+            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item)).ConfigureAwait(false);
             if (persisted == null)
             {
-                await this.Persister.Value.AddAsync(item);
+                await this.Persister.Value.AddAsync(item).ConfigureAwait(false);
             }
             else
             {
-                await this.Persister.Value.UpdateAsync(persisted, item);
+                await this.Persister.Value.UpdateAsync(persisted, item).ConfigureAwait(false);
             }
             return item;
         }
@@ -224,14 +224,14 @@ namespace FoxDb
             var set = (IDatabaseSet)this;
             foreach (var item in items)
             {
-                await set.AddOrUpdateAsync(item);
+                await set.AddOrUpdateAsync(item).ConfigureAwait(false);
             }
             return items;
         }
 
         async Task<bool> IDatabaseSet.RemoveAsync(object item)
         {
-            switch (await this.Persister.Value.DeleteAsync(item))
+            switch (await this.Persister.Value.DeleteAsync(item).ConfigureAwait(false))
             {
                 case EntityAction.Deleted:
                     return true;
@@ -243,7 +243,7 @@ namespace FoxDb
         {
             foreach (var item in items)
             {
-                await this.Persister.Value.DeleteAsync(item);
+                await this.Persister.Value.DeleteAsync(item).ConfigureAwait(false);
             }
             return items;
         }
@@ -253,9 +253,9 @@ namespace FoxDb
             var set = (IDatabaseSet)this;
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
-                    await set.RemoveAsync(sequence.Current);
+                    await set.RemoveAsync(sequence.Current).ConfigureAwait(false);
                 }
             }
         }
@@ -330,7 +330,7 @@ namespace FoxDb
     {
         async Task<bool> IDatabaseSet<T>.ContainsAsync(T item)
         {
-            switch (await this.StateDetector.Value.GetStateAsync(item))
+            switch (await this.StateDetector.Value.GetStateAsync(item).ConfigureAwait(false))
             {
                 case EntityState.Exists:
                     return true;
@@ -348,7 +348,7 @@ namespace FoxDb
             {
                 using (var sequence = this.Enumerator.Value.AsEnumerableAsync<T>(buffer, sink, reader))
                 {
-                    while (await sequence.MoveNextAsync())
+                    while (await sequence.MoveNextAsync().ConfigureAwait(false))
                     {
                         return sequence.Current;
                     }
@@ -365,14 +365,14 @@ namespace FoxDb
         async Task<T> IDatabaseSet<T>.AddOrUpdateAsync(T item)
         {
             var set = (IDatabaseSet)this;
-            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item));
+            var persisted = await set.FindAsync(EntityKey.GetKey(this.Table, item)).ConfigureAwait(false);
             if (persisted == null)
             {
-                await this.Persister.Value.AddAsync(item);
+                await this.Persister.Value.AddAsync(item).ConfigureAwait(false);
             }
             else
             {
-                await this.Persister.Value.UpdateAsync(persisted, item);
+                await this.Persister.Value.UpdateAsync(persisted, item).ConfigureAwait(false);
             }
             return item;
         }
@@ -382,14 +382,14 @@ namespace FoxDb
             var set = (IDatabaseSet)this;
             foreach (var item in items)
             {
-                await set.AddOrUpdateAsync(item);
+                await set.AddOrUpdateAsync(item).ConfigureAwait(false);
             }
             return items;
         }
 
         async Task<bool> IDatabaseSet<T>.RemoveAsync(T item)
         {
-            switch (await this.Persister.Value.DeleteAsync(item))
+            switch (await this.Persister.Value.DeleteAsync(item).ConfigureAwait(false))
             {
                 case EntityAction.Deleted:
                     return true;
@@ -401,7 +401,7 @@ namespace FoxDb
         {
             foreach (var item in items)
             {
-                await this.Persister.Value.DeleteAsync(item);
+                await this.Persister.Value.DeleteAsync(item).ConfigureAwait(false);
             }
             return items;
         }
@@ -411,9 +411,9 @@ namespace FoxDb
             var set = (IDatabaseSet<T>)this;
             using (var sequence = set.GetAsyncEnumerator())
             {
-                while (await sequence.MoveNextAsync())
+                while (await sequence.MoveNextAsync().ConfigureAwait(false))
                 {
-                    await set.RemoveAsync(sequence.Current);
+                    await set.RemoveAsync(sequence.Current).ConfigureAwait(false);
                 }
             }
         }
