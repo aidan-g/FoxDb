@@ -56,6 +56,8 @@ namespace FoxDb.Interfaces
         ITableConfig Extern();
 
         ITableConfig<T> CreateProxy<T>();
+
+        void Reset();
     }
 
     public interface ITableConfig<T> : ITableConfig

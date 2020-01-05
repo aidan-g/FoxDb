@@ -55,6 +55,85 @@ namespace FoxDb
             );
         }
 
+        public override string ToString()
+        {
+            return Enum.GetName(typeof(DbType), this.Type);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 0;
+            unchecked
+            {
+                hashCode += this.Type.GetHashCode();
+                hashCode += this.Size.GetHashCode();
+                hashCode += this.Precision.GetHashCode();
+                hashCode += this.Scale.GetHashCode();
+                hashCode += this.IsNullable.GetHashCode();
+            }
+            return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ITypeConfig)
+            {
+                return this.Equals(obj as ITypeConfig);
+            }
+            return base.Equals(obj);
+        }
+
+        public bool Equals(ITypeConfig other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            if (this.Type != other.Type)
+            {
+                return false;
+            }
+            if (this.Size != other.Size)
+            {
+                return false;
+            }
+            if (this.Precision != other.Precision)
+            {
+                return false;
+            }
+            if (this.Scale != other.Scale)
+            {
+                return false;
+            }
+            if (this.IsNullable != other.IsNullable)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool operator ==(TypeConfig a, TypeConfig b)
+        {
+            if ((object)a == null && (object)b == null)
+            {
+                return true;
+            }
+            if ((object)a == null || (object)b == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals((object)a, (object)b))
+            {
+                return true;
+            }
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(TypeConfig a, TypeConfig b)
+        {
+            return !(a == b);
+        }
+
         public static ITypeConfig Unknown
         {
             get

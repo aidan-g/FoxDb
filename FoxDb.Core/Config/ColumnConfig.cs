@@ -10,11 +10,11 @@ namespace FoxDb
         public ColumnConfig(IConfig config, ColumnFlags flags, string identifier, ITableConfig table, string columnName, ITypeConfig columnType, PropertyInfo property, Func<object, object> getter, Action<object, object> setter, Action<object> incrementor)
         {
             this.Config = config;
-            this.Flags = flags;
+            this._Flags = flags;
             this.Identifier = identifier;
             this.Table = table;
-            this.ColumnName = columnName;
-            this.ColumnType = columnType;
+            this._ColumnName = columnName;
+            this._ColumnType = columnType;
             this.Property = property;
             this.Getter = getter;
             this.Setter = setter;
@@ -23,21 +23,106 @@ namespace FoxDb
 
         public IConfig Config { get; private set; }
 
-        public ColumnFlags Flags { get; set; }
+        private ColumnFlags _Flags { get; set; }
+
+        public ColumnFlags Flags
+        {
+            get
+            {
+                return this._Flags;
+            }
+            set
+            {
+                if (this.Flags == value)
+                {
+                    return;
+                }
+                this._Flags = value;
+                this.Table.Reset();
+            }
+        }
 
         public string Identifier { get; private set; }
 
         public ITableConfig Table { get; private set; }
 
-        public string ColumnName { get; set; }
+        private string _ColumnName { get; set; }
 
-        public ITypeConfig ColumnType { get; set; }
+        public string ColumnName
+        {
+            get
+            {
+                return this._ColumnName;
+            }
+            set
+            {
+                if (string.Equals(this.ColumnName, value))
+                {
+                    return;
+                }
+                this._ColumnName = value;
+                this.Table.Reset();
+            }
+        }
+
+        private ITypeConfig _ColumnType { get; set; }
+
+        public ITypeConfig ColumnType
+        {
+            get
+            {
+                return this._ColumnType;
+            }
+            set
+            {
+                if (TypeConfig.Equals(this.ColumnType, value))
+                {
+                    return;
+                }
+                this._ColumnType = value;
+                this.Table.Reset();
+            }
+        }
 
         public PropertyInfo Property { get; set; }
 
-        public bool IsPrimaryKey { get; set; }
+        private bool _IsPrimaryKey { get; set; }
 
-        public bool IsForeignKey { get; set; }
+        public bool IsPrimaryKey
+        {
+            get
+            {
+                return this._IsPrimaryKey;
+            }
+            set
+            {
+                if (this.IsPrimaryKey == value)
+                {
+                    return;
+                }
+                this._IsPrimaryKey = value;
+                this.Table.Reset();
+            }
+        }
+
+        private bool _IsForeignKey { get; set; }
+
+        public bool IsForeignKey
+        {
+            get
+            {
+                return this._IsForeignKey;
+            }
+            set
+            {
+                if (this.IsForeignKey == value)
+                {
+                    return;
+                }
+                this._IsForeignKey = value;
+                this.Table.Reset();
+            }
+        }
 
         public bool IsConcurrencyCheck
         {

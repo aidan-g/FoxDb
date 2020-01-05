@@ -13,6 +13,7 @@ namespace FoxDb
             this.Columns = new ConcurrentDictionary<string, IColumnConfig>(StringComparer.OrdinalIgnoreCase);
             this.Indexes = new ConcurrentDictionary<string, IIndexConfig>(StringComparer.OrdinalIgnoreCase);
             this.Relations = new ConcurrentDictionary<string, IRelationConfig>(StringComparer.OrdinalIgnoreCase);
+            this.Reset();
         }
 
         protected TableConfig(IConfig config, TableFlags flags, string identifier, string tableName, Type tableType)
@@ -35,6 +36,7 @@ namespace FoxDb
             this.Columns = new ConcurrentDictionary<string, IColumnConfig>(table.Columns, StringComparer.OrdinalIgnoreCase);
             this.Indexes = new ConcurrentDictionary<string, IIndexConfig>(table.Indexes, StringComparer.OrdinalIgnoreCase);
             this.Relations = new ConcurrentDictionary<string, IRelationConfig>(table.Relations, StringComparer.OrdinalIgnoreCase);
+            this.Reset();
         }
 
         public IConfig Config { get; private set; }
@@ -61,55 +63,53 @@ namespace FoxDb
             }
         }
 
+        private Lazy<IEnumerable<IColumnConfig>> _InsertableColumns { get; set; }
+
         public IEnumerable<IColumnConfig> InsertableColumns
         {
             get
             {
-                return this.Columns.Values
-                    .Except(this.RemoteGeneratedColumns)
-                    .Except(this.ConcurrencyColumns)
-                    .ToLookup(column => column.ColumnName)
-                    .Select(columns => columns.First());
+                return this._InsertableColumns.Value;
             }
         }
+
+        private Lazy<IEnumerable<IColumnConfig>> _UpdatableColumns { get; set; }
 
         public IEnumerable<IColumnConfig> UpdatableColumns
         {
             get
             {
-                return this.Columns.Values
-                    .Except(this.PrimaryKeys)
-                    .Except(this.LocalGeneratedColumns)
-                    .Except(this.RemoteGeneratedColumns)
-                    .Except(this.ConcurrencyColumns)
-                    .Distinct();
+                return this._UpdatableColumns.Value;
             }
         }
+
+        private Lazy<IEnumerable<IColumnConfig>> _LocalGeneratedColumns { get; set; }
 
         public IEnumerable<IColumnConfig> LocalGeneratedColumns
         {
             get
             {
-                return this.Columns.Values
-                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && !column.ColumnType.IsNumeric);
+                return this._LocalGeneratedColumns.Value;
             }
         }
+
+        private Lazy<IEnumerable<IColumnConfig>> _RemoteGeneratedColumns { get; set; }
 
         public IEnumerable<IColumnConfig> RemoteGeneratedColumns
         {
             get
             {
-                return this.Columns.Values
-                    .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && column.ColumnType.IsNumeric);
+                return this._RemoteGeneratedColumns.Value;
             }
         }
+
+        private Lazy<IEnumerable<IColumnConfig>> _ConcurrencyColumns { get; set; }
 
         public IEnumerable<IColumnConfig> ConcurrencyColumns
         {
             get
             {
-                return this.Columns.Values
-                    .Where(column => column.IsConcurrencyCheck);
+                return this._ConcurrencyColumns.Value;
             }
         }
 
@@ -137,11 +137,13 @@ namespace FoxDb
             }
         }
 
+        private Lazy<IEnumerable<IColumnConfig>> _PrimaryKeys { get; set; }
+
         public IEnumerable<IColumnConfig> PrimaryKeys
         {
             get
             {
-                return this.Columns.Values.Where(column => column.IsPrimaryKey);
+                return this._PrimaryKeys.Value;
             }
         }
 
@@ -153,11 +155,13 @@ namespace FoxDb
             }
         }
 
+        private Lazy<IEnumerable<IColumnConfig>> _ForeignKeys { get; set; }
+
         public IEnumerable<IColumnConfig> ForeignKeys
         {
             get
             {
-                return this.Columns.Values.Where(column => column.IsForeignKey);
+                return this._ForeignKeys.Value;
             }
         }
 
@@ -180,6 +184,7 @@ namespace FoxDb
                 throw new InvalidOperationException(string.Format("Table has invalid configuration: {0}", column));
             }
             column = this.Columns.AddOrUpdate(column.Identifier, column);
+            this.Reset();
             return column;
         }
 
@@ -191,6 +196,7 @@ namespace FoxDb
                 return false;
             }
             column = this.Columns.AddOrUpdate(column.Identifier, column);
+            this.Reset();
             return true;
         }
 
@@ -221,6 +227,80 @@ namespace FoxDb
         public abstract ITableConfig Extern();
 
         public abstract ITableConfig<T> CreateProxy<T>();
+
+        public virtual void Reset()
+        {
+            if (this._InsertableColumns == null || this._InsertableColumns.IsValueCreated)
+            {
+                this._InsertableColumns = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Except(this.RemoteGeneratedColumns)
+                        .Except(this.ConcurrencyColumns)
+                        .ToLookup(column => column.ColumnName)
+                        .Select(columns => columns.First())
+                        .ToArray();
+                });
+            }
+            if (this._UpdatableColumns == null || this._UpdatableColumns.IsValueCreated)
+            {
+                this._UpdatableColumns = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Except(this.PrimaryKeys)
+                        .Except(this.LocalGeneratedColumns)
+                        .Except(this.RemoteGeneratedColumns)
+                        .Except(this.ConcurrencyColumns)
+                        .Distinct()
+                        .ToArray();
+                });
+            }
+            if (this._LocalGeneratedColumns == null || this._LocalGeneratedColumns.IsValueCreated)
+            {
+                this._LocalGeneratedColumns = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && !column.ColumnType.IsNumeric)
+                        .ToArray();
+                });
+            }
+            if (this._RemoteGeneratedColumns == null || this._RemoteGeneratedColumns.IsValueCreated)
+            {
+                this._RemoteGeneratedColumns = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Where(column => column.Flags.HasFlag(ColumnFlags.Generated) && column.ColumnType.IsNumeric)
+                        .ToArray();
+                });
+            }
+            if (this._ConcurrencyColumns == null || this._ConcurrencyColumns.IsValueCreated)
+            {
+                this._ConcurrencyColumns = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Where(column => column.IsConcurrencyCheck)
+                        .ToArray();
+                });
+            }
+            if (this._PrimaryKeys == null || this._PrimaryKeys.IsValueCreated)
+            {
+                this._PrimaryKeys = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Where(column => column.IsPrimaryKey)
+                        .ToArray();
+                });
+            }
+            if (this._ForeignKeys == null || this._ForeignKeys.IsValueCreated)
+            {
+                this._ForeignKeys = new Lazy<IEnumerable<IColumnConfig>>(() =>
+                {
+                    return this.Columns.Values
+                        .Where(column => column.IsForeignKey)
+                        .ToArray();
+                });
+            }
+        }
 
         public override string ToString()
         {
