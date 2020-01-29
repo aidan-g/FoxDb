@@ -773,6 +773,57 @@ namespace FoxDb
             Assert.AreEqual(new[] { data[1] }, actual);
         }
 
+        [Test]
+        public void Where_Text_StartsWith()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(new[] { data[1] }, query.Where(element => element.Field1.StartsWith("2_")));
+        }
+
+        [Test]
+        public void Where_Text_EndsWith()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(data, query.Where(element => element.Field1.EndsWith("_1")));
+        }
+
+        [Test]
+        public void Where_Text_Contains()
+        {
+            var set = this.Database.Set<Test001>(this.Transaction);
+            var data = new List<Test001>();
+            set.Clear();
+            data.AddRange(new[]
+            {
+                new Test001() { Field1 = "1_1", Field2 = "1_2", Field3 = "1_3" },
+                new Test001() { Field1 = "2_1", Field2 = "2_2", Field3 = "2_3" },
+                new Test001() { Field1 = "3_1", Field2 = "3_2", Field3 = "3_3" }
+            });
+            set.AddOrUpdate(data);
+            var query = this.Database.AsQueryable<Test001>(this.Transaction);
+            this.AssertSequence(data, query.Where(element => element.Field1.Contains("_")));
+        }
+
         [Table(Name = "Test001")]
         public class Orange : Test001
         {

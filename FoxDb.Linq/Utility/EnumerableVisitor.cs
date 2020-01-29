@@ -48,7 +48,11 @@ namespace FoxDb
                 { new MethodVisitorKey(typeof(Queryable), "Skip"), (visitor, node) => visitor.VisitSkip(node) },
                 { new MethodVisitorKey(typeof(Queryable), "Take"), (visitor, node) => visitor.VisitTake(node) },
                 //Collection
-                { new MethodVisitorKey(typeof(ICollection<>), "Contains"), (visitor, node) => visitor.VisitContains(node) }
+                { new MethodVisitorKey(typeof(ICollection<>), "Contains"), (visitor, node) => visitor.VisitContains(node) },
+                //String
+                { new MethodVisitorKey(typeof(string), "StartsWith"), (visitor, node) => ExpressionHelper.String.VisitStartsWith(visitor, node) },
+                { new MethodVisitorKey(typeof(string), "EndsWith"), (visitor, node) => ExpressionHelper.String.VisitEndsWith(visitor, node) },
+                { new MethodVisitorKey(typeof(string), "Contains"), (visitor, node) => ExpressionHelper.String.VisitContains(visitor, node) },
             };
             return handlers;
         }
